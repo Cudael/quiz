@@ -25,16 +25,16 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ## 📦 Scripts
 
-| Script              | Description                          |
-| ------------------- | ------------------------------------ |
-| `npm run dev`       | Start development server             |
-| `npm run build`     | Build for production                 |
-| `npm run lint`      | Run ESLint                           |
-| `npm run typecheck` | Run TypeScript type checker          |
-| `npm test`          | Run unit tests                       |
-| `npm run db:push`   | Sync Prisma schema → SQLite          |
-| `npm run db:seed`   | Seed database with demo content      |
-| `npm run db:reset`  | Reset and re-migrate (destructive)   |
+| Script                | Description                        |
+| --------------------- | ---------------------------------- |
+| `npm run dev`         | Start development server           |
+| `npm run build`       | Build for production               |
+| `npm run lint`        | Run ESLint                         |
+| `npm run typecheck`   | Run TypeScript type checker        |
+| `npm test`            | Run unit tests                     |
+| `npm run db:push`     | Sync Prisma schema → SQLite        |
+| `npm run db:seed`     | Seed database with demo content    |
+| `npm run db:reset`    | Reset and re-migrate (destructive) |
 | `npm run db:generate` | Regenerate Prisma client           |
 
 ## 🗂 Project Structure
@@ -66,24 +66,24 @@ npm run db:seed               # populates with demo content
 
 ### Seeded content
 
-| Entity       | Count   |
-| ------------ | ------- |
-| Categories   | 10      |
-| Quizzes      | 30      |
-| Questions    | ~100+   |
-| Badges       | 10      |
-| Demo users   | 5       |
-| Play sessions| 12      |
+| Entity        | Count |
+| ------------- | ----- |
+| Categories    | 10    |
+| Quizzes       | 30    |
+| Questions     | ~100+ |
+| Badges        | 10    |
+| Demo users    | 5     |
+| Play sessions | 12    |
 
 **Demo users:**
 
-| Name              | Email                  | Role  |
-| ----------------- | ---------------------- | ----- |
-| QuizArena Admin   | admin@quizarena.dev    | ADMIN |
-| Alice Chen        | alice@quizarena.dev    | USER  |
-| Bob Martinez      | bob@quizarena.dev      | USER  |
-| Carol Zhang       | carol@quizarena.dev    | USER  |
-| Dave Okonkwo      | demo@quizarena.dev     | USER  |
+| Name            | Email               | Role  |
+| --------------- | ------------------- | ----- |
+| QuizArena Admin | admin@quizarena.dev | ADMIN |
+| Alice Chen      | alice@quizarena.dev | USER  |
+| Bob Martinez    | bob@quizarena.dev   | USER  |
+| Carol Zhang     | carol@quizarena.dev | USER  |
+| Dave Okonkwo    | demo@quizarena.dev  | USER  |
 
 ### Switching to PostgreSQL
 
@@ -100,12 +100,138 @@ Copy `.env.example` to `.env` and fill in the values:
 cp .env.example .env
 ```
 
+Generate auth secret:
+
+```bash
+openssl rand -base64 32
+```
+
+Required auth env vars (Phase 4):
+
+```env
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET=""
+AUTH_SECRET=""
+GITHUB_CLIENT_ID=""
+GITHUB_CLIENT_SECRET=""
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+```
+
+OAuth callback URLs:
+
+- GitHub OAuth app callback URL: `http://localhost:3000/api/auth/callback/github`
+- Google OAuth app authorized redirect URI: `http://localhost:3000/api/auth/callback/google`
+
+## 🧪 Phase 4 — Quiz Creation Studio
+
+Phase 4 introduces authentication and authoring/moderation workflows.
+
+### Sign-in providers
+
+- GitHub OAuth
+- Google OAuth
+- Credentials provider (guest play by name)
+
+### Studio overview
+
+- `/studio` dashboard with Drafts/Published tabs
+- `/studio/quiz/new` and `/studio/quiz/[id]/edit`
+- `/studio/quiz/[id]/import` CSV/JSON bulk import
+
+Screenshots:
+
+![Studio dashboard](docs/screenshots/phase-4/studio-dashboard.png)
+![Quiz editor](docs/screenshots/phase-4/quiz-editor.png)
+
+### CSV import schema
+
+```csv
+type,prompt,explanation,timeLimitSec,choices
+SINGLE,"What is 2+2?","Basic math",15,"3;*4;5;6"
+MULTIPLE,"Which are primes?","",20,"*2;*3;4;*5;6"
+TRUEFALSE,"The sky is blue.","",10,"*True;False"
+FILL_BLANK,"Capital of France is {{blank}}.","",15,"*Paris;*paris"
+```
+
+### JSON import schema
+
+```json
+[
+  {
+    "type": "SINGLE",
+    "prompt": "What is 2+2?",
+    "explanation": "Basic math",
+    "timeLimitSec": 15,
+    "choices": [
+      { "text": "3", "isCorrect": false },
+      { "text": "4", "isCorrect": true }
+    ]
+  }
+]
+```
+
+### Roles & permissions
+
+- `USER`: play quizzes, report quizzes, suggest categories, manage own quizzes in studio
+- `ADMIN`: all user permissions + moderation queue (`/admin`) with approve/reject/dismiss/unpublish/delete
+
+### Seeded admin sign-in
+
+After `npm run db:seed`, an admin demo account is seeded.  
+Use Credentials sign-in with name: **Admin Demo**.
+
+### Updated architecture (Phase 4)
+
+```mermaid
+flowchart LR
+  UI[Next.js App Router]
+  Auth[NextAuth v5]
+  Studio[/studio routes]
+  Admin[/admin routes]
+  API[/app/api/*]
+  DB[(Prisma + SQLite/Postgres)]
+  U[(User)]
+  Q[(Quiz)]
+  PS[(PlaySession)]
+  A[(Account)]
+  S[(Session)]
+  VT[(VerificationToken)]
+  R[(Report)]
+  CS[(CategorySuggestion)]
+  AA[(AdminAction)]
+
+  UI --> Auth
+  UI --> Studio
+  UI --> Admin
+  UI --> API
+  Auth --> A
+  Auth --> S
+  Auth --> VT
+  Studio --> Q
+  Studio --> CS
+  API --> PS
+  API --> R
+  Admin --> CS
+  Admin --> R
+  Admin --> AA
+  DB --- U
+  DB --- Q
+  DB --- PS
+  DB --- A
+  DB --- S
+  DB --- VT
+  DB --- R
+  DB --- CS
+  DB --- AA
+```
+
 ## 🏗 Development Phases
 
 - [x] **Phase 1** — Foundation & Design System
 - [x] **Phase 2** — Data Model & Seed Content
-- [ ] **Phase 3** — Core Quiz Gameplay
-- [ ] **Phase 4** — Quiz Creation Studio
+- [x] **Phase 3** — Core Quiz Gameplay
+- [x] **Phase 4** — Quiz Creation Studio
 - [ ] **Phase 5** — Leaderboards, Profiles & Gamification
 - [ ] **Phase 6** — Polish & Delight
 - [ ] **Phase 7** — Tests & Docs

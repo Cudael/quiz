@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from './ui/button'
 import { ThemeToggle } from './theme-toggle'
+import { AuthControls } from './auth-controls'
 
 const navLinks = [
   { href: '/categories', label: 'Categories' },
@@ -42,6 +43,7 @@ export function Navbar() {
 
         <div className="flex items-center gap-2">
           <ThemeToggle />
+          <AuthControls />
           <Button variant="gradient" size="sm" asChild className="hidden md:flex">
             <Link href="/play">Play Now</Link>
           </Button>

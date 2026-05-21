@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar } from '@/components/ui/avatar'
 import { prisma } from '@/lib/prisma'
 import { ModeSelector } from './mode-selector'
+import { ReportQuizForm } from '../report-quiz-form'
 
 const difficultyVariant: Record<string, 'success' | 'warning' | 'destructive'> = {
   EASY: 'success',
@@ -104,6 +105,9 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
 
           {/* Mode selector + CTA */}
           <ModeSelector quizId={quiz.id} />
+          <div className="mt-4">
+            <ReportQuizForm quizId={quiz.id} />
+          </div>
         </div>
 
         {/* Leaderboard sidebar */}

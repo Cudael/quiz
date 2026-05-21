@@ -11,13 +11,7 @@
  */
 
 import { PrismaClient } from '@prisma/client'
-import {
-  categories,
-  badges,
-  users,
-  quizDefs,
-  questionsByQuiz,
-} from './seed-data'
+import { categories, badges, users, quizDefs, questionsByQuiz } from './seed-data'
 
 const prisma = new PrismaClient()
 
@@ -29,6 +23,12 @@ async function main() {
   // ------------------------------------------------------------------
   await prisma.userBadge.deleteMany()
   await prisma.follow.deleteMany()
+  await prisma.adminAction.deleteMany()
+  await prisma.report.deleteMany()
+  await prisma.categorySuggestion.deleteMany()
+  await prisma.session.deleteMany()
+  await prisma.account.deleteMany()
+  await prisma.verificationToken.deleteMany()
   await prisma.playSession.deleteMany()
   await prisma.choice.deleteMany()
   await prisma.question.deleteMany()
@@ -46,6 +46,9 @@ async function main() {
     await prisma.user.create({ data: u })
   }
   console.log(`  ✓ Seeded ${users.length} users`)
+  console.log(
+    "  ✓ Admin demo user: admin@quizarena.dev — sign in via Credentials provider with name 'Admin Demo'"
+  )
 
   // ------------------------------------------------------------------
   // Categories
@@ -332,6 +335,69 @@ async function main() {
   console.log(`  ✓ Seeded ${sessionCount} play sessions`)
 
   // ------------------------------------------------------------------
+  // Phase 4 moderation seed data
+  // ------------------------------------------------------------------
+  const suggestionA = await prisma.categorySuggestion.create({
+    data: {
+      name: 'Space Exploration',
+      description: 'Quizzes about missions, astronomy, and space science.',
+      icon: 'Rocket',
+      color: '#3B82F6',
+      suggestedById: 'user_demo_alice',
+      status: 'PENDING',
+    },
+  })
+  const suggestionB = await prisma.categorySuggestion.create({
+    data: {
+      name: 'Mythology',
+      description: 'World myths and legendary figures.',
+      icon: 'Sparkles',
+      color: '#F97316',
+      suggestedById: 'user_demo_bob',
+      status: 'PENDING',
+    },
+  })
+
+  const mixedBagQuizId = quizMap['Mixed Bag']
+  const internetBasicsQuizId = quizMap['Internet Basics']
+  if (!mixedBagQuizId || !internetBasicsQuizId) {
+    throw new Error('Expected seed quiz IDs for moderation data were not found.')
+  }
+
+  const reportA = await prisma.report.create({
+    data: {
+      quizId: mixedBagQuizId,
+      reporterId: 'user_demo_carol',
+      reason: 'INCORRECT_ANSWERS',
+      details: 'Question 3 answer appears incorrect.',
+      status: 'PENDING',
+    },
+  })
+  const reportB = await prisma.report.create({
+    data: {
+      quizId: internetBasicsQuizId,
+      reporterId: 'user_demo_dave',
+      reason: 'SPAM',
+      details: 'Looks duplicated from another quiz.',
+      status: 'PENDING',
+    },
+  })
+
+  await prisma.adminAction.create({
+    data: {
+      actorId: 'user_admin_quizarena',
+      action: 'SEED_PHASE4_MODERATION',
+      targetType: 'System',
+      targetId: 'seed',
+      meta: JSON.stringify({
+        suggestions: [suggestionA.id, suggestionB.id],
+        reports: [reportA.id, reportB.id],
+      }),
+    },
+  })
+  console.log('  ✓ Seeded 2 pending category suggestions and 2 pending reports')
+
+  // ------------------------------------------------------------------
   // Summary
   // ------------------------------------------------------------------
   console.log('\n🎉 Seed complete!')
@@ -341,6 +407,8 @@ async function main() {
   console.log('   Badges:    ', await prisma.badge.count())
   console.log('   Users:     ', await prisma.user.count())
   console.log('   Sessions:  ', await prisma.playSession.count())
+  console.log('   Reports:   ', await prisma.report.count())
+  console.log('   Suggestions:', await prisma.categorySuggestion.count())
 }
 
 main()
