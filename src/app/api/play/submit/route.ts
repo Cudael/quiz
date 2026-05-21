@@ -3,6 +3,8 @@ import { cookies } from 'next/headers'
 import { prisma } from '@/lib/prisma'
 import { verifyPlayToken } from '@/lib/play-token'
 import { scoreQuestion, levelForXp } from '@/lib/scoring'
+import { auth } from '@/auth'
+import { DEFAULT_GUEST_NAME } from '@/lib/quiz-constants'
 
 interface AnswerInput {
   questionId: string
@@ -19,6 +21,7 @@ interface SubmitBody {
 }
 
 export async function POST(req: NextRequest) {
+  const authSession = await auth()
   let body: SubmitBody
   try {
     body = await req.json()
@@ -65,7 +68,7 @@ export async function POST(req: NextRequest) {
     const existing = await prisma.playSession.findFirst({
       where: {
         quizId,
-        guestName: guestKey,
+        ...(authSession?.user?.id ? { userId: authSession.user.id } : { guestKey }),
         mode: 'DAILY',
         createdAt: { gte: todayStart, lt: todayEnd },
       },
@@ -115,12 +118,12 @@ export async function POST(req: NextRequest) {
   const totalTimeTakenMs = answers.reduce((sum, a) => sum + a.timeTakenMs, 0)
 
   // Persist session.
-  // guestName (display name) falls back to guestKey (cookie-based UUID) which also
-  // serves as the per-player deduplication key for daily mode enforcement.
-  const session = await prisma.playSession.create({
+  const playSession = await prisma.playSession.create({
     data: {
+      userId: authSession?.user?.id ?? null,
       quizId,
-      guestName: guestName ?? guestKey,
+      guestName: guestName?.trim() ? guestName.trim() : DEFAULT_GUEST_NAME,
+      guestKey,
       score,
       correctCount,
       totalCount,
@@ -151,7 +154,7 @@ export async function POST(req: NextRequest) {
   const leveledUp = newLevel > prevLevel
 
   const response = NextResponse.json({
-    sessionId: session.id,
+    sessionId: playSession.id,
     score,
     correctCount,
     totalCount,

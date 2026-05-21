@@ -199,7 +199,7 @@ export interface UserData {
 export const users: UserData[] = [
   {
     id: 'user_admin_quizarena',
-    name: 'QuizArena Admin',
+    name: 'Admin Demo',
     email: 'admin@quizarena.dev',
     role: 'ADMIN',
     xp: 99999,
@@ -571,11 +571,15 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: "What is Newton's First Law of Motion?",
       type: 'SINGLE',
-      explanation: "Newton's First Law states that an object at rest stays at rest, and an object in motion stays in motion unless acted upon by an external force.",
+      explanation:
+        "Newton's First Law states that an object at rest stays at rest, and an object in motion stays in motion unless acted upon by an external force.",
       timeLimitSec: 20,
       order: 1,
       choices: [
-        { text: 'An object remains at rest or in uniform motion unless acted upon by a force', isCorrect: true },
+        {
+          text: 'An object remains at rest or in uniform motion unless acted upon by a force',
+          isCorrect: true,
+        },
         { text: 'Force equals mass times acceleration', isCorrect: false },
         { text: 'Every action has an equal and opposite reaction', isCorrect: false },
         { text: 'Energy cannot be created or destroyed', isCorrect: false },
@@ -597,7 +601,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'True or False: Mass and weight are the same thing.',
       type: 'TRUEFALSE',
-      explanation: 'Mass is the amount of matter in an object (kg), while weight is the gravitational force acting on that mass (N). They differ by location.',
+      explanation:
+        'Mass is the amount of matter in an object (kg), while weight is the gravitational force acting on that mass (N). They differ by location.',
       timeLimitSec: 15,
       order: 3,
       choices: [
@@ -608,7 +613,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Which of the following are examples of potential energy?',
       type: 'MULTIPLE',
-      explanation: 'Potential energy is stored energy. A stretched spring and a raised weight both have gravitational or elastic potential energy.',
+      explanation:
+        'Potential energy is stored energy. A stretched spring and a raised weight both have gravitational or elastic potential energy.',
       timeLimitSec: 25,
       order: 4,
       choices: [
@@ -621,7 +627,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What is the acceleration due to gravity on Earth (approximately)?',
       type: 'FILL_BLANK',
-      explanation: "The standard acceleration due to gravity on Earth's surface is approximately 9.8 m/s².",
+      explanation:
+        "The standard acceleration due to gravity on Earth's surface is approximately 9.8 m/s².",
       timeLimitSec: 20,
       order: 5,
       choices: [
@@ -646,7 +653,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What is the speed of light in a vacuum?',
       type: 'SINGLE',
-      explanation: 'The speed of light in a vacuum is approximately 3 × 10⁸ m/s (299,792,458 m/s exactly).',
+      explanation:
+        'The speed of light in a vacuum is approximately 3 × 10⁸ m/s (299,792,458 m/s exactly).',
       timeLimitSec: 20,
       order: 7,
       choices: [
@@ -659,7 +667,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'True or False: Sound can travel through a vacuum.',
       type: 'TRUEFALSE',
-      explanation: 'Sound is a mechanical wave that requires a medium (solid, liquid, or gas) to travel through. It cannot travel through a vacuum.',
+      explanation:
+        'Sound is a mechanical wave that requires a medium (solid, liquid, or gas) to travel through. It cannot travel through a vacuum.',
       timeLimitSec: 15,
       order: 8,
       choices: [
@@ -686,7 +695,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'How many elements are in the periodic table (as of 2024)?',
       type: 'SINGLE',
-      explanation: 'There are 118 confirmed elements in the periodic table, the most recent being Oganesson (118).',
+      explanation:
+        'There are 118 confirmed elements in the periodic table, the most recent being Oganesson (118).',
       timeLimitSec: 20,
       order: 2,
       choices: [
@@ -699,7 +709,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What is the lightest element?',
       type: 'SINGLE',
-      explanation: 'Hydrogen (H) is the lightest and most abundant element in the universe, with atomic number 1.',
+      explanation:
+        'Hydrogen (H) is the lightest and most abundant element in the universe, with atomic number 1.',
       timeLimitSec: 15,
       order: 3,
       choices: [
@@ -712,7 +723,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'True or False: Noble gases are highly reactive.',
       type: 'TRUEFALSE',
-      explanation: 'Noble gases (Group 18) have full valence electron shells, making them extremely unreactive under normal conditions.',
+      explanation:
+        'Noble gases (Group 18) have full valence electron shells, making them extremely unreactive under normal conditions.',
       timeLimitSec: 15,
       order: 4,
       choices: [
@@ -723,7 +735,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Which elements are classified as halogens?',
       type: 'MULTIPLE',
-      explanation: 'Halogens are Group 17 elements: Fluorine (F), Chlorine (Cl), Bromine (Br), Iodine (I), and Astatine (At).',
+      explanation:
+        'Halogens are Group 17 elements: Fluorine (F), Chlorine (Cl), Bromine (Br), Iodine (I), and Astatine (At).',
       timeLimitSec: 30,
       order: 5,
       choices: [
@@ -736,7 +749,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What is the atomic number of Carbon?',
       type: 'SINGLE',
-      explanation: 'Carbon has atomic number 6, meaning it has 6 protons in its nucleus. It is the basis of all organic chemistry.',
+      explanation:
+        'Carbon has atomic number 6, meaning it has 6 protons in its nucleus. It is the basis of all organic chemistry.',
       timeLimitSec: 15,
       order: 6,
       choices: [
@@ -790,7 +804,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Which river was central to the development of Ancient Egyptian civilization?',
       type: 'SINGLE',
-      explanation: 'The Nile River provided fertile land, water, and a transportation route that was essential for Ancient Egyptian civilization.',
+      explanation:
+        'The Nile River provided fertile land, water, and a transportation route that was essential for Ancient Egyptian civilization.',
       timeLimitSec: 20,
       order: 1,
       choices: [
@@ -803,7 +818,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Who was the first Roman Emperor?',
       type: 'SINGLE',
-      explanation: 'Augustus (also known as Octavian) became the first Roman Emperor in 27 BC after defeating Mark Antony and Cleopatra.',
+      explanation:
+        'Augustus (also known as Octavian) became the first Roman Emperor in 27 BC after defeating Mark Antony and Cleopatra.',
       timeLimitSec: 20,
       order: 2,
       choices: [
@@ -816,7 +832,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'True or False: The Great Wall of China was built entirely during the Ming Dynasty.',
       type: 'TRUEFALSE',
-      explanation: 'While the Ming Dynasty (1368–1644) built much of the wall we see today, earlier walls were constructed during the Qin, Han, and other dynasties.',
+      explanation:
+        'While the Ming Dynasty (1368–1644) built much of the wall we see today, earlier walls were constructed during the Qin, Han, and other dynasties.',
       timeLimitSec: 20,
       order: 3,
       choices: [
@@ -827,7 +844,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Which of the following were Seven Wonders of the Ancient World?',
       type: 'MULTIPLE',
-      explanation: 'The Seven Wonders included the Great Pyramid (still standing), the Hanging Gardens of Babylon, the Colossus of Rhodes, the Lighthouse of Alexandria, and others.',
+      explanation:
+        'The Seven Wonders included the Great Pyramid (still standing), the Hanging Gardens of Babylon, the Colossus of Rhodes, the Lighthouse of Alexandria, and others.',
       timeLimitSec: 30,
       order: 4,
       choices: [
@@ -840,7 +858,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What civilization built Machu Picchu?',
       type: 'SINGLE',
-      explanation: 'Machu Picchu was built by the Inca civilization, constructed around 1450 CE at 2,430 meters above sea level in Peru.',
+      explanation:
+        'Machu Picchu was built by the Inca civilization, constructed around 1450 CE at 2,430 meters above sea level in Peru.',
       timeLimitSec: 20,
       order: 5,
       choices: [
@@ -853,7 +872,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'In which city was Socrates born?',
       type: 'SINGLE',
-      explanation: 'Socrates was born in Athens, Greece around 470 BC. He is one of the founders of Western philosophy.',
+      explanation:
+        'Socrates was born in Athens, Greece around 470 BC. He is one of the founders of Western philosophy.',
       timeLimitSec: 20,
       order: 6,
       choices: [
@@ -866,7 +886,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What writing system did the ancient Egyptians use?',
       type: 'FILL_BLANK',
-      explanation: 'Ancient Egyptians used hieroglyphics, a complex writing system combining logographic and alphabetic elements.',
+      explanation:
+        'Ancient Egyptians used hieroglyphics, a complex writing system combining logographic and alphabetic elements.',
       timeLimitSec: 20,
       order: 7,
       choices: [
@@ -878,7 +899,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'True or False: The Roman Empire at its peak extended into Britain.',
       type: 'TRUEFALSE',
-      explanation: 'Yes, at its peak the Roman Empire controlled much of Britain (Britannia). Hadrian\'s Wall marked the northern frontier.',
+      explanation:
+        "Yes, at its peak the Roman Empire controlled much of Britain (Britannia). Hadrian's Wall marked the northern frontier.",
       timeLimitSec: 15,
       order: 8,
       choices: [
@@ -892,7 +914,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'In which year did World War II begin?',
       type: 'SINGLE',
-      explanation: 'World War II is generally considered to have begun on September 1, 1939, when Nazi Germany invaded Poland.',
+      explanation:
+        'World War II is generally considered to have begun on September 1, 1939, when Nazi Germany invaded Poland.',
       timeLimitSec: 15,
       order: 1,
       choices: [
@@ -905,7 +928,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What was the code name for the Allied invasion of Normandy?',
       type: 'SINGLE',
-      explanation: "Operation Overlord was the code name for the Battle of Normandy. June 6, 1944 is known as D-Day — the largest seaborne invasion in history.",
+      explanation:
+        'Operation Overlord was the code name for the Battle of Normandy. June 6, 1944 is known as D-Day — the largest seaborne invasion in history.',
       timeLimitSec: 20,
       order: 2,
       choices: [
@@ -918,7 +942,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'True or False: The United States entered WWII after the attack on Pearl Harbor.',
       type: 'TRUEFALSE',
-      explanation: 'Japan attacked Pearl Harbor on December 7, 1941, prompting the US to declare war on Japan the next day. Germany and Italy then declared war on the US.',
+      explanation:
+        'Japan attacked Pearl Harbor on December 7, 1941, prompting the US to declare war on Japan the next day. Germany and Italy then declared war on the US.',
       timeLimitSec: 15,
       order: 3,
       choices: [
@@ -929,7 +954,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Which countries formed the main Axis powers in WWII?',
       type: 'MULTIPLE',
-      explanation: 'The main Axis powers were Germany, Italy, and Japan. They were formally allied through the Tripartite Pact signed in September 1940.',
+      explanation:
+        'The main Axis powers were Germany, Italy, and Japan. They were formally allied through the Tripartite Pact signed in September 1940.',
       timeLimitSec: 25,
       order: 4,
       choices: [
@@ -942,7 +968,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Who was the Prime Minister of the United Kingdom for most of WWII?',
       type: 'SINGLE',
-      explanation: 'Winston Churchill served as UK Prime Minister from May 1940 to July 1945, leading Britain through most of the war.',
+      explanation:
+        'Winston Churchill served as UK Prime Minister from May 1940 to July 1945, leading Britain through most of the war.',
       timeLimitSec: 20,
       order: 5,
       choices: [
@@ -955,7 +982,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What year did WWII end in Europe (V-E Day)?',
       type: 'SINGLE',
-      explanation: 'Victory in Europe Day (V-E Day) was May 8, 1945, marking Germany\'s unconditional surrender.',
+      explanation:
+        "Victory in Europe Day (V-E Day) was May 8, 1945, marking Germany's unconditional surrender.",
       timeLimitSec: 15,
       order: 6,
       choices: [
@@ -968,7 +996,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What was the name of the US project to develop atomic bombs during WWII?',
       type: 'FILL_BLANK',
-      explanation: 'The Manhattan Project was the secret US-led research project that produced the first nuclear weapons, culminating in the bombings of Hiroshima and Nagasaki.',
+      explanation:
+        'The Manhattan Project was the secret US-led research project that produced the first nuclear weapons, culminating in the bombings of Hiroshima and Nagasaki.',
       timeLimitSec: 20,
       order: 7,
       choices: [
@@ -978,9 +1007,11 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
       ],
     },
     {
-      prompt: 'True or False: The Holocaust resulted in the deaths of approximately 6 million Jewish people.',
+      prompt:
+        'True or False: The Holocaust resulted in the deaths of approximately 6 million Jewish people.',
       type: 'TRUEFALSE',
-      explanation: 'Yes, approximately 6 million Jewish people were systematically murdered by Nazi Germany and its collaborators during the Holocaust.',
+      explanation:
+        'Yes, approximately 6 million Jewish people were systematically murdered by Nazi Germany and its collaborators during the Holocaust.',
       timeLimitSec: 20,
       order: 8,
       choices: [
@@ -991,7 +1022,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Which battle is considered the turning point on the Eastern Front?',
       type: 'SINGLE',
-      explanation: 'The Battle of Stalingrad (1942–43) was the decisive turning point on the Eastern Front, ending in a Soviet victory and massive German losses.',
+      explanation:
+        'The Battle of Stalingrad (1942–43) was the decisive turning point on the Eastern Front, ending in a Soviet victory and massive German losses.',
       timeLimitSec: 25,
       order: 9,
       choices: [
@@ -1007,7 +1039,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Which film launched the Marvel Cinematic Universe in 2008?',
       type: 'SINGLE',
-      explanation: 'Iron Man (2008), directed by Jon Favreau and starring Robert Downey Jr., was the first film in the MCU.',
+      explanation:
+        'Iron Man (2008), directed by Jon Favreau and starring Robert Downey Jr., was the first film in the MCU.',
       timeLimitSec: 15,
       order: 1,
       choices: [
@@ -1020,7 +1053,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: "What is the name of Thor's hammer?",
       type: 'SINGLE',
-      explanation: "Thor's enchanted hammer is called Mjolnir, forged by dwarves in the heart of a dying star. Only those deemed worthy can lift it.",
+      explanation:
+        "Thor's enchanted hammer is called Mjolnir, forged by dwarves in the heart of a dying star. Only those deemed worthy can lift it.",
       timeLimitSec: 15,
       order: 2,
       choices: [
@@ -1033,7 +1067,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'True or False: Black Widow has superhuman strength due to a super-soldier serum.',
       type: 'TRUEFALSE',
-      explanation: 'False. Black Widow (Natasha Romanoff) has no superhuman powers — she relies on her elite spy training, combat skills, and technology.',
+      explanation:
+        'False. Black Widow (Natasha Romanoff) has no superhuman powers — she relies on her elite spy training, combat skills, and technology.',
       timeLimitSec: 20,
       order: 3,
       choices: [
@@ -1044,7 +1079,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Which Infinity Stones are yellow and orange?',
       type: 'MULTIPLE',
-      explanation: 'The Mind Stone is yellow and the Soul Stone is orange. There are six Infinity Stones in total.',
+      explanation:
+        'The Mind Stone is yellow and the Soul Stone is orange. There are six Infinity Stones in total.',
       timeLimitSec: 25,
       order: 4,
       choices: [
@@ -1055,9 +1091,10 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
       ],
     },
     {
-      prompt: 'What is Tony Stark\'s AI assistant called in the original Iron Man films?',
+      prompt: "What is Tony Stark's AI assistant called in the original Iron Man films?",
       type: 'SINGLE',
-      explanation: "JARVIS (Just A Rather Very Intelligent System) was Tony Stark's AI assistant before being uploaded into Vision.",
+      explanation:
+        "JARVIS (Just A Rather Very Intelligent System) was Tony Stark's AI assistant before being uploaded into Vision.",
       timeLimitSec: 20,
       order: 5,
       choices: [
@@ -1070,7 +1107,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'In which country is Wakanda located in the MCU?',
       type: 'SINGLE',
-      explanation: 'Wakanda is a fictional African nation in the MCU, located in eastern Africa. The films were largely inspired by real African cultures.',
+      explanation:
+        'Wakanda is a fictional African nation in the MCU, located in eastern Africa. The films were largely inspired by real African cultures.',
       timeLimitSec: 20,
       order: 6,
       choices: [
@@ -1083,7 +1121,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What is the name of the country Thanos is from?',
       type: 'FILL_BLANK',
-      explanation: 'Thanos is from the planet Titan — more specifically, he is an Eternal from Titan, a moon of Saturn.',
+      explanation:
+        'Thanos is from the planet Titan — more specifically, he is an Eternal from Titan, a moon of Saturn.',
       timeLimitSec: 20,
       order: 7,
       choices: [
@@ -1095,7 +1134,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Who says "I am Iron Man" as the final words before snapping in Avengers: Endgame?',
       type: 'SINGLE',
-      explanation: 'Tony Stark says "I am Iron Man" before using the Infinity Gauntlet to snap away Thanos and his army, sacrificing his own life.',
+      explanation:
+        'Tony Stark says "I am Iron Man" before using the Infinity Gauntlet to snap away Thanos and his army, sacrificing his own life.',
       timeLimitSec: 20,
       order: 8,
       choices: [
@@ -1111,7 +1151,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What is the capital of Australia?',
       type: 'SINGLE',
-      explanation: 'Canberra is the capital of Australia. Many people mistakenly think it\'s Sydney or Melbourne — it was a compromise between the two rival cities.',
+      explanation:
+        "Canberra is the capital of Australia. Many people mistakenly think it's Sydney or Melbourne — it was a compromise between the two rival cities.",
       timeLimitSec: 15,
       order: 1,
       choices: [
@@ -1148,7 +1189,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Which of these cities are capitals of Scandinavian countries?',
       type: 'MULTIPLE',
-      explanation: 'Oslo is the capital of Norway, Stockholm is the capital of Sweden, and Copenhagen is the capital of Denmark — all Scandinavian countries.',
+      explanation:
+        'Oslo is the capital of Norway, Stockholm is the capital of Sweden, and Copenhagen is the capital of Denmark — all Scandinavian countries.',
       timeLimitSec: 25,
       order: 4,
       choices: [
@@ -1161,7 +1203,7 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What is the capital of Japan?',
       type: 'SINGLE',
-      explanation: 'Tokyo is the capital of Japan and the world\'s most populous metropolitan area.',
+      explanation: "Tokyo is the capital of Japan and the world's most populous metropolitan area.",
       timeLimitSec: 10,
       order: 5,
       choices: [
@@ -1174,7 +1216,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What is the capital of Brazil?',
       type: 'SINGLE',
-      explanation: 'Brasília is the capital of Brazil, built from scratch in the 1950s to be a planned capital city.',
+      explanation:
+        'Brasília is the capital of Brazil, built from scratch in the 1950s to be a planned capital city.',
       timeLimitSec: 20,
       order: 6,
       choices: [
@@ -1187,7 +1230,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Name the capital of South Africa (administrative capital).',
       type: 'FILL_BLANK',
-      explanation: 'South Africa has three capitals: Pretoria (administrative), Cape Town (legislative), and Bloemfontein (judicial). Pretoria is usually considered the primary capital.',
+      explanation:
+        'South Africa has three capitals: Pretoria (administrative), Cape Town (legislative), and Bloemfontein (judicial). Pretoria is usually considered the primary capital.',
       timeLimitSec: 20,
       order: 7,
       choices: [
@@ -1199,7 +1243,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'True or False: Washington D.C. is the capital of the United States.',
       type: 'TRUEFALSE',
-      explanation: 'True. Washington, D.C. (District of Columbia) has been the capital of the United States since 1800.',
+      explanation:
+        'True. Washington, D.C. (District of Columbia) has been the capital of the United States since 1800.',
       timeLimitSec: 10,
       order: 8,
       choices: [
@@ -1213,7 +1258,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What does HTTP stand for?',
       type: 'SINGLE',
-      explanation: 'HTTP stands for HyperText Transfer Protocol. It is the foundation of data communication on the World Wide Web.',
+      explanation:
+        'HTTP stands for HyperText Transfer Protocol. It is the foundation of data communication on the World Wide Web.',
       timeLimitSec: 15,
       order: 1,
       choices: [
@@ -1226,7 +1272,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What does DNS stand for?',
       type: 'SINGLE',
-      explanation: 'DNS stands for Domain Name System. It translates human-readable domain names (like google.com) into IP addresses.',
+      explanation:
+        'DNS stands for Domain Name System. It translates human-readable domain names (like google.com) into IP addresses.',
       timeLimitSec: 15,
       order: 2,
       choices: [
@@ -1239,7 +1286,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'True or False: HTTPS is more secure than HTTP.',
       type: 'TRUEFALSE',
-      explanation: 'HTTPS (HTTP Secure) encrypts data using TLS/SSL, making it more secure than plain HTTP which transmits data in cleartext.',
+      explanation:
+        'HTTPS (HTTP Secure) encrypts data using TLS/SSL, making it more secure than plain HTTP which transmits data in cleartext.',
       timeLimitSec: 10,
       order: 3,
       choices: [
@@ -1250,7 +1298,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Which HTTP methods are used to send data to a server?',
       type: 'MULTIPLE',
-      explanation: 'POST is the standard method for sending data (e.g., form submissions). PUT is used to update or create resources. Both send data in the request body.',
+      explanation:
+        'POST is the standard method for sending data (e.g., form submissions). PUT is used to update or create resources. Both send data in the request body.',
       timeLimitSec: 25,
       order: 4,
       choices: [
@@ -1276,7 +1325,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What does IP stand for?',
       type: 'SINGLE',
-      explanation: 'IP stands for Internet Protocol. An IP address is a numerical label assigned to each device connected to a computer network.',
+      explanation:
+        'IP stands for Internet Protocol. An IP address is a numerical label assigned to each device connected to a computer network.',
       timeLimitSec: 10,
       order: 6,
       choices: [
@@ -1289,7 +1339,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What is the loopback IP address?',
       type: 'FILL_BLANK',
-      explanation: '127.0.0.1 is the loopback address (also called "localhost"). It always refers to the local machine.',
+      explanation:
+        '127.0.0.1 is the loopback address (also called "localhost"). It always refers to the local machine.',
       timeLimitSec: 20,
       order: 7,
       choices: [
@@ -1301,7 +1352,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'True or False: A URL and a URI are exactly the same thing.',
       type: 'TRUEFALSE',
-      explanation: 'A URL (Uniform Resource Locator) is a specific type of URI (Uniform Resource Identifier) that specifies the location AND how to retrieve a resource. All URLs are URIs, but not all URIs are URLs.',
+      explanation:
+        'A URL (Uniform Resource Locator) is a specific type of URI (Uniform Resource Identifier) that specifies the location AND how to retrieve a resource. All URLs are URIs, but not all URIs are URLs.',
       timeLimitSec: 20,
       order: 8,
       choices: [
@@ -1315,7 +1367,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Which company released the first commercially successful home video game console?',
       type: 'SINGLE',
-      explanation: 'Atari released the Atari 2600 (originally called VCS) in 1977, which became the first commercially successful home video game console.',
+      explanation:
+        'Atari released the Atari 2600 (originally called VCS) in 1977, which became the first commercially successful home video game console.',
       timeLimitSec: 20,
       order: 1,
       choices: [
@@ -1328,7 +1381,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What year did the original PlayStation launch in Japan?',
       type: 'SINGLE',
-      explanation: 'Sony launched the original PlayStation in Japan on December 3, 1994. It launched in North America on September 9, 1995.',
+      explanation:
+        'Sony launched the original PlayStation in Japan on December 3, 1994. It launched in North America on September 9, 1995.',
       timeLimitSec: 20,
       order: 2,
       choices: [
@@ -1341,7 +1395,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'True or False: The Nintendo Switch is both a home console and a portable console.',
       type: 'TRUEFALSE',
-      explanation: 'True. The Nintendo Switch is a hybrid gaming console that can be played on a TV (docked mode) or as a portable device.',
+      explanation:
+        'True. The Nintendo Switch is a hybrid gaming console that can be played on a TV (docked mode) or as a portable device.',
       timeLimitSec: 10,
       order: 3,
       choices: [
@@ -1352,7 +1407,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Which consoles were part of the 16-bit era (4th generation)?',
       type: 'MULTIPLE',
-      explanation: 'The 16-bit era featured the Super Nintendo Entertainment System (SNES) and the Sega Genesis/Mega Drive as the dominant consoles.',
+      explanation:
+        'The 16-bit era featured the Super Nintendo Entertainment System (SNES) and the Sega Genesis/Mega Drive as the dominant consoles.',
       timeLimitSec: 25,
       order: 4,
       choices: [
@@ -1365,7 +1421,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What was the best-selling console of all time (as of 2024)?',
       type: 'SINGLE',
-      explanation: 'The PlayStation 2 (PS2) is the best-selling video game console of all time with over 155 million units sold.',
+      explanation:
+        'The PlayStation 2 (PS2) is the best-selling video game console of all time with over 155 million units sold.',
       timeLimitSec: 20,
       order: 5,
       choices: [
@@ -1378,7 +1435,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What was the original name of the Xbox?',
       type: 'SINGLE',
-      explanation: 'The first Xbox was simply called "Xbox." It was Microsoft\'s entry into the home console market, released in 2001.',
+      explanation:
+        'The first Xbox was simply called "Xbox." It was Microsoft\'s entry into the home console market, released in 2001.',
       timeLimitSec: 15,
       order: 6,
       choices: [
@@ -1391,7 +1449,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What CPU architecture does the PlayStation 5 use?',
       type: 'FILL_BLANK',
-      explanation: 'The PlayStation 5 uses a custom AMD Zen 2 CPU (x86-64 architecture) along with an AMD RDNA 2 GPU.',
+      explanation:
+        'The PlayStation 5 uses a custom AMD Zen 2 CPU (x86-64 architecture) along with an AMD RDNA 2 GPU.',
       timeLimitSec: 25,
       order: 7,
       choices: [
@@ -1403,7 +1462,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'True or False: The Sega Dreamcast was the last console Sega ever produced.',
       type: 'TRUEFALSE',
-      explanation: 'True. The Sega Dreamcast (1998–2001) was the last home console produced by Sega. After its discontinuation, Sega became a third-party software publisher.',
+      explanation:
+        'True. The Sega Dreamcast (1998–2001) was the last home console produced by Sega. After its discontinuation, Sega became a third-party software publisher.',
       timeLimitSec: 15,
       order: 8,
       choices: [
@@ -1417,7 +1477,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What is the name of the main character in "Naruto"?',
       type: 'SINGLE',
-      explanation: 'Naruto Uzumaki is the protagonist of the series "Naruto" by Masashi Kishimoto. He aspires to become the Hokage of his village.',
+      explanation:
+        'Naruto Uzumaki is the protagonist of the series "Naruto" by Masashi Kishimoto. He aspires to become the Hokage of his village.',
       timeLimitSec: 10,
       order: 1,
       choices: [
@@ -1430,20 +1491,22 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Which Studio Ghibli film features a girl named Chihiro?',
       type: 'SINGLE',
-      explanation: '"Spirited Away" (Sen to Chihiro no Kamikakushi, 2001) directed by Hayao Miyazaki features Chihiro as the protagonist. It won the Academy Award for Best Animated Feature.',
+      explanation:
+        '"Spirited Away" (Sen to Chihiro no Kamikakushi, 2001) directed by Hayao Miyazaki features Chihiro as the protagonist. It won the Academy Award for Best Animated Feature.',
       timeLimitSec: 15,
       order: 2,
       choices: [
         { text: 'Spirited Away', isCorrect: true },
-        { text: "My Neighbor Totoro", isCorrect: false },
-        { text: "Princess Mononoke", isCorrect: false },
+        { text: 'My Neighbor Totoro', isCorrect: false },
+        { text: 'Princess Mononoke', isCorrect: false },
         { text: "Howl's Moving Castle", isCorrect: false },
       ],
     },
     {
       prompt: 'True or False: "Attack on Titan" is based on a manga.',
       type: 'TRUEFALSE',
-      explanation: 'True. "Attack on Titan" (Shingeki no Kyojin) is based on the manga by Hajime Isayama, which ran from 2009 to 2021.',
+      explanation:
+        'True. "Attack on Titan" (Shingeki no Kyojin) is based on the manga by Hajime Isayama, which ran from 2009 to 2021.',
       timeLimitSec: 10,
       order: 3,
       choices: [
@@ -1454,7 +1517,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Which anime features the character "Monkey D. Luffy"?',
       type: 'SINGLE',
-      explanation: 'Monkey D. Luffy is the protagonist of "One Piece" by Eiichiro Oda. He is a pirate who ate a Devil Fruit and can stretch his body like rubber.',
+      explanation:
+        'Monkey D. Luffy is the protagonist of "One Piece" by Eiichiro Oda. He is a pirate who ate a Devil Fruit and can stretch his body like rubber.',
       timeLimitSec: 10,
       order: 4,
       choices: [
@@ -1467,7 +1531,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What are the four main studios known for producing popular anime?',
       type: 'MULTIPLE',
-      explanation: 'MAPPA, Wit Studio, Toei Animation, and Bones are among the most well-known and critically acclaimed anime studios.',
+      explanation:
+        'MAPPA, Wit Studio, Toei Animation, and Bones are among the most well-known and critically acclaimed anime studios.',
       timeLimitSec: 30,
       order: 5,
       choices: [
@@ -1480,7 +1545,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'In "Death Note," what does the Death Note do?',
       type: 'SINGLE',
-      explanation: 'In "Death Note," writing a person\'s name in the supernatural notebook while picturing their face causes that person to die.',
+      explanation:
+        'In "Death Note," writing a person\'s name in the supernatural notebook while picturing their face causes that person to die.',
       timeLimitSec: 15,
       order: 6,
       choices: [
@@ -1493,7 +1559,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What is the name of the iconic robot in "Neon Genesis Evangelion"?',
       type: 'FILL_BLANK',
-      explanation: 'The giant biomechanical mecha in "Neon Genesis Evangelion" are called "Evangelion" units (or EVA units). Unit 01 is the one most associated with the protagonist Shinji.',
+      explanation:
+        'The giant biomechanical mecha in "Neon Genesis Evangelion" are called "Evangelion" units (or EVA units). Unit 01 is the one most associated with the protagonist Shinji.',
       timeLimitSec: 20,
       order: 7,
       choices: [
@@ -1505,7 +1572,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'True or False: "Dragon Ball Z" is a sequel to "Dragon Ball."',
       type: 'TRUEFALSE',
-      explanation: 'True. "Dragon Ball Z" continues the story of Goku from "Dragon Ball," following him as an adult with a son named Gohan.',
+      explanation:
+        'True. "Dragon Ball Z" continues the story of Goku from "Dragon Ball," following him as an adult with a son named Gohan.',
       timeLimitSec: 10,
       order: 8,
       choices: [
@@ -1532,7 +1600,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What is the largest ocean on Earth?',
       type: 'SINGLE',
-      explanation: 'The Pacific Ocean is the largest ocean, covering more than 165 million square kilometers — larger than all land masses combined.',
+      explanation:
+        'The Pacific Ocean is the largest ocean, covering more than 165 million square kilometers — larger than all land masses combined.',
       timeLimitSec: 15,
       order: 2,
       choices: [
@@ -1545,7 +1614,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'True or False: Bats are birds.',
       type: 'TRUEFALSE',
-      explanation: 'False. Bats are mammals (order Chiroptera), not birds. They are the only mammals capable of sustained flight.',
+      explanation:
+        'False. Bats are mammals (order Chiroptera), not birds. They are the only mammals capable of sustained flight.',
       timeLimitSec: 10,
       order: 3,
       choices: [
@@ -1556,7 +1626,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Which planets in our solar system have rings?',
       type: 'MULTIPLE',
-      explanation: 'All four gas/ice giant planets have ring systems: Saturn (most prominent), Jupiter, Uranus, and Neptune.',
+      explanation:
+        'All four gas/ice giant planets have ring systems: Saturn (most prominent), Jupiter, Uranus, and Neptune.',
       timeLimitSec: 30,
       order: 4,
       choices: [
@@ -1569,7 +1640,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What is the tallest mountain in the world?',
       type: 'SINGLE',
-      explanation: 'Mount Everest, located in the Himalayas on the Nepal–Tibet border, is the world\'s highest mountain at 8,848.86 meters above sea level.',
+      explanation:
+        "Mount Everest, located in the Himalayas on the Nepal–Tibet border, is the world's highest mountain at 8,848.86 meters above sea level.",
       timeLimitSec: 15,
       order: 5,
       choices: [
@@ -1582,7 +1654,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'How many continents are there on Earth?',
       type: 'SINGLE',
-      explanation: 'Earth has 7 continents: Africa, Antarctica, Asia, Australia/Oceania, Europe, North America, and South America.',
+      explanation:
+        'Earth has 7 continents: Africa, Antarctica, Asia, Australia/Oceania, Europe, North America, and South America.',
       timeLimitSec: 10,
       order: 6,
       choices: [
@@ -1607,7 +1680,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'True or False: A group of crows is called a murder.',
       type: 'TRUEFALSE',
-      explanation: 'True! A group of crows is indeed called a "murder of crows." Other fun collective nouns: a parliament of owls, a crash of rhinos.',
+      explanation:
+        'True! A group of crows is indeed called a "murder of crows." Other fun collective nouns: a parliament of owls, a crash of rhinos.',
       timeLimitSec: 10,
       order: 8,
       choices: [
@@ -1621,7 +1695,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Which programming language was created by Guido van Rossum?',
       type: 'SINGLE',
-      explanation: 'Python was created by Guido van Rossum and first released in 1991. Van Rossum was its "Benevolent Dictator For Life" until 2018.',
+      explanation:
+        'Python was created by Guido van Rossum and first released in 1991. Van Rossum was its "Benevolent Dictator For Life" until 2018.',
       timeLimitSec: 15,
       order: 1,
       choices: [
@@ -1634,7 +1709,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'True or False: JavaScript was designed in 10 days.',
       type: 'TRUEFALSE',
-      explanation: 'True (approximately). Brendan Eich created JavaScript in about 10 days in May 1995 while working at Netscape.',
+      explanation:
+        'True (approximately). Brendan Eich created JavaScript in about 10 days in May 1995 while working at Netscape.',
       timeLimitSec: 15,
       order: 2,
       choices: [
@@ -1645,7 +1721,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Which of these languages are statically typed?',
       type: 'MULTIPLE',
-      explanation: 'Java and Rust are statically typed languages where types are checked at compile time. Python and JavaScript are dynamically typed.',
+      explanation:
+        'Java and Rust are statically typed languages where types are checked at compile time. Python and JavaScript are dynamically typed.',
       timeLimitSec: 25,
       order: 3,
       choices: [
@@ -1658,7 +1735,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What does SQL stand for?',
       type: 'SINGLE',
-      explanation: 'SQL stands for Structured Query Language. It is the standard language for relational database management systems.',
+      explanation:
+        'SQL stands for Structured Query Language. It is the standard language for relational database management systems.',
       timeLimitSec: 15,
       order: 4,
       choices: [
@@ -1671,7 +1749,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Which company developed TypeScript?',
       type: 'SINGLE',
-      explanation: 'TypeScript was developed by Microsoft and first released in October 2012. It adds static typing to JavaScript.',
+      explanation:
+        'TypeScript was developed by Microsoft and first released in October 2012. It adds static typing to JavaScript.',
       timeLimitSec: 15,
       order: 5,
       choices: [
@@ -1684,7 +1763,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What is the extension for a Python file?',
       type: 'FILL_BLANK',
-      explanation: 'Python files use the .py extension. Python also supports .pyw for Windows GUI applications.',
+      explanation:
+        'Python files use the .py extension. Python also supports .pyw for Windows GUI applications.',
       timeLimitSec: 10,
       order: 6,
       choices: [
@@ -1696,7 +1776,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'True or False: C++ is a superset of C.',
       type: 'TRUEFALSE',
-      explanation: 'Mostly true — C++ was designed to be largely backward-compatible with C, but there are some differences that make this not strictly true in all cases.',
+      explanation:
+        'Mostly true — C++ was designed to be largely backward-compatible with C, but there are some differences that make this not strictly true in all cases.',
       timeLimitSec: 20,
       order: 7,
       choices: [
@@ -1707,7 +1788,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What paradigm is Haskell known for?',
       type: 'SINGLE',
-      explanation: 'Haskell is a purely functional programming language. It emphasizes immutability, higher-order functions, and type safety.',
+      explanation:
+        'Haskell is a purely functional programming language. It emphasizes immutability, higher-order functions, and type safety.',
       timeLimitSec: 20,
       order: 8,
       choices: [
@@ -1723,7 +1805,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Which artist released the album "Thriller" in 1982?',
       type: 'SINGLE',
-      explanation: '"Thriller" by Michael Jackson is the best-selling album of all time, with an estimated 66–70 million copies sold worldwide.',
+      explanation:
+        '"Thriller" by Michael Jackson is the best-selling album of all time, with an estimated 66–70 million copies sold worldwide.',
       timeLimitSec: 15,
       order: 1,
       choices: [
@@ -1736,7 +1819,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'True or False: "Bohemian Rhapsody" was released by the band Queen.',
       type: 'TRUEFALSE',
-      explanation: 'True. "Bohemian Rhapsody" was released by Queen in 1975. It was written by Freddie Mercury and reached number one in multiple countries.',
+      explanation:
+        'True. "Bohemian Rhapsody" was released by Queen in 1975. It was written by Freddie Mercury and reached number one in multiple countries.',
       timeLimitSec: 10,
       order: 2,
       choices: [
@@ -1745,9 +1829,11 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
       ],
     },
     {
-      prompt: 'Which decade featured artists like Madonna, Prince, and Michael Jackson at their peak?',
+      prompt:
+        'Which decade featured artists like Madonna, Prince, and Michael Jackson at their peak?',
       type: 'SINGLE',
-      explanation: 'The 1980s were a golden era for pop music, featuring Madonna, Prince, Michael Jackson, and the rise of MTV music videos.',
+      explanation:
+        'The 1980s were a golden era for pop music, featuring Madonna, Prince, Michael Jackson, and the rise of MTV music videos.',
       timeLimitSec: 15,
       order: 3,
       choices: [
@@ -1760,7 +1846,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What is the best-selling single of all time?',
       type: 'SINGLE',
-      explanation: '"White Christmas" by Bing Crosby is estimated to be the best-selling physical single of all time, with 50+ million copies sold.',
+      explanation:
+        '"White Christmas" by Bing Crosby is estimated to be the best-selling physical single of all time, with 50+ million copies sold.',
       timeLimitSec: 20,
       order: 4,
       choices: [
@@ -1773,7 +1860,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Which streaming era artists have won multiple Grammy Awards for Album of the Year?',
       type: 'MULTIPLE',
-      explanation: 'Taylor Swift has won the most Album of the Year Grammys (4), and Adele has also won this award multiple times.',
+      explanation:
+        'Taylor Swift has won the most Album of the Year Grammys (4), and Adele has also won this award multiple times.',
       timeLimitSec: 25,
       order: 5,
       choices: [
@@ -1784,9 +1872,10 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
       ],
     },
     {
-      prompt: "What was the first music video played on MTV?",
+      prompt: 'What was the first music video played on MTV?',
       type: 'SINGLE',
-      explanation: '"Video Killed the Radio Star" by The Buggles was the first music video played on MTV when the channel launched on August 1, 1981.',
+      explanation:
+        '"Video Killed the Radio Star" by The Buggles was the first music video played on MTV when the channel launched on August 1, 1981.',
       timeLimitSec: 25,
       order: 6,
       choices: [
@@ -1799,7 +1888,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: "Complete: 'Is this the real life? Is this just ___?'",
       type: 'FILL_BLANK',
-      explanation: 'The opening line of "Bohemian Rhapsody" by Queen is "Is this the real life? Is this just fantasy?"',
+      explanation:
+        'The opening line of "Bohemian Rhapsody" by Queen is "Is this the real life? Is this just fantasy?"',
       timeLimitSec: 15,
       order: 7,
       choices: [
@@ -1810,7 +1900,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'True or False: The Beatles were from Liverpool, England.',
       type: 'TRUEFALSE',
-      explanation: 'True. The Beatles (John Lennon, Paul McCartney, George Harrison, and Ringo Starr) were all from Liverpool, England.',
+      explanation:
+        'True. The Beatles (John Lennon, Paul McCartney, George Harrison, and Ringo Starr) were all from Liverpool, England.',
       timeLimitSec: 10,
       order: 8,
       choices: [
@@ -1824,7 +1915,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Which country has won the most FIFA World Cup titles?',
       type: 'SINGLE',
-      explanation: 'Brazil has won the FIFA World Cup 5 times (1958, 1962, 1970, 1994, 2002), more than any other nation.',
+      explanation:
+        'Brazil has won the FIFA World Cup 5 times (1958, 1962, 1970, 1994, 2002), more than any other nation.',
       timeLimitSec: 15,
       order: 1,
       choices: [
@@ -1837,7 +1929,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'True or False: The first FIFA World Cup was held in Uruguay.',
       type: 'TRUEFALSE',
-      explanation: 'True. The first FIFA World Cup was held in Uruguay in 1930. Uruguay won the inaugural tournament.',
+      explanation:
+        'True. The first FIFA World Cup was held in Uruguay in 1930. Uruguay won the inaugural tournament.',
       timeLimitSec: 15,
       order: 2,
       choices: [
@@ -1848,7 +1941,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Who is the all-time top scorer in FIFA World Cup history?',
       type: 'SINGLE',
-      explanation: 'Miroslav Klose of Germany holds the record with 16 World Cup goals, scored across the 2002, 2006, 2010, and 2014 tournaments.',
+      explanation:
+        'Miroslav Klose of Germany holds the record with 16 World Cup goals, scored across the 2002, 2006, 2010, and 2014 tournaments.',
       timeLimitSec: 20,
       order: 3,
       choices: [
@@ -1861,7 +1955,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Which countries hosted the 2026 FIFA World Cup?',
       type: 'MULTIPLE',
-      explanation: 'The 2026 FIFA World Cup was co-hosted by the United States, Canada, and Mexico — the first World Cup with three host nations.',
+      explanation:
+        'The 2026 FIFA World Cup was co-hosted by the United States, Canada, and Mexico — the first World Cup with three host nations.',
       timeLimitSec: 25,
       order: 4,
       choices: [
@@ -1874,7 +1969,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'How many teams participate in the FIFA World Cup final tournament (since 2026)?',
       type: 'SINGLE',
-      explanation: 'Starting from the 2026 World Cup, the tournament expanded from 32 to 48 participating teams.',
+      explanation:
+        'Starting from the 2026 World Cup, the tournament expanded from 32 to 48 participating teams.',
       timeLimitSec: 20,
       order: 5,
       choices: [
@@ -1887,7 +1983,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What is the name of the FIFA World Cup trophy?',
       type: 'FILL_BLANK',
-      explanation: 'The current FIFA World Cup trophy is named "FIFA World Cup Trophy" but is colloquially known as the "FIFA World Cup Trophy." The previous trophy was the Jules Rimet Trophy.',
+      explanation:
+        'The current FIFA World Cup trophy is named "FIFA World Cup Trophy" but is colloquially known as the "FIFA World Cup Trophy." The previous trophy was the Jules Rimet Trophy.',
       timeLimitSec: 20,
       order: 6,
       choices: [
@@ -1898,7 +1995,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'True or False: Argentina won the 2022 FIFA World Cup.',
       type: 'TRUEFALSE',
-      explanation: 'True. Argentina beat France in the 2022 FIFA World Cup final in Qatar, winning on penalties after a 3–3 draw.',
+      explanation:
+        'True. Argentina beat France in the 2022 FIFA World Cup final in Qatar, winning on penalties after a 3–3 draw.',
       timeLimitSec: 10,
       order: 7,
       choices: [
@@ -1909,7 +2007,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Who scored a famous "Hand of God" goal in the 1986 World Cup?',
       type: 'SINGLE',
-      explanation: 'Diego Maradona scored the "Hand of God" goal against England in the 1986 quarter-finals, punching the ball into the net with his hand.',
+      explanation:
+        'Diego Maradona scored the "Hand of God" goal against England in the 1986 quarter-finals, punching the ball into the net with his hand.',
       timeLimitSec: 20,
       order: 8,
       choices: [
@@ -1925,7 +2024,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Which planet is known as the Red Planet?',
       type: 'SINGLE',
-      explanation: 'Mars is called the Red Planet because of its reddish appearance, caused by iron oxide (rust) on its surface.',
+      explanation:
+        'Mars is called the Red Planet because of its reddish appearance, caused by iron oxide (rust) on its surface.',
       timeLimitSec: 10,
       order: 1,
       choices: [
@@ -1938,7 +2038,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Who painted the Mona Lisa?',
       type: 'SINGLE',
-      explanation: 'Leonardo da Vinci painted the Mona Lisa between approximately 1503 and 1519. It is housed in the Louvre Museum in Paris.',
+      explanation:
+        'Leonardo da Vinci painted the Mona Lisa between approximately 1503 and 1519. It is housed in the Louvre Museum in Paris.',
       timeLimitSec: 10,
       order: 2,
       choices: [
@@ -1951,7 +2052,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'True or False: The Great Barrier Reef is located off the coast of Australia.',
       type: 'TRUEFALSE',
-      explanation: 'True. The Great Barrier Reef is the world\'s largest coral reef system, located in the Coral Sea off the coast of Queensland, Australia.',
+      explanation:
+        "True. The Great Barrier Reef is the world's largest coral reef system, located in the Coral Sea off the coast of Queensland, Australia.",
       timeLimitSec: 10,
       order: 3,
       choices: [
@@ -1962,7 +2064,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'Which of these are programming paradigms?',
       type: 'MULTIPLE',
-      explanation: 'Object-oriented and functional are programming paradigms. HTML is a markup language, and SQL is a query language.',
+      explanation:
+        'Object-oriented and functional are programming paradigms. HTML is a markup language, and SQL is a query language.',
       timeLimitSec: 25,
       order: 4,
       choices: [
@@ -1975,7 +2078,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'What is the currency of Japan?',
       type: 'SINGLE',
-      explanation: 'The Japanese yen (JPY, ¥) is the official currency of Japan. It is the third most traded currency in the foreign exchange market.',
+      explanation:
+        'The Japanese yen (JPY, ¥) is the official currency of Japan. It is the third most traded currency in the foreign exchange market.',
       timeLimitSec: 10,
       order: 5,
       choices: [
@@ -1988,7 +2092,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'How many strings does a standard guitar have?',
       type: 'SINGLE',
-      explanation: 'A standard acoustic or electric guitar has 6 strings. Bass guitars typically have 4.',
+      explanation:
+        'A standard acoustic or electric guitar has 6 strings. Bass guitars typically have 4.',
       timeLimitSec: 10,
       order: 6,
       choices: [
@@ -2013,7 +2118,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     {
       prompt: 'True or False: The sun is a star.',
       type: 'TRUEFALSE',
-      explanation: 'True. The Sun is a G-type main-sequence star (yellow dwarf) at the center of our solar system.',
+      explanation:
+        'True. The Sun is a G-type main-sequence star (yellow dwarf) at the center of our solar system.',
       timeLimitSec: 5,
       order: 8,
       choices: [

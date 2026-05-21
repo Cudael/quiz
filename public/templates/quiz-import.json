@@ -1,0 +1,23 @@
+[
+  {
+    "type": "SINGLE",
+    "prompt": "What is 2+2?",
+    "explanation": "Basic math",
+    "timeLimitSec": 15,
+    "choices": [
+      { "text": "3", "isCorrect": false },
+      { "text": "4", "isCorrect": true },
+      { "text": "5", "isCorrect": false },
+      { "text": "6", "isCorrect": false }
+    ]
+  },
+  {
+    "type": "FILL_BLANK",
+    "prompt": "Capital of France is {{blank}}.",
+    "timeLimitSec": 15,
+    "choices": [
+      { "text": "Paris", "isCorrect": true },
+      { "text": "paris", "isCorrect": true }
+    ]
+  }
+]

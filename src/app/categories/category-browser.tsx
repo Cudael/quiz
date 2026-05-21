@@ -7,6 +7,7 @@ import { CategoryTile } from '@/components/ui/category-tile'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
+import { ReportQuizForm } from '@/app/quiz/report-quiz-form'
 
 type Difficulty = 'ALL' | 'EASY' | 'MEDIUM' | 'HARD'
 type SortOption = 'popular' | 'newest' | 'hardest'
@@ -181,19 +182,26 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                 {cat.quizzes.length > 0 && (
                   <div className="mt-3 space-y-2">
                     {cat.quizzes.slice(0, 3).map((quiz) => (
-                      <Link
+                      <article
                         key={quiz.id}
-                        href={`/quiz/${quiz.id}`}
-                        className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2 text-sm hover:bg-accent transition-colors"
+                        className="space-y-2 rounded-lg border border-border bg-card p-2"
                       >
-                        <span className="truncate font-medium">{quiz.title}</span>
-                        <Badge
-                          variant={difficultyColor[quiz.difficulty] ?? 'outline'}
-                          className="ml-2 shrink-0"
+                        <Link
+                          href={`/quiz/${quiz.id}`}
+                          className="flex items-center justify-between rounded-lg px-1 py-1 text-sm hover:bg-accent transition-colors"
                         >
-                          {quiz.difficulty}
-                        </Badge>
-                      </Link>
+                          <span className="truncate font-medium">{quiz.title}</span>
+                          <Badge
+                            variant={difficultyColor[quiz.difficulty] ?? 'outline'}
+                            className="ml-2 shrink-0"
+                          >
+                            {quiz.difficulty}
+                          </Badge>
+                        </Link>
+                        <div className="px-1">
+                          <ReportQuizForm quizId={quiz.id} />
+                        </div>
+                      </article>
                     ))}
                     {cat.quizzes.length > 3 && (
                       <p className="text-xs text-muted-foreground text-center">
