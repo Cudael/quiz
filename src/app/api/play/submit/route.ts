@@ -152,7 +152,7 @@ export async function POST(req: NextRequest) {
         const streakResult = computeStreak({
           lastPlayedAt: currentUser.lastPlayedAt,
           currentStreakDays: currentUser.streakDays,
-          bestStreakDays: currentUser.bestStreak,
+          bestStreak: currentUser.bestStreak,
           now,
         })
 

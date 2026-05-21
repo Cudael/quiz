@@ -266,7 +266,11 @@ export default async function LeaderboardPage({
             <summary className="cursor-pointer">
               Categories ({categoryParams.length || 'All'})
             </summary>
-            <div className="mt-2 max-h-48 space-y-1 overflow-auto pr-2">
+            <div
+              className="mt-2 max-h-48 space-y-1 overflow-auto pr-2"
+              role="group"
+              aria-label="Leaderboard category filters"
+            >
               {categories.map((category) => (
                 <label key={category.slug} className="flex items-center gap-2 text-xs">
                   <input

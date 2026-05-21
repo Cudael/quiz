@@ -153,6 +153,7 @@ export async function evaluateBadgesWithClient(
   userId: string,
   justFinishedSessionId: string
 ): Promise<Badge[]> {
+  // Reserved for future incremental evaluators that only need data from the just-finished session.
   void justFinishedSessionId
   const [allBadges, existingAwards, stats] = await Promise.all([
     client.badge.findMany(),

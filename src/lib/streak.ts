@@ -1,7 +1,7 @@
 interface ComputeStreakInput {
   lastPlayedAt: Date | null
   currentStreakDays: number
-  bestStreakDays: number
+  bestStreak: number
   now: Date
 }
 
@@ -25,7 +25,7 @@ function utcDayStart(date: Date) {
 export function computeStreak({
   lastPlayedAt,
   currentStreakDays,
-  bestStreakDays,
+  bestStreak,
   now,
 }: ComputeStreakInput): ComputeStreakResult {
   let newStreakDays = 1
@@ -42,6 +42,7 @@ export function computeStreak({
       wasIncremented = false
       wasReset = false
     } else if (dayDiff === 1) {
+      // Played exactly yesterday (UTC day boundary) → increment.
       newStreakDays = Math.max(1, currentStreakDays) + 1
     } else if (now.getTime() - lastPlayedAt.getTime() <= GRACE_WINDOW_MS) {
       newStreakDays = Math.max(1, currentStreakDays) + 1
@@ -53,7 +54,7 @@ export function computeStreak({
 
   return {
     newStreakDays,
-    newBestStreakDays: Math.max(bestStreakDays, newStreakDays),
+    newBestStreakDays: Math.max(bestStreak, newStreakDays),
     wasReset,
     wasIncremented,
   }

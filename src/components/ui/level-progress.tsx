@@ -31,7 +31,8 @@ export function LevelProgress({ xp, size = 'md', className }: LevelProgressProps
         <div
           className="relative"
           style={{ width, height: width }}
-          title={`xpForLevel(n) = 100 * n * (n+1) / 2\nTotal XP: ${xp.toLocaleString()}`}
+          title={`xpForLevel(n) = 100 * (n-1) * n / 2\nTotal XP: ${xp.toLocaleString()}`}
+          aria-label={`Level progress indicator: level ${progress.level}, total XP ${xp.toLocaleString()}`}
         >
           <svg width={width} height={width} className="-rotate-90">
             <circle

@@ -8,11 +8,13 @@ export async function generateUniqueUsername(
   rawName: string,
   client: PrismaLike = prisma
 ): Promise<string> {
-  const base = slugify(rawName) || `player-${Math.random().toString(36).slice(2, 8)}`
+  const base = slugify(rawName) || `player-${crypto.randomUUID().slice(0, 8)}`
 
   let candidate = base
   let suffix = 1
-  while (true) {
+  const MAX_RETRIES = 100
+
+  while (suffix <= MAX_RETRIES) {
     const existing = await client.user.findUnique({
       where: { username: candidate },
       select: { id: true },
@@ -25,4 +27,6 @@ export async function generateUniqueUsername(
     suffix += 1
     candidate = `${base}-${suffix}`
   }
+
+  throw new Error('Unable to generate a unique username after 100 attempts')
 }

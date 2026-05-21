@@ -47,9 +47,9 @@ export function ResultsClient({
 
   useEffect(() => {
     if (unlockedBadges.length === 0) return
-    unlockedBadges.forEach((badgeSlug, index) => {
+    unlockedBadges.forEach((badgeName, index) => {
       window.setTimeout(() => {
-        addToast(`Badge unlocked! ${badgeSlug}`, 'success', 5000)
+        addToast(`Badge unlocked! ${badgeName}`, 'success', 5000)
       }, index * 250)
     })
   }, [addToast, unlockedBadges])

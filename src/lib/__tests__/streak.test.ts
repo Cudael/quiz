@@ -8,7 +8,7 @@ describe('computeStreak', () => {
     const result = computeStreak({
       lastPlayedAt: new Date('2026-05-21T01:00:00Z'),
       currentStreakDays: 5,
-      bestStreakDays: 9,
+      bestStreak: 9,
       now,
     })
 
@@ -21,7 +21,7 @@ describe('computeStreak', () => {
     const result = computeStreak({
       lastPlayedAt: new Date('2026-05-20T23:00:00Z'),
       currentStreakDays: 5,
-      bestStreakDays: 9,
+      bestStreak: 9,
       now,
     })
 
@@ -34,7 +34,7 @@ describe('computeStreak', () => {
     const result = computeStreak({
       lastPlayedAt: new Date('2026-05-20T01:00:00Z'),
       currentStreakDays: 8,
-      bestStreakDays: 10,
+      bestStreak: 10,
       now,
     })
 
@@ -46,7 +46,7 @@ describe('computeStreak', () => {
     const result = computeStreak({
       lastPlayedAt: new Date('2026-05-19T00:00:00Z'),
       currentStreakDays: 8,
-      bestStreakDays: 10,
+      bestStreak: 10,
       now,
     })
 
@@ -58,7 +58,7 @@ describe('computeStreak', () => {
     const result = computeStreak({
       lastPlayedAt: new Date('2026-05-20T09:00:00Z'),
       currentStreakDays: 10,
-      bestStreakDays: 10,
+      bestStreak: 10,
       now,
     })
 

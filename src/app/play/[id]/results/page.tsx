@@ -83,10 +83,10 @@ export default async function ResultsPage({
   const xpEarned = Number(xpEarnedParam ?? 0) || 0
   const leveledUp = leveledUpParam === '1'
   const newLevel = Number(newLevelParam ?? 1) || 1
-  const newBadgeSlugs = newBadges
+  const newBadgeNames = newBadges
     ? newBadges
-        .split(',')
-        .map((slug) => slug.trim())
+        .split('|')
+        .map((name) => decodeURIComponent(name.trim()))
         .filter(Boolean)
     : []
 
@@ -98,7 +98,7 @@ export default async function ResultsPage({
         sessionId={sessionId}
         quizId={id}
         mode={sessionRow.mode}
-        unlockedBadges={newBadgeSlugs}
+        unlockedBadges={newBadgeNames}
       />
 
       <div className="mb-8 text-center">

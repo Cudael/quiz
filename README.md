@@ -230,7 +230,7 @@ flowchart LR
 
 ### XP formula
 
-`xpForLevel(n) = 100 * n * (n+1) / 2` (total XP required to reach level `n`, with level 1 at 0 XP).
+`xpForLevel(n) = 100 * (n-1) * n / 2` (total XP required to reach level `n`, with level 1 at 0 XP).
 
 | Level | XP to Reach |
 | ----- | ----------- |

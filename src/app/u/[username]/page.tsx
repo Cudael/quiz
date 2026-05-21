@@ -88,6 +88,10 @@ export default async function UserProfilePage({
   if (!user) {
     notFound()
   }
+  if (!user.username) {
+    notFound()
+  }
+  const profileUsername = user.username
 
   const [allBadges, badgeLeaders, isFollowing] = await Promise.all([
     prisma.badge.findMany({
@@ -165,7 +169,7 @@ export default async function UserProfilePage({
             </div>
 
             {!isSelf && session?.user?.id && (
-              <form action={toggleFollowAction.bind(null, user.id, user.username ?? username)}>
+              <form action={toggleFollowAction.bind(null, user.id, profileUsername)}>
                 <button
                   type="submit"
                   className="rounded-lg border border-border px-4 py-2 text-sm font-medium hover:bg-muted"

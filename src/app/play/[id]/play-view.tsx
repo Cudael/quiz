@@ -163,7 +163,9 @@ export function PlayView({ quizId }: PlayViewProps) {
         leveledUp: result.leveledUp ? '1' : '0',
         newLevel: String(result.newLevel ?? 1),
         newBadges: Array.isArray(result.newlyAwardedBadges)
-          ? result.newlyAwardedBadges.map((badge: { slug: string }) => badge.slug).join(',')
+          ? result.newlyAwardedBadges
+              .map((badge: { name: string }) => encodeURIComponent(badge.name))
+              .join('|')
           : '',
       })
       router.push(`/play/${quizId}/results?${resultParams.toString()}`)

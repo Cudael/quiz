@@ -71,7 +71,7 @@ export function computeStreak(
   const result = computeStreakDetailed({
     lastPlayedAt,
     currentStreakDays,
-    bestStreakDays: currentStreakDays,
+    bestStreak: currentStreakDays,
     now,
   })
   return { newStreakDays: result.newStreakDays, wasReset: result.wasReset }
