@@ -46,9 +46,11 @@ async function main() {
     await prisma.user.create({ data: u })
   }
   console.log(`  ✓ Seeded ${users.length} users`)
-  console.log(
-    "  ✓ Admin demo user: admin@quizarena.dev — sign in via Credentials provider with name 'Admin Demo'"
-  )
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(
+      "  ✓ Admin demo user: admin@quizarena.dev — sign in via Credentials provider with name 'Admin Demo'"
+    )
+  }
 
   // ------------------------------------------------------------------
   // Categories

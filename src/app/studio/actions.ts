@@ -6,6 +6,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { parseCsvQuizImport, parseJsonQuizImport } from '@/lib/quiz-import'
 import { categorySuggestionSchema, quizSchema } from '@/lib/schemas'
+import { IMPORT_QUESTION_BATCH_SIZE } from '@/lib/quiz-constants'
 
 const quizIdSchema = z.string().cuid()
 const quizInputSchema = quizSchema
@@ -189,26 +190,29 @@ export async function importQuestions(formData: FormData): Promise<ActionResult>
   }
 
   const existingCount = await prisma.question.count({ where: { quizId: quizIdParsed.data } })
-  await prisma.$transaction(
-    parsed.questions.map((question, index) =>
-      prisma.question.create({
-        data: {
-          quizId: quizIdParsed.data,
-          type: question.type,
-          prompt: question.prompt,
-          explanation: question.explanation,
-          timeLimitSec: question.timeLimitSec,
-          order: existingCount + index,
-          choices: {
-            create: question.choices.map((choice) => ({
-              text: choice.text,
-              isCorrect: choice.isCorrect,
-            })),
+  for (let start = 0; start < parsed.questions.length; start += IMPORT_QUESTION_BATCH_SIZE) {
+    const batch = parsed.questions.slice(start, start + IMPORT_QUESTION_BATCH_SIZE)
+    await prisma.$transaction(
+      batch.map((question, index) =>
+        prisma.question.create({
+          data: {
+            quizId: quizIdParsed.data,
+            type: question.type,
+            prompt: question.prompt,
+            explanation: question.explanation,
+            timeLimitSec: question.timeLimitSec,
+            order: existingCount + start + index,
+            choices: {
+              create: question.choices.map((choice) => ({
+                text: choice.text,
+                isCorrect: choice.isCorrect,
+              })),
+            },
           },
-        },
-      })
+        })
+      )
     )
-  )
+  }
 
   revalidatePath(`/studio/quiz/${quizIdParsed.data}/edit`)
   revalidatePath(`/studio/quiz/${quizIdParsed.data}/import`)

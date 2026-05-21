@@ -79,8 +79,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             data: { userId: session.user.id },
           })
         }
-      } catch {
-        // Ignore cookie migration if request cookies are not available in this context.
+      } catch (error) {
+        console.warn('Guest session migration skipped:', error)
       }
 
       return session

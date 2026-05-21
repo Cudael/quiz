@@ -25,7 +25,7 @@ export default async function StudioPage({
       isPublished: activeTab === 'published',
     },
     include: {
-      category: { select: { name: true } },
+      category: { select: { name: true, color: true } },
       questions: { select: { id: true } },
     },
     orderBy: { updatedAt: 'desc' },
@@ -94,10 +94,7 @@ export default async function StudioPage({
                     <div
                       className="h-6 w-6 rounded-full border"
                       style={{
-                        background:
-                          quiz.category.name === 'Science'
-                            ? 'linear-gradient(135deg,#7C3AED,#EC4899)'
-                            : 'linear-gradient(135deg,#3B82F6,#22C55E)',
+                        background: quiz.category.color,
                       }}
                     />
                   </td>
@@ -106,7 +103,7 @@ export default async function StudioPage({
                   <td className="px-4 py-3">{quiz.difficulty}</td>
                   <td className="px-4 py-3">{quiz.questions.length}</td>
                   <td className="px-4 py-3">{quiz.playCount}</td>
-                  <td className="px-4 py-3">{Math.round(quiz.avgScore)}</td>
+                  <td className="px-4 py-3">{quiz.avgScore.toFixed(1)}</td>
                   <td className="px-4 py-3">{quiz.updatedAt.toLocaleDateString()}</td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-2">

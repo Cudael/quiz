@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { verifyPlayToken } from '@/lib/play-token'
 import { scoreQuestion, levelForXp } from '@/lib/scoring'
 import { auth } from '@/auth'
+import { DEFAULT_GUEST_NAME } from '@/lib/quiz-constants'
 
 interface AnswerInput {
   questionId: string
@@ -121,7 +122,7 @@ export async function POST(req: NextRequest) {
     data: {
       userId: authSession?.user?.id ?? null,
       quizId,
-      guestName: guestName ?? 'Guest',
+      guestName: guestName?.trim() ? guestName.trim() : DEFAULT_GUEST_NAME,
       guestKey,
       score,
       correctCount,

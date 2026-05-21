@@ -1,3 +1,5 @@
+import { DEFAULT_TIME_LIMIT_SEC, FILL_BLANK_PLACEHOLDER } from '@/lib/quiz-constants'
+
 export type ImportQuestionType = 'SINGLE' | 'MULTIPLE' | 'TRUEFALSE' | 'FILL_BLANK'
 
 export interface ImportChoice {
@@ -30,8 +32,8 @@ function parseCsvLine(line: string) {
   let current = ''
   let inQuotes = false
   for (let i = 0; i < line.length; i += 1) {
-    const char = line[i]
-    if (char === '"') {
+    const currentChar = line[i]
+    if (currentChar === '"') {
       if (inQuotes && line[i + 1] === '"') {
         current += '"'
         i += 1
@@ -40,12 +42,12 @@ function parseCsvLine(line: string) {
       }
       continue
     }
-    if (char === ',' && !inQuotes) {
+    if (currentChar === ',' && !inQuotes) {
       fields.push(current)
       current = ''
       continue
     }
-    current += char
+    current += currentChar
   }
   fields.push(current)
   return fields.map((field) => field.trim())
@@ -79,8 +81,11 @@ function validateQuestion(question: ImportQuestion, row: number) {
   if (question.type === 'TRUEFALSE' && question.choices.length !== 2) {
     errors.push({ row, message: 'TRUEFALSE must include True and False choices.' })
   }
-  if (question.type === 'FILL_BLANK' && !question.prompt.includes('{{blank}}')) {
-    errors.push({ row, message: 'FILL_BLANK prompt must include {{blank}} placeholder.' })
+  if (question.type === 'FILL_BLANK' && !question.prompt.includes(FILL_BLANK_PLACEHOLDER)) {
+    errors.push({
+      row,
+      message: `FILL_BLANK prompt must include ${FILL_BLANK_PLACEHOLDER} placeholder.`,
+    })
   }
 
   return errors
@@ -114,7 +119,11 @@ export function parseCsvQuizImport(input: string): QuizImportResult {
     return {
       questions: [],
       errors: [
-        { row: 1, message: 'Invalid CSV header. Use type,prompt,explanation,timeLimitSec,choices' },
+        {
+          row: 1,
+          message:
+            'Invalid CSV header. Use type,prompt,explanation,timeLimitSec,choices (case-insensitive).',
+        },
       ],
     }
   }
@@ -132,7 +141,7 @@ export function parseCsvQuizImport(input: string): QuizImportResult {
       type,
       prompt,
       explanation: explanation || undefined,
-      timeLimitSec: Number.isFinite(timeLimitSec) ? timeLimitSec : 20,
+      timeLimitSec: Number.isFinite(timeLimitSec) ? timeLimitSec : DEFAULT_TIME_LIMIT_SEC,
       choices: parseChoiceList(choiceRaw),
     }
 
@@ -170,7 +179,7 @@ export function parseJsonQuizImport(input: string): QuizImportResult {
       type: (raw.type ?? 'SINGLE') as ImportQuestionType,
       prompt: String(raw.prompt ?? ''),
       explanation: raw.explanation ?? undefined,
-      timeLimitSec: Number(raw.timeLimitSec ?? 20),
+      timeLimitSec: Number(raw.timeLimitSec ?? DEFAULT_TIME_LIMIT_SEC),
       choices: Array.isArray(raw.choices)
         ? raw.choices.map((choice) => ({
             text: String(choice.text ?? ''),

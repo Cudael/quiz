@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { FILL_BLANK_PLACEHOLDER } from '@/lib/quiz-constants'
 
 export const quizSchema = z.object({
   title: z.string().trim().min(1).max(120),
@@ -24,8 +25,11 @@ export const questionSchema = z
     if (value.type === 'MULTIPLE' && correctCount < 2) {
       ctx.addIssue({ code: 'custom', message: 'At least two correct answers are required.' })
     }
-    if (value.type === 'FILL_BLANK' && !value.prompt.includes('{{blank}}')) {
-      ctx.addIssue({ code: 'custom', message: 'FILL_BLANK prompt must contain {{blank}}.' })
+    if (value.type === 'FILL_BLANK' && !value.prompt.includes(FILL_BLANK_PLACEHOLDER)) {
+      ctx.addIssue({
+        code: 'custom',
+        message: `FILL_BLANK prompt must contain ${FILL_BLANK_PLACEHOLDER}.`,
+      })
     }
   })
 

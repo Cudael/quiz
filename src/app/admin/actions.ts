@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { slugify } from '@/lib/slugify'
 
 type AdminResult =
   | { ok: true }
@@ -12,6 +13,12 @@ type AdminResult =
       error: 'UNAUTHORIZED' | 'FORBIDDEN' | 'VALIDATION_ERROR' | 'NOT_FOUND'
       message: string
     }
+
+const REPORT_ACTION_MAP = {
+  DISMISS: 'REPORT_DISMISS',
+  UNPUBLISH: 'REPORT_UNPUBLISH',
+  DELETE: 'REPORT_DELETE',
+} as const
 
 async function assertAdmin() {
   const session = await auth()
@@ -63,10 +70,7 @@ export async function reviewCategorySuggestion(formData: FormData): Promise<Admi
     if (isApprove) {
       await tx.category.create({
         data: {
-          slug: suggestion.name
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/(^-|-$)/g, ''),
+          slug: slugify(suggestion.name),
           name: suggestion.name,
           description: suggestion.description,
           icon: suggestion.icon,
@@ -135,7 +139,7 @@ export async function resolveReport(formData: FormData): Promise<AdminResult> {
     await tx.adminAction.create({
       data: {
         actorId: guard.userId,
-        action: `REPORT_${parsed.data.resolution}`,
+        action: REPORT_ACTION_MAP[parsed.data.resolution],
         targetType: 'Report',
         targetId: report.id,
         meta: JSON.stringify({ quizId: report.quizId }),

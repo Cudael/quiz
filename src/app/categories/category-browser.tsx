@@ -182,7 +182,7 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                 {cat.quizzes.length > 0 && (
                   <div className="mt-3 space-y-2">
                     {cat.quizzes.slice(0, 3).map((quiz) => (
-                      <div
+                      <article
                         key={quiz.id}
                         className="space-y-2 rounded-lg border border-border bg-card p-2"
                       >
@@ -201,7 +201,7 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                         <div className="px-1">
                           <ReportQuizForm quizId={quiz.id} />
                         </div>
-                      </div>
+                      </article>
                     ))}
                     {cat.quizzes.length > 3 && (
                       <p className="text-xs text-muted-foreground text-center">

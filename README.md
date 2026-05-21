@@ -77,13 +77,13 @@ npm run db:seed               # populates with demo content
 
 **Demo users:**
 
-| Name            | Email               | Role  |
-| --------------- | ------------------- | ----- |
-| QuizArena Admin | admin@quizarena.dev | ADMIN |
-| Alice Chen      | alice@quizarena.dev | USER  |
-| Bob Martinez    | bob@quizarena.dev   | USER  |
-| Carol Zhang     | carol@quizarena.dev | USER  |
-| Dave Okonkwo    | demo@quizarena.dev  | USER  |
+| Name         | Email               | Role  |
+| ------------ | ------------------- | ----- |
+| Admin Demo   | admin@quizarena.dev | ADMIN |
+| Alice Chen   | alice@quizarena.dev | USER  |
+| Bob Martinez | bob@quizarena.dev   | USER  |
+| Carol Zhang  | carol@quizarena.dev | USER  |
+| Dave Okonkwo | demo@quizarena.dev  | USER  |
 
 ### Switching to PostgreSQL
 
