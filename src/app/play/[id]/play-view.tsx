@@ -244,7 +244,13 @@ export function PlayView({ quizId }: PlayViewProps) {
     }
     return clearTimer
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [store.currentQuestionIndex, store.status, currentQuestion?.id, startQuestionTimer])
+  }, [
+    store.currentQuestionIndex,
+    store.status,
+    currentQuestion?.id,
+    startQuestionTimer,
+    clearTimer,
+  ])
 
   // Global timed mode timer
   useEffect(() => {
