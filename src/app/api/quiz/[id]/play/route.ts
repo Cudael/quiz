@@ -1,0 +1,52 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { signPlayToken } from '@/lib/play-token'
+
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+
+  const quiz = await prisma.quiz.findUnique({
+    where: { id },
+    include: {
+      category: true,
+      author: { select: { id: true, name: true, image: true } },
+      questions: {
+        orderBy: { order: 'asc' },
+        include: {
+          choices: {
+            select: { id: true, text: true },
+            // isCorrect is intentionally omitted from select
+          },
+        },
+      },
+    },
+  })
+
+  if (!quiz) {
+    return NextResponse.json({ error: 'Quiz not found' }, { status: 404 })
+  }
+
+  const playToken = await signPlayToken(quiz.id)
+
+  return NextResponse.json({
+    quiz: {
+      id: quiz.id,
+      title: quiz.title,
+      description: quiz.description,
+      difficulty: quiz.difficulty,
+      category: quiz.category,
+      author: quiz.author,
+      playCount: quiz.playCount,
+      avgScore: quiz.avgScore,
+    },
+    questions: quiz.questions.map((q) => ({
+      id: q.id,
+      type: q.type,
+      prompt: q.prompt,
+      timeLimitSec: q.timeLimitSec,
+      order: q.order,
+      choices: q.choices,
+    })),
+    playToken,
+  })
+}

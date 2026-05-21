@@ -1,8 +1,36 @@
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { prisma } from '@/lib/prisma'
+import { CategoryBrowser } from './category-browser'
 
-export default function CategoriesPage() {
+export default async function CategoriesPage() {
+  const categories = await prisma.category.findMany({
+    orderBy: { createdAt: 'asc' },
+    include: {
+      quizzes: {
+        select: {
+          id: true,
+          title: true,
+          difficulty: true,
+          playCount: true,
+          createdAt: true,
+        },
+        where: { isPublished: true },
+      },
+    },
+  })
+
+  // Serialize dates for client component
+  const serialized = categories.map((cat) => ({
+    ...cat,
+    createdAt: cat.createdAt.toISOString(),
+    quizzes: cat.quizzes.map((q) => ({
+      ...q,
+      createdAt: q.createdAt.toISOString(),
+    })),
+  }))
+
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="mb-8">
@@ -13,8 +41,21 @@ export default function CategoriesPage() {
           </Link>
         </Button>
       </div>
-      <h1 className="text-3xl font-extrabold mb-4">Categories</h1>
-      <p className="text-muted-foreground">Category browser coming in Phase 3. Stay tuned!</p>
+
+      <div className="mb-10">
+        <h1 className="text-3xl font-extrabold md:text-4xl">
+          Browse{' '}
+          <span className="bg-gradient-to-r from-quiz-purple to-quiz-pink bg-clip-text text-transparent">
+            Categories
+          </span>
+        </h1>
+        <p className="mt-2 text-muted-foreground">
+          {categories.length} categories ·{' '}
+          {categories.reduce((sum, c) => sum + c.quizzes.length, 0)} quizzes
+        </p>
+      </div>
+
+      <CategoryBrowser categories={serialized} />
     </div>
   )
 }
