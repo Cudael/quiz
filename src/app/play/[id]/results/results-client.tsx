@@ -12,16 +12,22 @@ interface ResultsClientProps {
   sessionId: string
   quizId: string
   mode: string
+  unlockedBadges?: string[]
 }
 
-export function ResultsClient({ score, accuracy, sessionId }: ResultsClientProps) {
+export function ResultsClient({
+  score,
+  accuracy,
+  sessionId,
+  unlockedBadges = [],
+}: ResultsClientProps) {
   const { addToast } = useToast()
   const confettiRef = useRef(false)
 
-  // Fire confetti if perfect score or high accuracy
+  // Fire confetti if perfect score or new badge unlock.
   useEffect(() => {
     if (confettiRef.current) return
-    if (accuracy < 80 && score < 100) return
+    if (accuracy < 100 && unlockedBadges.length === 0) return
     confettiRef.current = true
 
     // Check prefers-reduced-motion
@@ -37,7 +43,16 @@ export function ResultsClient({ score, accuracy, sessionId }: ResultsClientProps
         colors: ['#7c3aed', '#ec4899', '#22c55e', '#3b82f6', '#eab308'],
       })
     })
-  }, [accuracy, score])
+  }, [accuracy, score, unlockedBadges.length])
+
+  useEffect(() => {
+    if (unlockedBadges.length === 0) return
+    unlockedBadges.forEach((badgeSlug, index) => {
+      window.setTimeout(() => {
+        addToast(`Badge unlocked! ${badgeSlug}`, 'success', 5000)
+      }, index * 250)
+    })
+  }, [addToast, unlockedBadges])
 
   const handleShare = async () => {
     const origin = typeof window !== 'undefined' ? window.location.origin : ''

@@ -190,6 +190,8 @@ async function main() {
     totalCount: number
     timeTakenMs: number
     mode: string
+    daysAgo: number
+    hourUtc?: number
   }> = [
     {
       userId: 'user_demo_alice',
@@ -200,6 +202,7 @@ async function main() {
       totalCount: 8,
       timeTakenMs: 98000,
       mode: 'CLASSIC',
+      daysAgo: 0,
     },
     {
       userId: 'user_demo_bob',
@@ -210,6 +213,7 @@ async function main() {
       totalCount: 9,
       timeTakenMs: 140000,
       mode: 'TIMED',
+      daysAgo: 1,
     },
     {
       userId: 'user_demo_carol',
@@ -220,6 +224,7 @@ async function main() {
       totalCount: 8,
       timeTakenMs: 120000,
       mode: 'CLASSIC',
+      daysAgo: 2,
     },
     {
       userId: 'user_demo_dave',
@@ -230,6 +235,7 @@ async function main() {
       totalCount: 8,
       timeTakenMs: 85000,
       mode: 'DAILY',
+      daysAgo: 0,
     },
     {
       userId: 'user_admin_quizarena',
@@ -240,6 +246,7 @@ async function main() {
       totalCount: 8,
       timeTakenMs: 62000,
       mode: 'TIMED',
+      daysAgo: 3,
     },
     {
       userId: null,
@@ -250,6 +257,7 @@ async function main() {
       totalCount: 8,
       timeTakenMs: 135000,
       mode: 'CLASSIC',
+      daysAgo: 8,
     },
     {
       userId: null,
@@ -260,6 +268,8 @@ async function main() {
       totalCount: 8,
       timeTakenMs: 110000,
       mode: 'CLASSIC',
+      daysAgo: 15,
+      hourUtc: 1,
     },
     {
       userId: 'user_demo_alice',
@@ -270,6 +280,7 @@ async function main() {
       totalCount: 9,
       timeTakenMs: 152000,
       mode: 'SURVIVAL',
+      daysAgo: 4,
     },
     {
       userId: 'user_demo_bob',
@@ -280,6 +291,7 @@ async function main() {
       totalCount: 8,
       timeTakenMs: 95000,
       mode: 'CLASSIC',
+      daysAgo: 5,
     },
     {
       userId: 'user_demo_carol',
@@ -290,6 +302,7 @@ async function main() {
       totalCount: 8,
       timeTakenMs: 118000,
       mode: 'DAILY',
+      daysAgo: 1,
     },
     {
       userId: 'user_demo_alice',
@@ -300,6 +313,7 @@ async function main() {
       totalCount: 8,
       timeTakenMs: 88000,
       mode: 'TIMED',
+      daysAgo: 9,
     },
     {
       userId: 'user_admin_quizarena',
@@ -310,10 +324,35 @@ async function main() {
       totalCount: 8,
       timeTakenMs: 55000,
       mode: 'TIMED',
+      daysAgo: 20,
+      hourUtc: 2,
     },
   ]
 
+  const generatedSessions = Array.from({ length: 36 }, (_, index) => {
+    const cycle = index % 3
+    const userId =
+      cycle === 0 ? 'user_demo_alice' : cycle === 1 ? 'user_demo_bob' : 'user_demo_carol'
+    const quizTitle =
+      cycle === 0 ? 'Elementary Physics' : cycle === 1 ? 'World War II' : 'World Capitals'
+
+    return {
+      userId,
+      guestName: null,
+      quizTitle,
+      score: 600 + ((index * 37) % 380),
+      correctCount: 5 + (index % 4),
+      totalCount: 8,
+      timeTakenMs: 70000 + ((index * 1900) % 80000),
+      mode: index % 5 === 0 ? 'DAILY' : index % 2 === 0 ? 'TIMED' : 'CLASSIC',
+      daysAgo: index % 30,
+      hourUtc: index % 7 === 0 ? 2 : 14,
+    }
+  })
+  sessionData.push(...generatedSessions)
+
   let sessionCount = 0
+  const now = new Date()
   for (const s of sessionData) {
     const quizId = quizMap[s.quizTitle]
     if (!quizId) {
@@ -330,6 +369,16 @@ async function main() {
         totalCount: s.totalCount,
         timeTakenMs: s.timeTakenMs,
         mode: s.mode,
+        createdAt: new Date(
+          Date.UTC(
+            now.getUTCFullYear(),
+            now.getUTCMonth(),
+            now.getUTCDate() - s.daysAgo,
+            s.hourUtc ?? 14,
+            0,
+            0
+          )
+        ),
       },
     })
     sessionCount++

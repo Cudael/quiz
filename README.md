@@ -73,7 +73,7 @@ npm run db:seed               # populates with demo content
 | Questions     | ~100+ |
 | Badges        | 10    |
 | Demo users    | 5     |
-| Play sessions | 12    |
+| Play sessions | 48+   |
 
 **Demo users:**
 
@@ -226,12 +226,111 @@ flowchart LR
   DB --- AA
 ```
 
+## 🏆 Phase 5 — Leaderboards, Profiles & Gamification
+
+### XP formula
+
+`xpForLevel(n) = 100 * n * (n+1) / 2` (total XP required to reach level `n`, with level 1 at 0 XP).
+
+| Level | XP to Reach |
+| ----- | ----------- |
+| 1     | 0           |
+| 2     | 100         |
+| 3     | 300         |
+| 4     | 600         |
+| 5     | 1000        |
+| 6     | 1500        |
+| 7     | 2100        |
+| 8     | 2800        |
+| 9     | 3600        |
+| 10    | 4500        |
+
+### Win definition
+
+A **win** is any completed session with `correctCount / totalCount >= 0.7` (70% accuracy).
+
+### Streak rules
+
+- Same UTC calendar day as `lastPlayedAt` → no change.
+- Yesterday → increment streak by 1.
+- Older than yesterday but still within 36h grace from `lastPlayedAt` → increment streak by 1.
+- Outside the grace window → reset to 1.
+- `bestStreak` is always `max(previousBest, currentStreak)`.
+
+### Badge catalog
+
+| Slug                      | Name           | Criteria                                                              |
+| ------------------------- | -------------- | --------------------------------------------------------------------- |
+| `first-win`               | First Win      | `{ type: 'wins', count: 1 }`                                          |
+| `perfect-score`           | Perfect Score  | `{ type: 'perfectScore' }`                                            |
+| `streak-7`                | 7-Day Streak   | `{ type: 'streak', days: 7 }`                                         |
+| `streak-30`               | 30-Day Streak  | `{ type: 'streak', days: 30 }`                                        |
+| `quiz-author`             | Quiz Author    | `{ type: 'quizzesAuthored', count: 1 }`                               |
+| `category-master-science` | Science Master | `{ type: 'categoryMaster', categorySlug: 'science', minQuizzes: 10 }` |
+| `speed-demon`             | Speed Demon    | `{ type: 'avgAnswerMs', lt: 5000 }`                                   |
+| `night-owl`               | Night Owl      | `{ type: 'playedBetween', fromHour: 0, toHour: 5 }`                   |
+| `centurion`               | Centurion      | `{ type: 'playsCount', count: 100 }`                                  |
+| `daily-devotee`           | Daily Devotee  | `{ type: 'dailyChallenges', count: 14 }`                              |
+
+### Leaderboard query strategy
+
+- Query source: `PlaySession` filtered by `range`, `mode`, and optional category list.
+- Indexes used:
+  - `PlaySession(userId)`
+  - `PlaySession(createdAt)`
+  - `PlaySession(quizId)`
+  - composite: `PlaySession(createdAt, mode, quizId)`
+- `range` mapping:
+  - `all` → no date filter
+  - `week` → `createdAt >= now - 7 days`
+  - `today` → `createdAt >= UTC day start`
+- Expected cost: bounded by filtered `PlaySession` rows; in-memory grouping is O(n) on the filtered subset.
+
+### Screenshots
+
+![Phase 5 leaderboard](docs/screenshots/phase-5/leaderboard.png)
+![Phase 5 profile](docs/screenshots/phase-5/profile.png)
+
+### Updated architecture (Phase 5)
+
+```mermaid
+flowchart LR
+  UI[Next.js App Router]
+  Auth[NextAuth v5]
+  Leaderboard[/leaderboard]
+  Profile[/u/[username], /me]
+  PlayAPI[/api/play/submit]
+  BadgeEngine[src/lib/badges.ts]
+  Leveling[src/lib/leveling.ts]
+  Streak[src/lib/streak.ts]
+  DB[(Prisma)]
+  U[(User)]
+  PS[(PlaySession)]
+  B[(Badge/UserBadge)]
+  F[(Follow)]
+
+  UI --> Leaderboard
+  UI --> Profile
+  UI --> PlayAPI
+  UI --> Auth
+  PlayAPI --> Leveling
+  PlayAPI --> Streak
+  PlayAPI --> BadgeEngine
+  BadgeEngine --> DB
+  Leaderboard --> DB
+  Profile --> DB
+  DB --- U
+  DB --- PS
+  DB --- B
+  DB --- F
+```
+
 ## 🏗 Development Phases
 
 - [x] **Phase 1** — Foundation & Design System
 - [x] **Phase 2** — Data Model & Seed Content
 - [x] **Phase 3** — Core Quiz Gameplay
 - [x] **Phase 4** — Quiz Creation Studio
-- [ ] **Phase 5** — Leaderboards, Profiles & Gamification
+- [x] **Phase 5** — Leaderboards, Profiles & Gamification
 - [ ] **Phase 6** — Polish & Delight
 - [ ] **Phase 7** — Tests & Docs

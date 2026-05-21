@@ -1,3 +1,6 @@
+import { levelForXp, xpForLevel } from './leveling'
+import { computeStreak as computeStreakDetailed } from './streak'
+
 /**
  * Pure scoring functions for QuizArena.
  * All logic is server-authoritative; these functions run on both client (display)
@@ -45,28 +48,12 @@ export function scoreQuestion({
  * XP required to reach level n (cumulative).
  * xpForLevel(n) = 100 * n * (n + 1) / 2
  */
-export function xpForLevel(n: number): number {
-  return (100 * n * (n + 1)) / 2
-}
+export { xpForLevel, levelForXp }
 
 /**
  * Return the level a player is at given their total XP.
  * Level starts at 1.
  */
-export function levelForXp(xp: number): number {
-  // Solve 100*n*(n+1)/2 <= xp  →  n*(n+1) <= xp/50
-  // We iterate from 1 upward (levels won't exceed ~100 in practice)
-  let level = 1
-  while (xpForLevel(level + 1) <= xp) {
-    level++
-  }
-  return level
-}
-
-// ---------------------------------------------------------------------------
-// Streak
-// ---------------------------------------------------------------------------
-
 interface StreakResult {
   newStreakDays: number
   wasReset: boolean
@@ -81,29 +68,11 @@ export function computeStreak(
   now: Date,
   currentStreakDays: number
 ): StreakResult {
-  if (!lastPlayedAt) {
-    return { newStreakDays: 1, wasReset: false }
-  }
-
-  const diffMs = now.getTime() - lastPlayedAt.getTime()
-  const diffHours = diffMs / (1000 * 60 * 60)
-
-  // Already played today (within the same calendar day)
-  const sameDay =
-    lastPlayedAt.getFullYear() === now.getFullYear() &&
-    lastPlayedAt.getMonth() === now.getMonth() &&
-    lastPlayedAt.getDate() === now.getDate()
-
-  if (sameDay) {
-    // No change to streak
-    return { newStreakDays: currentStreakDays, wasReset: false }
-  }
-
-  // Within 36h grace window → continue streak
-  if (diffHours <= 36) {
-    return { newStreakDays: currentStreakDays + 1, wasReset: false }
-  }
-
-  // More than 36h → streak reset
-  return { newStreakDays: 1, wasReset: true }
+  const result = computeStreakDetailed({
+    lastPlayedAt,
+    currentStreakDays,
+    bestStreakDays: currentStreakDays,
+    now,
+  })
+  return { newStreakDays: result.newStreakDays, wasReset: result.wasReset }
 }
