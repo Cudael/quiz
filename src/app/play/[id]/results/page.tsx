@@ -122,13 +122,7 @@ export default async function ResultsPage({
             return (
               <div key={q.id} className="rounded-lg border border-border p-3">
                 <div className="flex items-start gap-2 mb-2">
-                  <span
-                    className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-                      idx % 2 === 0
-                        ? 'bg-quiz-green/20 text-quiz-green'
-                        : 'bg-destructive/20 text-destructive'
-                    }`}
-                  >
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground text-xs font-bold">
                     {idx + 1}
                   </span>
                   <p className="text-sm font-medium leading-snug">{q.prompt}</p>
