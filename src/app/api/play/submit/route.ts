@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { prisma } from '@/lib/prisma'
 import { verifyPlayToken } from '@/lib/play-token'
-import { scoreQuestion, xpForLevel, levelForXp } from '@/lib/scoring'
+import { scoreQuestion, levelForXp } from '@/lib/scoring'
 
 interface AnswerInput {
   questionId: string
@@ -114,7 +114,9 @@ export async function POST(req: NextRequest) {
 
   const totalTimeTakenMs = answers.reduce((sum, a) => sum + a.timeTakenMs, 0)
 
-  // Persist session — use guestKey as the guestName for dedup purposes
+  // Persist session.
+  // guestName (display name) falls back to guestKey (cookie-based UUID) which also
+  // serves as the per-player deduplication key for daily mode enforcement.
   const session = await prisma.playSession.create({
     data: {
       quizId,
@@ -143,9 +145,10 @@ export async function POST(req: NextRequest) {
 
   // XP calculation (guest only for now — userId integration comes with NextAuth Phase 4)
   const xpEarned = Math.round(score / 10)
-  const currentXp = xpEarned // guests have no persistent XP
-  const newLevel = levelForXp(currentXp)
-  const leveledUp = newLevel > 1 || xpForLevel(newLevel) <= currentXp
+  // For guests, simulate level progress from 0 XP baseline
+  const prevLevel = levelForXp(0)
+  const newLevel = levelForXp(xpEarned)
+  const leveledUp = newLevel > prevLevel
 
   const response = NextResponse.json({
     sessionId: session.id,

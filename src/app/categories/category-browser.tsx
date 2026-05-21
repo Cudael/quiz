@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, SlidersHorizontal } from 'lucide-react'
 import { CategoryTile } from '@/components/ui/category-tile'
@@ -44,14 +44,16 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
   const [search, setSearch] = useState('')
   const [difficulty, setDifficulty] = useState<Difficulty>('ALL')
   const [sort, setSort] = useState<SortOption>('popular')
-
-  // Manual debounce without hook to avoid lint issues
   const [debouncedSearch, setDebouncedSearch] = useState('')
+
+  // Debounce search input with useEffect for proper cleanup
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300)
+    return () => clearTimeout(timer)
+  }, [search])
 
   const handleSearchChange = useCallback((value: string) => {
     setSearch(value)
-    const timer = setTimeout(() => setDebouncedSearch(value), 300)
-    return () => clearTimeout(timer)
   }, [])
 
   const filtered = useMemo(() => {

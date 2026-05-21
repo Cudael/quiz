@@ -353,7 +353,13 @@ export function PlayView({ quizId }: PlayViewProps) {
     )
   }
 
-  if (!currentQuestion) return null
+  if (!currentQuestion) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    )
+  }
 
   const progress = ((store.currentQuestionIndex + (isAnswered ? 1 : 0)) / questions.length) * 100
 
