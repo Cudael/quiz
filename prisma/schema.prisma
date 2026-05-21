@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Note: SQLite does not support native enums. These fields use String and are validated
+// at the application level. When switching to PostgreSQL, replace String fields with
+// proper Prisma enums for the Difficulty, QuestionType, PlayMode, and Role values.
+
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String?   @unique
+  image        String?
+  role         String    @default("USER") // Role: USER | ADMIN
+  xp           Int       @default(0)
+  level        Int       @default(1)
+  streakDays   Int       @default(0)
+  lastPlayedAt DateTime?
+  createdAt    DateTime  @default(now())
+
+  quizzes    Quiz[]        @relation("AuthoredQuizzes")
+  categories Category[]    @relation("CreatedCategories")
+  sessions   PlaySession[]
+  badges     UserBadge[]
+  followers  Follow[]      @relation("Followers")
+  following  Follow[]      @relation("Following")
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String
+  icon        String
+  color       String
+  createdById String?
+  createdBy   User?    @relation("CreatedCategories", fields: [createdById], references: [id])
+  quizzes     Quiz[]
+  createdAt   DateTime @default(now())
+}
+
+model Quiz {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  difficulty  String   @default("MEDIUM") // Difficulty: EASY | MEDIUM | HARD
+  authorId    String
+  author      User     @relation("AuthoredQuizzes", fields: [authorId], references: [id])
+  isPublished Boolean  @default(true)
+  playCount   Int      @default(0)
+  avgScore    Float    @default(0)
+  createdAt   DateTime @default(now())
+
+  questions Question[]
+  sessions  PlaySession[]
+
+  @@index([categoryId])
+  @@index([authorId])
+}
+
+model Question {
+  id           String  @id @default(cuid())
+  quizId       String
+  quiz         Quiz    @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  type         String  @default("SINGLE") // QuestionType: SINGLE | MULTIPLE | TRUEFALSE | FILL_BLANK
+  prompt       String
+  explanation  String?
+  timeLimitSec Int     @default(20)
+  order        Int
+
+  choices Choice[]
+
+  @@index([quizId])
+}
+
+model Choice {
+  id         String   @id @default(cuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  text       String
+  isCorrect  Boolean  @default(false)
+
+  @@index([questionId])
+}
+
+model PlaySession {
+  id           String   @id @default(cuid())
+  userId       String?
+  user         User?    @relation(fields: [userId], references: [id])
+  guestName    String?
+  quizId       String
+  quiz         Quiz     @relation(fields: [quizId], references: [id])
+  score        Int
+  correctCount Int
+  totalCount   Int
+  timeTakenMs  Int
+  mode         String   @default("CLASSIC") // PlayMode: CLASSIC | TIMED | SURVIVAL | DAILY
+  createdAt    DateTime @default(now())
+
+  @@index([quizId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Badge {
+  id          String @id @default(cuid())
+  slug        String @unique
+  name        String
+  description String
+  icon        String
+  criteria    String // JSON stored as string; e.g. { "type": "streak", "days": 7 }
+
+  awards UserBadge[]
+}
+
+model UserBadge {
+  userId    String
+  badgeId   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  awardedAt DateTime @default(now())
+
+  @@id([userId, badgeId])
+}
+
+model Follow {
+  followerId  String
+  followingId String
+  follower    User     @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@id([followerId, followingId])
+}
