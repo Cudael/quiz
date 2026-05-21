@@ -2,9 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { prisma } from '@/lib/prisma'
 import { verifyPlayToken } from '@/lib/play-token'
-import { scoreQuestion, levelForXp } from '@/lib/scoring'
+import { scoreQuestion } from '@/lib/scoring'
 import { auth } from '@/auth'
 import { DEFAULT_GUEST_NAME } from '@/lib/quiz-constants'
+import { evaluateBadgesWithClient } from '@/lib/badges'
+import { levelForXp } from '@/lib/leveling'
+import { computeStreak } from '@/lib/streak'
 
 interface AnswerInput {
   questionId: string
@@ -31,13 +34,11 @@ export async function POST(req: NextRequest) {
 
   const { playToken, quizId, mode, answers, guestName } = body
 
-  // Validate token
   const tokenResult = await verifyPlayToken(playToken, quizId)
   if (!tokenResult.valid) {
     return NextResponse.json({ error: 'Invalid or expired play token' }, { status: 401 })
   }
 
-  // Fetch quiz with correct answers server-side
   const quiz = await prisma.quiz.findUnique({
     where: { id: quizId },
     include: {
@@ -51,14 +52,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Quiz not found' }, { status: 404 })
   }
 
-  // Resolve guestKey from cookie (or create one)
   const cookieStore = await cookies()
   let guestKey = cookieStore.get('qa_guest_id')?.value
   if (!guestKey) {
     guestKey = crypto.randomUUID()
   }
 
-  // DAILY: enforce one attempt per (guestKey, quizId, day)
   const normalizedMode = mode.toUpperCase()
   if (normalizedMode === 'DAILY') {
     const todayStart = new Date()
@@ -78,7 +77,6 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Server-side scoring
   let score = 0
   let correctCount = 0
   let streak = 0
@@ -103,67 +101,111 @@ export async function POST(req: NextRequest) {
       const timeLimitMs = question.timeLimitSec * 1000
       const timeTakenMs = Math.min(answer.timeTakenMs, timeLimitMs)
       const timeRemainingMs = timeLimitMs - timeTakenMs
-      const points = scoreQuestion({
+      score += scoreQuestion({
         correct: true,
         timeRemainingMs,
         timeLimitMs,
         streak: normalizedMode === 'SURVIVAL' ? streak : 0,
       })
-      score += points
     } else {
       streak = 0
     }
   }
 
   const totalTimeTakenMs = answers.reduce((sum, a) => sum + a.timeTakenMs, 0)
+  const xpEarned = Math.round(score / 10)
 
-  // Persist session.
-  const playSession = await prisma.playSession.create({
-    data: {
-      userId: authSession?.user?.id ?? null,
-      quizId,
-      guestName: guestName?.trim() ? guestName.trim() : DEFAULT_GUEST_NAME,
-      guestKey,
+  const now = new Date()
+
+  const result = await prisma.$transaction(async (tx) => {
+    const playSession = await tx.playSession.create({
+      data: {
+        userId: authSession?.user?.id ?? null,
+        quizId,
+        guestName: guestName?.trim() ? guestName.trim() : DEFAULT_GUEST_NAME,
+        guestKey,
+        score,
+        correctCount,
+        totalCount,
+        timeTakenMs: totalTimeTakenMs,
+        mode: normalizedMode,
+      },
+    })
+
+    let newLevel = 1
+    let leveledUp = false
+    let newlyAwardedBadges: Awaited<ReturnType<typeof evaluateBadgesWithClient>> = []
+
+    if (authSession?.user?.id) {
+      const currentUser = await tx.user.findUnique({
+        where: { id: authSession.user.id },
+        select: {
+          xp: true,
+          level: true,
+          streakDays: true,
+          bestStreak: true,
+          lastPlayedAt: true,
+        },
+      })
+
+      if (currentUser) {
+        const streakResult = computeStreak({
+          lastPlayedAt: currentUser.lastPlayedAt,
+          currentStreakDays: currentUser.streakDays,
+          bestStreak: currentUser.bestStreak,
+          now,
+        })
+
+        const updatedXp = currentUser.xp + xpEarned
+        newLevel = levelForXp(updatedXp)
+        leveledUp = newLevel > currentUser.level
+
+        await tx.user.update({
+          where: { id: authSession.user.id },
+          data: {
+            xp: updatedXp,
+            level: newLevel,
+            streakDays: streakResult.newStreakDays,
+            bestStreak: streakResult.newBestStreakDays,
+            lastPlayedAt: now,
+          },
+        })
+
+        newlyAwardedBadges = await evaluateBadgesWithClient(tx, authSession.user.id, playSession.id)
+      }
+    } else {
+      newLevel = levelForXp(xpEarned)
+      leveledUp = newLevel > 1
+    }
+
+    const quizScores = await tx.playSession.aggregate({
+      where: { quizId },
+      _avg: { score: true },
+      _count: { _all: true },
+    })
+
+    await tx.quiz.update({
+      where: { id: quizId },
+      data: {
+        playCount: quizScores._count._all,
+        avgScore: quizScores._avg.score ?? 0,
+      },
+    })
+
+    return {
+      sessionId: playSession.id,
       score,
       correctCount,
       totalCount,
-      timeTakenMs: totalTimeTakenMs,
-      mode: normalizedMode,
-    },
+      xpEarned,
+      leveledUp,
+      newLevel,
+      newlyAwardedBadges,
+    }
   })
 
-  // Update quiz aggregate stats
-  const allSessions = await prisma.playSession.findMany({
-    where: { quizId },
-    select: { score: true },
-  })
-  const newPlayCount = allSessions.length
-  const newAvgScore =
-    newPlayCount > 0 ? allSessions.reduce((s, p) => s + p.score, 0) / newPlayCount : 0
+  const response = NextResponse.json(result)
 
-  await prisma.quiz.update({
-    where: { id: quizId },
-    data: { playCount: newPlayCount, avgScore: newAvgScore },
-  })
-
-  // XP calculation (guest only for now — userId integration comes with NextAuth Phase 4)
-  const xpEarned = Math.round(score / 10)
-  // For guests, simulate level progress from 0 XP baseline
-  const prevLevel = levelForXp(0)
-  const newLevel = levelForXp(xpEarned)
-  const leveledUp = newLevel > prevLevel
-
-  const response = NextResponse.json({
-    sessionId: playSession.id,
-    score,
-    correctCount,
-    totalCount,
-    xpEarned,
-    leveledUp: leveledUp && newLevel > 1,
-    newLevel,
-  })
-
-  // Set guest cookie if new
   if (!cookieStore.get('qa_guest_id')?.value) {
     response.cookies.set('qa_guest_id', guestKey, {
       maxAge: 60 * 60 * 24 * 365,

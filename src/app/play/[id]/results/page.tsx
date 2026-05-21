@@ -5,49 +5,67 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { prisma } from '@/lib/prisma'
 import { ResultsClient } from './results-client'
+import { LevelProgress } from '@/components/ui/level-progress'
+import { auth } from '@/auth'
 
 export default async function ResultsPage({
   params,
   searchParams,
 }: {
   params: Promise<{ id: string }>
-  searchParams: Promise<{ session?: string }>
+  searchParams: Promise<{
+    session?: string
+    xpEarned?: string
+    leveledUp?: string
+    newLevel?: string
+    newBadges?: string
+  }>
 }) {
   const { id } = await params
-  const { session: sessionId } = await searchParams
+  const {
+    session: sessionId,
+    xpEarned: xpEarnedParam,
+    leveledUp: leveledUpParam,
+    newLevel: newLevelParam,
+    newBadges,
+  } = await searchParams
 
   if (!sessionId) {
     notFound()
   }
 
-  const session = await prisma.playSession.findUnique({
-    where: { id: sessionId },
-    include: {
-      quiz: {
-        include: {
-          category: true,
-          questions: {
-            orderBy: { order: 'asc' },
-            include: {
-              choices: true,
+  const [sessionRow, authSession] = await Promise.all([
+    prisma.playSession.findUnique({
+      where: { id: sessionId },
+      include: {
+        quiz: {
+          include: {
+            category: true,
+            questions: {
+              orderBy: { order: 'asc' },
+              include: {
+                choices: true,
+              },
             },
           },
         },
       },
-    },
-  })
+    }),
+    auth(),
+  ])
 
-  if (!session || session.quizId !== id) {
+  if (!sessionRow || sessionRow.quizId !== id) {
     notFound()
   }
 
   const accuracy =
-    session.totalCount > 0 ? Math.round((session.correctCount / session.totalCount) * 100) : 0
+    sessionRow.totalCount > 0
+      ? Math.round((sessionRow.correctCount / sessionRow.totalCount) * 100)
+      : 0
 
-  // Find a harder quiz in the same category
   const harderQuiz = await prisma.quiz.findFirst({
     where: {
-      categoryId: session.quiz.categoryId,
+      categoryId: sessionRow.quiz.categoryId,
       difficulty: 'HARD',
       id: { not: id },
       isPublished: true,
@@ -55,65 +73,94 @@ export default async function ResultsPage({
     orderBy: { playCount: 'desc' },
   })
 
+  const userStats = authSession?.user?.id
+    ? await prisma.user.findUnique({
+        where: { id: authSession.user.id },
+        select: { xp: true },
+      })
+    : null
+
+  const xpEarned = Number(xpEarnedParam ?? 0) || 0
+  const leveledUp = leveledUpParam === '1'
+  const newLevel = Number(newLevelParam ?? 1) || 1
+  const newBadgeNames = newBadges
+    ? newBadges
+        .split('|')
+        .map((name) => decodeURIComponent(name.trim()))
+        .filter(Boolean)
+    : []
+
   return (
     <div className="container mx-auto max-w-2xl px-4 py-12">
-      {/* Confetti + level-up animation */}
       <ResultsClient
-        score={session.score}
+        score={sessionRow.score}
         accuracy={accuracy}
         sessionId={sessionId}
         quizId={id}
-        mode={session.mode}
+        mode={sessionRow.mode}
+        unlockedBadges={newBadgeNames}
       />
 
-      {/* Header */}
       <div className="mb-8 text-center">
         <div className="mb-4 text-6xl" aria-hidden="true">
           {accuracy >= 100 ? '🏆' : accuracy >= 80 ? '⭐' : accuracy >= 60 ? '🎯' : '📚'}
         </div>
-        <h1 className="text-3xl font-extrabold mb-2">
+        <h1 className="mb-2 text-3xl font-extrabold">
           {accuracy >= 80 ? 'Great job!' : accuracy >= 60 ? 'Nice try!' : 'Keep practicing!'}
         </h1>
-        <p className="text-muted-foreground">{session.quiz.title}</p>
+        <p className="text-muted-foreground">{sessionRow.quiz.title}</p>
       </div>
 
-      {/* Stats */}
+      <Card className="mb-6">
+        <CardContent className="pt-6">
+          <div className="mb-3 flex items-center justify-between text-sm">
+            <p>
+              XP earned: <span className="font-semibold text-quiz-purple-light">+{xpEarned}</span>
+            </p>
+            <p>
+              Level: <span className="font-semibold">{newLevel}</span>{' '}
+              {leveledUp ? <span className="text-quiz-green">(Leveled up!)</span> : null}
+            </p>
+          </div>
+          <LevelProgress xp={userStats?.xp ?? xpEarned} size="md" />
+        </CardContent>
+      </Card>
+
       <div className="mb-8 grid grid-cols-3 gap-4">
         <Card className="text-center">
-          <CardContent className="pt-6 pb-4">
-            <Trophy className="h-6 w-6 text-quiz-yellow mx-auto mb-2" />
-            <p className="text-2xl font-extrabold text-quiz-yellow">{session.score}</p>
+          <CardContent className="pb-4 pt-6">
+            <Trophy className="mx-auto mb-2 h-6 w-6 text-quiz-yellow" />
+            <p className="text-2xl font-extrabold text-quiz-yellow">{sessionRow.score}</p>
             <p className="text-xs text-muted-foreground">Score</p>
           </CardContent>
         </Card>
         <Card className="text-center">
-          <CardContent className="pt-6 pb-4">
-            <Zap className="h-6 w-6 text-quiz-purple-light mx-auto mb-2" />
+          <CardContent className="pb-4 pt-6">
+            <Zap className="mx-auto mb-2 h-6 w-6 text-quiz-purple-light" />
             <p className="text-2xl font-extrabold text-quiz-purple-light">{accuracy}%</p>
             <p className="text-xs text-muted-foreground">Accuracy</p>
           </CardContent>
         </Card>
         <Card className="text-center">
-          <CardContent className="pt-6 pb-4">
-            <span className="text-2xl mb-2 block" aria-hidden="true">
+          <CardContent className="pb-4 pt-6">
+            <span className="mb-2 block text-2xl" aria-hidden="true">
               ⏱
             </span>
             <p className="text-2xl font-extrabold">
-              {Math.floor(session.timeTakenMs / 60000)}:
-              {String(Math.floor((session.timeTakenMs % 60000) / 1000)).padStart(2, '0')}
+              {Math.floor(sessionRow.timeTakenMs / 60000)}:
+              {String(Math.floor((sessionRow.timeTakenMs % 60000) / 1000)).padStart(2, '0')}
             </p>
             <p className="text-xs text-muted-foreground">Time</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Question breakdown */}
       <Card className="mb-8">
         <CardHeader>
           <CardTitle>Question Breakdown</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {session.quiz.questions.map((q, idx) => {
+          {sessionRow.quiz.questions.map((q, idx) => {
             const correctText = q.choices
               .filter((c) => c.isCorrect)
               .map((c) => c.text)
@@ -121,18 +168,18 @@ export default async function ResultsPage({
 
             return (
               <div key={q.id} className="rounded-lg border border-border p-3">
-                <div className="flex items-start gap-2 mb-2">
-                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground text-xs font-bold">
+                <div className="mb-2 flex items-start gap-2">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
                     {idx + 1}
                   </span>
                   <p className="text-sm font-medium leading-snug">{q.prompt}</p>
                 </div>
-                <p className="text-xs text-muted-foreground pl-7">
+                <p className="pl-7 text-xs text-muted-foreground">
                   Correct answer:{' '}
-                  <span className="text-quiz-green font-semibold">{correctText}</span>
+                  <span className="font-semibold text-quiz-green">{correctText}</span>
                 </p>
                 {q.explanation && (
-                  <p className="mt-1 text-xs text-muted-foreground pl-7 italic">{q.explanation}</p>
+                  <p className="mt-1 pl-7 text-xs italic text-muted-foreground">{q.explanation}</p>
                 )}
               </div>
             )
@@ -140,10 +187,9 @@ export default async function ResultsPage({
         </CardContent>
       </Card>
 
-      {/* Actions */}
       <div className="flex flex-col gap-3 sm:flex-row">
         <Button variant="gradient" size="lg" asChild className="flex-1">
-          <Link href={`/play/${id}?mode=${session.mode.toLowerCase()}`}>
+          <Link href={`/play/${id}?mode=${sessionRow.mode.toLowerCase()}`}>
             <RotateCcw className="h-4 w-4" />
             Play Again
           </Link>

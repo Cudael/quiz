@@ -6,6 +6,7 @@ import { PrismaAdapter } from '@auth/prisma-adapter'
 import { cookies } from 'next/headers'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
+import { generateUniqueUsername } from '@/lib/usernames'
 
 const credentialsSchema = z.object({
   name: z.string().trim().min(1).max(80),
@@ -44,6 +45,7 @@ const providers = [
       return prisma.user.create({
         data: {
           name,
+          username: await generateUniqueUsername(name),
           email: null,
           role: 'USER',
         },
@@ -55,20 +57,63 @@ const providers = [
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers,
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || 'dev-only-secret',
   session: { strategy: 'jwt' },
   trustHost: true,
   callbacks: {
     async jwt({ token, user }) {
+      const tokenWithProfile = token as typeof token & {
+        id?: string
+        role?: string
+        username?: string | null
+        xp?: number
+        level?: number
+        streakDays?: number
+      }
+
       if (user) {
-        token.id = user.id
-        token.role = user.role
+        tokenWithProfile.id = user.id
+        tokenWithProfile.role = user.role
+      }
+
+      if (tokenWithProfile.id) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: tokenWithProfile.id },
+          select: {
+            role: true,
+            username: true,
+            xp: true,
+            level: true,
+            streakDays: true,
+          },
+        })
+
+        if (dbUser) {
+          tokenWithProfile.role = dbUser.role
+          tokenWithProfile.username = dbUser.username
+          tokenWithProfile.xp = dbUser.xp
+          tokenWithProfile.level = dbUser.level
+          tokenWithProfile.streakDays = dbUser.streakDays
+        }
       }
       return token
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string
-        session.user.role = token.role as string
+        const tokenWithProfile = token as typeof token & {
+          id?: string
+          role?: string
+          username?: string | null
+          xp?: number
+          level?: number
+          streakDays?: number
+        }
+        session.user.id = tokenWithProfile.id as string
+        session.user.role = (tokenWithProfile.role as string) ?? 'USER'
+        session.user.username = tokenWithProfile.username ?? null
+        session.user.xp = Number(tokenWithProfile.xp ?? 0)
+        session.user.level = Number(tokenWithProfile.level ?? 1)
+        session.user.streakDays = Number(tokenWithProfile.streakDays ?? 0)
       }
 
       try {
@@ -93,6 +138,10 @@ declare module 'next-auth' {
     user: {
       id: string
       role: string
+      username: string | null
+      xp: number
+      level: number
+      streakDays: number
     } & DefaultSession['user']
   }
 

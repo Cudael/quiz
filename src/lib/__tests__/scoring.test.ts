@@ -51,10 +51,10 @@ describe('scoreQuestion', () => {
 })
 
 describe('xpForLevel', () => {
-  it('xpForLevel(1) = 100', () => expect(xpForLevel(1)).toBe(100))
-  it('xpForLevel(2) = 300', () => expect(xpForLevel(2)).toBe(300))
-  it('xpForLevel(3) = 600', () => expect(xpForLevel(3)).toBe(600))
-  it('xpForLevel(10) = 5500', () => expect(xpForLevel(10)).toBe(5500))
+  it('xpForLevel(1) = 0', () => expect(xpForLevel(1)).toBe(0))
+  it('xpForLevel(2) = 100', () => expect(xpForLevel(2)).toBe(100))
+  it('xpForLevel(3) = 300', () => expect(xpForLevel(3)).toBe(300))
+  it('xpForLevel(10) = 4500', () => expect(xpForLevel(10)).toBe(4500))
 
   it('is strictly increasing', () => {
     for (let n = 1; n < 20; n++) {
@@ -66,8 +66,8 @@ describe('xpForLevel', () => {
 describe('levelForXp', () => {
   it('level 1 for 0 xp', () => expect(levelForXp(0)).toBe(1))
   it('level 1 for 99 xp', () => expect(levelForXp(99)).toBe(1))
-  it('level 2 for exactly xpForLevel(2)', () => expect(levelForXp(300)).toBe(2))
-  it('level 3 for exactly xpForLevel(3)', () => expect(levelForXp(600)).toBe(3))
+  it('level 2 for exactly xpForLevel(2)', () => expect(levelForXp(100)).toBe(2))
+  it('level 3 for exactly xpForLevel(3)', () => expect(levelForXp(300)).toBe(3))
 
   it('is consistent with xpForLevel', () => {
     for (let n = 1; n <= 10; n++) {

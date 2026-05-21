@@ -157,7 +157,18 @@ export function PlayView({ quizId }: PlayViewProps) {
       }
       const result = await res.json()
       store.finish()
-      router.push(`/play/${quizId}/results?session=${result.sessionId}`)
+      const resultParams = new URLSearchParams({
+        session: result.sessionId,
+        xpEarned: String(result.xpEarned ?? 0),
+        leveledUp: result.leveledUp ? '1' : '0',
+        newLevel: String(result.newLevel ?? 1),
+        newBadges: Array.isArray(result.newlyAwardedBadges)
+          ? result.newlyAwardedBadges
+              .map((badge: { name: string }) => encodeURIComponent(badge.name))
+              .join('|')
+          : '',
+      })
+      router.push(`/play/${quizId}/results?${resultParams.toString()}`)
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Submission failed'
       addToast(msg, 'error')

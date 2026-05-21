@@ -127,14 +127,14 @@ export const badges: BadgeData[] = [
   },
   {
     slug: 'streak-7',
-    name: 'Week Warrior',
+    name: '7-Day Streak',
     description: 'Play every day for 7 days in a row',
     icon: 'Flame',
     criteria: { type: 'streak', days: 7 },
   },
   {
     slug: 'streak-30',
-    name: 'Monthly Master',
+    name: '30-Day Streak',
     description: 'Maintain a 30-day play streak',
     icon: 'Zap',
     criteria: { type: 'streak', days: 30 },
@@ -189,58 +189,70 @@ export const badges: BadgeData[] = [
 export interface UserData {
   id: string
   name: string
+  username: string
   email: string
   role: Role
   xp: number
   level: number
   streakDays: number
+  bestStreak: number
 }
 
 export const users: UserData[] = [
   {
     id: 'user_admin_quizarena',
     name: 'Admin Demo',
+    username: 'admin-demo',
     email: 'admin@quizarena.dev',
     role: 'ADMIN',
     xp: 99999,
-    level: 99,
+    level: 44,
     streakDays: 365,
+    bestStreak: 365,
   },
   {
     id: 'user_demo_alice',
     name: 'Alice Chen',
+    username: 'alice-chen',
     email: 'alice@quizarena.dev',
     role: 'USER',
     xp: 12450,
-    level: 18,
+    level: 16,
     streakDays: 14,
+    bestStreak: 21,
   },
   {
     id: 'user_demo_bob',
     name: 'Bob Martinez',
+    username: 'bob-martinez',
     email: 'bob@quizarena.dev',
     role: 'USER',
     xp: 8200,
     level: 13,
     streakDays: 7,
+    bestStreak: 12,
   },
   {
     id: 'user_demo_carol',
     name: 'Carol Zhang',
+    username: 'carol-zhang',
     email: 'carol@quizarena.dev',
     role: 'USER',
     xp: 5100,
-    level: 9,
+    level: 10,
     streakDays: 3,
+    bestStreak: 9,
   },
   {
     id: 'user_demo_dave',
     name: 'Dave Okonkwo',
+    username: 'dave-okonkwo',
     email: 'demo@quizarena.dev',
     role: 'USER',
     xp: 2300,
-    level: 5,
+    level: 7,
     streakDays: 1,
+    bestStreak: 4,
   },
 ]
 
