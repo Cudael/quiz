@@ -1,11 +1,14 @@
-# QuizMaster 🧠
+# QuizArena 🧠
 
-A full-featured, Kahoot-inspired quiz platform built with Next.js 14, TypeScript, Tailwind CSS, and Prisma.
+A full-featured, Kahoot-inspired quiz platform built with Next.js 16, TypeScript, Tailwind CSS v4, and Prisma.
 
 ## 🚀 Quick Start
 
 ```bash
 npm install
+cp .env.example .env
+npm run db:push
+npm run db:seed
 npm run dev
 ```
 
@@ -13,46 +16,94 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ## 🛠 Tech Stack
 
-- **Framework**: Next.js 14 (App Router) + TypeScript
-- **Styling**: Tailwind CSS + shadcn/ui + Framer Motion
+- **Framework**: Next.js 16 (App Router) + TypeScript
+- **Styling**: Tailwind CSS v4 + shadcn/ui + Framer Motion
 - **Database**: Prisma ORM + SQLite (dev) / PostgreSQL (prod)
-- **Auth**: NextAuth.js
+- **Auth**: NextAuth.js (Phase 3+)
 - **State**: Zustand
 - **Testing**: Vitest + React Testing Library
 
 ## 📦 Scripts
 
-| Script              | Description                 |
-| ------------------- | --------------------------- |
-| `npm run dev`       | Start development server    |
-| `npm run build`     | Build for production        |
-| `npm run lint`      | Run ESLint                  |
-| `npm run typecheck` | Run TypeScript type checker |
-| `npm test`          | Run unit tests              |
+| Script              | Description                          |
+| ------------------- | ------------------------------------ |
+| `npm run dev`       | Start development server             |
+| `npm run build`     | Build for production                 |
+| `npm run lint`      | Run ESLint                           |
+| `npm run typecheck` | Run TypeScript type checker          |
+| `npm test`          | Run unit tests                       |
+| `npm run db:push`   | Sync Prisma schema → SQLite          |
+| `npm run db:seed`   | Seed database with demo content      |
+| `npm run db:reset`  | Reset and re-migrate (destructive)   |
+| `npm run db:generate` | Regenerate Prisma client           |
 
 ## 🗂 Project Structure
 
 ```
+prisma/
+├── schema.prisma   # Database schema
+├── seed-data.ts    # Seed content (categories, quizzes, etc.)
+└── seed.ts         # Seed runner script
 src/
 ├── app/           # Next.js App Router pages
 ├── components/    # Reusable UI components
 │   └── ui/        # Design system primitives
-├── lib/           # Utility functions
+├── lib/           # Utility functions + Prisma client singleton
 └── test/          # Test setup and utilities
 ```
 
-## 🔧 Environment Variables
+## 🗄️ Phase 2 — Database Setup
 
-Copy `.env.example` to `.env.local` and fill in the values:
+The project uses **SQLite** for local development and is designed to be **Postgres-ready** for production (just swap the `provider` and `DATABASE_URL`).
+
+### Setting up the dev database
 
 ```bash
-cp .env.example .env.local
+cp .env.example .env          # sets DATABASE_URL=file:./dev.db
+npm run db:push               # creates prisma/dev.db and syncs schema
+npm run db:seed               # populates with demo content
+```
+
+### Seeded content
+
+| Entity       | Count   |
+| ------------ | ------- |
+| Categories   | 10      |
+| Quizzes      | 30      |
+| Questions    | ~100+   |
+| Badges       | 10      |
+| Demo users   | 5       |
+| Play sessions| 12      |
+
+**Demo users:**
+
+| Name              | Email                  | Role  |
+| ----------------- | ---------------------- | ----- |
+| QuizArena Admin   | admin@quizarena.dev    | ADMIN |
+| Alice Chen        | alice@quizarena.dev    | USER  |
+| Bob Martinez      | bob@quizarena.dev      | USER  |
+| Carol Zhang       | carol@quizarena.dev    | USER  |
+| Dave Okonkwo      | demo@quizarena.dev     | USER  |
+
+### Switching to PostgreSQL
+
+1. Change `provider = "sqlite"` to `provider = "postgresql"` in `prisma/schema.prisma`
+2. Update `DATABASE_URL` in `.env` to your Postgres connection string
+3. Run `npm run db:migrate` instead of `db:push`
+4. (Optional) Add back the enum types now that Postgres supports them
+
+## 🔧 Environment Variables
+
+Copy `.env.example` to `.env` and fill in the values:
+
+```bash
+cp .env.example .env
 ```
 
 ## 🏗 Development Phases
 
 - [x] **Phase 1** — Foundation & Design System
-- [ ] **Phase 2** — Data Model & Seed Content
+- [x] **Phase 2** — Data Model & Seed Content
 - [ ] **Phase 3** — Core Quiz Gameplay
 - [ ] **Phase 4** — Quiz Creation Studio
 - [ ] **Phase 5** — Leaderboards, Profiles & Gamification
