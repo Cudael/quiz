@@ -1866,8 +1866,8 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
       order: 4,
       choices: [
         { text: 'United States', isCorrect: true },
-        { text: 'Canada', isCorrect: false },
-        { text: 'Mexico', isCorrect: false },
+        { text: 'Canada', isCorrect: true },
+        { text: 'Mexico', isCorrect: true },
         { text: 'Brazil', isCorrect: false },
       ],
     },
@@ -1967,7 +1967,7 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
       order: 4,
       choices: [
         { text: 'Object-oriented', isCorrect: true },
-        { text: 'Functional', isCorrect: false },
+        { text: 'Functional', isCorrect: true },
         { text: 'HTML', isCorrect: false },
         { text: 'SQL', isCorrect: false },
       ],
