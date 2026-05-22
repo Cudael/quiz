@@ -2,17 +2,24 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
 import { ToastProvider } from '@/components/ui/toast'
-import { Navbar } from '@/components/navbar'
 import { AuthProvider } from '@/components/auth-provider'
+import { AppShell } from '@/components/app-shell'
+import { absoluteUrl, siteConfig } from '@/lib/site'
 
 export const metadata: Metadata = {
-  title: 'QuizMaster — Play, Create & Compete',
-  description:
-    'Test your knowledge across hundreds of categories. Create quizzes, compete on leaderboards, and earn badges.',
+  metadataBase: new URL(absoluteUrl()),
+  title: siteConfig.title,
+  description: siteConfig.description,
+  manifest: '/manifest.webmanifest',
   openGraph: {
-    title: 'QuizMaster — Play, Create & Compete',
-    description: 'Test your knowledge across hundreds of categories.',
+    title: siteConfig.title,
+    description: siteConfig.description,
     type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: siteConfig.title,
+    description: siteConfig.description,
   },
 }
 
@@ -23,8 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <ThemeProvider defaultTheme="dark">
             <ToastProvider>
-              <Navbar />
-              <main>{children}</main>
+              <AppShell>{children}</AppShell>
             </ToastProvider>
           </ThemeProvider>
         </AuthProvider>

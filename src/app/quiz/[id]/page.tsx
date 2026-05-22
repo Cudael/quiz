@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Clock, BarChart3, Users, Trophy, BookOpen } from 'lucide-react'
@@ -8,11 +9,48 @@ import { Avatar } from '@/components/ui/avatar'
 import { prisma } from '@/lib/prisma'
 import { ModeSelector } from './mode-selector'
 import { ReportQuizForm } from '../report-quiz-form'
+import { absoluteUrl } from '@/lib/site'
 
 const difficultyVariant: Record<string, 'success' | 'warning' | 'destructive'> = {
   EASY: 'success',
   MEDIUM: 'warning',
   HARD: 'destructive',
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const quiz = await prisma.quiz.findUnique({
+    where: { id },
+    select: {
+      title: true,
+      description: true,
+      category: { select: { name: true } },
+      author: { select: { name: true } },
+    },
+  })
+
+  if (!quiz) {
+    return {
+      title: 'Quiz not found | QuizArena',
+      description: 'This quiz could not be found.',
+    }
+  }
+
+  const title = `${quiz.title} by ${quiz.author.name} • ${quiz.category.name} | QuizArena`
+  const description =
+    quiz.description || `Take ${quiz.title} and climb the leaderboard on QuizArena.`
+  const url = absoluteUrl(`/quiz/${id}`)
+
+  return {
+    title,
+    description,
+    openGraph: { title, description, url },
+    twitter: { card: 'summary_large_image', title, description },
+  }
 }
 
 export default async function QuizDetailPage({ params }: { params: Promise<{ id: string }> }) {

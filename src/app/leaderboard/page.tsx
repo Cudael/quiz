@@ -1,7 +1,10 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Medal, Trophy } from 'lucide-react'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { absoluteUrl } from '@/lib/site'
+import { copy } from '@/lib/copy'
 
 type RangeFilter = 'all' | 'week' | 'today'
 type ModeFilter = 'ALL' | 'CLASSIC' | 'TIMED' | 'SURVIVAL' | 'DAILY'
@@ -80,6 +83,35 @@ function initials(name: string) {
     .join('')
     .toUpperCase()
     .slice(0, 2)
+}
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ range?: string; category?: string | string[] }>
+}): Promise<Metadata> {
+  const params = await searchParams
+  const range =
+    params.range === 'today' ? 'Today' : params.range === 'week' ? 'This Week' : 'All-time'
+  const category = Array.isArray(params.category) ? params.category[0] : params.category
+  const suffix = category ? ` • ${category}` : ''
+  const title = `Leaderboard — ${range}${suffix} | QuizArena`
+
+  return {
+    title,
+    description:
+      'See top performers, filter by mode and category, and chase your next personal best.',
+    openGraph: {
+      title,
+      description: 'Track top players on the QuizArena leaderboard.',
+      url: absoluteUrl('/leaderboard'),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description: 'Track top players on the QuizArena leaderboard.',
+    },
+  }
 }
 
 export default async function LeaderboardPage({
@@ -294,7 +326,7 @@ export default async function LeaderboardPage({
       {pageRows.length === 0 ? (
         <div className="rounded-xl border border-border bg-card p-8 text-center">
           <Trophy className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
-          <p className="font-semibold">No leaderboard entries yet for this filter.</p>
+          <p className="font-semibold">{copy.emptyStates.leaderboard}</p>
           <p className="text-sm text-muted-foreground">Try changing range, mode, or categories.</p>
         </div>
       ) : (

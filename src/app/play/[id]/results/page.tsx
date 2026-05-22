@@ -7,6 +7,7 @@ import { prisma } from '@/lib/prisma'
 import { ResultsClient } from './results-client'
 import { LevelProgress } from '@/components/ui/level-progress'
 import { auth } from '@/auth'
+import { copy } from '@/lib/copy'
 
 export default async function ResultsPage({
   params,
@@ -90,6 +91,25 @@ export default async function ResultsPage({
         .filter(Boolean)
     : []
 
+  const personalBest =
+    sessionRow.userId !== null
+      ? (() => {
+          return prisma.playSession
+            .findFirst({
+              where: {
+                userId: sessionRow.userId,
+                quizId: sessionRow.quizId,
+                id: { not: sessionRow.id },
+              },
+              orderBy: { score: 'desc' },
+              select: { score: true },
+            })
+            .then((best) => !best || sessionRow.score > best.score)
+        })()
+      : Promise.resolve(false)
+
+  const isPersonalBest = await personalBest
+
   return (
     <div className="container mx-auto max-w-2xl px-4 py-12">
       <ResultsClient
@@ -99,6 +119,8 @@ export default async function ResultsPage({
         quizId={id}
         mode={sessionRow.mode}
         unlockedBadges={newBadgeNames}
+        leveledUp={leveledUp}
+        personalBest={isPersonalBest}
       />
 
       <div className="mb-8 text-center">
@@ -175,8 +197,7 @@ export default async function ResultsPage({
                   <p className="text-sm font-medium leading-snug">{q.prompt}</p>
                 </div>
                 <p className="pl-7 text-xs text-muted-foreground">
-                  Correct answer:{' '}
-                  <span className="font-semibold text-quiz-green">{correctText}</span>
+                  {copy.quiz.wrongAnswer(correctText)}
                 </p>
                 {q.explanation && (
                   <p className="mt-1 pl-7 text-xs italic text-muted-foreground">{q.explanation}</p>

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
@@ -6,6 +7,8 @@ import { prisma } from '@/lib/prisma'
 import { LevelProgress } from '@/components/ui/level-progress'
 import { StreakFlame } from '@/components/ui/streak-flame'
 import { BadgesGrid } from '@/components/ui/badges-grid'
+import { absoluteUrl } from '@/lib/site'
+import { copy } from '@/lib/copy'
 
 async function toggleFollowAction(targetUserId: string, username: string) {
   'use server'
@@ -42,6 +45,35 @@ async function toggleFollowAction(targetUserId: string, username: string) {
   }
 
   revalidatePath(`/u/${username}`)
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ username: string }>
+}): Promise<Metadata> {
+  const { username } = await params
+  const user = await prisma.user.findUnique({
+    where: { username },
+    select: { name: true, username: true, level: true, badges: { select: { badgeId: true } } },
+  })
+
+  if (!user) {
+    return {
+      title: 'Profile not found | QuizArena',
+      description: 'This player profile could not be found.',
+    }
+  }
+
+  const title = `${user.name} (@${user.username}) on QuizArena — Level ${user.level}, ${user.badges.length} badges`
+  const description = `See ${user.name}'s stats, streaks, badges, and recent quiz sessions.`
+  const url = absoluteUrl(`/u/${user.username}`)
+  return {
+    title,
+    description,
+    openGraph: { title, description, url },
+    twitter: { card: 'summary_large_image', title, description },
+  }
 }
 
 export default async function UserProfilePage({
@@ -222,7 +254,7 @@ export default async function UserProfilePage({
               )
             })}
             {user.sessions.length === 0 && (
-              <p className="text-sm text-muted-foreground">No sessions yet.</p>
+              <p className="text-sm text-muted-foreground">{copy.emptyStates.noSessions}</p>
             )}
           </div>
         </section>
@@ -256,7 +288,7 @@ export default async function UserProfilePage({
             </Link>
           ))}
           {user.quizzes.length === 0 && (
-            <p className="text-sm text-muted-foreground">No published quizzes yet.</p>
+            <p className="text-sm text-muted-foreground">{copy.emptyStates.noPublishedQuizzes}</p>
           )}
         </div>
       </section>

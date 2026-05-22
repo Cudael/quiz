@@ -1,8 +1,25 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { prisma } from '@/lib/prisma'
 import { CategoryBrowser } from './category-browser'
+import { absoluteUrl } from '@/lib/site'
+
+export const metadata: Metadata = {
+  title: 'Categories | QuizArena',
+  description: 'Browse quiz categories, filter by difficulty, and jump into your next challenge.',
+  openGraph: {
+    title: 'QuizArena Categories',
+    description: 'Browse quiz categories and discover new challenges.',
+    url: absoluteUrl('/categories'),
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'QuizArena Categories',
+    description: 'Browse quiz categories and discover new challenges.',
+  },
+}
 
 export default async function CategoriesPage() {
   const categories = await prisma.category.findMany({

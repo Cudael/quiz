@@ -4,7 +4,8 @@ import { useEffect, useRef } from 'react'
 import { Share2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/toast'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
+import { useSound } from '@/lib/use-sound'
 
 interface ResultsClientProps {
   score: number
@@ -13,6 +14,8 @@ interface ResultsClientProps {
   quizId: string
   mode: string
   unlockedBadges?: string[]
+  leveledUp?: boolean
+  personalBest?: boolean
 }
 
 export function ResultsClient({
@@ -20,19 +23,21 @@ export function ResultsClient({
   accuracy,
   sessionId,
   unlockedBadges = [],
+  leveledUp = false,
+  personalBest = false,
 }: ResultsClientProps) {
   const { addToast } = useToast()
   const confettiRef = useRef(false)
+  const { play } = useSound()
+  const reduceMotion = useReducedMotion()
 
   // Fire confetti if perfect score or new badge unlock.
   useEffect(() => {
     if (confettiRef.current) return
-    if (accuracy < 100 && unlockedBadges.length === 0) return
+    if (accuracy < 100 && unlockedBadges.length === 0 && !leveledUp && !personalBest) return
     confettiRef.current = true
 
-    // Check prefers-reduced-motion
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (prefersReducedMotion) return
+    if (reduceMotion) return
 
     import('canvas-confetti').then((mod) => {
       const confetti = mod.default
@@ -40,19 +45,35 @@ export function ResultsClient({
         particleCount: 150,
         spread: 80,
         origin: { y: 0.4 },
-        colors: ['#7c3aed', '#ec4899', '#22c55e', '#3b82f6', '#eab308'],
+        colors:
+          unlockedBadges.length > 0
+            ? ['#ec4899', '#f59e0b', '#7c3aed']
+            : ['#7c3aed', '#ec4899', '#22c55e', '#3b82f6', '#eab308'],
       })
+
+      if (leveledUp) {
+        confetti({ particleCount: 260, spread: 100, origin: { y: 0.25 } })
+      }
+      if (personalBest) {
+        confetti({ particleCount: 100, spread: 50, origin: { y: 0.55 } })
+      }
     })
-  }, [accuracy, score, unlockedBadges.length])
+  }, [accuracy, leveledUp, personalBest, reduceMotion, score, unlockedBadges.length])
 
   useEffect(() => {
     if (unlockedBadges.length === 0) return
+    void play('badge')
     unlockedBadges.forEach((badgeName, index) => {
       window.setTimeout(() => {
         addToast(`Badge unlocked! ${badgeName}`, 'success', 5000)
       }, index * 250)
     })
-  }, [addToast, unlockedBadges])
+  }, [addToast, play, unlockedBadges])
+
+  useEffect(() => {
+    if (!leveledUp) return
+    void play('level-up')
+  }, [leveledUp, play])
 
   const handleShare = async () => {
     const origin = typeof window !== 'undefined' ? window.location.origin : ''
@@ -66,7 +87,7 @@ export function ResultsClient({
   }
 
   return (
-    <div className="mb-6 flex justify-center">
+    <div className={`mb-6 flex justify-center ${reduceMotion ? 'animate-pulse' : ''}`}>
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}

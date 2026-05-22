@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Play, Clock, Swords, Calendar } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { useSound } from '@/lib/use-sound'
 
 type PlayMode = 'classic' | 'timed' | 'survival' | 'daily'
 
@@ -45,8 +46,10 @@ const modes: ModeOption[] = [
 export function ModeSelector({ quizId }: { quizId: string }) {
   const [selected, setSelected] = useState<PlayMode>('classic')
   const router = useRouter()
+  const { play } = useSound()
 
   const handleStart = () => {
+    void play('start')
     router.push(`/play/${quizId}?mode=${selected}`)
   }
 
