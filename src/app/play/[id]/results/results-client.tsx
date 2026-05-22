@@ -5,7 +5,7 @@ import { Share2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/toast'
 import { motion, useReducedMotion } from 'framer-motion'
-import { useSound } from '@/lib/use-sound'
+import { useSound } from '@/hooks/use-sound'
 
 interface ResultsClientProps {
   score: number

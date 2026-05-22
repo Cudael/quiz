@@ -45,10 +45,21 @@ prisma/
 ├── seed-data.ts    # Seed content (categories, quizzes, etc.)
 └── seed.ts         # Seed runner script
 src/
-├── app/           # Next.js App Router pages
+├── app/           # Next.js App Router pages and API routes
 ├── components/    # Reusable UI components
-│   └── ui/        # Design system primitives
-├── lib/           # Utility functions + Prisma client singleton
+│   ├── ui/        # Design system primitives
+│   ├── layout/    # App shell, navbar, footer
+│   ├── auth/      # Auth controls and provider
+│   ├── theme/     # Theme provider and toggle
+│   ├── sound/     # Sound controls
+│   ├── hotkeys/   # Global hotkeys and shortcuts cheatsheet
+│   └── home/      # Home page components
+├── hooks/         # React hooks
+├── server/        # Server-only modules
+├── domain/        # Pure domain logic
+├── schemas/       # Zod schemas
+├── lib/           # Generic utilities
+├── store/         # Zustand stores
 └── test/          # Test setup and utilities
 ```
 
@@ -318,9 +329,9 @@ flowchart LR
   Leaderboard[/leaderboard]
   Profile[/u/[username], /me]
   PlayAPI[/api/play/submit]
-  BadgeEngine[src/lib/badges.ts]
-  Leveling[src/lib/leveling.ts]
-  Streak[src/lib/streak.ts]
+  BadgeEngine[src/domain/badges.ts]
+  Leveling[src/domain/leveling.ts]
+  Streak[src/domain/streak.ts]
   DB[(Prisma)]
   U[(User)]
   PS[(PlaySession)]
@@ -347,7 +358,7 @@ flowchart LR
 
 ### Sound system
 
-- New client hook: `src/lib/use-sound.ts` (persisted `soundEnabled`, `soundVolume` in `localStorage`)
+- New client hook: `src/hooks/use-sound.ts` (persisted `soundEnabled`, `soundVolume` in `localStorage`)
 - Lazy initialization after first user interaction to avoid autoplay-policy issues
 - Wired moments:
   - Quiz start CTA (`start`)

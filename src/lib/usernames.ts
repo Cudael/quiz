@@ -1,5 +1,5 @@
 import type { PrismaClient } from '@prisma/client'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/server/prisma'
 import { slugify } from '@/lib/slugify'
 
 type PrismaLike = PrismaClient | typeof prisma

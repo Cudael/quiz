@@ -3,10 +3,10 @@ import Link from 'next/link'
 import { Trophy, RotateCcw, Zap, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/server/prisma'
 import { ResultsClient } from './results-client'
 import { LevelProgress } from '@/components/ui/level-progress'
-import { auth } from '@/auth'
+import { auth } from '@/server/auth'
 import { copy } from '@/lib/copy'
 
 export default async function ResultsPage({

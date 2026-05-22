@@ -2,8 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { auth } from '@/auth'
-import { prisma } from '@/lib/prisma'
+import { auth } from '@/server/auth'
+import { prisma } from '@/server/prisma'
 import { slugify } from '@/lib/slugify'
 
 type AdminResult =

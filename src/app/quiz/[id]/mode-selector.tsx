@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Play, Clock, Swords, Calendar } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { useSound } from '@/lib/use-sound'
+import { useSound } from '@/hooks/use-sound'
 
 type PlayMode = 'classic' | 'timed' | 'survival' | 'daily'
 

@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { prisma } from '@/lib/prisma'
-import { verifyPlayToken } from '@/lib/play-token'
-import { scoreQuestion } from '@/lib/scoring'
-import { auth } from '@/auth'
-import { DEFAULT_GUEST_NAME } from '@/lib/quiz-constants'
-import { evaluateBadgesWithClient } from '@/lib/badges'
-import { levelForXp } from '@/lib/leveling'
-import { computeStreak } from '@/lib/streak'
+import { prisma } from '@/server/prisma'
+import { verifyPlayToken } from '@/server/play-token'
+import { scoreQuestion } from '@/domain/scoring'
+import { auth } from '@/server/auth'
+import { DEFAULT_GUEST_NAME } from '@/domain/quiz-constants'
+import { evaluateBadgesWithClient } from '@/domain/badges'
+import { levelForXp } from '@/domain/leveling'
+import { computeStreak } from '@/domain/streak'
 
 interface AnswerInput {
   questionId: string

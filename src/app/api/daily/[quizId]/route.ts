@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { dailySeed, seededShuffle } from '@/lib/daily-seed'
+import { prisma } from '@/server/prisma'
+import { dailySeed, seededShuffle } from '@/server/daily-seed'
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ quizId: string }> }) {
   const { quizId } = await params

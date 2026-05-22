@@ -1,11 +1,11 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { Plus } from 'lucide-react'
-import { auth } from '@/auth'
+import { auth } from '@/server/auth'
 import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/ui/page-header'
 import { EmptyState } from '@/components/ui/empty-state'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/server/prisma'
 import { deleteQuiz, togglePublish } from './actions'
 
 export default async function StudioPage({
