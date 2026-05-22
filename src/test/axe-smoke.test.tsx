@@ -71,4 +71,23 @@ describe('axe smoke routes', () => {
       </main>
     )
   })
+
+  it('/me', async () => {
+    await expectNoSeriousOrCritical(
+      <main>
+        <h1>My profile</h1>
+        <button type="button">Share profile</button>
+      </main>
+    )
+  })
+
+  it('/me/settings', async () => {
+    await expectNoSeriousOrCritical(
+      <main>
+        <h1>Settings</h1>
+        <label htmlFor="route-me-settings-name">Display name</label>
+        <input id="route-me-settings-name" type="text" />
+      </main>
+    )
+  })
 })

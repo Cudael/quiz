@@ -54,3 +54,40 @@ export const registerSchema = z.object({
   email: z.email().trim().toLowerCase(),
   password: z.string().min(8),
 })
+
+export const usernameSchema = z
+  .string()
+  .trim()
+  .min(3)
+  .max(32)
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+
+export const meProfileSchema = z.object({
+  name: z.string().trim().min(1).max(80),
+  username: usernameSchema,
+  bio: z.string().trim().max(280).nullable().optional(),
+  image: z.url().trim().nullable().optional(),
+})
+
+export const userPreferencesSchema = z
+  .object({
+    defaultMode: z.enum(['CLASSIC', 'TIMED', 'SURVIVAL', 'DAILY']).optional(),
+    defaultDifficulty: z.enum(['EASY', 'MEDIUM', 'HARD', 'ANY']).optional(),
+    reducedMotion: z.boolean().optional(),
+    soundMuted: z.boolean().optional(),
+    soundVolume: z.number().min(0).max(1).optional(),
+  })
+  .strict()
+
+export const mePreferencesSchema = z.object({
+  preferences: userPreferencesSchema,
+})
+
+export const mePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(8),
+})
+
+export const meDeleteSchema = z.object({
+  confirmUsername: z.string().trim().min(1),
+})

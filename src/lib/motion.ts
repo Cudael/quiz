@@ -9,6 +9,7 @@
  */
 
 import type { Variants, Transition } from 'framer-motion'
+import { REDUCED_MOTION_STORAGE_KEY } from '@/lib/preferences'
 
 /* ─── Transition presets ─────────────────────────────────────────────────── */
 
@@ -92,5 +93,16 @@ export function staggerContainer(staggerMs = 0.08): Variants {
  * reduced motion. Pass the result of `useReducedMotion()` as `shouldReduce`.
  */
 export function withReducedMotion(variants: Variants, shouldReduce: boolean | null): Variants {
-  return shouldReduce ? none : variants
+  return shouldUseReducedMotion(shouldReduce) ? none : variants
+}
+
+export function shouldUseReducedMotion(shouldReduce: boolean | null): boolean {
+  if (typeof window === 'undefined') {
+    return Boolean(shouldReduce)
+  }
+
+  const override = localStorage.getItem(REDUCED_MOTION_STORAGE_KEY)
+  if (override === 'true') return true
+  if (override === 'false') return false
+  return Boolean(shouldReduce)
 }

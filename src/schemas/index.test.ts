@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { categorySuggestionSchema, questionSchema, quizSchema, reportSchema } from '@/schemas'
+import {
+  categorySuggestionSchema,
+  meProfileSchema,
+  questionSchema,
+  quizSchema,
+  reportSchema,
+  userPreferencesSchema,
+} from '@/schemas'
 
 describe('quizSchema', () => {
   it('accepts valid quiz input', () => {
@@ -50,5 +57,28 @@ describe('categorySuggestionSchema', () => {
       color: 'purple',
     })
     expect(result.success).toBe(false)
+  })
+})
+
+describe('meProfileSchema', () => {
+  it('accepts valid profile values', () => {
+    expect(
+      meProfileSchema.safeParse({
+        name: 'Player One',
+        username: 'player-one',
+        bio: 'Ready to play.',
+        image: 'https://example.com/avatar.png',
+      }).success
+    ).toBe(true)
+  })
+})
+
+describe('userPreferencesSchema', () => {
+  it('rejects out-of-range sound volume', () => {
+    expect(
+      userPreferencesSchema.safeParse({
+        soundVolume: 2,
+      }).success
+    ).toBe(false)
   })
 })
