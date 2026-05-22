@@ -7,6 +7,7 @@ import { prisma } from '@/server/prisma'
 import { LevelProgress } from '@/components/ui/level-progress'
 import { StreakFlame } from '@/components/ui/streak-flame'
 import { BadgesGrid } from '@/components/ui/badges-grid'
+import { GuestUpgradePrompt } from '@/components/auth/guest-upgrade-prompt'
 import { absoluteUrl } from '@/lib/site'
 import { copy } from '@/lib/copy'
 
@@ -169,6 +170,7 @@ export default async function UserProfilePage({
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {isSelf ? <GuestUpgradePrompt /> : null}
       <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
         <section className="rounded-xl border border-border bg-card p-6">
           <div className="flex flex-wrap items-center justify-between gap-4">

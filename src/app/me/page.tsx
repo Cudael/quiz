@@ -5,7 +5,7 @@ import { generateUniqueUsername } from '@/lib/usernames'
 
 export default async function MePage() {
   const session = await auth()
-  const signInPath = '/api/auth/signin?callbackUrl=/me'
+  const signInPath = '/sign-in?callbackUrl=/me'
 
   if (!session?.user?.id) {
     redirect(signInPath)

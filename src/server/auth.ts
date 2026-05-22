@@ -8,9 +8,15 @@ import { cookies } from 'next/headers'
 import { z } from 'zod'
 import { prisma } from '@/server/prisma'
 import { generateUniqueUsername } from '@/lib/usernames'
+import { verifyPassword } from '@/server/password'
 
 const credentialsSchema = z.object({
   name: z.string().trim().min(1).max(80),
+})
+
+const emailPasswordCredentialsSchema = z.object({
+  email: z.email().trim().toLowerCase(),
+  password: z.string().min(1),
 })
 
 const providers = [
@@ -31,6 +37,50 @@ const providers = [
       ]
     : []),
   Credentials({
+    id: 'email-password',
+    name: 'Email and Password',
+    credentials: {
+      email: { label: 'Email', type: 'email' },
+      password: { label: 'Password', type: 'password' },
+    },
+    authorize: async (rawCredentials) => {
+      const parsed = emailPasswordCredentialsSchema.safeParse(rawCredentials)
+      if (!parsed.success) {
+        return null
+      }
+
+      const user = await prisma.user.findUnique({
+        where: { email: parsed.data.email },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+          role: true,
+          passwordHash: true,
+        },
+      })
+
+      if (!user?.passwordHash) {
+        return null
+      }
+
+      const isValid = await verifyPassword(parsed.data.password, user.passwordHash)
+      if (!isValid) {
+        return null
+      }
+
+      return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        image: user.image,
+        role: user.role,
+      }
+    },
+  }),
+  Credentials({
+    id: 'credentials',
     name: 'Guest',
     credentials: {
       name: { label: 'Name', type: 'text' },
@@ -58,6 +108,9 @@ const providers = [
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers,
+  pages: {
+    signIn: '/sign-in',
+  },
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || 'dev-only-secret',
   session: { strategy: 'jwt' },
   trustHost: true,

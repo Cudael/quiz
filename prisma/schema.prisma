@@ -16,6 +16,7 @@ model User {
   name          String
   username      String?   @unique
   email         String?   @unique
+  passwordHash  String?
   emailVerified DateTime?
   image         String?
   role          String    @default("USER") // Role: USER | ADMIN
