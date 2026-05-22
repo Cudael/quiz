@@ -85,6 +85,7 @@ model Question {
   quiz         Quiz    @relation(fields: [quizId], references: [id], onDelete: Cascade)
   type         String  @default("SINGLE") // QuestionType: SINGLE | MULTIPLE | TRUEFALSE | FILL_BLANK
   prompt       String
+  imageUrl     String?
   explanation  String?
   timeLimitSec Int     @default(20)
   order        Int
