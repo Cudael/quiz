@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ThemeProvider } from '@/components/theme-provider'
 import { ThemeToggle } from '@/components/theme-toggle'
 
@@ -28,6 +28,10 @@ function mockMatchMedia(matches: boolean) {
 }
 
 describe('theme switching', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   beforeEach(() => {
     localStorage.clear()
     mockMatchMedia(false)
@@ -43,6 +47,8 @@ describe('theme switching', () => {
   })
 
   it('updates html class and body background when toggled', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
     render(
       <ThemeProvider defaultTheme="light">
         <ThemeToggle />
@@ -53,6 +59,13 @@ describe('theme switching', () => {
       expect(document.documentElement.classList.contains('light')).toBe(true)
       expect(getComputedStyle(document.body).backgroundColor).toBe('rgb(255, 255, 255)')
     })
+
+    const hydrationWarnings = consoleErrorSpy.mock.calls
+      .flat()
+      .filter((arg): arg is string => typeof arg === 'string')
+      .filter((msg) => msg.includes('Hydration') || msg.includes('did not match'))
+
+    expect(hydrationWarnings).toHaveLength(0)
 
     fireEvent.click(screen.getByRole('button'))
 

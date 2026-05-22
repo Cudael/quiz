@@ -1,39 +1,31 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { Sun, Moon, Monitor } from 'lucide-react'
-import { useTheme, type Theme } from './theme-provider'
+import { useTheme } from './theme-provider'
 import { Button } from './ui/button'
-
-const themeCycle: Theme[] = ['light', 'dark', 'system']
-
-const themeLabel: Record<Theme, string> = {
-  light: 'light mode',
-  dark: 'dark mode',
-  system: 'system theme',
-}
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme()
-  const currentTheme = theme
-  const currentIndex = themeCycle.indexOf(currentTheme)
-  const nextTheme = themeCycle[(currentIndex + 1) % themeCycle.length]
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setMounted(true))
+    return () => cancelAnimationFrame(frame)
+  }, [])
+
+  const cycle = () => setTheme(theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light')
+  const Icon = !mounted ? Monitor : theme === 'light' ? Sun : theme === 'dark' ? Moon : Monitor
 
   return (
     <Button
       variant="ghost"
       size="icon"
-      onClick={() => setTheme(nextTheme)}
-      aria-label={`Switch from ${themeLabel[currentTheme]} to ${themeLabel[nextTheme]}`}
-      title={`Theme: ${themeLabel[currentTheme]}`}
+      onClick={cycle}
+      aria-label={`Switch theme (current: ${mounted ? theme : 'system'})`}
       suppressHydrationWarning
     >
-      {currentTheme === 'light' ? (
-        <Sun className="h-5 w-5" />
-      ) : currentTheme === 'dark' ? (
-        <Moon className="h-5 w-5" />
-      ) : (
-        <Monitor className="h-5 w-5" />
-      )}
+      <Icon className="h-5 w-5" />
     </Button>
   )
 }
