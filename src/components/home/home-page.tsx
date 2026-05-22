@@ -120,7 +120,7 @@ async function getHomePageData(): Promise<{
     }),
   ])
 
-  const isAuthenticatedUser = Boolean(session?.user?.id && session.user.email)
+  const isAuthenticatedUser = Boolean(session?.user?.id && session?.user?.email)
   const currentUser: HomeCurrentUser | null = isAuthenticatedUser
     ? {
         name: session?.user?.name ?? null,
