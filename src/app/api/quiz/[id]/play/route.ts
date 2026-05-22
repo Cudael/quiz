@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { signPlayToken } from '@/lib/play-token'
+import { prisma } from '@/server/prisma'
+import { signPlayToken } from '@/server/play-token'
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params

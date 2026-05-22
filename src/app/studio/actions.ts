@@ -2,11 +2,11 @@
 
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { auth } from '@/auth'
-import { prisma } from '@/lib/prisma'
-import { parseCsvQuizImport, parseJsonQuizImport } from '@/lib/quiz-import'
-import { categorySuggestionSchema, quizSchema } from '@/lib/schemas'
-import { IMPORT_QUESTION_BATCH_SIZE } from '@/lib/quiz-constants'
+import { auth } from '@/server/auth'
+import { prisma } from '@/server/prisma'
+import { parseCsvQuizImport, parseJsonQuizImport } from '@/domain/quiz-import'
+import { categorySuggestionSchema, quizSchema } from '@/schemas'
+import { IMPORT_QUESTION_BATCH_SIZE } from '@/domain/quiz-constants'
 
 const quizIdSchema = z.string().cuid()
 const quizInputSchema = quizSchema

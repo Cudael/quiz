@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import { ThemeProvider } from '@/components/theme-provider'
+import { THEME_INIT_SCRIPT } from '@/lib/theme'
+import { ThemeProvider } from '@/components/theme/theme-provider'
 import { ToastProvider } from '@/components/ui/toast'
-import { AuthProvider } from '@/components/auth-provider'
-import { AppShell } from '@/components/app-shell'
+import { AuthProvider } from '@/components/auth/auth-provider'
+import { AppShell } from '@/components/layout/app-shell'
 import { absoluteUrl, siteConfig } from '@/lib/site'
 
 export const metadata: Metadata = {
@@ -26,6 +27,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Apply theme class before hydration to prevent flash of incorrect theme. */}
+        {/* Safe: THEME_INIT_SCRIPT is a static compile-time string with no user-controlled input. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="font-sans antialiased">
         <AuthProvider>
           <ThemeProvider defaultTheme="system">

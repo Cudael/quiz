@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/server/prisma'
 
 export const alt = 'Quiz card'
 export const size = { width: 1200, height: 630 }

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
-import { auth } from '@/auth'
-import { prisma } from '@/lib/prisma'
+import { auth } from '@/server/auth'
+import { prisma } from '@/server/prisma'
 import { generateUniqueUsername } from '@/lib/usernames'
 
 export default async function MePage() {

@@ -1,8 +1,8 @@
 'use server'
 
-import { auth } from '@/auth'
-import { prisma } from '@/lib/prisma'
-import { reportSchema } from '@/lib/schemas'
+import { auth } from '@/server/auth'
+import { prisma } from '@/server/prisma'
+import { reportSchema } from '@/schemas'
 
 export type ReportResult =
   | { ok: true }

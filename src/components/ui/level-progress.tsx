@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { ProgressBar } from '@/components/ui/progress-bar'
-import { xpForLevel, xpForNextLevel, xpProgress } from '@/lib/leveling'
+import { xpForLevel, xpForNextLevel, xpProgress } from '@/domain/leveling'
 import { cn } from '@/lib/utils'
 
 interface LevelProgressProps {

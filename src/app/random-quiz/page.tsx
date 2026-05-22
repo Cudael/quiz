@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/server/prisma'
 
 export default async function RandomQuizPage() {
   const count = await prisma.quiz.count({ where: { isPublished: true } })

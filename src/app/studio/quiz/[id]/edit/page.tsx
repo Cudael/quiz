@@ -1,7 +1,7 @@
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
-import { auth } from '@/auth'
-import { prisma } from '@/lib/prisma'
+import { auth } from '@/server/auth'
+import { prisma } from '@/server/prisma'
 import { updateQuiz } from '@/app/studio/actions'
 import { Button } from '@/components/ui/button'
 

@@ -10,7 +10,7 @@ import { Modal } from '@/components/ui/modal'
 import { useToast } from '@/components/ui/toast'
 import { usePlaySessionStore } from '@/store/play-session'
 import { cn } from '@/lib/utils'
-import { useSound } from '@/lib/use-sound'
+import { useSound } from '@/hooks/use-sound'
 import { copy } from '@/lib/copy'
 
 interface Choice {
