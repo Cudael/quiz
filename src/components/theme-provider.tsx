@@ -1,8 +1,9 @@
 'use client'
 
 import * as React from 'react'
+import { THEME_MEDIA_QUERY } from '@/lib/theme'
 
-type Theme = 'dark' | 'light' | 'system'
+export type Theme = 'dark' | 'light' | 'system'
 
 interface ThemeProviderProps {
   children: React.ReactNode
@@ -15,29 +16,45 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = React.createContext<ThemeContextValue>({
-  theme: 'dark',
+  // SSR-safe fallback before provider mounts; real value comes from ThemeProvider state.
+  theme: 'system',
   setTheme: () => null,
 })
 
-export function ThemeProvider({ children, defaultTheme = 'dark' }: ThemeProviderProps) {
+function resolveTheme(theme: Theme) {
+  if (theme === 'system') {
+    return window.matchMedia(THEME_MEDIA_QUERY).matches ? 'dark' : 'light'
+  }
+  return theme
+}
+
+function applyTheme(theme: Theme) {
+  const root = document.documentElement
+  const resolved = resolveTheme(theme)
+  root.classList.remove('dark', 'light')
+  root.classList.add(resolved)
+  root.style.colorScheme = resolved
+}
+
+export function ThemeProvider({ children, defaultTheme = 'system' }: ThemeProviderProps) {
   const [theme, setThemeState] = React.useState<Theme>(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('theme') as Theme | null
-      if (stored) return stored
-    }
+    if (typeof window === 'undefined') return defaultTheme
+    const stored = localStorage.getItem('theme') as Theme | null
+    if (stored === 'light' || stored === 'dark' || stored === 'system') return stored
     return defaultTheme
   })
 
   React.useEffect(() => {
-    const root = document.documentElement
-    root.classList.remove('dark', 'light')
-    if (theme === 'system') {
-      const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      root.classList.add(systemDark ? 'dark' : 'light')
-    } else {
-      root.classList.add(theme)
-    }
+    applyTheme(theme)
     localStorage.setItem('theme', theme)
+  }, [theme])
+
+  React.useEffect(() => {
+    if (theme !== 'system') return
+    const media = window.matchMedia(THEME_MEDIA_QUERY)
+    const handleChange = () => applyTheme('system')
+    media.addEventListener('change', handleChange)
+    return () => media.removeEventListener('change', handleChange)
   }, [theme])
 
   const setTheme = React.useCallback((newTheme: Theme) => {

@@ -173,7 +173,7 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
                         <span
                           className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
                             i === 0
-                              ? 'bg-quiz-yellow text-black'
+                              ? 'bg-quiz-yellow text-foreground'
                               : i === 1
                                 ? 'bg-muted-foreground/30 text-foreground'
                                 : 'bg-muted text-muted-foreground'

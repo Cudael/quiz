@@ -24,7 +24,7 @@ export function Navbar() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2 font-bold text-xl">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-quiz-purple to-quiz-pink">
-            <Brain className="h-5 w-5 text-white" />
+            <Brain className="h-5 w-5 text-primary-foreground" />
           </div>
           <span className="bg-gradient-to-r from-quiz-purple-light to-quiz-pink bg-clip-text text-transparent">
             QuizArena

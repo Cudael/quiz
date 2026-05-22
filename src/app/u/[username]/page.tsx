@@ -173,7 +173,7 @@ export default async function UserProfilePage({
         <section className="rounded-xl border border-border bg-card p-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-quiz-purple to-quiz-pink text-xl font-bold text-white">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-quiz-purple to-quiz-pink text-xl font-bold text-primary-foreground">
                 {user.image ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img

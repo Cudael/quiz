@@ -25,10 +25,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body className="font-sans antialiased">
         <AuthProvider>
-          <ThemeProvider defaultTheme="dark">
+          <ThemeProvider defaultTheme="system">
             <ToastProvider>
               <AppShell>{children}</AppShell>
             </ToastProvider>

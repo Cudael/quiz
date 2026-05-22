@@ -123,6 +123,24 @@ OAuth callback URLs:
 - GitHub OAuth app callback URL: `http://localhost:3000/api/auth/callback/github`
 - Google OAuth app authorized redirect URI: `http://localhost:3000/api/auth/callback/google`
 
+## 🧯 Troubleshooting
+
+### Theme not switching?
+
+- The root layout now runs a pre-paint theme script before hydration so `<html>` gets the correct `light`/`dark` class immediately.
+- Theme-aware components should use semantic Tailwind tokens (`bg-background`, `text-foreground`, `border-border`, etc.) instead of hardcoded color utilities.
+- See `docs/theming.md` for the token model and examples.
+
+### Icons not rendering?
+
+- Ensure `lucide-react` is on the supported package line (`0.5xx.x`), not `1.x`.
+- If you upgrade icons, run tests to validate all used icon exports still exist (`src/test/lucide-icons.test.ts`).
+
+### DB empty after `npm run db:push`?
+
+- `db:push` only syncs schema. It does not insert data.
+- Run `npm run db:seed` after `db:push` to populate demo users, categories, quizzes, and sessions.
+
 ## 🧪 Phase 4 — Quiz Creation Studio
 
 Phase 4 introduces authentication and authoring/moderation workflows.

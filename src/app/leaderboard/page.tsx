@@ -358,7 +358,7 @@ export default async function LeaderboardPage({
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-quiz-purple to-quiz-pink text-xs font-bold text-white">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-quiz-purple to-quiz-pink text-xs font-bold text-primary-foreground">
                           {row.image ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
