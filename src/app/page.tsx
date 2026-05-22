@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
-import { HomePage, HomePageSkeleton } from '@/components/home-page'
+import { HomePage as HomePageContent, HomePageSkeleton } from '@/components/home-page'
 import { absoluteUrl } from '@/lib/site'
 
 export const metadata: Metadata = {
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <Suspense fallback={<HomePageSkeleton />}>
-      <HomePage />
+      <HomePageContent />
     </Suspense>
   )
 }

@@ -38,10 +38,9 @@ function applyTheme(theme: Theme) {
 
 export function ThemeProvider({ children, defaultTheme = 'system' }: ThemeProviderProps) {
   const [theme, setThemeState] = React.useState<Theme>(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('theme') as Theme | null
-      if (stored) return stored
-    }
+    if (typeof window === 'undefined') return defaultTheme
+    const stored = localStorage.getItem('theme') as Theme | null
+    if (stored === 'light' || stored === 'dark' || stored === 'system') return stored
     return defaultTheme
   })
 

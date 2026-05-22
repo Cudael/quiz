@@ -116,7 +116,7 @@ export function PlayView({ quizId }: PlayViewProps) {
     hiddenChoiceIds: string[]
   }>({ selectedChoiceIds: [], hiddenChoiceIds: [] })
   const [showQuitModal, setShowQuitModal] = useState(false)
-  const [prevQuestionId, setPrevQuestionId] = useState<string | null>(null)
+  const prevQuestionIdRef = useRef<string | null>(null)
   const globalTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const announcedRef = useRef<Record<number, boolean>>({})
 
@@ -255,10 +255,12 @@ export function PlayView({ quizId }: PlayViewProps) {
     }
   }, [play, timeRemainingMs])
 
-  // Derived reset: when question changes, reset per-question UI state during render
-  if (currentQuestion?.id !== prevQuestionId) {
-    setPrevQuestionId(currentQuestion?.id ?? null)
-    setQuestionUI({ selectedChoiceIds: [], hiddenChoiceIds: [] })
+  const currentQuestionId = currentQuestion?.id ?? null
+  if (currentQuestionId !== prevQuestionIdRef.current) {
+    prevQuestionIdRef.current = currentQuestionId
+    if (questionUI.selectedChoiceIds.length > 0 || questionUI.hiddenChoiceIds.length > 0) {
+      setQuestionUI({ selectedChoiceIds: [], hiddenChoiceIds: [] })
+    }
   }
 
   useEffect(() => {

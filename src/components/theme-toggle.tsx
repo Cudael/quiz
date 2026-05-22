@@ -14,7 +14,8 @@ const themeLabel: Record<Theme, string> = {
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme()
-  const currentIndex = themeCycle.indexOf(theme)
+  const currentTheme = theme
+  const currentIndex = themeCycle.indexOf(currentTheme)
   const nextTheme = themeCycle[(currentIndex + 1) % themeCycle.length]
 
   return (
@@ -22,12 +23,13 @@ export function ThemeToggle() {
       variant="ghost"
       size="icon"
       onClick={() => setTheme(nextTheme)}
-      aria-label={`Switch from ${themeLabel[theme]} to ${themeLabel[nextTheme]}`}
-      title={`Theme: ${themeLabel[theme]}`}
+      aria-label={`Switch from ${themeLabel[currentTheme]} to ${themeLabel[nextTheme]}`}
+      title={`Theme: ${themeLabel[currentTheme]}`}
+      suppressHydrationWarning
     >
-      {theme === 'light' ? (
+      {currentTheme === 'light' ? (
         <Sun className="h-5 w-5" />
-      ) : theme === 'dark' ? (
+      ) : currentTheme === 'dark' ? (
         <Moon className="h-5 w-5" />
       ) : (
         <Monitor className="h-5 w-5" />

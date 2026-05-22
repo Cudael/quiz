@@ -5,9 +5,10 @@ import { generateUniqueUsername } from '@/lib/usernames'
 
 export default async function MePage() {
   const session = await auth()
+  const signInPath = '/api/auth/signin?callbackUrl=/me'
 
   if (!session?.user?.id) {
-    redirect('/auth/signin')
+    redirect(signInPath)
   }
 
   const user = await prisma.user.findUnique({
@@ -16,7 +17,7 @@ export default async function MePage() {
   })
 
   if (!user) {
-    redirect('/auth/signin')
+    redirect(signInPath)
   }
 
   if (!user.username) {
