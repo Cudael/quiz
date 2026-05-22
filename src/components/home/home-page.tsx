@@ -84,6 +84,7 @@ async function getHomePageData(): Promise<{
         name: true,
         icon: true,
         color: true,
+        imageUrl: true,
         description: true,
         quizzes: {
           where: { isPublished: true },
@@ -170,6 +171,7 @@ async function getHomePageData(): Promise<{
       name: category.name,
       icon: category.icon,
       color: category.color || FALLBACK_CATEGORY_GRADIENT,
+      imageUrl: category.imageUrl ?? undefined,
       description: category.description,
       quizCount: category.quizCount,
     }))

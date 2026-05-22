@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
@@ -10,6 +11,7 @@ interface CategoryTileProps {
   name: string
   icon: string
   color: string
+  imageUrl?: string
   quizCount?: number
   description?: string
   className?: string
@@ -20,6 +22,7 @@ export function CategoryTile({
   name,
   icon,
   color,
+  imageUrl,
   quizCount,
   description,
   className,
@@ -33,17 +36,30 @@ export function CategoryTile({
       <Link
         href={`/categories/${slug}`}
         className={cn(
-          'block rounded-2xl p-5 text-white shadow-lg hover:shadow-xl transition-shadow duration-200',
+          'block overflow-hidden rounded-2xl text-white shadow-lg hover:shadow-xl transition-shadow duration-200',
           className
         )}
-        style={{ background: color }}
       >
-        <div className="text-4xl mb-3" aria-hidden="true">
-          {icon}
+        {imageUrl ? (
+          <div className="relative h-32 w-full" aria-hidden="true">
+            <Image
+              src={imageUrl}
+              alt=""
+              fill
+              className="object-cover"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            />
+            <div className="absolute inset-0 bg-black/30" aria-hidden="true" />
+          </div>
+        ) : null}
+        <div className="p-5" style={{ background: color }}>
+          <div className="text-4xl mb-3" aria-hidden="true">
+            {icon}
+          </div>
+          <h3 className="text-lg font-bold mb-1">{name}</h3>
+          {description && <p className="text-sm text-white/80 mb-2 line-clamp-2">{description}</p>}
+          {quizCount !== undefined && <p className="text-xs text-white/70">{quizCount} quizzes</p>}
         </div>
-        <h3 className="text-lg font-bold mb-1">{name}</h3>
-        {description && <p className="text-sm text-white/80 mb-2 line-clamp-2">{description}</p>}
-        {quizCount !== undefined && <p className="text-xs text-white/70">{quizCount} quizzes</p>}
       </Link>
     </motion.div>
   )
