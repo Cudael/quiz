@@ -57,7 +57,7 @@ describe('AuthControls', () => {
     render(<AuthControls />)
 
     const trigger = screen.getByRole('button', { name: 'Open profile menu' })
-    fireEvent.click(trigger)
+    fireEvent.pointerDown(trigger)
 
     expect(await screen.findByRole('menuitem', { name: /Profile/ })).toBeInTheDocument()
 
@@ -66,12 +66,12 @@ describe('AuthControls', () => {
       expect(screen.queryByRole('menuitem', { name: /Profile/ })).not.toBeInTheDocument()
     })
 
-    fireEvent.click(trigger)
+    fireEvent.pointerDown(trigger)
     expect(await screen.findByRole('menuitem', { name: /Settings/ })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('menuitem', { name: 'Settings' }))
     expect(pushMock).toHaveBeenCalledWith('/me/settings')
 
-    fireEvent.click(trigger)
+    fireEvent.pointerDown(trigger)
     expect(await screen.findByRole('menuitem', { name: /Studio/ })).toBeInTheDocument()
     fireEvent.pointerDown(document.body)
     await waitFor(() => {
