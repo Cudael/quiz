@@ -44,7 +44,7 @@ export function Avatar({ src, alt, fallback, size = 'md', className, ...props }:
           onError={() => setImgError(true)}
         />
       ) : (
-        <span className="flex h-full w-full items-center justify-center font-bold text-white">
+        <span className="flex h-full w-full items-center justify-center font-bold text-primary-foreground">
           {initials}
         </span>
       )}

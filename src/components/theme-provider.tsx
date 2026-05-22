@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 
-type Theme = 'dark' | 'light' | 'system'
+export type Theme = 'dark' | 'light' | 'system'
 
 interface ThemeProviderProps {
   children: React.ReactNode
@@ -15,11 +15,28 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = React.createContext<ThemeContextValue>({
-  theme: 'dark',
+  theme: 'system',
   setTheme: () => null,
 })
 
-export function ThemeProvider({ children, defaultTheme = 'dark' }: ThemeProviderProps) {
+const MEDIA_QUERY = '(prefers-color-scheme: dark)'
+
+function resolveTheme(theme: Theme) {
+  if (theme === 'system') {
+    return window.matchMedia(MEDIA_QUERY).matches ? 'dark' : 'light'
+  }
+  return theme
+}
+
+function applyTheme(theme: Theme) {
+  const root = document.documentElement
+  const resolved = resolveTheme(theme)
+  root.classList.remove('dark', 'light')
+  root.classList.add(resolved)
+  root.style.colorScheme = resolved
+}
+
+export function ThemeProvider({ children, defaultTheme = 'system' }: ThemeProviderProps) {
   const [theme, setThemeState] = React.useState<Theme>(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('theme') as Theme | null
@@ -29,15 +46,16 @@ export function ThemeProvider({ children, defaultTheme = 'dark' }: ThemeProvider
   })
 
   React.useEffect(() => {
-    const root = document.documentElement
-    root.classList.remove('dark', 'light')
-    if (theme === 'system') {
-      const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      root.classList.add(systemDark ? 'dark' : 'light')
-    } else {
-      root.classList.add(theme)
-    }
+    applyTheme(theme)
     localStorage.setItem('theme', theme)
+  }, [theme])
+
+  React.useEffect(() => {
+    if (theme !== 'system') return
+    const media = window.matchMedia(MEDIA_QUERY)
+    const handleChange = () => applyTheme('system')
+    media.addEventListener('change', handleChange)
+    return () => media.removeEventListener('change', handleChange)
   }, [theme])
 
   const setTheme = React.useCallback((newTheme: Theme) => {
