@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ThemeProvider } from '@/components/theme-provider'
 import { ThemeToggle } from '@/components/theme-toggle'
 
@@ -28,6 +28,10 @@ function mockMatchMedia(matches: boolean) {
 }
 
 describe('theme switching', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   beforeEach(() => {
     localStorage.clear()
     mockMatchMedia(false)
@@ -43,30 +47,43 @@ describe('theme switching', () => {
   })
 
   it('updates html class and body background when toggled', async () => {
-    render(
-      <ThemeProvider defaultTheme="light">
-        <ThemeToggle />
-      </ThemeProvider>
-    )
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      render(
+        <ThemeProvider defaultTheme="light">
+          <ThemeToggle />
+        </ThemeProvider>
+      )
 
-    await waitFor(() => {
-      expect(document.documentElement.classList.contains('light')).toBe(true)
-      expect(getComputedStyle(document.body).backgroundColor).toBe('rgb(255, 255, 255)')
-    })
+      await waitFor(() => {
+        expect(document.documentElement.classList.contains('light')).toBe(true)
+        expect(getComputedStyle(document.body).backgroundColor).toBe('rgb(255, 255, 255)')
+      })
 
-    fireEvent.click(screen.getByRole('button'))
+      const hydrationWarnings = consoleErrorSpy.mock.calls
+        .flat()
+        .filter((arg): arg is string => typeof arg === 'string')
+        .filter((msg) => msg.includes('Hydration') || msg.includes('did not match'))
 
-    await waitFor(() => {
-      expect(document.documentElement.classList.contains('dark')).toBe(true)
-      expect(getComputedStyle(document.body).backgroundColor).toBe('rgb(15, 23, 42)')
-    })
+      expect(hydrationWarnings).toHaveLength(0)
 
-    fireEvent.click(screen.getByRole('button'))
+      fireEvent.click(screen.getByRole('button'))
 
-    await waitFor(() => {
-      expect(document.documentElement.classList.contains('light')).toBe(true)
-      expect(getComputedStyle(document.body).backgroundColor).toBe('rgb(255, 255, 255)')
-    })
+      await waitFor(() => {
+        expect(document.documentElement.classList.contains('dark')).toBe(true)
+        expect(getComputedStyle(document.body).backgroundColor).toBe('rgb(15, 23, 42)')
+      })
+
+      fireEvent.click(screen.getByRole('button'))
+
+      await waitFor(() => {
+        expect(document.documentElement.classList.contains('light')).toBe(true)
+        expect(getComputedStyle(document.body).backgroundColor).toBe('rgb(255, 255, 255)')
+        expect(localStorage.getItem('theme')).toBe('system')
+      })
+    } finally {
+      consoleErrorSpy.mockRestore()
+    }
   })
 
   it('persists selected theme across remount', async () => {
