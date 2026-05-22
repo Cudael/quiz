@@ -93,6 +93,8 @@ function QuizScrollerSection({ title, quizzes }: { title: string; quizzes: HomeQ
       {quizzes.length > 0 ? (
         <div
           className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3"
+          aria-label={`${title} quizzes`}
+          tabIndex={0}
           style={{ scrollbarWidth: 'none' }}
         >
           {quizzes.map((quiz) => (
@@ -267,7 +269,7 @@ function GuestHero({
                   'absolute w-48 rounded-xl border bg-card p-3 shadow-lg',
                   teaserPositions[index]
                 )}
-                style={{ borderTopWidth: 3, borderTopColor: quiz.category.color }}
+                style={{ borderColor: quiz.category.color, borderTopWidth: 3 }}
               >
                 <p className="line-clamp-2 text-sm font-semibold">{quiz.title}</p>
                 <p className="mt-1 text-xs text-muted-foreground">{quiz.category.name}</p>
