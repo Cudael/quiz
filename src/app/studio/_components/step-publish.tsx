@@ -67,11 +67,13 @@ export function StepPublish({ quizId }: StepPublishProps) {
     setSaving(false)
   }
 
-  const shareUrl =
-    typeof window !== 'undefined' ? `${window.location.origin}/quiz/${quizId}` : `/quiz/${quizId}`
+  const getShareUrl = () => {
+    if (typeof window === 'undefined') return `/quiz/${quizId}`
+    return `${window.location.origin}/quiz/${quizId}`
+  }
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(shareUrl)
+    await navigator.clipboard.writeText(getShareUrl())
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -120,7 +122,7 @@ export function StepPublish({ quizId }: StepPublishProps) {
           <div className="flex items-center gap-2">
             <input
               readOnly
-              value={shareUrl}
+              value={getShareUrl()}
               className="min-w-0 flex-1 rounded-md border bg-background px-3 py-2 text-sm"
             />
             <Button type="button" variant="outline" size="icon" onClick={handleCopy}>

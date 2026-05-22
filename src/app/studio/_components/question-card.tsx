@@ -21,7 +21,7 @@ interface QuestionCardProps {
   onRemove: () => void
 }
 
-function buildDefaultChoices(type: DraftQuestion['type']): DraftChoice[] {
+export function makeDefaultChoices(type: DraftQuestion['type']): DraftChoice[] {
   if (type === 'TRUEFALSE') {
     return [
       { localId: crypto.randomUUID(), text: 'True', isCorrect: true },
@@ -335,8 +335,4 @@ export function QuestionCard({
       )}
     </div>
   )
-}
-
-export function makeDefaultChoices(type: DraftQuestion['type']): DraftChoice[] {
-  return buildDefaultChoices(type)
 }

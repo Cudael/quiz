@@ -118,11 +118,15 @@ export function QuizCreatorShell({
   const handleSaveDraft = async () => {
     setSavingDraft(true)
 
+    const safeTitle = title.trim() || 'Untitled quiz'
+    const safeDescription = description.trim() || 'No description yet.'
+    const safeCategoryId = categoryId || (categories[0]?.id ?? '')
+
     if (mode === 'new' && !quizId) {
       const fd = new FormData()
-      fd.set('title', title || 'Untitled quiz')
-      fd.set('description', description || ' ')
-      fd.set('categoryId', categoryId || (categories[0]?.id ?? ''))
+      fd.set('title', safeTitle)
+      fd.set('description', safeDescription)
+      fd.set('categoryId', safeCategoryId)
       fd.set('difficulty', difficulty)
       const result = await createQuizAndReturnId(fd)
       if (result.ok) {
@@ -133,9 +137,9 @@ export function QuizCreatorShell({
     } else if (quizId) {
       const fd = new FormData()
       fd.set('quizId', quizId)
-      fd.set('title', title || 'Untitled quiz')
-      fd.set('description', description || ' ')
-      fd.set('categoryId', categoryId || (categories[0]?.id ?? ''))
+      fd.set('title', safeTitle)
+      fd.set('description', safeDescription)
+      fd.set('categoryId', safeCategoryId)
       fd.set('difficulty', difficulty)
       if (isPublished) fd.set('isPublished', 'on')
       const result = await updateQuiz(fd)

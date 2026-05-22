@@ -46,7 +46,7 @@ const questionInputSchema = z.object({
   quizId: z.string().cuid(),
   type: z.enum(['SINGLE', 'MULTIPLE', 'TRUEFALSE', 'FILL_BLANK']),
   prompt: z.string().trim().min(1),
-  imageUrl: z.string().trim().url().optional().or(z.literal('')),
+  imageUrl: z.string().trim().url().optional(),
   explanation: z.string().trim().max(500).optional(),
   timeLimitSec: z.coerce.number().int().min(5).max(120),
   choices: z.array(choiceSchema).min(1),
