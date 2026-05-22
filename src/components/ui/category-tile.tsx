@@ -41,13 +41,12 @@ export function CategoryTile({
         )}
       >
         {imageUrl ? (
-          <div className="relative h-32 w-full">
+          <div className="relative h-32 w-full" aria-hidden="true">
             <Image
               src={imageUrl}
               alt=""
               fill
               className="object-cover"
-              aria-hidden="true"
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
             <div className="absolute inset-0 bg-black/30" aria-hidden="true" />
