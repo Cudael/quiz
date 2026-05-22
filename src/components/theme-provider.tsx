@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { THEME_MEDIA_QUERY } from '@/lib/theme'
 
 export type Theme = 'dark' | 'light' | 'system'
 
@@ -19,11 +20,9 @@ const ThemeContext = React.createContext<ThemeContextValue>({
   setTheme: () => null,
 })
 
-const MEDIA_QUERY = '(prefers-color-scheme: dark)'
-
 function resolveTheme(theme: Theme) {
   if (theme === 'system') {
-    return window.matchMedia(MEDIA_QUERY).matches ? 'dark' : 'light'
+    return window.matchMedia(THEME_MEDIA_QUERY).matches ? 'dark' : 'light'
   }
   return theme
 }
@@ -51,7 +50,7 @@ export function ThemeProvider({ children, defaultTheme = 'system' }: ThemeProvid
 
   React.useEffect(() => {
     if (theme !== 'system') return
-    const media = window.matchMedia(MEDIA_QUERY)
+    const media = window.matchMedia(THEME_MEDIA_QUERY)
     const handleChange = () => applyTheme('system')
     media.addEventListener('change', handleChange)
     return () => media.removeEventListener('change', handleChange)

@@ -6,8 +6,7 @@ import {
   type HomeTopPlayer,
 } from '@/components/home-page-client'
 
-const FALLBACK_CATEGORY_COLOR =
-  'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%)'
+const FALLBACK_CATEGORY_COLOR = 'var(--background-image-card-gradient)'
 
 async function getHomePageData(): Promise<{
   featuredCategories: HomeFeaturedCategory[]

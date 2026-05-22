@@ -77,11 +77,15 @@ const item = {
   show: { opacity: 1, y: 0 },
 }
 
+const compactFormatter = new Intl.NumberFormat('en', {
+  notation: 'compact',
+  maximumFractionDigits: 1,
+})
+
+const standardFormatter = new Intl.NumberFormat('en')
+
 function formatCompact(value: number) {
-  return new Intl.NumberFormat('en', {
-    notation: value >= 1000 ? 'compact' : 'standard',
-    maximumFractionDigits: 1,
-  }).format(value)
+  return value >= 1000 ? compactFormatter.format(value) : standardFormatter.format(value)
 }
 
 export function HomePageClient({ featuredCategories, topPlayers, stats }: HomePageClientProps) {
