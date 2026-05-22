@@ -24,6 +24,7 @@ export interface CategoryData {
   description: string
   icon: string // lucide icon name
   color: string // tailwind gradient or hex
+  imageUrl?: string // optional cover photo (Unsplash)
 }
 
 export const categories: CategoryData[] = [
@@ -33,6 +34,8 @@ export const categories: CategoryData[] = [
     description: 'Physics, chemistry, biology, and beyond',
     icon: 'FlaskConical',
     color: 'from-blue-500 to-cyan-400',
+    imageUrl:
+      'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=800&q=80',
   },
   {
     slug: 'history',
@@ -40,6 +43,8 @@ export const categories: CategoryData[] = [
     description: 'From ancient civilizations to modern times',
     icon: 'Landmark',
     color: 'from-amber-600 to-yellow-400',
+    imageUrl:
+      'https://images.unsplash.com/photo-1555440169-9698d6ec9b72?auto=format&fit=crop&w=800&q=80',
   },
   {
     slug: 'movies',
@@ -47,6 +52,8 @@ export const categories: CategoryData[] = [
     description: 'Lights, camera, action! Test your film knowledge',
     icon: 'Clapperboard',
     color: 'from-sky-500 to-indigo-400',
+    imageUrl:
+      'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=800&q=80',
   },
   {
     slug: 'music',
@@ -54,6 +61,8 @@ export const categories: CategoryData[] = [
     description: 'Beats, lyrics, genres, and legendary artists',
     icon: 'Music',
     color: 'from-green-500 to-teal-400',
+    imageUrl:
+      'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80',
   },
   {
     slug: 'geography',
@@ -61,6 +70,8 @@ export const categories: CategoryData[] = [
     description: 'Countries, capitals, rivers, and mountains',
     icon: 'Globe',
     color: 'from-emerald-500 to-lime-400',
+    imageUrl:
+      'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&w=800&q=80',
   },
   {
     slug: 'sports',
@@ -68,6 +79,8 @@ export const categories: CategoryData[] = [
     description: 'Athletics, records, and iconic moments',
     icon: 'Trophy',
     color: 'from-orange-500 to-red-400',
+    imageUrl:
+      'https://images.unsplash.com/photo-1547347298-4074fc3086f0?auto=format&fit=crop&w=800&q=80',
   },
   {
     slug: 'tech',
@@ -75,6 +88,8 @@ export const categories: CategoryData[] = [
     description: 'Software, hardware, and the digital world',
     icon: 'Cpu',
     color: 'from-violet-500 to-purple-400',
+    imageUrl:
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
   },
   {
     slug: 'gaming',
@@ -82,6 +97,8 @@ export const categories: CategoryData[] = [
     description: 'Video games, consoles, and gaming history',
     icon: 'Gamepad2',
     color: 'from-pink-500 to-rose-400',
+    imageUrl:
+      'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=800&q=80',
   },
   {
     slug: 'anime',
@@ -89,6 +106,8 @@ export const categories: CategoryData[] = [
     description: 'Japanese animation, manga, and pop culture',
     icon: 'Sparkles',
     color: 'from-fuchsia-500 to-pink-400',
+    imageUrl:
+      'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80',
   },
   {
     slug: 'general',
@@ -96,6 +115,8 @@ export const categories: CategoryData[] = [
     description: 'A little bit of everything',
     icon: 'Brain',
     color: 'from-slate-500 to-gray-400',
+    imageUrl:
+      'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=800&q=80',
   },
 ]
 

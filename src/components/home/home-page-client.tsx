@@ -17,6 +17,7 @@ export interface HomeFeaturedCategory {
   name: string
   icon: string
   color: string
+  imageUrl?: string
   description: string
   quizCount: number
 }

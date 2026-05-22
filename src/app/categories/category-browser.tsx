@@ -28,6 +28,7 @@ interface CategoryWithQuizzes {
   name: string
   icon: string
   color: string
+  imageUrl?: string | null
   description: string
   createdAt: string
   quizzes: QuizSummary[]
@@ -183,6 +184,7 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                   name={cat.name}
                   icon={cat.icon}
                   color={cat.color}
+                  imageUrl={cat.imageUrl ?? undefined}
                   description={cat.description}
                   quizCount={cat.quizzes.length}
                 />
