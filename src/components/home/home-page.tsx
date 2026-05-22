@@ -260,39 +260,31 @@ export async function HomePage() {
 
 export function HomePageSkeleton() {
   return (
-    <div className="container mx-auto space-y-8 px-4 py-8 md:space-y-10 md:py-12">
-      <Skeleton className="h-36 w-full rounded-3xl md:h-44" />
-      <div className="space-y-4">
-        <Skeleton className="h-8 w-56 rounded-xl" />
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <Skeleton key={`quiz-row-1-${index}`} className="h-40 rounded-2xl" />
-          ))}
-        </div>
-      </div>
-      <div className="space-y-4">
-        <Skeleton className="h-8 w-48 rounded-xl" />
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <Skeleton key={`quiz-row-2-${index}`} className="h-40 rounded-2xl" />
-          ))}
-        </div>
-      </div>
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="space-y-4">
-          <Skeleton className="h-8 w-40 rounded-xl" />
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, index) => (
-              <Skeleton key={`category-${index}`} className="h-32 rounded-2xl" />
+    <div className="mx-auto max-w-7xl space-y-8 px-4 py-8">
+      <Skeleton className="h-52 w-full rounded-3xl" />
+      <Skeleton className="h-4 w-72" />
+      {[0, 1].map((i) => (
+        <div key={i} className="space-y-3">
+          <Skeleton className="h-7 w-40 rounded-xl" />
+          <div className="flex gap-4 overflow-hidden">
+            {[0, 1, 2, 3].map((j) => (
+              <Skeleton key={j} className="h-44 w-64 shrink-0 rounded-2xl" />
             ))}
           </div>
         </div>
-        <div className="space-y-4">
-          <Skeleton className="h-8 w-32 rounded-xl" />
-          {Array.from({ length: 4 }).map((_, index) => (
-            <Skeleton key={`player-${index}`} className="h-20 rounded-2xl" />
+      ))}
+      <div className="space-y-3">
+        <Skeleton className="h-7 w-48 rounded-xl" />
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <Skeleton className="col-span-2 row-span-2 h-56 rounded-2xl" />
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <Skeleton key={i} className="h-28 rounded-2xl" />
           ))}
         </div>
+      </div>
+      <div className="grid gap-4 md:grid-cols-[1fr_280px]">
+        <Skeleton className="h-52 rounded-2xl" />
+        <Skeleton className="h-52 rounded-2xl" />
       </div>
     </div>
   )
