@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useRef, useCallback, useState } from 'react'
+import { useEffect, useRef, useCallback, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { X, Zap, SkipForward, Clock, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -10,6 +10,8 @@ import { Modal } from '@/components/ui/modal'
 import { useToast } from '@/components/ui/toast'
 import { usePlaySessionStore } from '@/store/play-session'
 import { cn } from '@/lib/utils'
+import { useSound } from '@/lib/use-sound'
+import { copy } from '@/lib/copy'
 
 interface Choice {
   id: string
@@ -93,6 +95,8 @@ export function PlayView({ quizId }: PlayViewProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { addToast } = useToast()
+  const { play } = useSound()
+  const reduceMotion = useReducedMotion()
 
   const rawMode = searchParams.get('mode') ?? 'classic'
   const mode = (['classic', 'timed', 'survival', 'daily'] as const).includes(rawMode as 'classic')
@@ -114,6 +118,7 @@ export function PlayView({ quizId }: PlayViewProps) {
   const [showQuitModal, setShowQuitModal] = useState(false)
   const [prevQuestionId, setPrevQuestionId] = useState<string | null>(null)
   const globalTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const announcedRef = useRef<Record<number, boolean>>({})
 
   // Stable refs for callbacks used inside effects
   const onFinishRef = useRef<(() => void) | null>(null)
@@ -236,16 +241,37 @@ export function PlayView({ quizId }: PlayViewProps) {
   // Auto-submit on timeout
   useEffect(() => {
     if (timeRemainingMs === 0 && currentQuestion && !isAnswered && store.status === 'playing') {
+      addToast(copy.quiz.timeout, 'info')
       onAnswerRef.current?.([], true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeRemainingMs])
+
+  useEffect(() => {
+    const seconds = Math.ceil(timeRemainingMs / 1000)
+    if (seconds <= 5 && seconds > 0 && !announcedRef.current[seconds]) {
+      void play('tick')
+      announcedRef.current[seconds] = true
+    }
+  }, [play, timeRemainingMs])
 
   // Derived reset: when question changes, reset per-question UI state during render
   if (currentQuestion?.id !== prevQuestionId) {
     setPrevQuestionId(currentQuestion?.id ?? null)
     setQuestionUI({ selectedChoiceIds: [], hiddenChoiceIds: [] })
   }
+
+  useEffect(() => {
+    announcedRef.current = {}
+  }, [currentQuestion?.id])
+
+  const timerAnnouncement = useMemo(() => {
+    const seconds = Math.ceil(timeRemainingMs / 1000)
+    if (seconds === 10 || seconds === 5 || seconds === 0) {
+      return `${seconds} seconds remaining`
+    }
+    return ''
+  }, [timeRemainingMs])
 
   // Start per-question timer when question changes.
   useEffect(() => {
@@ -385,6 +411,9 @@ export function PlayView({ quizId }: PlayViewProps) {
       <div aria-live="polite" className="sr-only">
         {`Question ${store.currentQuestionIndex + 1} of ${questions.length}: ${currentQuestion.prompt}`}
       </div>
+      <div aria-live="polite" className="sr-only">
+        {timerAnnouncement}
+      </div>
 
       {/* Header */}
       <div className="mb-6 flex items-center justify-between gap-4">
@@ -432,9 +461,9 @@ export function PlayView({ quizId }: PlayViewProps) {
       <AnimatePresence mode="wait">
         <motion.div
           key={currentQuestion.id}
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -40 }}
+          initial={reduceMotion ? { opacity: 0 } : { opacity: 0, x: 40 }}
+          animate={reduceMotion ? { opacity: 1 } : { opacity: 1, x: 0 }}
+          exit={reduceMotion ? { opacity: 0 } : { opacity: 0, x: -40 }}
           transition={{ duration: 0.25 }}
         >
           <div className="mb-6 flex items-center gap-4">

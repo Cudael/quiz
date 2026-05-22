@@ -32,17 +32,52 @@ export function Modal({
   className,
   size = 'md',
 }: ModalProps) {
+  const panelRef = React.useRef<HTMLDivElement | null>(null)
+  const restoreFocusRef = React.useRef<HTMLElement | null>(null)
+
   React.useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
     }
+
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab' || !panelRef.current) return
+      const focusable = panelRef.current.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+      if (focusable.length === 0) return
+
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      const active = document.activeElement
+
+      if (e.shiftKey && active === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+
     if (open) {
+      restoreFocusRef.current = document.activeElement as HTMLElement | null
       document.addEventListener('keydown', handleEsc)
+      document.addEventListener('keydown', handleTab)
       document.body.style.overflow = 'hidden'
+      requestAnimationFrame(() => {
+        panelRef.current
+          ?.querySelector<HTMLElement>(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          )
+          ?.focus()
+      })
     }
     return () => {
       document.removeEventListener('keydown', handleEsc)
+      document.removeEventListener('keydown', handleTab)
       document.body.style.overflow = ''
+      restoreFocusRef.current?.focus()
     }
   }, [open, onClose])
 
@@ -72,6 +107,7 @@ export function Modal({
               sizeClasses[size],
               className
             )}
+            ref={panelRef}
           >
             <div className="flex items-start justify-between mb-4">
               <div>

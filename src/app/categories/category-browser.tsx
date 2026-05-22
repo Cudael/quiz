@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { ReportQuizForm } from '@/app/quiz/report-quiz-form'
+import { copy } from '@/lib/copy'
 
 type Difficulty = 'ALL' | 'EASY' | 'MEDIUM' | 'HARD'
 type SortOption = 'popular' | 'newest' | 'hardest'
@@ -113,6 +114,7 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
             placeholder="Search categories or quizzes…"
+            data-global-search="true"
             className="w-full rounded-lg border border-input bg-background pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
@@ -155,7 +157,7 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
             🔍
           </p>
           <p className="text-lg font-semibold">No categories found</p>
-          <p className="text-sm">Try adjusting your search or filters</p>
+          <p className="text-sm">{copy.emptyStates.noCategoryResults}</p>
         </div>
       ) : (
         <motion.div layout className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">

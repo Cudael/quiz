@@ -325,6 +325,98 @@ flowchart LR
   DB --- F
 ```
 
+## ✨ Phase 6 — Polish & Delight
+
+### Sound system
+
+- New client hook: `src/lib/use-sound.ts` (persisted `soundEnabled`, `soundVolume` in `localStorage`)
+- Lazy initialization after first user interaction to avoid autoplay-policy issues
+- Wired moments:
+  - Quiz start CTA (`start`)
+  - Countdown urgency (`tick`, skipped when reduced-motion is enabled)
+  - Results celebrations (`level-up`, `badge`)
+- Sound assets are bundled in `public/sfx/`
+
+| File           | Purpose                | License             |
+| -------------- | ---------------------- | ------------------- |
+| `correct.mp3`  | Correct-answer chime   | CC0 / Public Domain |
+| `wrong.mp3`    | Wrong-answer buzzer    | CC0 / Public Domain |
+| `tick.mp3`     | Countdown urgency tick | CC0 / Public Domain |
+| `level-up.mp3` | Level-up fanfare       | CC0 / Public Domain |
+| `badge.mp3`    | Badge unlock sparkle   | CC0 / Public Domain |
+| `start.mp3`    | Quiz start whoosh      | CC0 / Public Domain |
+
+### Keyboard shortcuts
+
+- `g h` → Home
+- `g c` → Categories
+- `g l` → Leaderboard
+- `g s` → Studio
+- `g p` → Profile (`/me`)
+- `/` → Focus search (when present)
+- `?` → Open shortcuts cheatsheet
+- During play: `1-4` answer choices, `Enter` next, `Esc` quit dialog
+
+### Accessibility statement
+
+- Target: WCAG AA contrast and keyboard-only usability
+- Skip-to-content link in global shell
+- Focus trapping + focus restore in modal dialogs
+- Countdown live region announces 10s, 5s, and 0s
+- Reduced-motion respected in hot spots (confetti and urgent tick behavior)
+- Axe smoke tests added for key routes and configured to fail on `serious`/`critical` violations
+
+### SEO / metadata / OG strategy
+
+- Route-level metadata for `/`, `/categories`, `/quiz/[id]`, `/leaderboard`, `/u/[username]`
+- Dynamic OG image routes:
+  - `src/app/opengraph-image.tsx`
+  - `src/app/quiz/[id]/opengraph-image.tsx`
+  - `src/app/u/[username]/opengraph-image.tsx`
+  - `src/app/leaderboard/opengraph-image.tsx`
+- Crawl / PWA files:
+  - `src/app/robots.ts`
+  - `src/app/sitemap.ts`
+  - `src/app/manifest.ts`
+  - `public/icon-192-maskable.png`, `public/icon-512-maskable.png`
+
+OG screenshot:
+
+![Phase 6 OG card](docs/screenshots/phase-6/og-card.png)
+
+### Performance notes
+
+- `canvas-confetti` remains dynamically imported at celebration trigger time
+- Sound playback is lazily initialized to avoid loading on first paint
+- Lighthouse snapshot:
+
+![Phase 6 Lighthouse](docs/screenshots/phase-6/lighthouse.png)
+
+### Updated architecture (Phase 6)
+
+```mermaid
+flowchart LR
+  UI[App Shell]
+  HK[Global Hotkeys]
+  SFX[useSound + Howler]
+  SEO[Metadata + OG routes]
+  A11Y[Modal focus trap + Axe tests]
+  PWA[robots/sitemap/manifest/icons]
+
+  UI --> HK
+  UI --> SFX
+  UI --> SEO
+  UI --> A11Y
+  UI --> PWA
+```
+
+### Roadmap / Future (Out of Scope)
+
+- Real-time multiplayer versus mode
+- AI-generated question authoring
+- Native mobile app
+- Email notifications
+
 ## 🏗 Development Phases
 
 - [x] **Phase 1** — Foundation & Design System
@@ -332,5 +424,5 @@ flowchart LR
 - [x] **Phase 3** — Core Quiz Gameplay
 - [x] **Phase 4** — Quiz Creation Studio
 - [x] **Phase 5** — Leaderboards, Profiles & Gamification
-- [ ] **Phase 6** — Polish & Delight
+- [x] **Phase 6** — Polish & Delight
 - [ ] **Phase 7** — Tests & Docs

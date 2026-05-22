@@ -3,10 +3,11 @@
 import Link from 'next/link'
 import { Brain, Menu, X } from 'lucide-react'
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { Button } from './ui/button'
 import { ThemeToggle } from './theme-toggle'
 import { AuthControls } from './auth-controls'
+import { SoundControls } from './sound-controls'
 
 const navLinks = [
   { href: '/categories', label: 'Categories' },
@@ -16,6 +17,7 @@ const navLinks = [
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const reduceMotion = useReducedMotion()
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl">
@@ -25,7 +27,7 @@ export function Navbar() {
             <Brain className="h-5 w-5 text-white" />
           </div>
           <span className="bg-gradient-to-r from-quiz-purple-light to-quiz-pink bg-clip-text text-transparent">
-            QuizMaster
+            QuizArena
           </span>
         </Link>
 
@@ -42,6 +44,7 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <SoundControls />
           <ThemeToggle />
           <AuthControls />
           <Button variant="gradient" size="sm" asChild className="hidden md:flex">
@@ -61,9 +64,9 @@ export function Navbar() {
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
+            initial={reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
+            animate={reduceMotion ? { opacity: 1 } : { opacity: 1, height: 'auto' }}
+            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
             className="border-t border-border/40 bg-background/95 backdrop-blur-xl md:hidden"
           >
             <nav
