@@ -97,7 +97,8 @@ export function HomePageClient({ featuredCategories, topPlayers, stats }: HomePa
   ]
 
   // Keep max >= 1 so progress bars never divide by zero when score data is sparse.
-  const maxScore = Math.max(...topPlayers.map((player) => player.totalScore), 1)
+  const maxScore =
+    topPlayers.length === 0 ? 1 : Math.max(...topPlayers.map((player) => player.totalScore))
 
   return (
     <div className="min-h-screen">
