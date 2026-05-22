@@ -48,38 +48,42 @@ describe('theme switching', () => {
 
   it('updates html class and body background when toggled', async () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      render(
+        <ThemeProvider defaultTheme="light">
+          <ThemeToggle />
+        </ThemeProvider>
+      )
 
-    render(
-      <ThemeProvider defaultTheme="light">
-        <ThemeToggle />
-      </ThemeProvider>
-    )
+      await waitFor(() => {
+        expect(document.documentElement.classList.contains('light')).toBe(true)
+        expect(getComputedStyle(document.body).backgroundColor).toBe('rgb(255, 255, 255)')
+      })
 
-    await waitFor(() => {
-      expect(document.documentElement.classList.contains('light')).toBe(true)
-      expect(getComputedStyle(document.body).backgroundColor).toBe('rgb(255, 255, 255)')
-    })
+      const hydrationWarnings = consoleErrorSpy.mock.calls
+        .flat()
+        .filter((arg): arg is string => typeof arg === 'string')
+        .filter((msg) => msg.includes('Hydration') || msg.includes('did not match'))
 
-    const hydrationWarnings = consoleErrorSpy.mock.calls
-      .flat()
-      .filter((arg): arg is string => typeof arg === 'string')
-      .filter((msg) => msg.includes('Hydration') || msg.includes('did not match'))
+      expect(hydrationWarnings).toHaveLength(0)
 
-    expect(hydrationWarnings).toHaveLength(0)
+      fireEvent.click(screen.getByRole('button'))
 
-    fireEvent.click(screen.getByRole('button'))
+      await waitFor(() => {
+        expect(document.documentElement.classList.contains('dark')).toBe(true)
+        expect(getComputedStyle(document.body).backgroundColor).toBe('rgb(15, 23, 42)')
+      })
 
-    await waitFor(() => {
-      expect(document.documentElement.classList.contains('dark')).toBe(true)
-      expect(getComputedStyle(document.body).backgroundColor).toBe('rgb(15, 23, 42)')
-    })
+      fireEvent.click(screen.getByRole('button'))
 
-    fireEvent.click(screen.getByRole('button'))
-
-    await waitFor(() => {
-      expect(document.documentElement.classList.contains('light')).toBe(true)
-      expect(getComputedStyle(document.body).backgroundColor).toBe('rgb(255, 255, 255)')
-    })
+      await waitFor(() => {
+        expect(document.documentElement.classList.contains('light')).toBe(true)
+        expect(getComputedStyle(document.body).backgroundColor).toBe('rgb(255, 255, 255)')
+        expect(localStorage.getItem('theme')).toBe('system')
+      })
+    } finally {
+      consoleErrorSpy.mockRestore()
+    }
   })
 
   it('persists selected theme across remount', async () => {
