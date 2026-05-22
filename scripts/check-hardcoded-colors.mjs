@@ -13,7 +13,7 @@ const bannedPatterns = [
   /\btext-\[#.+?\]\b/g,
 ]
 
-// Allowlist: intentional contrast on branded gradients and modal backdrop overlays.
+// Allowlist: intentional contrast on branded gradients and the modal backdrop overlay.
 const allowlist = new Set([
   'components/ui/button.tsx',
   'components/ui/category-tile.tsx',

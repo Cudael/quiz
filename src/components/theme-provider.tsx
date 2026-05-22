@@ -16,6 +16,7 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = React.createContext<ThemeContextValue>({
+  // SSR-safe fallback before provider mounts; real value comes from ThemeProvider state.
   theme: 'system',
   setTheme: () => null,
 })
