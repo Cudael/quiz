@@ -255,13 +255,12 @@ export function PlayView({ quizId }: PlayViewProps) {
     }
   }, [play, timeRemainingMs])
 
-  const currentQuestionId = currentQuestion?.id ?? null
-  if (currentQuestionId !== prevQuestionIdRef.current) {
+  useEffect(() => {
+    const currentQuestionId = currentQuestion?.id ?? null
+    if (currentQuestionId === prevQuestionIdRef.current) return
     prevQuestionIdRef.current = currentQuestionId
-    if (questionUI.selectedChoiceIds.length > 0 || questionUI.hiddenChoiceIds.length > 0) {
-      setQuestionUI({ selectedChoiceIds: [], hiddenChoiceIds: [] })
-    }
-  }
+    setQuestionUI({ selectedChoiceIds: [], hiddenChoiceIds: [] })
+  }, [currentQuestion?.id])
 
   useEffect(() => {
     announcedRef.current = {}
