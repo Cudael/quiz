@@ -129,6 +129,10 @@ GOOGLE_CLIENT_ID=""
 GOOGLE_CLIENT_SECRET=""
 ```
 
+Email/password registration and sign-in work with no additional provider env vars — only
+`DATABASE_URL` and `AUTH_SECRET` are required. Google/GitHub env vars are only needed for OAuth
+buttons.
+
 OAuth callback URLs:
 
 - GitHub OAuth app callback URL: `http://localhost:3000/api/auth/callback/github`

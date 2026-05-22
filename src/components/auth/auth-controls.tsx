@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { ChevronDown, LogOut, UserCircle2 } from 'lucide-react'
-import { useSession, signIn, signOut } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 import { Avatar } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { LevelProgress } from '@/components/ui/level-progress'
@@ -17,9 +17,14 @@ export function AuthControls() {
 
   if (!session?.user) {
     return (
-      <Button size="sm" variant="outline" onClick={() => signIn()}>
-        Sign in
-      </Button>
+      <div className="flex items-center gap-2">
+        <Button size="sm" variant="outline" asChild>
+          <Link href="/sign-in">Sign in</Link>
+        </Button>
+        <Link href="/sign-up" className="text-xs text-muted-foreground hover:text-foreground">
+          Sign up
+        </Link>
+      </div>
     )
   }
 

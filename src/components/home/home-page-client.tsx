@@ -11,6 +11,7 @@ import { Avatar } from '@/components/ui/avatar'
 import { ProgressBar } from '@/components/ui/progress-bar'
 import { staggerContainer, fadeUp, withReducedMotion } from '@/lib/motion'
 import { cn } from '@/lib/utils'
+import { GuestUpgradePrompt } from '@/components/auth/guest-upgrade-prompt'
 
 export interface HomeFeaturedCategory {
   slug: string
@@ -190,6 +191,10 @@ export function HomePageClient({ featuredCategories, topPlayers, stats }: HomePa
           </motion.div>
         </div>
       </section>
+
+      <div className="container mx-auto px-4 pt-6">
+        <GuestUpgradePrompt />
+      </div>
 
       {/* Featured Categories */}
       <section className="py-20 bg-background">
