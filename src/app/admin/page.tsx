@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { Button } from '@/components/ui/button'
+import { PageHeader } from '@/components/ui/page-header'
+import { EmptyState } from '@/components/ui/empty-state'
 import { resolveReport, reviewCategorySuggestion } from './actions'
 
 export default async function AdminPage({
@@ -44,7 +46,7 @@ export default async function AdminPage({
 
   return (
     <div className="container mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold">Admin moderation queue</h1>
+      <PageHeader title="Admin moderation queue" />
 
       <div className="mt-4 flex gap-2">
         <Button variant={activeTab === 'suggestions' ? 'default' : 'outline'} asChild>
@@ -61,7 +63,11 @@ export default async function AdminPage({
       {activeTab === 'suggestions' && (
         <div className="mt-6 space-y-3">
           {suggestions.length === 0 && (
-            <p className="text-sm text-muted-foreground">No pending suggestions.</p>
+            <EmptyState
+              icon="📋"
+              title="No pending suggestions."
+              description="All category suggestions have been reviewed."
+            />
           )}
           {suggestions.map((suggestion) => (
             <div key={suggestion.id} className="rounded-lg border p-4">
@@ -110,7 +116,13 @@ export default async function AdminPage({
 
       {activeTab === 'reports' && (
         <div className="mt-6 space-y-3">
-          {reports.length === 0 && <p className="text-sm text-muted-foreground">No reports.</p>}
+          {reports.length === 0 && (
+            <EmptyState
+              icon="🚩"
+              title="No reports."
+              description="All quiz reports have been resolved."
+            />
+          )}
           {reports.map((report) => (
             <div key={report.id} className="rounded-lg border p-4">
               <p className="font-semibold">

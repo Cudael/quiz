@@ -5,6 +5,7 @@ import {
   type HomeStats,
   type HomeTopPlayer,
 } from '@/components/home-page-client'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const FALLBACK_CATEGORY_GRADIENT = 'var(--background-image-card-gradient)'
 
@@ -127,10 +128,10 @@ export async function HomePage() {
 export function HomePageSkeleton() {
   return (
     <div className="container mx-auto px-4 py-12">
-      <div className="h-72 animate-pulse rounded-2xl bg-muted/50" />
+      <Skeleton className="h-72 w-full rounded-2xl" />
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 8 }).map((_, index) => (
-          <div key={index} className="h-32 animate-pulse rounded-2xl bg-muted/50" />
+          <Skeleton key={index} className="h-32 rounded-2xl" />
         ))}
       </div>
     </div>

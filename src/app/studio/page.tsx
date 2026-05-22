@@ -1,8 +1,10 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { ArrowLeft, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { auth } from '@/auth'
 import { Button } from '@/components/ui/button'
+import { PageHeader } from '@/components/ui/page-header'
+import { EmptyState } from '@/components/ui/empty-state'
 import { prisma } from '@/lib/prisma'
 import { deleteQuiz, togglePublish } from './actions'
 
@@ -33,24 +35,18 @@ export default async function StudioPage({
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <div className="mb-8 flex items-center justify-between">
-        <Button variant="ghost" asChild>
-          <Link href="/">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Home
-          </Link>
-        </Button>
-        <Button asChild>
-          <Link href="/studio/quiz/new">
-            <Plus className="mr-2 h-4 w-4" />
-            New Quiz
-          </Link>
-        </Button>
-      </div>
-      <h1 className="mb-2 text-3xl font-extrabold">Quiz Studio</h1>
-      <p className="mb-6 text-muted-foreground">
-        Manage your drafts and published quizzes in one place.
-      </p>
+      <PageHeader
+        title="Quiz Studio"
+        description="Manage your drafts and published quizzes in one place."
+        actions={
+          <Button asChild>
+            <Link href="/studio/quiz/new">
+              <Plus className="mr-2 h-4 w-4" />
+              New Quiz
+            </Link>
+          </Button>
+        }
+      />
 
       <div className="mb-6 flex gap-2">
         <Button variant={activeTab === 'drafts' ? 'default' : 'outline'} asChild>
@@ -62,15 +58,12 @@ export default async function StudioPage({
       </div>
 
       {quizzes.length === 0 ? (
-        <div className="rounded-xl border border-dashed p-10 text-center">
-          <p className="text-lg font-semibold">No quizzes yet in this tab.</p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Start from scratch or use a sample template to move faster.
-          </p>
-          <Button asChild className="mt-4">
-            <Link href="/templates/quiz-import.json">View sample template</Link>
-          </Button>
-        </div>
+        <EmptyState
+          icon="✏️"
+          title="No quizzes yet in this tab."
+          description="Start from scratch or use a sample template to move faster."
+          action={{ label: 'View sample template', href: '/templates/quiz-import.json' }}
+        />
       ) : (
         <div className="overflow-x-auto rounded-lg border">
           <table className="min-w-full text-sm">

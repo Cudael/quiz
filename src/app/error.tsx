@@ -16,8 +16,14 @@ export default function Error({
 
   return (
     <div className="container mx-auto flex min-h-[60vh] max-w-xl flex-col items-center justify-center px-4 text-center">
+      <div
+        className="mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-destructive/10 text-4xl"
+        aria-hidden="true"
+      >
+        ⚠️
+      </div>
       <h1 className="text-3xl font-bold">Oops — a quiz gremlin appeared.</h1>
-      <p className="mt-2 text-muted-foreground">
+      <p className="mt-2 max-w-sm text-muted-foreground">
         Please reload and we&apos;ll get you back in the game.
       </p>
       <Button className="mt-6" onClick={() => unstable_retry()}>
