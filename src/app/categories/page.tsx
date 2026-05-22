@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { PageHeader } from '@/components/ui/page-header'
 import { prisma } from '@/lib/prisma'
 import { CategoryBrowser } from './category-browser'
 import { absoluteUrl } from '@/lib/site'
@@ -50,27 +51,25 @@ export default async function CategoriesPage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <div className="mb-8">
-        <Button variant="ghost" asChild>
-          <Link href="/">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Home
-          </Link>
-        </Button>
-      </div>
-
-      <div className="mb-10">
-        <h1 className="text-3xl font-extrabold md:text-4xl">
-          Browse{' '}
-          <span className="bg-gradient-to-r from-quiz-purple to-quiz-pink bg-clip-text text-transparent">
-            Categories
-          </span>
-        </h1>
-        <p className="mt-2 text-muted-foreground">
-          {categories.length} categories ·{' '}
-          {categories.reduce((sum, c) => sum + c.quizzes.length, 0)} quizzes
-        </p>
-      </div>
+      <PageHeader
+        back={
+          <Button variant="ghost" asChild>
+            <Link href="/">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Home
+            </Link>
+          </Button>
+        }
+        title={
+          <>
+            Browse{' '}
+            <span className="bg-gradient-to-r from-quiz-purple to-quiz-pink bg-clip-text text-transparent">
+              Categories
+            </span>
+          </>
+        }
+        description={`${categories.length} categories · ${categories.reduce((sum, c) => sum + c.quizzes.length, 0)} quizzes`}
+      />
 
       <CategoryBrowser categories={serialized} />
     </div>

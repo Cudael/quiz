@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import { Play, Trophy, Zap, ArrowRight, Flame, BookOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -9,6 +9,8 @@ import { Badge } from '@/components/ui/badge'
 import { CategoryTile } from '@/components/ui/category-tile'
 import { Avatar } from '@/components/ui/avatar'
 import { ProgressBar } from '@/components/ui/progress-bar'
+import { staggerContainer, fadeUp, withReducedMotion } from '@/lib/motion'
+import { cn } from '@/lib/utils'
 
 export interface HomeFeaturedCategory {
   slug: string
@@ -64,19 +66,6 @@ const HOW_IT_WORKS = [
   },
 ]
 
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1 },
-  },
-}
-
-const item = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0 },
-}
-
 const compactFormatter = new Intl.NumberFormat('en', {
   notation: 'compact',
   maximumFractionDigits: 1,
@@ -89,6 +78,10 @@ function formatCompact(value: number) {
 }
 
 export function HomePageClient({ featuredCategories, topPlayers, stats }: HomePageClientProps) {
+  const shouldReduce = useReducedMotion()
+  const containerVariants = withReducedMotion(staggerContainer(0.1), shouldReduce)
+  const itemVariants = withReducedMotion(fadeUp, shouldReduce)
+
   const statsRows = [
     { label: 'Active Players', value: stats.totalPlayers },
     { label: 'Quizzes', value: stats.totalQuizzes },
@@ -106,17 +99,23 @@ export function HomePageClient({ featuredCategories, topPlayers, stats }: HomePa
       <section className="relative overflow-hidden bg-hero-gradient py-24 text-foreground md:py-32">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-15" />
         <div
-          className="absolute top-20 left-10 h-64 w-64 rounded-full bg-quiz-purple/15 blur-3xl animate-pulse-slow"
+          className={cn(
+            'absolute top-20 left-10 h-64 w-64 rounded-full bg-quiz-purple/15 blur-3xl',
+            !shouldReduce && 'animate-pulse-slow'
+          )}
           aria-hidden="true"
         />
         <div
-          className="absolute bottom-10 right-10 h-96 w-96 rounded-full bg-quiz-pink/15 blur-3xl animate-pulse-slow"
+          className={cn(
+            'absolute bottom-10 right-10 h-96 w-96 rounded-full bg-quiz-pink/15 blur-3xl',
+            !shouldReduce && 'animate-pulse-slow'
+          )}
           aria-hidden="true"
         />
 
         <div className="container relative mx-auto px-4 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={shouldReduce ? {} : { opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
@@ -127,7 +126,7 @@ export function HomePageClient({ featuredCategories, topPlayers, stats }: HomePa
           </motion.div>
 
           <motion.h1
-            initial={{ opacity: 0, y: 30 }}
+            initial={shouldReduce ? {} : { opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
             className="mb-6 text-5xl font-extrabold tracking-tight md:text-7xl lg:text-8xl"
@@ -141,7 +140,7 @@ export function HomePageClient({ featuredCategories, topPlayers, stats }: HomePa
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 30 }}
+            initial={shouldReduce ? {} : { opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground md:text-xl"
@@ -151,7 +150,7 @@ export function HomePageClient({ featuredCategories, topPlayers, stats }: HomePa
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={shouldReduce ? {} : { opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
@@ -177,7 +176,7 @@ export function HomePageClient({ featuredCategories, topPlayers, stats }: HomePa
 
           {/* Stats row */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={shouldReduce ? {} : { opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
             className="mt-16 grid grid-cols-2 gap-8 md:grid-cols-4"
@@ -216,14 +215,14 @@ export function HomePageClient({ featuredCategories, topPlayers, stats }: HomePa
           ) : (
             <>
               <motion.div
-                variants={container}
+                variants={containerVariants}
                 initial="hidden"
                 whileInView="show"
                 viewport={{ once: true, margin: '-100px' }}
                 className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
               >
                 {featuredCategories.map((cat) => (
-                  <motion.div key={cat.slug} variants={item}>
+                  <motion.div key={cat.slug} variants={itemVariants}>
                     <CategoryTile {...cat} />
                   </motion.div>
                 ))}
@@ -254,14 +253,14 @@ export function HomePageClient({ featuredCategories, topPlayers, stats }: HomePa
             <p className="mt-3 text-muted-foreground">Three simple steps to quiz glory</p>
           </div>
           <motion.div
-            variants={container}
+            variants={containerVariants}
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, margin: '-100px' }}
             className="grid gap-8 md:grid-cols-3"
           >
             {HOW_IT_WORKS.map((step, i) => (
-              <motion.div key={step.title} variants={item}>
+              <motion.div key={step.title} variants={itemVariants}>
                 <Card className="relative overflow-hidden border-border/50 hover:border-border hover:shadow-lg transition-all duration-300">
                   <CardContent className="p-8 text-center">
                     <div
@@ -304,14 +303,14 @@ export function HomePageClient({ featuredCategories, topPlayers, stats }: HomePa
           ) : (
             <>
               <motion.div
-                variants={container}
+                variants={containerVariants}
                 initial="hidden"
                 whileInView="show"
                 viewport={{ once: true, margin: '-100px' }}
                 className="mx-auto max-w-2xl space-y-3"
               >
                 {topPlayers.map((player, i) => (
-                  <motion.div key={player.userId} variants={item}>
+                  <motion.div key={player.userId} variants={itemVariants}>
                     <Card className="border-border/50 hover:border-border hover:shadow-md transition-all duration-200">
                       <CardContent className="flex items-center gap-4 p-4">
                         <span className="w-8 text-center text-lg font-bold text-muted-foreground">
@@ -359,7 +358,7 @@ export function HomePageClient({ featuredCategories, topPlayers, stats }: HomePa
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-15" aria-hidden="true" />
         <div className="container relative mx-auto px-4 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={shouldReduce ? {} : { opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}

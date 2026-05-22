@@ -5,6 +5,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { absoluteUrl } from '@/lib/site'
 import { copy } from '@/lib/copy'
+import { EmptyState } from '@/components/ui/empty-state'
 
 type RangeFilter = 'all' | 'week' | 'today'
 type ModeFilter = 'ALL' | 'CLASSIC' | 'TIMED' | 'SURVIVAL' | 'DAILY'
@@ -324,11 +325,11 @@ export default async function LeaderboardPage({
       </div>
 
       {pageRows.length === 0 ? (
-        <div className="rounded-xl border border-border bg-card p-8 text-center">
-          <Trophy className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
-          <p className="font-semibold">{copy.emptyStates.leaderboard}</p>
-          <p className="text-sm text-muted-foreground">Try changing range, mode, or categories.</p>
-        </div>
+        <EmptyState
+          icon={<Trophy className="h-8 w-8 text-muted-foreground" />}
+          title={copy.emptyStates.leaderboard}
+          description="Try changing range, mode, or categories."
+        />
       ) : (
         <div className="overflow-hidden rounded-xl border border-border bg-card">
           <table className="w-full text-sm">

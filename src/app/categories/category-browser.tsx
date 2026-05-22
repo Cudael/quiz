@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Search, SlidersHorizontal } from 'lucide-react'
 import { CategoryTile } from '@/components/ui/category-tile'
 import { Badge } from '@/components/ui/badge'
+import { EmptyState } from '@/components/ui/empty-state'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { ReportQuizForm } from '@/app/quiz/report-quiz-form'
@@ -152,13 +153,19 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
 
       {/* Results */}
       {filtered.length === 0 ? (
-        <div className="py-20 text-center text-muted-foreground">
-          <p className="text-5xl mb-4" aria-hidden="true">
-            🔍
-          </p>
-          <p className="text-lg font-semibold">No categories found</p>
-          <p className="text-sm">{copy.emptyStates.noCategoryResults}</p>
-        </div>
+        <EmptyState
+          icon="🔍"
+          title="No categories found"
+          description={copy.emptyStates.noCategoryResults}
+          action={{
+            label: 'Clear filters',
+            onClick: () => {
+              setSearch('')
+              setDifficulty('ALL')
+              setSort('popular')
+            },
+          }}
+        />
       ) : (
         <motion.div layout className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           <AnimatePresence>

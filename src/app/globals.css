@@ -24,6 +24,15 @@
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
 
+  /* Surface elevation tiers — consumed via bg-surface-1/2/3 */
+  --color-surface-1: hsl(var(--surface-1));
+  --color-surface-2: hsl(var(--surface-2));
+  --color-surface-3: hsl(var(--surface-3));
+
+  /* Warning token — for countdown urgency, status badges, etc. */
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+
   --color-quiz-purple: #7c3aed;
   --color-quiz-purple-light: #a78bfa;
   --color-quiz-green: #22c55e;
@@ -51,14 +60,17 @@
     from 180deg at 50% 50%,
     var(--tw-gradient-stops)
   );
-  --background-image-hero-gradient: linear-gradient(
-    135deg,
-    hsl(var(--hero-stop-1)) 0%,
-    hsl(var(--hero-stop-2)) 25%,
-    hsl(var(--hero-stop-3)) 50%,
-    hsl(var(--hero-stop-4)) 75%,
-    hsl(var(--hero-stop-1)) 100%
-  );
+  --background-image-hero-gradient:
+    radial-gradient(ellipse 80% 60% at 20% 40%, hsl(var(--hero-stop-2) / 0.6) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 70%, hsl(var(--hero-stop-4) / 0.5) 0%, transparent 55%),
+    linear-gradient(
+      135deg,
+      hsl(var(--hero-stop-1)) 0%,
+      hsl(var(--hero-stop-2)) 30%,
+      hsl(var(--hero-stop-3)) 60%,
+      hsl(var(--hero-stop-4)) 85%,
+      hsl(var(--hero-stop-1)) 100%
+    );
   --background-image-card-gradient: linear-gradient(
     135deg,
     rgba(124, 58, 237, 0.1) 0%,
@@ -126,8 +138,23 @@
   --input: 240 5.9% 90%;
   --ring: 262 80% 60%;
   --radius: 0.75rem;
+
+  /* Warning token — amber hue for countdown urgency, status */
+  --warning: 38 85% 44%;
+  --warning-foreground: 0 0% 98%;
+
+  /* Surface elevation tiers (light: progressively more tinted) */
+  --surface-1: 240 4.8% 97%;
+  --surface-2: 240 4.8% 94%;
+  --surface-3: 240 4.8% 91%;
+
+  /* Shadow scale — theme-aware (light: neutral dark) */
+  --shadow-sm: 0 1px 2px 0 hsl(240 10% 10% / 0.05);
+  --shadow-md: 0 4px 6px -1px hsl(240 10% 10% / 0.07), 0 2px 4px -2px hsl(240 10% 10% / 0.05);
+  --shadow-lg: 0 10px 15px -3px hsl(240 10% 10% / 0.08), 0 4px 6px -4px hsl(240 10% 10% / 0.05);
+
   --hero-stop-1: 266 90% 97%;
-  --hero-stop-2: 285 90% 95%;
+  --hero-stop-2: 285 85% 94%;
   --hero-stop-3: 316 88% 95%;
   --hero-stop-4: 48 96% 94%;
 }
@@ -147,15 +174,30 @@
   --muted-foreground: 240 5% 64.9%;
   --accent: 262 80% 65%;
   --accent-foreground: 0 0% 98%;
-  --destructive: 0 62.8% 30.6%;
+  --destructive: 0 72% 50%;
   --destructive-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
+  --border: 240 3.7% 18%;
   --input: 240 3.7% 15.9%;
   --ring: 262 80% 65%;
+
+  /* Warning token */
+  --warning: 38 92% 55%;
+  --warning-foreground: 240 10% 3.9%;
+
+  /* Surface elevation tiers (dark: progressively lighter) */
+  --surface-1: 240 6% 8%;
+  --surface-2: 240 6% 11%;
+  --surface-3: 240 6% 14%;
+
+  /* Shadow scale — dark mode uses blue-tinted shadows so they don't look pitch-black */
+  --shadow-sm: 0 1px 2px 0 hsl(240 40% 4% / 0.4);
+  --shadow-md: 0 4px 6px -1px hsl(240 40% 4% / 0.5), 0 2px 4px -2px hsl(240 40% 4% / 0.35);
+  --shadow-lg: 0 10px 15px -3px hsl(240 40% 4% / 0.55), 0 4px 6px -4px hsl(240 40% 4% / 0.35);
+
   --hero-stop-1: 246 43% 18%;
-  --hero-stop-2: 240 47% 24%;
+  --hero-stop-2: 262 55% 26%;
   --hero-stop-3: 273 67% 35%;
-  --hero-stop-4: 271 69% 42%;
+  --hero-stop-4: 316 55% 30%;
 }
 
 @layer base {
