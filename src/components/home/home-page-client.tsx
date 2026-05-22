@@ -479,7 +479,7 @@ function AuthenticatedHomeView({
   containerVariants: ReturnType<typeof staggerContainer>
   itemVariants: typeof fadeUp
 }) {
-  const displayName = currentUser.name?.trim() || 'quizzer'
+  const displayName = currentUser.name?.trim() || 'Quizzer'
 
   return (
     <>
