@@ -85,8 +85,8 @@ describe('axe smoke routes', () => {
     await expectNoSeriousOrCritical(
       <main>
         <h1>Settings</h1>
-        <label htmlFor="route-me-settings-name">Display name</label>
-        <input id="route-me-settings-name" type="text" />
+        <label htmlFor="settings-name">Display name</label>
+        <input id="settings-name" type="text" />
       </main>
     )
   })

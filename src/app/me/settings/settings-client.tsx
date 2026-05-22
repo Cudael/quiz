@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { signOut } from 'next-auth/react'
 import { useTheme } from '@/components/theme/theme-provider'
 import { Button } from '@/components/ui/button'
@@ -63,7 +63,7 @@ export function SettingsClient({
   })
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [confirmUsername, setConfirmUsername] = useState('')
-  const usernameForDelete = useMemo(() => `@${profile.username}`, [profile.username])
+  const usernameForDelete = `@${profile.username}`
 
   const savePreferences = async () => {
     const response = await fetch('/api/me/preferences', {

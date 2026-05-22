@@ -85,7 +85,6 @@ export default async function MePage() {
         <div className="rounded-xl border border-border bg-card p-4">
           <p className="text-xs text-muted-foreground">Quizzes played</p>
           <p className="text-2xl font-bold">{stats._count._all}</p>
-          <p className="text-xs text-muted-foreground">Best streak: {user.bestStreak}</p>
         </div>
         <div className="rounded-xl border border-border bg-card p-4">
           <p className="text-xs text-muted-foreground">Average score</p>

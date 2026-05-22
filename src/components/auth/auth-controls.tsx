@@ -90,7 +90,7 @@ export function AuthControls() {
           </DropdownMenuSub>
           <DropdownMenuItem
             onSelect={() => {
-              void signOut({ callbackUrl: '/' })
+              void signOut({ callbackUrl: '/' }).catch(() => undefined)
             }}
           >
             <LogOut className="h-3.5 w-3.5" />

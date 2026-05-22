@@ -60,7 +60,9 @@ export const usernameSchema = z
   .trim()
   .min(3)
   .max(32)
-  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
+    message: 'Username must use lowercase letters and numbers, with hyphens only between segments.',
+  })
 
 export const meProfileSchema = z.object({
   name: z.string().trim().min(1).max(80),
