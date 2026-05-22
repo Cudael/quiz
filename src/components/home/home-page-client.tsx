@@ -94,7 +94,6 @@ function QuizScrollerSection({ title, quizzes }: { title: string; quizzes: HomeQ
         <div
           className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3"
           aria-label={`${title} quizzes`}
-          tabIndex={0}
           style={{ scrollbarWidth: 'none' }}
         >
           {quizzes.map((quiz) => (
