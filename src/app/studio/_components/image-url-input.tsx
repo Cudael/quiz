@@ -41,7 +41,7 @@ export function ImageUrlInput({
             aspectRatio === '16/9' ? 'aspect-video' : 'aspect-square'
           )}
         >
-          {hasError || !value ? (
+          {hasError ? (
             <div className="flex h-full items-center justify-center">
               <ImageIcon className="h-8 w-8 text-muted-foreground" />
             </div>

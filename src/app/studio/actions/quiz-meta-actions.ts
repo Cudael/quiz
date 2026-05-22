@@ -5,8 +5,6 @@ import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
 import { quizSchema } from '@/schemas'
 
-const quizInputSchema = quizSchema
-
 export type QuizMetaActionResult =
   | { ok: true; quizId: string }
   | {
@@ -21,7 +19,7 @@ export async function createQuizAndReturnId(formData: FormData): Promise<QuizMet
     return { ok: false, error: 'UNAUTHORIZED', message: 'Please sign in.' }
   }
 
-  const parsed = quizInputSchema.safeParse({
+  const parsed = quizSchema.safeParse({
     title: formData.get('title'),
     description: formData.get('description'),
     categoryId: formData.get('categoryId'),
