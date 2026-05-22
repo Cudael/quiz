@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { REDUCED_MOTION_STORAGE_KEY } from '@/lib/preferences'
 
 export type SoundName = 'correct' | 'wrong' | 'tick' | 'level-up' | 'badge' | 'start'
 
@@ -47,6 +48,9 @@ export function useSound() {
 
   const reducedMotion = useMemo(() => {
     if (typeof window === 'undefined') return false
+    const override = localStorage.getItem(REDUCED_MOTION_STORAGE_KEY)
+    if (override === 'true') return true
+    if (override === 'false') return false
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches
   }, [])
 

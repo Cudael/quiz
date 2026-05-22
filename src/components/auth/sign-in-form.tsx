@@ -24,6 +24,10 @@ export function SignInForm({ callbackUrl, googleEnabled, githubEnabled }: SignIn
   const [error, setError] = useState('')
   const [isSubmittingEmail, setIsSubmittingEmail] = useState(false)
   const [isSubmittingGuest, setIsSubmittingGuest] = useState(false)
+  const oauthProviders = [
+    googleEnabled ? { id: 'google', label: 'Continue with Google' } : null,
+    githubEnabled ? { id: 'github', label: 'Continue with GitHub' } : null,
+  ].filter(Boolean) as Array<{ id: 'google' | 'github'; label: string }>
 
   async function handleEmailPasswordSignIn(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -76,28 +80,19 @@ export function SignInForm({ callbackUrl, googleEnabled, githubEnabled }: SignIn
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {(googleEnabled || githubEnabled) && (
+          {oauthProviders.length > 0 && (
             <div className="space-y-2">
-              {googleEnabled && (
+              {oauthProviders.map((provider) => (
                 <Button
+                  key={provider.id}
                   type="button"
-                  variant="outline"
+                  variant={oauthProviders.length === 1 ? 'default' : 'outline'}
                   className="w-full"
-                  onClick={() => signIn('google', { callbackUrl })}
+                  onClick={() => signIn(provider.id, { callbackUrl })}
                 >
-                  Continue with Google
+                  {provider.label}
                 </Button>
-              )}
-              {githubEnabled && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => signIn('github', { callbackUrl })}
-                >
-                  Continue with GitHub
-                </Button>
-              )}
+              ))}
             </div>
           )}
 

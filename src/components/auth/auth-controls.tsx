@@ -1,15 +1,31 @@
 'use client'
 
 import Link from 'next/link'
-import { ChevronDown, LogOut, UserCircle2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { ChevronDown, LogOut } from 'lucide-react'
 import { useSession, signOut } from 'next-auth/react'
 import { Avatar } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { LevelProgress } from '@/components/ui/level-progress'
+import { buttonVariants } from '@/components/ui/button'
 import { StreakFlame } from '@/components/ui/streak-flame'
+import { useTheme } from '@/components/theme/theme-provider'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { cn } from '@/lib/utils'
 
 export function AuthControls() {
   const { data: session, status } = useSession()
+  const { theme, setTheme } = useTheme()
+  const router = useRouter()
 
   if (status === 'loading') {
     return <div className="h-8 w-20 animate-pulse rounded-md bg-muted" />
@@ -17,14 +33,9 @@ export function AuthControls() {
 
   if (!session?.user) {
     return (
-      <div className="flex items-center gap-2">
-        <Button size="sm" variant="outline" asChild>
-          <Link href="/sign-in">Sign in</Link>
-        </Button>
-        <Link href="/sign-up" className="text-xs text-muted-foreground hover:text-foreground">
-          Sign up
-        </Link>
-      </div>
+      <Link href="/sign-in" className={cn(buttonVariants({ size: 'sm' }), 'h-8 px-3')}>
+        Sign in
+      </Link>
     )
   }
 
@@ -33,63 +44,60 @@ export function AuthControls() {
 
   return (
     <div className="flex items-center gap-2">
-      <div className="hidden min-w-32 md:block">
-        <LevelProgress xp={session.user.xp} size="sm" />
-      </div>
-      <div className="hidden md:block">
-        <StreakFlame value={session.user.streakDays} size="sm" />
-      </div>
-
-      <details className="relative hidden md:block">
-        <summary className="list-none">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
           <button
-            className="flex items-center gap-2 rounded-md border border-border px-2 py-1 hover:bg-muted"
+            className="flex items-center gap-2 rounded-md border border-border px-1.5 py-1 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 md:px-2"
             type="button"
+            aria-label="Open profile menu"
           >
             <Avatar src={session.user.image} fallback={name} size="sm" />
-            <span className="max-w-20 truncate text-xs font-medium">{name}</span>
-            <ChevronDown className="h-3 w-3 text-muted-foreground" />
+            <span className="hidden max-w-20 truncate text-xs font-medium md:block">{name}</span>
+            <span className="hidden rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium md:inline-flex">
+              Level {session.user.level}
+            </span>
+            <span className="hidden md:inline-flex">
+              <StreakFlame value={session.user.streakDays} size="sm" />
+            </span>
+            <ChevronDown className="hidden h-3 w-3 text-muted-foreground md:block" />
           </button>
-        </summary>
+        </DropdownMenuTrigger>
 
-        <div className="absolute right-0 z-50 mt-2 w-44 rounded-md border border-border bg-background p-1 shadow-xl">
-          <Link href="/me" className="block rounded px-2 py-1.5 text-sm hover:bg-muted">
+        <DropdownMenuContent align="end" className="w-52">
+          <DropdownMenuItem onSelect={() => router.push('/me')}>
             Profile (@{username})
-          </Link>
-          <Link href="/studio" className="block rounded px-2 py-1.5 text-sm hover:bg-muted">
-            Studio
-          </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => router.push('/me/settings')}>Settings</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => router.push('/studio')}>Studio</DropdownMenuItem>
           {session.user.role === 'ADMIN' && (
-            <Link href="/admin" className="block rounded px-2 py-1.5 text-sm hover:bg-muted">
-              Admin
-            </Link>
+            <DropdownMenuItem onSelect={() => router.push('/admin')}>Admin</DropdownMenuItem>
           )}
-          <button
-            type="button"
-            onClick={() => signOut({ callbackUrl: '/' })}
-            className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-muted"
+          <DropdownMenuSeparator />
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuRadioGroup
+                value={theme}
+                onValueChange={(value) => {
+                  setTheme(value as 'light' | 'dark' | 'system')
+                }}
+              >
+                <DropdownMenuRadioItem value="light">Light</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="system">System</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+          <DropdownMenuItem
+            onSelect={() => {
+              void signOut({ callbackUrl: '/' }).catch(() => undefined)
+            }}
           >
             <LogOut className="h-3.5 w-3.5" />
             Sign out
-          </button>
-        </div>
-      </details>
-
-      <Button
-        size="icon"
-        variant="ghost"
-        onClick={() => signOut({ callbackUrl: '/' })}
-        className="md:hidden"
-      >
-        <LogOut className="h-4 w-4" />
-        <span className="sr-only">Sign out</span>
-      </Button>
-      <Button size="icon" variant="ghost" asChild className="md:hidden">
-        <Link href="/me">
-          <UserCircle2 className="h-4 w-4" />
-          <span className="sr-only">Open profile</span>
-        </Link>
-      </Button>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   )
 }

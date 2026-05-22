@@ -17,6 +17,8 @@ model User {
   username      String?   @unique
   email         String?   @unique
   passwordHash  String?
+  bio           String?
+  preferences   String? // JSON-encoded UserPreferences (SQLite-safe)
   emailVerified DateTime?
   image         String?
   role          String    @default("USER") // Role: USER | ADMIN
