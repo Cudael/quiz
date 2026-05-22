@@ -7,7 +7,6 @@ import { signIn } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 
 interface SignInFormProps {
   callbackUrl: string
@@ -104,7 +103,9 @@ export function SignInForm({ callbackUrl, googleEnabled, githubEnabled }: SignIn
 
           <form className="space-y-3" onSubmit={handleEmailPasswordSignIn}>
             <div className="space-y-1">
-              <Label htmlFor="email">Email</Label>
+              <label htmlFor="email" className="text-sm font-medium leading-none">
+                Email
+              </label>
               <Input
                 id="email"
                 type="email"
@@ -115,7 +116,9 @@ export function SignInForm({ callbackUrl, googleEnabled, githubEnabled }: SignIn
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="password">Password</Label>
+              <label htmlFor="password" className="text-sm font-medium leading-none">
+                Password
+              </label>
               <Input
                 id="password"
                 type="password"
@@ -133,7 +136,9 @@ export function SignInForm({ callbackUrl, googleEnabled, githubEnabled }: SignIn
           <div className="border-t border-border pt-4">
             <form className="space-y-3" onSubmit={handleGuestContinue}>
               <div className="space-y-1">
-                <Label htmlFor="guest-name">Continue as guest</Label>
+                <label htmlFor="guest-name" className="text-sm font-medium leading-none">
+                  Continue as guest
+                </label>
                 <Input
                   id="guest-name"
                   maxLength={80}

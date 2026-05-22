@@ -7,7 +7,6 @@ import { signIn } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 
 interface SignUpFormProps {
   callbackUrl: string
@@ -100,7 +99,9 @@ export function SignUpForm({ callbackUrl, googleEnabled, githubEnabled }: SignUp
 
           <form className="space-y-3" onSubmit={handleSignUp}>
             <div className="space-y-1">
-              <Label htmlFor="sign-up-name">Name</Label>
+              <label htmlFor="sign-up-name" className="text-sm font-medium leading-none">
+                Name
+              </label>
               <Input
                 id="sign-up-name"
                 maxLength={80}
@@ -110,7 +111,9 @@ export function SignUpForm({ callbackUrl, googleEnabled, githubEnabled }: SignUp
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="sign-up-email">Email</Label>
+              <label htmlFor="sign-up-email" className="text-sm font-medium leading-none">
+                Email
+              </label>
               <Input
                 id="sign-up-email"
                 type="email"
@@ -121,7 +124,9 @@ export function SignUpForm({ callbackUrl, googleEnabled, githubEnabled }: SignUp
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="sign-up-password">Password</Label>
+              <label htmlFor="sign-up-password" className="text-sm font-medium leading-none">
+                Password
+              </label>
               <Input
                 id="sign-up-password"
                 type="password"
@@ -133,7 +138,9 @@ export function SignUpForm({ callbackUrl, googleEnabled, githubEnabled }: SignUp
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="confirm-password">Confirm password</Label>
+              <label htmlFor="confirm-password" className="text-sm font-medium leading-none">
+                Confirm password
+              </label>
               <Input
                 id="confirm-password"
                 type="password"
