@@ -140,7 +140,7 @@
   --radius: 0.75rem;
 
   /* Warning token — amber hue for countdown urgency, status */
-  --warning: 38 92% 50%;
+  --warning: 38 85% 44%;
   --warning-foreground: 0 0% 98%;
 
   /* Surface elevation tiers (light: progressively more tinted) */

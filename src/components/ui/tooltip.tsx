@@ -12,7 +12,7 @@ interface TooltipProps {
 
 export function Tooltip({ content, children, side = 'top', className }: TooltipProps) {
   const [visible, setVisible] = React.useState(false)
-  const [id] = React.useState(() => `tooltip-${Math.random().toString(36).slice(2)}`)
+  const id = React.useId()
 
   const positionClasses: Record<string, string> = {
     top: 'bottom-full left-1/2 -translate-x-1/2 mb-2',

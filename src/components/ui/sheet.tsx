@@ -73,7 +73,10 @@ export function Sheet({ open, onClose, side = 'right', title, children, classNam
       document.removeEventListener('keydown', handleEsc)
       document.removeEventListener('keydown', handleTab)
       document.body.style.overflow = ''
-      restoreFocusRef.current?.focus()
+      const el = restoreFocusRef.current
+      if (el && document.body.contains(el)) {
+        el.focus()
+      }
     }
   }, [open, onClose])
 

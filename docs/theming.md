@@ -49,7 +49,7 @@ Dark-mode shadows use a blue-tinted dark hue instead of pitch black.
 ### ✅ Do
 
 - Use semantic tokens for surfaces/text/borders:
-  - `bg-background`, `bg-card`, `bg-muted`, `bg-surface-1`, `bg-surface-2`
+  - `bg-background`, `bg-card`, `bg-muted`, `bg-surface-1`, `bg-surface-2`, `bg-surface-3`
   - `text-foreground`, `text-muted-foreground`
   - `border-border`
 - Use `bg-warning` / `text-warning` for amber/urgency states.

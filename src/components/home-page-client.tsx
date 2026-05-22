@@ -10,6 +10,7 @@ import { CategoryTile } from '@/components/ui/category-tile'
 import { Avatar } from '@/components/ui/avatar'
 import { ProgressBar } from '@/components/ui/progress-bar'
 import { staggerContainer, fadeUp, withReducedMotion } from '@/lib/motion'
+import { cn } from '@/lib/utils'
 
 export interface HomeFeaturedCategory {
   slug: string
@@ -98,11 +99,17 @@ export function HomePageClient({ featuredCategories, topPlayers, stats }: HomePa
       <section className="relative overflow-hidden bg-hero-gradient py-24 text-foreground md:py-32">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-15" />
         <div
-          className={`absolute top-20 left-10 h-64 w-64 rounded-full bg-quiz-purple/15 blur-3xl${shouldReduce ? '' : ' animate-pulse-slow'}`}
+          className={cn(
+            'absolute top-20 left-10 h-64 w-64 rounded-full bg-quiz-purple/15 blur-3xl',
+            !shouldReduce && 'animate-pulse-slow'
+          )}
           aria-hidden="true"
         />
         <div
-          className={`absolute bottom-10 right-10 h-96 w-96 rounded-full bg-quiz-pink/15 blur-3xl${shouldReduce ? '' : ' animate-pulse-slow'}`}
+          className={cn(
+            'absolute bottom-10 right-10 h-96 w-96 rounded-full bg-quiz-pink/15 blur-3xl',
+            !shouldReduce && 'animate-pulse-slow'
+          )}
           aria-hidden="true"
         />
 
