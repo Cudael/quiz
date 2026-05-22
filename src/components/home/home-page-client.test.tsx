@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import type { ReactNode } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import {
   HomePageClient,
@@ -10,7 +11,7 @@ import {
 } from '@/components/home/home-page-client'
 
 vi.mock('next/link', () => ({
-  default: ({ href, children, ...props }: { href: string; children: React.ReactNode }) => (
+  default: ({ href, children, ...props }: { href: string; children: ReactNode }) => (
     <a href={href} {...props}>
       {children}
     </a>
@@ -21,7 +22,7 @@ const featuredCategories: HomeFeaturedCategory[] = [
   {
     slug: 'science',
     name: 'Science',
-    icon: '��',
+    icon: 'S',
     color: 'linear-gradient(135deg, #7c3aed, #ec4899)',
     description: 'Experiments and facts',
     quizCount: 12,
