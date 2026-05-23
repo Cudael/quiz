@@ -185,7 +185,7 @@ export function QuestionCard({
               className="w-full rounded-md border bg-background px-3 py-2 text-sm"
               placeholder={
                 question.type === 'FILL_BLANK'
-                  ? `Use ${FILL_BLANK_PLACEHOLDER} as the placeholder, e.g. The capital of France is ${FILL_BLANK_PLACEHOLDER}.`
+                  ? `Include ${FILL_BLANK_PLACEHOLDER} exactly once, e.g. The capital of France is ${FILL_BLANK_PLACEHOLDER}.`
                   : 'Enter your question...'
               }
             />
