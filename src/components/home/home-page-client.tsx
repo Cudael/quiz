@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { motion, useReducedMotion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { QuizCard, type QuizCardData } from '@/components/ui/quiz-card'
+import { QuizCard, QuizCardFeatured, type QuizCardData } from '@/components/ui/quiz-card'
 import { fadeUp, staggerContainer, withReducedMotion } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 
@@ -67,10 +67,30 @@ function SectionHeader({ title, href }: { title: string; href: string }) {
   )
 }
 
-function QuizScrollerSection({ title, quizzes }: { title: string; quizzes: QuizCardData[] }) {
+function QuizScrollerSection({
+  title,
+  quizzes,
+  subtitle,
+}: {
+  title: string
+  quizzes: QuizCardData[]
+  subtitle?: string
+}) {
   return (
     <section>
-      <SectionHeader title={title} href="/categories" />
+      {subtitle ? (
+        <div className="mb-3 flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold">{title}</h2>
+            <p className="text-sm text-muted-foreground">{subtitle}</p>
+          </div>
+          <Link href="/categories" className="text-sm text-primary">
+            See all →
+          </Link>
+        </div>
+      ) : (
+        <SectionHeader title={title} href="/categories" />
+      )}
       {quizzes.length > 0 ? (
         <div
           className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3"
@@ -81,6 +101,53 @@ function QuizScrollerSection({ title, quizzes }: { title: string; quizzes: QuizC
             <QuizCard key={quiz.id} quiz={quiz} className="w-64 shrink-0 snap-start" />
           ))}
         </div>
+      ) : (
+        <div className="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">
+          Quizzes will appear here soon.
+        </div>
+      )}
+    </section>
+  )
+}
+
+function QuizGridSection({ title, quizzes }: { title: string; quizzes: QuizCardData[] }) {
+  return (
+    <section>
+      <SectionHeader title={title} href="/categories" />
+      {quizzes.length > 0 ? (
+        <div
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          aria-label={`${title} quizzes`}
+        >
+          {quizzes.slice(0, 6).map((quiz) => (
+            <QuizCard key={quiz.id} quiz={quiz} className="w-full" />
+          ))}
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">
+          Quizzes will appear here soon.
+        </div>
+      )}
+    </section>
+  )
+}
+
+function FeaturedQuizSection({
+  title,
+  popularQuizzes,
+  trendingQuizzes,
+}: {
+  title: string
+  popularQuizzes: QuizCardData[]
+  trendingQuizzes: QuizCardData[]
+}) {
+  const featuredQuiz = popularQuizzes[0] ?? trendingQuizzes[0]
+
+  return (
+    <section>
+      <SectionHeader title={title} href="/categories" />
+      {featuredQuiz ? (
+        <QuizCardFeatured quiz={featuredQuiz} />
       ) : (
         <div className="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">
           Quizzes will appear here soon.
@@ -110,11 +177,20 @@ function CategoryMosaic({ featuredCategories }: { featuredCategories: HomeFeatur
                   }}
                   className="relative flex min-h-28 cursor-pointer flex-col justify-between overflow-hidden rounded-2xl border border-white/10 p-4 transition-all hover:scale-[1.02]"
                 >
-                  <div className={cn(isLarge ? 'text-lg font-black' : 'text-sm font-bold')}>
-                    {category.name}
+                  <div className={cn('leading-none', isLarge ? 'text-4xl' : 'text-2xl')}>
+                    {category.icon}
                   </div>
-                  <div className="text-xs opacity-70">
-                    {category.quizCount} {category.quizCount === 1 ? 'quiz' : 'quizzes'}
+                  <div>
+                    <div
+                      className={cn(
+                        isLarge ? 'text-xl font-black md:text-2xl' : 'text-sm font-bold'
+                      )}
+                    >
+                      {category.name}
+                    </div>
+                    <div className="mt-1 line-clamp-2 text-xs opacity-80">
+                      {isLarge ? category.description : `${category.quizCount} quizzes`}
+                    </div>
                   </div>
                 </div>
               </Link>
@@ -309,33 +385,26 @@ export function HomePageClient({
             <WelcomeBar currentUser={currentUser} />
           </motion.div>
 
+          <motion.div variants={sectionVariants}>
+            <FeaturedQuizSection
+              title="⭐ Today's Pick"
+              popularQuizzes={popularQuizzes}
+              trendingQuizzes={trendingQuizzes}
+            />
+          </motion.div>
+
           {personalizedQuizzes.length > 0 ? (
             <motion.div variants={sectionVariants}>
-              <section>
-                <div className="mb-3 flex items-center justify-between">
-                  <div>
-                    <h2 className="text-xl font-bold">For You</h2>
-                    <p className="text-sm text-muted-foreground">Based on your activity</p>
-                  </div>
-                  <Link href="/categories" className="text-sm text-primary">
-                    See all →
-                  </Link>
-                </div>
-                <div
-                  className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3"
-                  aria-label="For You quizzes"
-                  style={{ scrollbarWidth: 'none' }}
-                >
-                  {personalizedQuizzes.map((quiz) => (
-                    <QuizCard key={quiz.id} quiz={quiz} />
-                  ))}
-                </div>
-              </section>
+              <QuizScrollerSection
+                title="For You"
+                quizzes={personalizedQuizzes}
+                subtitle="Based on your activity"
+              />
             </motion.div>
           ) : null}
 
           <motion.div variants={sectionVariants}>
-            <QuizScrollerSection title="🔥 Trending" quizzes={trendingQuizzes} />
+            <QuizGridSection title="🔥 Trending" quizzes={trendingQuizzes} />
           </motion.div>
 
           <motion.div variants={sectionVariants}>
@@ -353,15 +422,23 @@ export function HomePageClient({
           </motion.div>
 
           <motion.div variants={sectionVariants}>
-            <QuizScrollerSection title="🔥 Trending" quizzes={trendingQuizzes} />
+            <CategoryMosaic featuredCategories={featuredCategories} />
+          </motion.div>
+
+          <motion.div variants={sectionVariants}>
+            <FeaturedQuizSection
+              title="⭐ Featured Quiz"
+              popularQuizzes={popularQuizzes}
+              trendingQuizzes={trendingQuizzes}
+            />
+          </motion.div>
+
+          <motion.div variants={sectionVariants}>
+            <QuizGridSection title="🔥 Trending" quizzes={trendingQuizzes} />
           </motion.div>
 
           <motion.div variants={sectionVariants}>
             <QuizScrollerSection title="✨ Just Added" quizzes={newestQuizzes} />
-          </motion.div>
-
-          <motion.div variants={sectionVariants}>
-            <CategoryMosaic featuredCategories={featuredCategories} />
           </motion.div>
 
           <motion.div variants={sectionVariants}>
