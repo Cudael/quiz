@@ -15,6 +15,7 @@ interface AnswerInput {
   questionId: string
   choiceIds: string[]
   timeTakenMs: number
+  textAnswer?: string
 }
 
 interface SubmitBody {
@@ -23,6 +24,10 @@ interface SubmitBody {
   mode: string
   answers: AnswerInput[]
   guestName?: string
+}
+
+function sanitizeChoiceIds(choiceIds: string[], validChoiceIds: Set<string>) {
+  return Array.from(new Set(choiceIds.filter((choiceId) => validChoiceIds.has(choiceId)))).sort()
 }
 
 export async function POST(req: NextRequest) {
@@ -83,25 +88,39 @@ export async function POST(req: NextRequest) {
   let correctCount = 0
   let streak = 0
   const totalCount = quiz.questions.length
+  const evaluatedAnswers: Array<{
+    questionId: string
+    chosenIds: string[]
+    isCorrect: boolean
+    timeTakenMs: number
+  }> = []
 
   for (const answer of answers) {
     const question = quiz.questions.find((q) => q.id === answer.questionId)
     if (!question) continue
 
+    const validChoiceIds = new Set(question.choices.map((choice) => choice.id))
     const correctChoiceIds = question.choices
       .filter((c) => c.isCorrect)
       .map((c) => c.id)
       .sort()
-    const givenIds = [...answer.choiceIds].sort()
+    const givenIds = sanitizeChoiceIds(answer.choiceIds, validChoiceIds)
     const isCorrect =
       correctChoiceIds.length === givenIds.length &&
       correctChoiceIds.every((id, i) => id === givenIds[i])
+    const timeLimitMs = question.timeLimitSec * 1000
+    const timeTakenMs = Math.min(answer.timeTakenMs, timeLimitMs)
+
+    evaluatedAnswers.push({
+      questionId: question.id,
+      chosenIds: givenIds,
+      isCorrect,
+      timeTakenMs,
+    })
 
     if (isCorrect) {
       correctCount++
       streak++
-      const timeLimitMs = question.timeLimitSec * 1000
-      const timeTakenMs = Math.min(answer.timeTakenMs, timeLimitMs)
       const timeRemainingMs = timeLimitMs - timeTakenMs
       score += scoreQuestion({
         correct: true,
@@ -133,6 +152,18 @@ export async function POST(req: NextRequest) {
         mode: normalizedMode,
       },
     })
+
+    if (evaluatedAnswers.length > 0) {
+      await tx.questionAnswer.createMany({
+        data: evaluatedAnswers.map((answer) => ({
+          sessionId: playSession.id,
+          questionId: answer.questionId,
+          chosenIds: JSON.stringify(answer.chosenIds),
+          isCorrect: answer.isCorrect,
+          timeTakenMs: answer.timeTakenMs,
+        })),
+      })
+    }
 
     let newLevel = 1
     let leveledUp = false
