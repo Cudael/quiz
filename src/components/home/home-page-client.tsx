@@ -43,6 +43,7 @@ interface HomePageClientProps {
   topPlayers: HomeTopPlayer[]
   stats: HomeStats
   popularQuizzes: QuizCardData[]
+  trendingQuizzes: QuizCardData[]
   newestQuizzes: QuizCardData[]
   personalizedQuizzes: QuizCardData[]
   currentUser: HomeCurrentUser | null
@@ -286,6 +287,7 @@ export function HomePageClient({
   topPlayers,
   stats,
   popularQuizzes,
+  trendingQuizzes,
   newestQuizzes,
   personalizedQuizzes,
   currentUser,
@@ -333,7 +335,7 @@ export function HomePageClient({
           ) : null}
 
           <motion.div variants={sectionVariants}>
-            <QuizScrollerSection title="🔥 Trending" quizzes={popularQuizzes} />
+            <QuizScrollerSection title="🔥 Trending" quizzes={trendingQuizzes} />
           </motion.div>
 
           <motion.div variants={sectionVariants}>
@@ -351,7 +353,7 @@ export function HomePageClient({
           </motion.div>
 
           <motion.div variants={sectionVariants}>
-            <QuizScrollerSection title="🔥 Trending" quizzes={popularQuizzes} />
+            <QuizScrollerSection title="🔥 Trending" quizzes={trendingQuizzes} />
           </motion.div>
 
           <motion.div variants={sectionVariants}>

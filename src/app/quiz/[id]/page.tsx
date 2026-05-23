@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Clock, BarChart3, Users, Trophy, BookOpen } from 'lucide-react'
@@ -109,12 +110,16 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
         <div className="lg:col-span-2">
           <div className="mb-6 overflow-hidden rounded-2xl border">
             {quiz.coverImage ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={quiz.coverImage}
-                alt={`${quiz.title} cover`}
-                className="h-56 w-full object-cover md:h-64"
-              />
+              <div className="relative h-56 w-full md:h-64">
+                <Image
+                  src={quiz.coverImage}
+                  alt={`${quiz.title} cover image`}
+                  fill
+                  unoptimized
+                  sizes="(max-width: 1024px) 100vw, 66vw"
+                  className="object-cover"
+                />
+              </div>
             ) : (
               <div
                 className="h-56 w-full md:h-64"
@@ -221,6 +226,11 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
                   })}
                 </ol>
               )}
+              <div className="mt-4">
+                <Button variant="outline" asChild className="w-full">
+                  <Link href={`/leaderboard?quizId=${quiz.id}`}>View full leaderboard</Link>
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
