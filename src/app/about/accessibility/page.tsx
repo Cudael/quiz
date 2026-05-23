@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Accessibility Statement | QuizArena',
   description:
-    'QuizArena targets WCAG AA, supports reduced motion, keyboard-only navigation, and runs axe smoke checks in CI.',
+    'QuizArena targets WCAG AA, supports reduced motion, and runs axe smoke checks in CI.',
 }
 
 export default function AccessibilityPage() {
@@ -16,7 +16,7 @@ export default function AccessibilityPage() {
       </p>
       <ul className="mt-4 list-disc space-y-2 pl-6 text-sm text-muted-foreground">
         <li>Visible focus rings on interactive controls.</li>
-        <li>Global keyboard shortcuts and a cheatsheet modal.</li>
+        <li>Keyboard-accessible navigation and controls.</li>
         <li>Reduced-motion support for timers and celebration effects.</li>
         <li>Automated axe smoke tests for critical routes in CI.</li>
       </ul>

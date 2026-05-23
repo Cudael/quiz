@@ -10,7 +10,6 @@ import { Modal } from '@/components/ui/modal'
 import { useToast } from '@/components/ui/toast'
 import { usePlaySessionStore } from '@/store/play-session'
 import { cn } from '@/lib/utils'
-import { useSound } from '@/hooks/use-sound'
 import { copy } from '@/lib/copy'
 
 interface Choice {
@@ -95,7 +94,6 @@ export function PlayView({ quizId }: PlayViewProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { addToast } = useToast()
-  const { play } = useSound()
   const reduceMotion = useReducedMotion()
 
   const rawMode = searchParams.get('mode') ?? 'classic'
@@ -119,7 +117,6 @@ export function PlayView({ quizId }: PlayViewProps) {
   // Ref avoids render loops here; we only need to track previous question id without re-rendering.
   const prevQuestionIdRef = useRef<string | null>(null)
   const globalTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const announcedRef = useRef<Record<number, boolean>>({})
 
   // Stable refs for callbacks used inside effects
   const onFinishRef = useRef<(() => void) | null>(null)
@@ -249,22 +246,10 @@ export function PlayView({ quizId }: PlayViewProps) {
   }, [timeRemainingMs])
 
   useEffect(() => {
-    const seconds = Math.ceil(timeRemainingMs / 1000)
-    if (seconds <= 5 && seconds > 0 && !announcedRef.current[seconds]) {
-      void play('tick')
-      announcedRef.current[seconds] = true
-    }
-  }, [play, timeRemainingMs])
-
-  useEffect(() => {
     const currentQuestionId = currentQuestion?.id ?? null
     if (currentQuestionId === prevQuestionIdRef.current) return
     prevQuestionIdRef.current = currentQuestionId
     setQuestionUI({ selectedChoiceIds: [], hiddenChoiceIds: [] })
-  }, [currentQuestion?.id])
-
-  useEffect(() => {
-    announcedRef.current = {}
   }, [currentQuestion?.id])
 
   const timerAnnouncement = useMemo(() => {
@@ -310,22 +295,6 @@ export function PlayView({ quizId }: PlayViewProps) {
     // mode and store.status are stable during an active game session
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [store.globalTimerMs])
-
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (store.status !== 'playing') return
-      const choices = currentQuestion?.choices ?? []
-      if (e.key >= '1' && e.key <= '4') {
-        const idx = parseInt(e.key) - 1
-        if (idx < choices.length && !isAnswered) onAnswerRef.current?.([choices[idx].id])
-      }
-      if (e.key === 'Enter' && isAnswered) onNextRef.current?.()
-      if (e.key === 'Escape') setShowQuitModal(true)
-    }
-    window.addEventListener('keydown', handleKey)
-    return () => window.removeEventListener('keydown', handleKey)
-  }, [store.status, currentQuestion, isAnswered])
 
   // Fetch quiz data
   useEffect(() => {

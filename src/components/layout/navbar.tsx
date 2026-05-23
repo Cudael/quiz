@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import { Sheet } from '@/components/ui/sheet'
 import { ThemeToggle } from '@/components/theme/theme-toggle'
 import { AuthControls } from '@/components/auth/auth-controls'
-import { SoundControls } from '@/components/sound/sound-controls'
 import { cn } from '@/lib/utils'
 
 const navLinks = [
@@ -59,7 +58,6 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <SoundControls />
           <ThemeToggle />
           <AuthControls />
           <Button variant="gradient" size="sm" asChild className="hidden md:flex">

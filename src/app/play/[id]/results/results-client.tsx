@@ -5,7 +5,6 @@ import { Share2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/toast'
 import { motion, useReducedMotion } from 'framer-motion'
-import { useSound } from '@/hooks/use-sound'
 
 interface ResultsClientProps {
   score: number
@@ -28,7 +27,6 @@ export function ResultsClient({
 }: ResultsClientProps) {
   const { addToast } = useToast()
   const confettiRef = useRef(false)
-  const { play } = useSound()
   const reduceMotion = useReducedMotion()
 
   // Fire confetti if perfect score or new badge unlock.
@@ -62,18 +60,12 @@ export function ResultsClient({
 
   useEffect(() => {
     if (unlockedBadges.length === 0) return
-    void play('badge')
     unlockedBadges.forEach((badgeName, index) => {
       window.setTimeout(() => {
         addToast(`Badge unlocked! ${badgeName}`, 'success', 5000)
       }, index * 250)
     })
-  }, [addToast, play, unlockedBadges])
-
-  useEffect(() => {
-    if (!leveledUp) return
-    void play('level-up')
-  }, [leveledUp, play])
+  }, [addToast, unlockedBadges])
 
   const handleShare = async () => {
     const origin = typeof window !== 'undefined' ? window.location.origin : ''

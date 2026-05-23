@@ -16,10 +16,8 @@ src/
     layout/     App shell, navbar, footer
     auth/       Auth controls and provider
     theme/      Theme provider and toggle
-    sound/      Sound controls
-    hotkeys/    Global hotkeys and shortcuts cheatsheet
     home/       Home page components
-  hooks/        React hooks (use-hotkeys, use-sound)
+  hooks/        React hooks
   server/       Server-only modules (prisma, auth, play-token, daily-seed)
   domain/       Pure domain logic (badges, leveling, scoring, streak, quiz-*)
   schemas/      Zod schemas (index.ts)

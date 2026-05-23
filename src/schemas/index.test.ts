@@ -88,10 +88,10 @@ describe('meProfileSchema', () => {
 })
 
 describe('userPreferencesSchema', () => {
-  it('rejects out-of-range sound volume', () => {
+  it('rejects unknown preference keys', () => {
     expect(
       userPreferencesSchema.safeParse({
-        soundVolume: 2,
+        unknownPreference: true,
       }).success
     ).toBe(false)
   })

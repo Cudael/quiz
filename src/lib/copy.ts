@@ -13,20 +13,3 @@ export const copy = {
     noCategoryResults: 'No quizzes match this search yet — try another filter and keep exploring.',
   },
 }
-
-export const shortcuts = {
-  global: [
-    { keys: 'g h', description: 'Go to home' },
-    { keys: 'g c', description: 'Go to categories' },
-    { keys: 'g l', description: 'Go to leaderboard' },
-    { keys: 'g s', description: 'Go to studio' },
-    { keys: 'g p', description: 'Go to profile' },
-    { keys: '/', description: 'Focus search' },
-    { keys: '?', description: 'Open shortcuts cheatsheet' },
-  ],
-  play: [
-    { keys: '1-4', description: 'Select answer' },
-    { keys: 'Enter', description: 'Continue to next question' },
-    { keys: 'Esc', description: 'Open quit dialog' },
-  ],
-} as const

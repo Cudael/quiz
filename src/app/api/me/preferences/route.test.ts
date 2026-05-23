@@ -36,20 +36,18 @@ describe('PATCH /api/me/preferences', () => {
 
   it('returns 400 for invalid payload', async () => {
     authMock.mockResolvedValue({ user: { id: 'user_1' } })
-    const response = await PATCH(createRequest({ preferences: { soundVolume: 2 } }))
+    const response = await PATCH(createRequest({ preferences: { unknownPreference: true } }))
     expect(response.status).toBe(400)
   })
 
   it('merges and persists preferences', async () => {
     authMock.mockResolvedValue({ user: { id: 'user_1' } })
     prismaMock.user.findUnique.mockResolvedValue({
-      preferences: JSON.stringify({ defaultMode: 'CLASSIC', soundMuted: false }),
+      preferences: JSON.stringify({ defaultMode: 'CLASSIC', reducedMotion: false }),
     })
     prismaMock.user.update.mockResolvedValue({})
 
-    const response = await PATCH(
-      createRequest({ preferences: { defaultDifficulty: 'HARD', soundMuted: true } })
-    )
+    const response = await PATCH(createRequest({ preferences: { defaultDifficulty: 'HARD' } }))
 
     expect(response.status).toBe(200)
     expect(prismaMock.user.update).toHaveBeenCalledWith({
@@ -57,7 +55,7 @@ describe('PATCH /api/me/preferences', () => {
       data: {
         preferences: JSON.stringify({
           defaultMode: 'CLASSIC',
-          soundMuted: true,
+          reducedMotion: false,
           defaultDifficulty: 'HARD',
         }),
       },

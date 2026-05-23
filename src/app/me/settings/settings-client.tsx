@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Modal } from '@/components/ui/modal'
 import { useToast } from '@/components/ui/toast'
-import { useSound } from '@/hooks/use-sound'
 import { REDUCED_MOTION_STORAGE_KEY } from '@/lib/preferences'
 import type { z } from 'zod'
 import { userPreferencesSchema } from '@/schemas'
@@ -45,7 +44,6 @@ export function SettingsClient({
 }: SettingsClientProps) {
   const { addToast } = useToast()
   const { theme, setTheme } = useTheme()
-  const { enabled, volume, setEnabled, setVolume } = useSound()
   const [profile, setProfile] = useState(initialProfile)
   const [defaultMode, setDefaultMode] = useState(preferences.defaultMode ?? 'CLASSIC')
   const [defaultDifficulty, setDefaultDifficulty] = useState(preferences.defaultDifficulty ?? 'ANY')
@@ -74,8 +72,6 @@ export function SettingsClient({
           defaultMode,
           defaultDifficulty,
           reducedMotion,
-          soundMuted: !enabled,
-          soundVolume: volume,
         },
       }),
     })
@@ -290,33 +286,6 @@ export function SettingsClient({
             />
             Reduced motion
           </label>
-        </div>
-      </section>
-
-      <section className="rounded-xl border border-border bg-card p-6">
-        <h2 className="mb-4 text-lg font-semibold">Sound</h2>
-        <label className="flex items-center gap-2 text-sm font-medium">
-          <input
-            type="checkbox"
-            checked={!enabled}
-            onChange={(event) => setEnabled(!event.target.checked)}
-          />
-          Master mute
-        </label>
-        <div className="mt-3 space-y-1">
-          <label htmlFor="settings-volume" className="text-sm font-medium">
-            Volume ({Math.round(volume * 100)}%)
-          </label>
-          <input
-            id="settings-volume"
-            type="range"
-            min={0}
-            max={1}
-            step={0.05}
-            value={volume}
-            onChange={(event) => setVolume(Number(event.target.value))}
-            className="w-full"
-          />
         </div>
       </section>
 
