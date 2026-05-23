@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
+import { DEFAULT_TIME_LIMIT_SEC } from '@/domain/quiz-constants'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import { ImageUrlInput } from './image-url-input'
 import { TemplatePicker, QUIZ_TEMPLATES } from './template-picker'
@@ -209,7 +210,8 @@ export function StepMeta({ categories }: StepMetaProps) {
             }
           />
           <p className="text-xs text-muted-foreground">
-            Optional. New questions will start with this time limit instead of 20 seconds.
+            Optional. New questions will start with this time limit instead of{' '}
+            {DEFAULT_TIME_LIMIT_SEC} seconds.
           </p>
         </div>
       </div>
