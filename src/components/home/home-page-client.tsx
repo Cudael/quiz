@@ -180,7 +180,7 @@ function LeaderboardSection({
   return (
     <section className="grid gap-4 md:grid-cols-[1fr_280px]">
       <div className="rounded-2xl border bg-card p-5">
-        <h3 className="mb-4 text-lg font-bold">🏆 Top Players</h3>
+        <h3 className="mb-4 text-lg font-bold">Top Players</h3>
         {topPlayers.slice(0, 5).map((player, index) => (
           <div key={player.userId} className="flex items-center gap-3 py-2">
             <span className="w-6 text-sm">{leaderboardRanks[index] ?? `${index + 1}.`}</span>
@@ -245,7 +245,7 @@ function GuestHero({
         <div className="grid gap-8 md:grid-cols-2 md:items-center">
           <div>
             <h1 className="text-4xl font-black tracking-tight md:text-5xl">
-              Pick a quiz. Prove yourself.
+              Play great quizzes right now
             </h1>
             <p className="mt-2 text-lg text-muted-foreground">
               Hundreds of quizzes across every topic.
@@ -299,7 +299,7 @@ function WelcomeBar({ currentUser }: { currentUser: HomeCurrentUser }) {
     <section>
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border bg-card px-6 py-5">
         <div>
-          <h1 className="text-2xl font-bold">Welcome back, {firstName} 👋</h1>
+          <h1 className="text-2xl font-bold">Welcome back, {firstName}! 👋</h1>
           <div className="mt-2 flex flex-wrap gap-2">
             <span className="rounded-full bg-violet-500/10 px-3 py-1 text-sm font-medium text-violet-500">
               ⚡ Level {currentUser.level}
@@ -348,24 +348,60 @@ export function HomePageClient({
 
           {personalizedQuizzes.length > 0 ? (
             <motion.div variants={sectionVariants}>
-              <QuizScrollerSection title="Picked for you ✨" quizzes={personalizedQuizzes} />
+              <section>
+                <div className="mb-3 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xl font-bold">For You</h2>
+                    <p className="text-sm text-muted-foreground">Based on your activity</p>
+                  </div>
+                  <Link href="/categories" className="text-sm text-primary">
+                    See all →
+                  </Link>
+                </div>
+                <div
+                  className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3"
+                  aria-label="For You quizzes"
+                  style={{ scrollbarWidth: 'none' }}
+                >
+                  {personalizedQuizzes.map((quiz) => (
+                    <Link key={quiz.id} href={`/quiz/${quiz.id}`} className="block">
+                      <div className="w-64 shrink-0 snap-start overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-md">
+                        <div className="h-1.5" style={{ background: quiz.category.color }} />
+                        <div className="p-4">
+                          <p className="mb-1 text-xs text-muted-foreground">{quiz.category.name}</p>
+                          <p className="mb-3 line-clamp-2 text-sm font-semibold">{quiz.title}</p>
+                          <div className="flex items-center justify-between">
+                            <span
+                              className={cn(
+                                'rounded-full px-2 py-0.5 text-xs font-medium',
+                                getDifficultyClass(quiz.difficulty)
+                              )}
+                            >
+                              {quiz.difficulty}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {quiz.playCount} plays
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
             </motion.div>
           ) : null}
 
           <motion.div variants={sectionVariants}>
-            <QuizScrollerSection title="On Fire 🔥" quizzes={popularQuizzes} />
+            <QuizScrollerSection title="🔥 Trending" quizzes={popularQuizzes} />
           </motion.div>
 
           <motion.div variants={sectionVariants}>
-            <QuizScrollerSection title="Fresh Picks ✨" quizzes={newestQuizzes} />
+            <QuizScrollerSection title="✨ Just Added" quizzes={newestQuizzes} />
           </motion.div>
 
           <motion.div variants={sectionVariants}>
             <CategoryMosaic featuredCategories={featuredCategories} />
-          </motion.div>
-
-          <motion.div variants={sectionVariants}>
-            <LeaderboardSection topPlayers={topPlayers} stats={stats} currentUser={currentUser} />
           </motion.div>
         </>
       ) : (
@@ -375,11 +411,11 @@ export function HomePageClient({
           </motion.div>
 
           <motion.div variants={sectionVariants}>
-            <QuizScrollerSection title="On Fire 🔥" quizzes={popularQuizzes} />
+            <QuizScrollerSection title="🔥 Trending" quizzes={popularQuizzes} />
           </motion.div>
 
           <motion.div variants={sectionVariants}>
-            <QuizScrollerSection title="Fresh Picks ✨" quizzes={newestQuizzes} />
+            <QuizScrollerSection title="✨ Just Added" quizzes={newestQuizzes} />
           </motion.div>
 
           <motion.div variants={sectionVariants}>
