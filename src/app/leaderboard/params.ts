@@ -40,7 +40,7 @@ export function parseLeaderboardSearchParams(
       ? (params.sort as SortFilter)
       : 'total'
 
-  const page = Math.max(1, Number(params.page ?? 1) || 1)
+  const page = Math.max(1, Number(params.page ?? '1'))
   const categories = Array.from(
     new Set(
       (Array.isArray(params.category) ? params.category : params.category ? [params.category] : [])

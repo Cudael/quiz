@@ -35,6 +35,8 @@ function toNumber(value: number | bigint | null | undefined) {
   return value ?? 0
 }
 
+// Keep sort-specific primary ordering in SQL and use stable score/play tiebreakers
+// so the URL-driven leaderboard matches the previous UI behavior.
 function orderByClause(sort: SortFilter) {
   if (sort === 'best') {
     return Prisma.sql`MAX(ps."score") DESC, SUM(ps."score") DESC, COUNT(*) DESC`

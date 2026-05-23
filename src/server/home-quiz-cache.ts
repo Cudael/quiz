@@ -42,11 +42,11 @@ const getPopularQuizzesCached = unstable_cache(
 
 const getTrendingQuizzesCached = unstable_cache(
   async () => {
-    const sevenDaysAgo = new Date(Date.now() - WEEK_IN_MS)
+    const oneWeekAgo = new Date(Date.now() - WEEK_IN_MS)
     const quizGroups = await prisma.playSession.groupBy({
       by: ['quizId'],
       where: {
-        createdAt: { gte: sevenDaysAgo },
+        createdAt: { gte: oneWeekAgo },
       },
       _count: {
         quizId: true,
