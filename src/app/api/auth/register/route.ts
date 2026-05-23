@@ -58,7 +58,7 @@ export async function POST(request: Request) {
 
     const verifyUrl = new URL('/api/auth/verify-email', request.url)
     verifyUrl.searchParams.set('token', token)
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
       console.log('Verification email placeholder generated', { userId: user.id })
       console.log('Verification URL (dev/test only)', verifyUrl.toString())
     }
