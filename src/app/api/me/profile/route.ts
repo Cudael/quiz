@@ -58,6 +58,7 @@ export async function PATCH(request: Request) {
       username,
       bio: parsed.data.bio || null,
       image: parsed.data.image || null,
+      bannerImage: parsed.data.bannerImage || null,
     },
   })
 

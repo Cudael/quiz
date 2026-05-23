@@ -51,11 +51,19 @@ describe('PATCH /api/me/profile', () => {
         username: 'new-name',
         bio: 'new bio',
         image: 'https://example.com/avatar.png',
+        bannerImage: 'https://example.com/banner.png',
       })
     )
 
     expect(response.status).toBe(200)
     expect(prismaMock.user.update).toHaveBeenCalledOnce()
+    expect(prismaMock.user.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          bannerImage: 'https://example.com/banner.png',
+        }),
+      })
+    )
     expect(revalidatePathMock).toHaveBeenCalledWith('/u/old-name')
     expect(revalidatePathMock).toHaveBeenCalledWith('/u/new-name')
   })

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
+import { OauthProviderButtons } from '@/components/auth/oauth-provider-buttons'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -72,30 +73,11 @@ export function SignUpForm({ callbackUrl, googleEnabled, githubEnabled }: SignUp
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {(googleEnabled || githubEnabled) && (
-            <div className="space-y-2">
-              {googleEnabled && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => signIn('google', { callbackUrl })}
-                >
-                  Sign up with Google
-                </Button>
-              )}
-              {githubEnabled && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => signIn('github', { callbackUrl })}
-                >
-                  Sign up with GitHub
-                </Button>
-              )}
-            </div>
-          )}
+          <OauthProviderButtons
+            callbackUrl={callbackUrl}
+            googleEnabled={googleEnabled}
+            githubEnabled={githubEnabled}
+          />
 
           <form className="space-y-3" onSubmit={handleSignUp}>
             <div className="space-y-1">

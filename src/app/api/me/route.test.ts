@@ -40,16 +40,16 @@ describe('DELETE /api/me', () => {
 
   it('returns 400 for mismatched confirmation username', async () => {
     authMock.mockResolvedValue({ user: { id: 'user_1' } })
-    prismaMock.user.findUnique.mockResolvedValue({ username: 'player-one', quizzes: [] })
+    prismaMock.user.findUnique.mockResolvedValue({ username: 'player-one' })
 
     const response = await DELETE(createRequest({ confirmUsername: '@other' }))
     expect(response.status).toBe(400)
     expect(prismaMock.user.delete).not.toHaveBeenCalled()
   })
 
-  it('deletes account when confirmation matches and no authored quizzes', async () => {
+  it('deletes account when confirmation matches username', async () => {
     authMock.mockResolvedValue({ user: { id: 'user_1' } })
-    prismaMock.user.findUnique.mockResolvedValue({ username: 'player-one', quizzes: [] })
+    prismaMock.user.findUnique.mockResolvedValue({ username: 'player-one' })
     prismaMock.user.delete.mockResolvedValue({})
 
     const response = await DELETE(createRequest({ confirmUsername: '@player-one' }))

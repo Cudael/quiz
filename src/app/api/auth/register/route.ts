@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { randomBytes } from 'node:crypto'
 import { Prisma } from '@prisma/client'
 import { prisma } from '@/server/prisma'
 import { registerSchema } from '@/schemas'
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
 
   try {
     const passwordHash = await hashPassword(password)
-    await prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         name,
         email,
@@ -39,8 +40,23 @@ export async function POST(request: Request) {
         role: 'USER',
         username: await generateUniqueUsername(name),
       },
-      select: { id: true },
+      select: { id: true, email: true },
     })
+
+    const token = randomBytes(32).toString('hex')
+    const expires = new Date(Date.now() + 1000 * 60 * 60 * 24)
+
+    await prisma.verificationToken.create({
+      data: {
+        identifier: email,
+        token,
+        expires,
+      },
+    })
+
+    const verifyUrl = new URL('/api/auth/verify-email', request.url)
+    verifyUrl.searchParams.set('token', token)
+    console.log('Verification email placeholder', { userId: user.id, email: user.email, verifyUrl })
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
       return NextResponse.json({ error: 'Unable to register account.' }, { status: 409 })
