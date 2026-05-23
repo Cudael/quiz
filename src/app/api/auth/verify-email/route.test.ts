@@ -7,7 +7,7 @@ const { prismaMock } = vi.hoisted(() => ({
       delete: vi.fn(),
     },
     user: {
-      updateMany: vi.fn(),
+      update: vi.fn(),
     },
   },
 }))
@@ -33,7 +33,7 @@ describe('GET /api/auth/verify-email', () => {
       token: 'token_123',
       expires: new Date(Date.now() + 60_000),
     })
-    prismaMock.user.updateMany.mockResolvedValue({ count: 1 })
+    prismaMock.user.update.mockResolvedValue({})
     prismaMock.verificationToken.delete.mockResolvedValue({})
 
     const response = await GET(
@@ -42,7 +42,7 @@ describe('GET /api/auth/verify-email', () => {
 
     expect(response.status).toBe(307)
     expect(response.headers.get('location')).toBe('http://localhost/sign-in?verified=1')
-    expect(prismaMock.user.updateMany).toHaveBeenCalledOnce()
+    expect(prismaMock.user.update).toHaveBeenCalledOnce()
     expect(prismaMock.verificationToken.delete).toHaveBeenCalledOnce()
   })
 
@@ -60,7 +60,7 @@ describe('GET /api/auth/verify-email', () => {
 
     expect(response.status).toBe(307)
     expect(response.headers.get('location')).toBe('http://localhost/sign-in')
-    expect(prismaMock.user.updateMany).not.toHaveBeenCalled()
+    expect(prismaMock.user.update).not.toHaveBeenCalled()
     expect(prismaMock.verificationToken.delete).toHaveBeenCalledOnce()
   })
 })

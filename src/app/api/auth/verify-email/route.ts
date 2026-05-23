@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL('/sign-in', request.url))
   }
 
-  await prisma.user.updateMany({
+  await prisma.user.update({
     where: { email: verificationToken.identifier },
     data: { emailVerified: new Date() },
   })
