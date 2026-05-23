@@ -20,7 +20,7 @@ export function OauthProviderButtons({
   githubEnabled,
 }: OauthProviderButtonsProps) {
   const enabled = oauthProviders.filter((provider) =>
-    provider.id === 'google' ? googleEnabled : githubEnabled
+    provider.id === 'google' ? googleEnabled : provider.id === 'github' ? githubEnabled : false
   )
 
   if (enabled.length === 0) {

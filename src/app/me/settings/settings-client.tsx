@@ -207,11 +207,11 @@ export function SettingsClient({
           {isValidImageUrl(profile.bannerImage) ? (
             <div className="space-y-1">
               <p className="text-sm font-medium">Banner preview</p>
-              <div
-                role="img"
-                aria-label="Profile banner preview"
-                className="h-28 w-full rounded-lg border border-border bg-cover bg-center"
-                style={{ backgroundImage: `url(${profile.bannerImage})` }}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={profile.bannerImage}
+                alt="Profile banner preview"
+                className="h-28 w-full rounded-lg border border-border object-cover"
               />
             </div>
           ) : null}

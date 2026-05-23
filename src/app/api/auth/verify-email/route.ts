@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client'
 import { prisma } from '@/server/prisma'
 
 export async function GET(request: Request) {
+  const now = new Date()
   const { searchParams } = new URL(request.url)
   const token = searchParams.get('token')
   if (!token) {
@@ -18,7 +19,7 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL('/sign-in', request.url))
   }
 
-  if (verificationToken.expires < new Date()) {
+  if (verificationToken.expires < now) {
     await prisma.verificationToken.delete({
       where: {
         identifier_token: {
@@ -36,7 +37,11 @@ export async function GET(request: Request) {
       data: { emailVerified: new Date() },
     })
   } catch (error) {
-    if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== 'P2025') {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      console.warn('Verification token used for missing user email', {
+        identifier: verificationToken.identifier,
+      })
+    } else {
       throw error
     }
   }
