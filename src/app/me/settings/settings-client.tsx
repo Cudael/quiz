@@ -44,7 +44,7 @@ function isValidImageUrl(value: string) {
 
   try {
     const url = new URL(value)
-    return Boolean(url.protocol && url.hostname)
+    return (url.protocol === 'http:' || url.protocol === 'https:') && Boolean(url.hostname)
   } catch {
     return false
   }

@@ -34,7 +34,7 @@ export async function GET(request: Request) {
   try {
     await prisma.user.update({
       where: { email: verificationToken.identifier },
-      data: { emailVerified: new Date() },
+      data: { emailVerified: now },
     })
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
