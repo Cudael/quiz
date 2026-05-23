@@ -103,6 +103,21 @@ describe('questionAnswerSchema', () => {
 })
 
 describe('submitAnswersSchema', () => {
+  it('accepts a valid session id and answer list', () => {
+    expect(
+      submitAnswersSchema.safeParse({
+        sessionId: 'ckq6xdr2w0000u3z5f6l6x4t5',
+        answers: [
+          {
+            questionId: 'ckq6xdr2w0000u3z5f6l6x4t6',
+            chosenIds: ['ckq6xdr2w0000u3z5f6l6x4t7'],
+            timeTakenMs: 1800,
+          },
+        ],
+      }).success
+    ).toBe(true)
+  })
+
   it('requires a valid session id and answer list', () => {
     expect(
       submitAnswersSchema.safeParse({
