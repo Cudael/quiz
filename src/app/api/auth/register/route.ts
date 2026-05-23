@@ -6,6 +6,8 @@ import { registerSchema } from '@/schemas'
 import { generateUniqueUsername } from '@/lib/usernames'
 import { hashPassword } from '@/server/password'
 
+const VERIFICATION_TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000
+
 export async function POST(request: Request) {
   let rawBody: unknown
   try {
@@ -44,7 +46,7 @@ export async function POST(request: Request) {
     })
 
     const token = randomBytes(32).toString('hex')
-    const expires = new Date(Date.now() + 1000 * 60 * 60 * 24)
+    const expires = new Date(Date.now() + VERIFICATION_TOKEN_EXPIRY_MS)
 
     await prisma.verificationToken.create({
       data: {
@@ -56,7 +58,13 @@ export async function POST(request: Request) {
 
     const verifyUrl = new URL('/api/auth/verify-email', request.url)
     verifyUrl.searchParams.set('token', token)
-    console.log('Verification email placeholder', { userId: user.id, email: user.email, verifyUrl })
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Verification email placeholder', {
+        userId: user.id,
+        email: user.email,
+        verifyUrl,
+      })
+    }
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
       return NextResponse.json({ error: 'Unable to register account.' }, { status: 409 })

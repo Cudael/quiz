@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { Prisma } from '@prisma/client'
 import { prisma } from '@/server/prisma'
 
 export async function GET(request: Request) {
@@ -29,10 +30,16 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL('/sign-in', request.url))
   }
 
-  await prisma.user.update({
-    where: { email: verificationToken.identifier },
-    data: { emailVerified: new Date() },
-  })
+  try {
+    await prisma.user.update({
+      where: { email: verificationToken.identifier },
+      data: { emailVerified: new Date() },
+    })
+  } catch (error) {
+    if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== 'P2025') {
+      throw error
+    }
+  }
 
   await prisma.verificationToken.delete({
     where: {
