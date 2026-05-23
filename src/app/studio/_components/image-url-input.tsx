@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import Image from 'next/image'
 import { ImageIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -46,11 +47,13 @@ export function ImageUrlInput({
               <ImageIcon className="h-8 w-8 text-muted-foreground" />
             </div>
           ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={value}
-              alt="Preview"
-              className="h-full w-full object-cover"
+              alt="Image preview"
+              fill
+              unoptimized
+              sizes={aspectRatio === '16/9' ? '(max-width: 768px) 100vw, 50vw' : '256px'}
+              className="object-cover"
               onError={() => setHasError(true)}
               onLoad={() => setHasError(false)}
             />

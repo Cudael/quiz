@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -34,8 +35,16 @@ export function StepPreview({ categories }: StepPreviewProps) {
       {/* Cover */}
       <div className="overflow-hidden rounded-xl border bg-card">
         {imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={imageUrl} alt="Cover" className="aspect-video w-full object-cover" />
+          <div className="relative aspect-video w-full">
+            <Image
+              src={imageUrl}
+              alt={`${title || 'Untitled quiz'} cover preview`}
+              fill
+              unoptimized
+              sizes="(max-width: 1024px) 100vw, 66vw"
+              className="object-cover"
+            />
+          </div>
         ) : (
           <div className="flex aspect-video items-center justify-center bg-muted">
             <ImageIcon className="h-12 w-12 text-muted-foreground" />
@@ -81,12 +90,16 @@ export function StepPreview({ categories }: StepPreviewProps) {
               </div>
 
               {question.imageUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={question.imageUrl}
-                  alt="Question"
-                  className="mb-3 aspect-video w-full rounded-lg object-cover"
-                />
+                <div className="relative mb-3 aspect-video w-full overflow-hidden rounded-lg">
+                  <Image
+                    src={question.imageUrl}
+                    alt={`Illustration for question ${index + 1}`}
+                    fill
+                    unoptimized
+                    sizes="(max-width: 1024px) 100vw, 66vw"
+                    className="object-cover"
+                  />
+                </div>
               )}
 
               {question.type !== 'FILL_BLANK' && (

@@ -46,6 +46,7 @@ export function CategoryTile({
               src={imageUrl}
               alt=""
               fill
+              unoptimized
               className="object-cover"
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />

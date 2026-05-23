@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { Plus } from 'lucide-react'
@@ -93,11 +94,13 @@ export default async function StudioPage({
                 <tr key={quiz.id} className="border-t">
                   <td className="px-4 py-3">
                     {quiz.coverImage ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <Image
                         src={quiz.coverImage}
-                        alt={quiz.title}
-                        className="h-10 w-16 rounded-md border object-cover"
+                        alt={`${quiz.title} cover image`}
+                        width={64}
+                        height={40}
+                        unoptimized
+                        className="rounded-md border object-cover"
                       />
                     ) : (
                       <div

@@ -1,3 +1,4 @@
+import { revalidateTag } from 'next/cache'
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { prisma } from '@/server/prisma'
@@ -8,6 +9,7 @@ import { DEFAULT_GUEST_NAME } from '@/domain/quiz-constants'
 import { evaluateBadgesWithClient } from '@/domain/badges'
 import { levelForXp } from '@/domain/leveling'
 import { computeStreak } from '@/domain/streak'
+import { HOME_POPULAR_QUIZZES_TAG, HOME_TRENDING_QUIZZES_TAG } from '@/server/home-quiz-cache'
 
 interface AnswerInput {
   questionId: string
@@ -203,6 +205,9 @@ export async function POST(req: NextRequest) {
       newlyAwardedBadges,
     }
   })
+
+  revalidateTag(HOME_TRENDING_QUIZZES_TAG, 'max')
+  revalidateTag(HOME_POPULAR_QUIZZES_TAG, 'max')
 
   const response = NextResponse.json(result)
 

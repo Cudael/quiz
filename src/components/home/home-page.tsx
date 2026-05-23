@@ -9,35 +9,15 @@ import {
 } from '@/components/home/home-page-client'
 import type { QuizCardData } from '@/components/ui/quiz-card'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  getPopularQuizzes,
+  getTrendingQuizzes,
+  type HomeQuizRecord,
+} from '@/server/home-quiz-cache'
 
 const FALLBACK_CATEGORY_GRADIENT = 'var(--background-image-card-gradient)'
-const PUBLISHED_QUIZ_SELECT = {
-  id: true,
-  title: true,
-  coverImage: true,
-  difficulty: true,
-  playCount: true,
-  avgScore: true,
-  category: {
-    select: {
-      slug: true,
-      name: true,
-      icon: true,
-      color: true,
-    },
-  },
-} as const
 
-function mapQuizCard(quiz: {
-  id: string
-  title: string
-  coverImage: string | null
-  difficulty: string
-  category: {
-    name: string
-    color: string
-  }
-}): QuizCardData {
+function mapQuizCard(quiz: HomeQuizRecord): QuizCardData {
   return {
     id: quiz.id,
     title: quiz.title,
@@ -58,6 +38,7 @@ async function getHomePageData(): Promise<{
   topPlayers: HomeTopPlayer[]
   stats: HomeStats
   popularQuizzes: QuizCardData[]
+  trendingQuizzes: QuizCardData[]
   newestQuizzes: QuizCardData[]
   personalizedQuizzes: QuizCardData[]
   currentUser: HomeCurrentUser | null
@@ -71,6 +52,7 @@ async function getHomePageData(): Promise<{
     totalQuestions,
     totalCategories,
     popularQuizzesRaw,
+    trendingQuizzesRaw,
     newestQuizzesRaw,
   ] = await Promise.all([
     auth(),
@@ -104,17 +86,28 @@ async function getHomePageData(): Promise<{
     prisma.quiz.count({ where: { isPublished: true } }),
     prisma.question.count(),
     prisma.category.count(),
-    prisma.quiz.findMany({
-      where: { isPublished: true },
-      orderBy: [{ playCount: 'desc' }, { createdAt: 'desc' }],
-      take: 8,
-      select: PUBLISHED_QUIZ_SELECT,
-    }),
+    getPopularQuizzes(),
+    getTrendingQuizzes(),
     prisma.quiz.findMany({
       where: { isPublished: true },
       orderBy: { createdAt: 'desc' },
       take: 8,
-      select: PUBLISHED_QUIZ_SELECT,
+      select: {
+        id: true,
+        title: true,
+        coverImage: true,
+        difficulty: true,
+        playCount: true,
+        avgScore: true,
+        category: {
+          select: {
+            slug: true,
+            name: true,
+            icon: true,
+            color: true,
+          },
+        },
+      },
     }),
   ])
 
@@ -226,7 +219,22 @@ async function getHomePageData(): Promise<{
         },
         orderBy: [{ playCount: 'desc' }, { createdAt: 'desc' }],
         take: 8,
-        select: PUBLISHED_QUIZ_SELECT,
+        select: {
+          id: true,
+          title: true,
+          coverImage: true,
+          difficulty: true,
+          playCount: true,
+          avgScore: true,
+          category: {
+            select: {
+              slug: true,
+              name: true,
+              icon: true,
+              color: true,
+            },
+          },
+        },
       })
 
       personalizedQuizzes = personalizedQuizzesRaw.map(mapQuizCard)
@@ -243,6 +251,9 @@ async function getHomePageData(): Promise<{
       totalCategories,
     },
     popularQuizzes: popularQuizzesRaw.map(mapQuizCard),
+    trendingQuizzes: (trendingQuizzesRaw.length > 0 ? trendingQuizzesRaw : popularQuizzesRaw).map(
+      mapQuizCard
+    ),
     newestQuizzes: newestQuizzesRaw.map(mapQuizCard),
     personalizedQuizzes,
     currentUser,

@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import type { ReactNode } from 'react'
+import type { ImgHTMLAttributes, ReactNode } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import {
   HomePageClient,
@@ -15,6 +15,13 @@ vi.mock('next/link', () => ({
     <a href={href} {...props}>
       {children}
     </a>
+  ),
+}))
+
+vi.mock('next/image', () => ({
+  default: ({ alt, ...props }: ImgHTMLAttributes<HTMLImageElement>) => (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img alt={alt ?? ''} {...props} />
   ),
 }))
 
@@ -64,6 +71,18 @@ const newestQuizzes: QuizCardData[] = [
   },
 ]
 
+const trendingQuizzes: QuizCardData[] = [
+  {
+    id: 'quiz-4',
+    title: 'Hot history streak',
+    difficulty: 'MEDIUM',
+    category: {
+      name: 'History',
+      color: '#0f766e',
+    },
+  },
+]
+
 const personalizedQuizzes: QuizCardData[] = [
   {
     id: 'quiz-3',
@@ -91,6 +110,7 @@ describe('HomePageClient', () => {
         topPlayers={topPlayers}
         stats={stats}
         popularQuizzes={popularQuizzes}
+        trendingQuizzes={trendingQuizzes}
         newestQuizzes={newestQuizzes}
         personalizedQuizzes={[]}
         currentUser={null}
@@ -113,6 +133,7 @@ describe('HomePageClient', () => {
         topPlayers={topPlayers}
         stats={stats}
         popularQuizzes={popularQuizzes}
+        trendingQuizzes={trendingQuizzes}
         newestQuizzes={newestQuizzes}
         personalizedQuizzes={personalizedQuizzes}
         currentUser={currentUser}
@@ -132,6 +153,7 @@ describe('HomePageClient', () => {
         topPlayers={topPlayers}
         stats={stats}
         popularQuizzes={popularQuizzes}
+        trendingQuizzes={trendingQuizzes}
         newestQuizzes={newestQuizzes}
         personalizedQuizzes={[]}
         currentUser={currentUser}

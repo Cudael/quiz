@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { motion, useReducedMotion } from 'framer-motion'
 import { Badge } from '@/components/ui/badge'
@@ -65,11 +66,13 @@ export function QuizCard({ quiz, className }: QuizCardProps) {
           style={{ backgroundImage: getFallbackGradient(quiz.category.color) }}
         />
         {hasCoverImage ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={quiz.coverImage ?? ''}
-            alt={quiz.title}
-            className="absolute inset-0 h-full w-full object-cover"
+            alt={`${quiz.title} cover image`}
+            fill
+            unoptimized
+            sizes="(max-width: 768px) 100vw, 256px"
+            className="object-cover"
             onError={() => setImageFailed(true)}
           />
         ) : null}

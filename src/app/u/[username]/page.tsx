@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
+import { Avatar } from '@/components/ui/avatar'
 import { LevelProgress } from '@/components/ui/level-progress'
 import { StreakFlame } from '@/components/ui/streak-flame'
 import { BadgesGrid } from '@/components/ui/badges-grid'
@@ -175,23 +176,7 @@ export default async function UserProfilePage({
         <section className="rounded-xl border border-border bg-card p-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-quiz-purple to-quiz-pink text-xl font-bold text-primary-foreground">
-                {user.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={user.image}
-                    alt={user.name}
-                    className="h-full w-full rounded-full object-cover"
-                  />
-                ) : (
-                  user.name
-                    .split(' ')
-                    .map((chunk) => chunk[0])
-                    .join('')
-                    .slice(0, 2)
-                    .toUpperCase()
-                )}
-              </div>
+              <Avatar src={user.image} alt={user.name} fallback={user.name} size="xl" />
               <div>
                 <h1 className="text-2xl font-bold">{user.name}</h1>
                 <p className="text-sm text-muted-foreground">@{user.username}</p>
