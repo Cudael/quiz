@@ -3,8 +3,10 @@ import {
   categorySuggestionSchema,
   meProfileSchema,
   questionSchema,
+  questionAnswerSchema,
   quizSchema,
   reportSchema,
+  submitAnswersSchema,
   userPreferencesSchema,
 } from '@/schemas'
 
@@ -82,8 +84,56 @@ describe('meProfileSchema', () => {
         username: 'player-one',
         bio: 'Ready to play.',
         image: 'https://example.com/avatar.png',
+        bannerImage: 'https://example.com/banner.png',
       }).success
     ).toBe(true)
+  })
+})
+
+describe('questionAnswerSchema', () => {
+  it('accepts valid answer payload', () => {
+    expect(
+      questionAnswerSchema.safeParse({
+        questionId: 'ckq6xdr2w0000u3z5f6l6x4t5',
+        chosenIds: ['ckq6xdr2w0000u3z5f6l6x4t6'],
+        timeTakenMs: 3200,
+      }).success
+    ).toBe(true)
+  })
+})
+
+describe('submitAnswersSchema', () => {
+  it('allows an empty answers list', () => {
+    expect(
+      submitAnswersSchema.safeParse({
+        sessionId: 'ckq6xdr2w0000u3z5f6l6x4t5',
+        answers: [],
+      }).success
+    ).toBe(true)
+  })
+
+  it('accepts a valid session id and answer list', () => {
+    expect(
+      submitAnswersSchema.safeParse({
+        sessionId: 'ckq6xdr2w0000u3z5f6l6x4t5',
+        answers: [
+          {
+            questionId: 'ckq6xdr2w0000u3z5f6l6x4t6',
+            chosenIds: ['ckq6xdr2w0000u3z5f6l6x4t7'],
+            timeTakenMs: 1800,
+          },
+        ],
+      }).success
+    ).toBe(true)
+  })
+
+  it('requires a valid session id and answer list', () => {
+    expect(
+      submitAnswersSchema.safeParse({
+        sessionId: 'not-a-cuid',
+        answers: [],
+      }).success
+    ).toBe(false)
   })
 })
 

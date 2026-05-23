@@ -18,6 +18,7 @@ model User {
   email         String?   @unique
   passwordHash  String?
   bio           String?
+  bannerImage   String?
   preferences   String? // JSON-encoded UserPreferences (SQLite-safe)
   emailVerified DateTime?
   image         String?
@@ -40,6 +41,8 @@ model User {
   accounts            Account[]
   authSessions        Session[]
   adminActions        AdminAction[]        @relation("AdminActionActor")
+  favoriteQuizzes     FavoriteQuiz[]       @relation("FavoriteQuizzes")
+  notifications       Notification[]
 }
 
 model Category {
@@ -62,6 +65,7 @@ model Quiz {
   title       String
   description String
   coverImage  String?
+  tags        String? // JSON-encoded string[], e.g. ["history","ww2"]
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id])
   difficulty  String   @default("MEDIUM") // Difficulty: EASY | MEDIUM | HARD
@@ -76,6 +80,7 @@ model Quiz {
   questions Question[]
   sessions  PlaySession[]
   reports   Report[]
+  favoritedBy FavoriteQuiz[] @relation("FavoritedBy")
 
   @@index([categoryId])
   @@index([authorId])
@@ -90,9 +95,11 @@ model Question {
   imageUrl     String?
   explanation  String?
   timeLimitSec Int     @default(20)
+  points       Int     @default(1)
   order        Int
 
   choices Choice[]
+  answers QuestionAnswer[]
 
   @@index([quizId])
 }
@@ -121,12 +128,27 @@ model PlaySession {
   timeTakenMs  Int
   mode         String   @default("CLASSIC") // PlayMode: CLASSIC | TIMED | SURVIVAL | DAILY
   createdAt    DateTime @default(now())
+  answers      QuestionAnswer[]
 
   @@index([quizId])
   @@index([userId])
   @@index([guestKey])
   @@index([createdAt])
   @@index([createdAt, mode, quizId])
+}
+
+model QuestionAnswer {
+  id          String      @id @default(cuid())
+  sessionId   String
+  session     PlaySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  questionId  String
+  question    Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  chosenIds   String // JSON-encoded string[] of selected choice IDs for SQLite compatibility
+  isCorrect   Boolean
+  timeTakenMs Int
+
+  @@index([sessionId])
+  @@index([questionId])
 }
 
 model Account {
@@ -194,6 +216,33 @@ model Follow {
   createdAt   DateTime @default(now())
 
   @@id([followerId, followingId])
+}
+
+model FavoriteQuiz {
+  userId    String
+  quizId    String
+  user      User     @relation("FavoriteQuizzes", fields: [userId], references: [id], onDelete: Cascade)
+  quiz      Quiz     @relation("FavoritedBy", fields: [quizId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, quizId])
+  @@index([userId])
+  @@index([quizId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String // NotificationType: BADGE_EARNED | NEW_FOLLOWER | QUIZ_PLAYED
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  meta      String? // JSON for extra context (e.g. badgeId, followerId)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([userId, isRead])
 }
 
 model Report {

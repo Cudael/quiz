@@ -34,6 +34,17 @@ export const questionSchema = z
     }
   })
 
+export const questionAnswerSchema = z.object({
+  questionId: z.string().cuid(),
+  chosenIds: z.array(z.string().cuid()),
+  timeTakenMs: z.number().int().min(0),
+})
+
+export const submitAnswersSchema = z.object({
+  sessionId: z.string().cuid(),
+  answers: z.array(questionAnswerSchema),
+})
+
 export const reportSchema = z.object({
   quizId: z.string().cuid(),
   reason: z.enum(['SPAM', 'INAPPROPRIATE', 'INCORRECT_ANSWERS', 'COPYRIGHT', 'OTHER']),
@@ -70,6 +81,7 @@ export const meProfileSchema = z.object({
   username: usernameSchema,
   bio: z.string().trim().max(280).nullable().optional(),
   image: z.url().trim().nullable().optional(),
+  bannerImage: z.url().trim().nullable().optional(),
 })
 
 export const userPreferencesSchema = z
