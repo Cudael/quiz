@@ -75,6 +75,31 @@ function getDifficultyClass(difficulty: HomeQuizCard['difficulty']) {
   return 'text-red-400 bg-red-500/10'
 }
 
+function QuizCard({ quiz }: { quiz: HomeQuizCard }) {
+  return (
+    <Link href={`/quiz/${quiz.id}`} className="block">
+      <div className="w-64 shrink-0 snap-start overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-md">
+        <div className="h-1.5" style={{ background: quiz.category.color }} />
+        <div className="p-4">
+          <p className="mb-1 text-xs text-muted-foreground">{quiz.category.name}</p>
+          <p className="mb-3 line-clamp-2 text-sm font-semibold">{quiz.title}</p>
+          <div className="flex items-center justify-between">
+            <span
+              className={cn(
+                'rounded-full px-2 py-0.5 text-xs font-medium',
+                getDifficultyClass(quiz.difficulty)
+              )}
+            >
+              {quiz.difficulty}
+            </span>
+            <span className="text-xs text-muted-foreground">{quiz.playCount} plays</span>
+          </div>
+        </div>
+      </div>
+    </Link>
+  )
+}
+
 function SectionHeader({ title, href }: { title: string; href: string }) {
   return (
     <div className="mb-3 flex items-center justify-between">
@@ -97,26 +122,7 @@ function QuizScrollerSection({ title, quizzes }: { title: string; quizzes: HomeQ
           style={{ scrollbarWidth: 'none' }}
         >
           {quizzes.map((quiz) => (
-            <Link key={quiz.id} href={`/quiz/${quiz.id}`} className="block">
-              <div className="w-64 shrink-0 snap-start overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-md">
-                <div className="h-1.5" style={{ background: quiz.category.color }} />
-                <div className="p-4">
-                  <p className="mb-1 text-xs text-muted-foreground">{quiz.category.name}</p>
-                  <p className="mb-3 line-clamp-2 text-sm font-semibold">{quiz.title}</p>
-                  <div className="flex items-center justify-between">
-                    <span
-                      className={cn(
-                        'rounded-full px-2 py-0.5 text-xs font-medium',
-                        getDifficultyClass(quiz.difficulty)
-                      )}
-                    >
-                      {quiz.difficulty}
-                    </span>
-                    <span className="text-xs text-muted-foreground">{quiz.playCount} plays</span>
-                  </div>
-                </div>
-              </div>
-            </Link>
+            <QuizCard key={quiz.id} quiz={quiz} />
           ))}
         </div>
       ) : (
@@ -364,28 +370,7 @@ export function HomePageClient({
                   style={{ scrollbarWidth: 'none' }}
                 >
                   {personalizedQuizzes.map((quiz) => (
-                    <Link key={quiz.id} href={`/quiz/${quiz.id}`} className="block">
-                      <div className="w-64 shrink-0 snap-start overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-md">
-                        <div className="h-1.5" style={{ background: quiz.category.color }} />
-                        <div className="p-4">
-                          <p className="mb-1 text-xs text-muted-foreground">{quiz.category.name}</p>
-                          <p className="mb-3 line-clamp-2 text-sm font-semibold">{quiz.title}</p>
-                          <div className="flex items-center justify-between">
-                            <span
-                              className={cn(
-                                'rounded-full px-2 py-0.5 text-xs font-medium',
-                                getDifficultyClass(quiz.difficulty)
-                              )}
-                            >
-                              {quiz.difficulty}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              {quiz.playCount} plays
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
+                    <QuizCard key={quiz.id} quiz={quiz} />
                   ))}
                 </div>
               </section>
