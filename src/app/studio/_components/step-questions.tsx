@@ -97,8 +97,14 @@ export function StepQuestions({ quizId }: StepQuestionsProps) {
     const nextQuestions = arrayMove(questions, oldIndex, newIndex)
     replaceQuestions(nextQuestions)
 
-    const persistedQuestions = nextQuestions.flatMap((question, index) =>
-      question.dbId ? [{ id: question.dbId, order: index }] : []
+    const persistedQuestions = nextQuestions.reduce<Array<{ id: string; order: number }>>(
+      (items, question, index) => {
+        if (question.dbId) {
+          items.push({ id: question.dbId, order: index })
+        }
+        return items
+      },
+      []
     )
 
     if (persistedQuestions.length === 0 || !quizId) return

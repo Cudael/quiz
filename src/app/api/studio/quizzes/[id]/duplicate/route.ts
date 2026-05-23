@@ -57,7 +57,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     tags: quiz.tags,
     categoryId: quiz.categoryId,
     difficulty: quiz.difficulty,
-    authorId: quiz.authorId,
+    authorId: session.user.id,
     isPublished: false,
     playCount: 0,
     avgScore: 0,
