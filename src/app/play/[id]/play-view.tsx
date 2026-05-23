@@ -1,13 +1,15 @@
 'use client'
 
 import { useEffect, useRef, useCallback, useMemo, useState } from 'react'
+import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
-import { X, Zap, SkipForward, Clock, AlertTriangle } from 'lucide-react'
+import { X, Zap, SkipForward, Clock, AlertTriangle, Volume2, VolumeX } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Modal } from '@/components/ui/modal'
 import { useToast } from '@/components/ui/toast'
+import { FILL_BLANK_PLACEHOLDER } from '@/domain/quiz-constants'
 import { usePlaySessionStore } from '@/store/play-session'
 import { cn } from '@/lib/utils'
 import { copy } from '@/lib/copy'
@@ -21,6 +23,7 @@ interface Question {
   id: string
   type: string
   prompt: string
+  imageUrl?: string | null
   timeLimitSec: number
   order: number
   choices: Choice[]
@@ -35,6 +38,16 @@ interface QuizData {
 
 interface PlayViewProps {
   quizId: string
+}
+
+const SOUND_PREFERENCE_STORAGE_KEY = 'quiz-sound-enabled'
+
+function normalizeBlankAnswer(value: string) {
+  return value.trim().toLocaleLowerCase()
+}
+
+function imageLoader({ src }: { src: string }) {
+  return src
 }
 
 function CountdownRing({
@@ -113,6 +126,14 @@ export function PlayView({ quizId }: PlayViewProps) {
     selectedChoiceIds: string[]
     hiddenChoiceIds: string[]
   }>({ selectedChoiceIds: [], hiddenChoiceIds: [] })
+  const [fillBlankValue, setFillBlankValue] = useState('')
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    if (typeof window === 'undefined') {
+      return true
+    }
+    const storedPreference = localStorage.getItem(SOUND_PREFERENCE_STORAGE_KEY)
+    return storedPreference === null ? true : storedPreference === 'true'
+  })
   const [showQuitModal, setShowQuitModal] = useState(false)
   // Ref avoids render loops here; we only need to track previous question id without re-rendering.
   const prevQuestionIdRef = useRef<string | null>(null)
@@ -142,6 +163,7 @@ export function PlayView({ quizId }: PlayViewProps) {
       questionId,
       choiceIds: ans.choiceIds,
       timeTakenMs: ans.timeTakenMs,
+      textAnswer: ans.textAnswer,
     }))
     try {
       const res = await fetch('/api/play/submit', {
@@ -199,14 +221,26 @@ export function PlayView({ quizId }: PlayViewProps) {
     onNextRef.current = () => handleNext(questions.length)
   }, [handleNext, questions.length])
 
+  const getFillBlankChoiceIds = useCallback(
+    (rawValue: string) => {
+      if (!currentQuestion) return []
+      const normalizedInput = normalizeBlankAnswer(rawValue)
+      if (!normalizedInput) return []
+      return currentQuestion.choices
+        .filter((choice) => normalizeBlankAnswer(choice.text) === normalizedInput)
+        .map((choice) => choice.id)
+    },
+    [currentQuestion]
+  )
+
   // handleAnswer — needs nothing above that's circular
   const handleAnswer = useCallback(
-    (choiceIds: string[], timeout = false) => {
+    (choiceIds: string[], timeout = false, textAnswer?: string) => {
       if (!currentQuestion || isAnswered) return
       clearTimer()
       const elapsed = Date.now() - questionStartRef.current
       const timeTakenMs = Math.min(elapsed, currentQuestion.timeLimitSec * 1000)
-      store.answer(currentQuestion.id, timeout ? [] : choiceIds, timeTakenMs)
+      store.answer(currentQuestion.id, timeout ? [] : choiceIds, timeTakenMs, textAnswer)
       setQuestionUI((prev) => ({ ...prev, selectedChoiceIds: timeout ? [] : choiceIds }))
     },
     [currentQuestion, isAnswered, clearTimer, store]
@@ -250,7 +284,48 @@ export function PlayView({ quizId }: PlayViewProps) {
     if (currentQuestionId === prevQuestionIdRef.current) return
     prevQuestionIdRef.current = currentQuestionId
     setQuestionUI({ selectedChoiceIds: [], hiddenChoiceIds: [] })
+    setFillBlankValue('')
   }, [currentQuestion?.id])
+
+  useEffect(() => {
+    localStorage.setItem(SOUND_PREFERENCE_STORAGE_KEY, String(soundEnabled))
+  }, [soundEnabled])
+
+  const handleChoiceSelect = useCallback(
+    (choiceId: string) => {
+      if (!currentQuestion || isAnswered) return
+      setQuestionUI((prev) => {
+        if (currentQuestion.type === 'MULTIPLE') {
+          const selectedChoiceIds = prev.selectedChoiceIds.includes(choiceId)
+            ? prev.selectedChoiceIds.filter((id) => id !== choiceId)
+            : [...prev.selectedChoiceIds, choiceId]
+          return { ...prev, selectedChoiceIds }
+        }
+
+        return { ...prev, selectedChoiceIds: [choiceId] }
+      })
+    },
+    [currentQuestion, isAnswered]
+  )
+
+  const handleSubmitSelection = useCallback(() => {
+    if (!currentQuestion || isAnswered) return
+
+    if (currentQuestion.type === 'FILL_BLANK') {
+      handleAnswer(getFillBlankChoiceIds(fillBlankValue), false, fillBlankValue)
+      return
+    }
+
+    if (questionUI.selectedChoiceIds.length === 0) return
+    handleAnswer(questionUI.selectedChoiceIds)
+  }, [
+    currentQuestion,
+    fillBlankValue,
+    getFillBlankChoiceIds,
+    handleAnswer,
+    isAnswered,
+    questionUI.selectedChoiceIds,
+  ])
 
   const timerAnnouncement = useMemo(() => {
     const seconds = Math.ceil(timeRemainingMs / 1000)
@@ -356,6 +431,79 @@ export function PlayView({ quizId }: PlayViewProps) {
     setTimeRemainingMs((prev) => prev + 10_000)
   }, [store, currentQuestion, isAnswered])
 
+  useEffect(() => {
+    if (store.status !== 'playing') return
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (showQuitModal) {
+        if (event.key === 'Escape') {
+          event.preventDefault()
+        }
+        return
+      }
+
+      const target = event.target as HTMLElement | null
+      const isEditableTarget =
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target?.isContentEditable === true
+
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        return
+      }
+
+      if (isEditableTarget) {
+        if (currentQuestion?.type === 'FILL_BLANK' && event.key === 'Enter' && !isAnswered) {
+          event.preventDefault()
+          handleSubmitSelection()
+        }
+        return
+      }
+
+      if (isAnswered) {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          onNextRef.current?.()
+        }
+        return
+      }
+
+      const visibleChoices = currentQuestion?.choices.filter(
+        (choice) => !questionUI.hiddenChoiceIds.includes(choice.id)
+      )
+
+      const normalizedKey = event.key.toLowerCase()
+      const shortcutIndex = ['1', '2', '3', '4', 'a', 'b', 'c', 'd'].indexOf(normalizedKey)
+      if (visibleChoices && shortcutIndex >= 0) {
+        const choice = visibleChoices[shortcutIndex % 4]
+        if (choice) {
+          event.preventDefault()
+          handleChoiceSelect(choice.id)
+        }
+        return
+      }
+
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        handleSubmitSelection()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [
+    currentQuestion,
+    handleChoiceSelect,
+    handleSubmitSelection,
+    isAnswered,
+    questionUI.hiddenChoiceIds,
+    showQuitModal,
+    store.status,
+  ])
+
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -376,11 +524,19 @@ export function PlayView({ quizId }: PlayViewProps) {
   }
 
   const progress = ((store.currentQuestionIndex + (isAnswered ? 1 : 0)) / questions.length) * 100
+  const renderedPrompt =
+    currentQuestion.type === 'FILL_BLANK'
+      ? currentQuestion.prompt.replace(FILL_BLANK_PLACEHOLDER, '_____')
+      : currentQuestion.prompt
+  const canSubmitCurrentAnswer =
+    currentQuestion.type === 'FILL_BLANK'
+      ? fillBlankValue.trim().length > 0
+      : questionUI.selectedChoiceIds.length > 0
 
   return (
     <div className="container mx-auto max-w-2xl px-4 py-8">
       <div aria-live="polite" className="sr-only">
-        {`Question ${store.currentQuestionIndex + 1} of ${questions.length}: ${currentQuestion.prompt}`}
+        {`Question ${store.currentQuestionIndex + 1} of ${questions.length}: ${renderedPrompt}`}
       </div>
       <div aria-live="polite" className="sr-only">
         {timerAnnouncement}
@@ -421,6 +577,17 @@ export function PlayView({ quizId }: PlayViewProps) {
           <p className="text-xs text-muted-foreground">pts</p>
         </div>
         <button
+          type="button"
+          onClick={() => setSoundEnabled((enabled) => !enabled)}
+          className="rounded-full p-2 transition-colors hover:bg-muted"
+          aria-pressed={!soundEnabled}
+          aria-label={soundEnabled ? 'Mute sound' : 'Unmute sound'}
+          title={soundEnabled ? 'Mute sound' : 'Unmute sound'}
+        >
+          {soundEnabled ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
+        </button>
+        <button
+          type="button"
           onClick={() => setShowQuitModal(true)}
           className="rounded-full p-2 hover:bg-muted transition-colors"
           aria-label="Quit quiz"
@@ -437,44 +604,111 @@ export function PlayView({ quizId }: PlayViewProps) {
           exit={reduceMotion ? { opacity: 0 } : { opacity: 0, x: -40 }}
           transition={{ duration: 0.25 }}
         >
-          <div className="mb-6 flex items-center gap-4">
-            <CountdownRing
-              timeLimitSec={currentQuestion.timeLimitSec}
-              timeRemainingMs={timeRemainingMs}
-            />
-            <p className="flex-1 text-xl font-semibold leading-snug">{currentQuestion.prompt}</p>
+          <div className="mb-6 space-y-4">
+            {currentQuestion.imageUrl ? (
+              <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-muted/20">
+                <Image
+                  loader={imageLoader}
+                  unoptimized
+                  src={currentQuestion.imageUrl}
+                  alt={`Illustration for question ${store.currentQuestionIndex + 1}`}
+                  width={1200}
+                  height={675}
+                  sizes="(max-width: 768px) 100vw, 768px"
+                  className="h-auto max-h-[320px] w-full object-contain"
+                />
+              </div>
+            ) : null}
+
+            <div className="flex items-center gap-4">
+              <CountdownRing
+                timeLimitSec={currentQuestion.timeLimitSec}
+                timeRemainingMs={timeRemainingMs}
+              />
+              <p className="flex-1 text-xl font-semibold leading-snug">{renderedPrompt}</p>
+            </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            {currentQuestion.choices
-              .filter((c) => !questionUI.hiddenChoiceIds.includes(c.id))
-              .map((choice, idx) => {
-                const isSelected = questionUI.selectedChoiceIds.includes(choice.id)
-                return (
-                  <button
-                    key={choice.id}
-                    onClick={() => !isAnswered && handleAnswer([choice.id])}
-                    disabled={isAnswered}
-                    className={cn(
-                      'flex items-center gap-3 rounded-xl border p-4 text-left text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-[56px]',
-                      isAnswered
-                        ? isSelected
-                          ? 'border-quiz-purple bg-quiz-purple/20 text-foreground'
-                          : 'border-border bg-muted/30 text-muted-foreground opacity-60'
-                        : 'border-border bg-card hover:border-primary hover:bg-primary/5 cursor-pointer'
-                    )}
-                    aria-label={`Choice ${idx + 1}: ${choice.text}`}
-                  >
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-bold">
-                      {idx + 1}
-                    </span>
-                    {choice.text}
-                  </button>
-                )
-              })}
-          </div>
+          {currentQuestion.type === 'FILL_BLANK' ? (
+            <div className="space-y-3">
+              <label htmlFor={`fill-blank-${currentQuestion.id}`} className="text-sm font-medium">
+                Your answer
+              </label>
+              <input
+                id={`fill-blank-${currentQuestion.id}`}
+                type="text"
+                value={fillBlankValue}
+                onChange={(event) => setFillBlankValue(event.target.value)}
+                disabled={isAnswered}
+                autoComplete="off"
+                spellCheck={false}
+                className={cn(
+                  'w-full rounded-xl border bg-card px-4 py-3 text-base transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                  isAnswered ? 'border-border bg-muted/30 text-muted-foreground' : 'border-border'
+                )}
+                placeholder="Type your answer"
+                aria-describedby={`fill-blank-help-${currentQuestion.id}`}
+              />
+              <p
+                id={`fill-blank-help-${currentQuestion.id}`}
+                className="text-xs text-muted-foreground"
+              >
+                Press Enter to submit your answer.
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {currentQuestion.choices
+                .filter((c) => !questionUI.hiddenChoiceIds.includes(c.id))
+                .map((choice, idx) => {
+                  const isSelected = questionUI.selectedChoiceIds.includes(choice.id)
+                  return (
+                    <button
+                      key={choice.id}
+                      type="button"
+                      onClick={() => handleChoiceSelect(choice.id)}
+                      disabled={isAnswered}
+                      className={cn(
+                        'flex min-h-[56px] items-center gap-3 rounded-xl border p-4 text-left text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                        isAnswered
+                          ? isSelected
+                            ? 'border-quiz-purple bg-quiz-purple/20 text-foreground'
+                            : 'border-border bg-muted/30 text-muted-foreground opacity-60'
+                          : isSelected
+                            ? 'border-primary bg-primary/10 text-foreground'
+                            : 'cursor-pointer border-border bg-card hover:border-primary hover:bg-primary/5'
+                      )}
+                      aria-label={`Choice ${idx + 1}: ${choice.text}`}
+                      aria-pressed={isSelected}
+                    >
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-bold">
+                        {idx + 1}
+                      </span>
+                      {choice.text}
+                    </button>
+                  )
+                })}
+            </div>
+          )}
 
           <AnimatePresence>
+            {!isAnswered && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-6 flex justify-end"
+              >
+                <Button
+                  onClick={handleSubmitSelection}
+                  variant="gradient"
+                  disabled={!canSubmitCurrentAnswer}
+                >
+                  Submit Answer
+                  <span className="ml-1 text-xs opacity-70">(Enter / Space)</span>
+                </Button>
+              </motion.div>
+            )}
+
             {isAnswered && (
               <motion.div
                 initial={{ opacity: 0, y: 8 }}

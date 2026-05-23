@@ -43,6 +43,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       id: q.id,
       type: q.type,
       prompt: q.prompt,
+      imageUrl: q.imageUrl,
       timeLimitSec: q.timeLimitSec,
       order: q.order,
       choices: q.choices,

@@ -7,6 +7,7 @@ import { create } from 'zustand'
 export interface AnswerRecord {
   choiceIds: string[]
   timeTakenMs: number
+  textAnswer?: string
 }
 
 export type PlayStatus = 'idle' | 'playing' | 'submitting' | 'done'
@@ -38,7 +39,12 @@ export interface PlaySessionState {
 
 export interface PlaySessionActions {
   start: (quizId: string, mode: PlayMode) => void
-  answer: (questionId: string, choiceIds: string[], timeTakenMs: number) => void
+  answer: (
+    questionId: string,
+    choiceIds: string[],
+    timeTakenMs: number,
+    textAnswer?: string
+  ) => void
   addScore: (points: number) => void
   incrementStreak: () => void
   resetStreak: () => void
@@ -84,9 +90,9 @@ export const usePlaySessionStore = create<PlaySessionState & PlaySessionActions>
       globalTimerMs: mode === 'timed' ? 60_000 : null,
     }),
 
-  answer: (questionId, choiceIds, timeTakenMs) =>
+  answer: (questionId, choiceIds, timeTakenMs, textAnswer) =>
     set((state) => ({
-      answers: { ...state.answers, [questionId]: { choiceIds, timeTakenMs } },
+      answers: { ...state.answers, [questionId]: { choiceIds, timeTakenMs, textAnswer } },
     })),
 
   addScore: (points) => set((state) => ({ score: state.score + points })),

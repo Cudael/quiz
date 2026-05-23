@@ -1,6 +1,14 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { Trophy, RotateCcw, Zap, ChevronRight } from 'lucide-react'
+import {
+  Trophy,
+  RotateCcw,
+  Zap,
+  ChevronRight,
+  CheckCircle2,
+  XCircle,
+  MinusCircle,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { prisma } from '@/server/prisma'
@@ -9,6 +17,16 @@ import { LevelProgress } from '@/components/ui/level-progress'
 import { auth } from '@/server/auth'
 import { copy } from '@/lib/copy'
 import { GuestUpgradePrompt } from '@/components/auth/guest-upgrade-prompt'
+import { FILL_BLANK_PLACEHOLDER } from '@/domain/quiz-constants'
+
+function parseChosenIds(value: string) {
+  try {
+    const parsed = JSON.parse(value)
+    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string') : []
+  } catch {
+    return []
+  }
+}
 
 export default async function ResultsPage({
   params,
@@ -40,6 +58,7 @@ export default async function ResultsPage({
     prisma.playSession.findUnique({
       where: { id: sessionId },
       include: {
+        answers: true,
         quiz: {
           include: {
             category: true,
@@ -110,6 +129,15 @@ export default async function ResultsPage({
       : Promise.resolve(false)
 
   const isPersonalBest = await personalBest
+  const answersByQuestionId = new Map(
+    sessionRow.answers.map((answer) => [
+      answer.questionId,
+      {
+        ...answer,
+        chosenIds: parseChosenIds(answer.chosenIds),
+      },
+    ])
+  )
 
   return (
     <div className="container mx-auto max-w-2xl px-4 py-12">
@@ -190,17 +218,93 @@ export default async function ResultsPage({
               .filter((c) => c.isCorrect)
               .map((c) => c.text)
               .join(', ')
+            const displayPrompt =
+              q.type === 'FILL_BLANK' ? q.prompt.replace(FILL_BLANK_PLACEHOLDER, '_____') : q.prompt
+            const answer = answersByQuestionId.get(q.id) ?? null
+            const chosenIds = new Set(answer?.chosenIds ?? [])
+            const hasAnswerData = answer !== null
+            const isCorrectAnswer = answer?.isCorrect === true
+            const statusIcon = !hasAnswerData ? (
+              <MinusCircle className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
+            ) : isCorrectAnswer ? (
+              <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-quiz-green" />
+            ) : (
+              <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
+            )
+            const containerClassName = !hasAnswerData
+              ? 'border-border'
+              : isCorrectAnswer
+                ? 'border-quiz-green/40 bg-quiz-green/5'
+                : 'border-destructive/40 bg-destructive/5'
 
             return (
-              <div key={q.id} className="rounded-lg border border-border p-3">
+              <div key={q.id} className={`rounded-lg border p-3 ${containerClassName}`}>
                 <div className="mb-2 flex items-start gap-2">
                   <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
                     {idx + 1}
                   </span>
-                  <p className="text-sm font-medium leading-snug">{q.prompt}</p>
+                  {statusIcon}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-sm font-medium leading-snug">{displayPrompt}</p>
+                      {hasAnswerData ? (
+                        <span
+                          className={`text-xs font-semibold ${
+                            isCorrectAnswer ? 'text-quiz-green' : 'text-destructive'
+                          }`}
+                        >
+                          {isCorrectAnswer ? 'Correct' : 'Incorrect'}
+                        </span>
+                      ) : (
+                        <span className="text-xs font-semibold text-muted-foreground">
+                          Legacy session
+                        </span>
+                      )}
+                    </div>
+
+                    {hasAnswerData ? (
+                      <div className="mt-3 space-y-2">
+                        {q.choices.map((choice) => {
+                          const isChosen = chosenIds.has(choice.id)
+                          const isCorrect = choice.isCorrect
+
+                          return (
+                            <div
+                              key={choice.id}
+                              className={`flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-xs ${
+                                isCorrect
+                                  ? 'border-quiz-green/40 bg-quiz-green/10'
+                                  : isChosen
+                                    ? 'border-destructive/40 bg-destructive/10'
+                                    : 'border-border bg-background/80'
+                              }`}
+                            >
+                              <span>{choice.text}</span>
+                              <span className="shrink-0 font-semibold text-muted-foreground">
+                                {isChosen ? 'Selected' : null}
+                                {isChosen && isCorrect ? ' • ' : null}
+                                {isCorrect ? 'Correct' : null}
+                              </span>
+                            </div>
+                          )
+                        })}
+                        {!isCorrectAnswer && chosenIds.size === 0 && q.type === 'FILL_BLANK' ? (
+                          <p className="text-xs text-muted-foreground">
+                            Your answer did not match any accepted answer.
+                          </p>
+                        ) : null}
+                      </div>
+                    ) : (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Answer details are unavailable for this session.
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <p className="pl-7 text-xs text-muted-foreground">
-                  {copy.quiz.wrongAnswer(correctText)}
+                  {hasAnswerData && !isCorrectAnswer
+                    ? copy.quiz.wrongAnswer(correctText)
+                    : `Accepted answer${correctText.includes(',') ? 's' : ''}: ${correctText}`}
                 </p>
                 {q.explanation && (
                   <p className="mt-1 pl-7 text-xs italic text-muted-foreground">{q.explanation}</p>
