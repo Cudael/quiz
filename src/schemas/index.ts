@@ -77,8 +77,6 @@ export const userPreferencesSchema = z
     defaultMode: z.enum(['CLASSIC', 'TIMED', 'SURVIVAL', 'DAILY']).optional(),
     defaultDifficulty: z.enum(['EASY', 'MEDIUM', 'HARD', 'ANY']).optional(),
     reducedMotion: z.boolean().optional(),
-    soundMuted: z.boolean().optional(),
-    soundVolume: z.number().min(0).max(1).optional(),
   })
   .strict()
 

@@ -1,14 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { Brain, Keyboard, Github } from 'lucide-react'
+import { Brain, Github } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { SoundControls } from '@/components/sound/sound-controls'
-import { useShortcutsModal } from '@/components/hotkeys/global-hotkeys'
 
 export function SiteFooter() {
-  const { openShortcuts } = useShortcutsModal()
-
   return (
     <footer className="mt-16 border-t border-border/40 bg-surface-1">
       <div className="container mx-auto px-4 py-10">
@@ -68,17 +64,6 @@ export function SiteFooter() {
                   <Github className="mr-2 h-4 w-4" />
                   GitHub
                 </Link>
-              </Button>
-              <SoundControls />
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-auto justify-start px-0 py-0 text-sm text-muted-foreground hover:text-foreground"
-                onClick={openShortcuts}
-                aria-label="Open keyboard shortcuts"
-              >
-                <Keyboard className="mr-2 h-4 w-4" />
-                Keyboard shortcuts
               </Button>
               <Button
                 variant="ghost"
