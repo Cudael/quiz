@@ -43,7 +43,7 @@ describe('CategoryBrowser', () => {
       <CategoryBrowser parentCategories={parentCategories} totalQuizzes={16} totalCategories={2} />
     )
 
-    fireEvent.change(screen.getByLabelText(/search category names/i), {
+    fireEvent.change(screen.getByLabelText(/search categories/i), {
       target: { value: 'sci' },
     })
 

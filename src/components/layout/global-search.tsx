@@ -40,7 +40,7 @@ function GlobalSearchForm({
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       const isShortcut =
-        event.key === '/' || ((event.ctrlKey || event.metaKey) && event.key === 'k')
+        event.key === '/' || ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k')
 
       if (!isShortcut || isEditableTarget(event.target)) {
         return

@@ -171,7 +171,7 @@ export function CategoryBrowser({ parentCategories }: CategoryBrowserProps) {
       <div className="mb-10 grid gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
         <div>
           <label htmlFor="route-categories-search" className="sr-only">
-            Search category names
+            Search categories
           </label>
           <div className="relative">
             <Search

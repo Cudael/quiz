@@ -328,7 +328,13 @@ function RecentActivitySection({ recentSessions }: { recentSessions: HomeRecentS
                 <h3 className="line-clamp-2 text-lg font-bold">{session.title}</h3>
                 <div className="mt-2 flex flex-wrap gap-3 text-sm text-muted-foreground">
                   <span>Score {session.score.toLocaleString()}</span>
-                  <span>{new Date(session.playedAt).toLocaleDateString()}</span>
+                  <span>
+                    {new Date(session.playedAt).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
+                  </span>
                 </div>
               </div>
               <Button asChild className="w-full">
