@@ -47,7 +47,7 @@ export default async function AdminAuditLogPage({
   searchParams: Promise<{ page?: string; actor?: string; action?: string }>
 }) {
   const { page, actor = '', action = '' } = await searchParams
-  const pageIndex = Math.max(0, Number.parseInt(page ?? '1', 10) - 1 || 0)
+  const requestedPageIndex = Math.max(0, Number.parseInt(page ?? '1', 10) - 1 || 0)
   const actorFilter = actor.trim()
   const actionFilter = action.trim()
   const hasFilters = Boolean(actorFilter || actionFilter)
@@ -63,19 +63,17 @@ export default async function AdminAuditLogPage({
     ...(actionFilter ? { action: { contains: actionFilter } } : {}),
   }
 
-  const [actions, totalCount] = await Promise.all([
-    prisma.adminAction.findMany({
-      where,
-      include: { actor: { select: { name: true, username: true } } },
-      orderBy: { createdAt: 'desc' },
-      take: PAGE_SIZE,
-      skip: pageIndex * PAGE_SIZE,
-    }),
-    prisma.adminAction.count({ where }),
-  ])
-
+  const totalCount = await prisma.adminAction.count({ where })
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
-  const currentPage = Math.min(totalPages, pageIndex + 1)
+  const pageIndex = Math.min(requestedPageIndex, totalPages - 1)
+  const currentPage = pageIndex + 1
+  const actions = await prisma.adminAction.findMany({
+    where,
+    include: { actor: { select: { name: true, username: true } } },
+    orderBy: { createdAt: 'desc' },
+    take: PAGE_SIZE,
+    skip: pageIndex * PAGE_SIZE,
+  })
 
   return (
     <div className="space-y-6">

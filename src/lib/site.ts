@@ -15,6 +15,9 @@ export function absoluteUrl(path = '') {
   if (!path) {
     return normalizedSiteUrl
   }
-  const normalizedPath = path.startsWith('/') ? path : `/${path}`
+  if (path === '/') {
+    return `${normalizedSiteUrl}/`
+  }
+  const normalizedPath = `/${path.replace(/^\/+/, '')}`
   return `${normalizedSiteUrl}${normalizedPath}`
 }
