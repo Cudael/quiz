@@ -4,6 +4,7 @@ import {
   HomePageClient,
   type HomeCurrentUser,
   type HomeFeaturedCategory,
+  type HomeRecentSession,
   type HomeStats,
   type HomeTopPlayer,
 } from '@/components/home/home-page-client'
@@ -33,6 +34,8 @@ function mapQuizCard(quiz: {
   title: string
   coverImage: string | null
   difficulty: string
+  playCount: number
+  avgScore: number
   category: {
     name: string
     color: string
@@ -42,6 +45,8 @@ function mapQuizCard(quiz: {
     id: quiz.id,
     title: quiz.title,
     coverImage: quiz.coverImage,
+    playCount: quiz.playCount,
+    avgScore: quiz.avgScore,
     difficulty:
       quiz.difficulty === 'EASY' || quiz.difficulty === 'MEDIUM' || quiz.difficulty === 'HARD'
         ? quiz.difficulty
@@ -60,6 +65,7 @@ async function getHomePageData(): Promise<{
   popularQuizzes: QuizCardData[]
   newestQuizzes: QuizCardData[]
   personalizedQuizzes: QuizCardData[]
+  recentSessions: HomeRecentSession[]
   currentUser: HomeCurrentUser | null
 }> {
   const [
@@ -190,19 +196,48 @@ async function getHomePageData(): Promise<{
     .filter((player): player is HomeTopPlayer => !!player)
 
   let personalizedQuizzes: QuizCardData[] = []
+  let recentSessions: HomeRecentSession[] = []
 
   if (isAuthenticatedUser && session?.user?.id) {
-    const userSessions = await prisma.playSession.findMany({
-      where: { userId: session.user.id },
-      select: {
-        quizId: true,
-        quiz: {
-          select: {
-            categoryId: true,
+    const [userSessions, recentSessionsRaw] = await Promise.all([
+      prisma.playSession.findMany({
+        where: { userId: session.user.id },
+        select: {
+          quizId: true,
+          quiz: {
+            select: {
+              categoryId: true,
+            },
           },
         },
-      },
-    })
+      }),
+      prisma.playSession.findMany({
+        where: { userId: session.user.id },
+        orderBy: { createdAt: 'desc' },
+        take: 3,
+        select: {
+          id: true,
+          quizId: true,
+          score: true,
+          createdAt: true,
+          quiz: {
+            select: {
+              title: true,
+              coverImage: true,
+            },
+          },
+        },
+      }),
+    ])
+
+    recentSessions = recentSessionsRaw.map((playSession) => ({
+      id: playSession.id,
+      quizId: playSession.quizId,
+      title: playSession.quiz.title,
+      coverImage: playSession.quiz.coverImage,
+      score: playSession.score,
+      playedAt: playSession.createdAt.toISOString(),
+    }))
 
     const playedQuizIds = [...new Set(userSessions.map((playSession) => playSession.quizId))]
     const categoryCounts = new Map<string, number>()
@@ -245,6 +280,7 @@ async function getHomePageData(): Promise<{
     popularQuizzes: popularQuizzesRaw.map(mapQuizCard),
     newestQuizzes: newestQuizzesRaw.map(mapQuizCard),
     personalizedQuizzes,
+    recentSessions,
     currentUser,
   }
 }

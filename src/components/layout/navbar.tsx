@@ -1,13 +1,14 @@
 'use client'
 
+import { Suspense, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Brain, Menu } from 'lucide-react'
-import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Sheet } from '@/components/ui/sheet'
 import { ThemeToggle } from '@/components/theme/theme-toggle'
 import { AuthControls } from '@/components/auth/auth-controls'
+import { GlobalSearch } from '@/components/layout/global-search'
 import { cn } from '@/lib/utils'
 
 const navLinks = [
@@ -15,6 +16,10 @@ const navLinks = [
   { href: '/leaderboard', label: 'Leaderboard' },
   { href: '/studio', label: 'Create' },
 ]
+
+function GlobalSearchFallback() {
+  return <div className="hidden h-9 w-full max-w-sm md:block" aria-hidden="true" />
+}
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -58,6 +63,9 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <Suspense fallback={<GlobalSearchFallback />}>
+            <GlobalSearch />
+          </Suspense>
           <ThemeToggle />
           <AuthControls />
           <Button variant="gradient" size="sm" asChild className="hidden md:flex">

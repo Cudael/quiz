@@ -1,8 +1,10 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { motion, useReducedMotion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { QuizCard, type QuizCardData } from '@/components/ui/quiz-card'
 import { fadeUp, staggerContainer, withReducedMotion } from '@/lib/motion'
 import { cn } from '@/lib/utils'
@@ -38,6 +40,15 @@ export interface HomeCurrentUser {
   streakDays: number
 }
 
+export interface HomeRecentSession {
+  id: string
+  quizId: string
+  title: string
+  coverImage: string | null
+  score: number
+  playedAt: string
+}
+
 interface HomePageClientProps {
   featuredCategories: HomeFeaturedCategory[]
   topPlayers: HomeTopPlayer[]
@@ -45,6 +56,7 @@ interface HomePageClientProps {
   popularQuizzes: QuizCardData[]
   newestQuizzes: QuizCardData[]
   personalizedQuizzes: QuizCardData[]
+  recentSessions: HomeRecentSession[]
   currentUser: HomeCurrentUser | null
 }
 
@@ -281,6 +293,55 @@ function WelcomeBar({ currentUser }: { currentUser: HomeCurrentUser }) {
   )
 }
 
+function RecentActivitySection({ recentSessions }: { recentSessions: HomeRecentSession[] }) {
+  if (recentSessions.length === 0) return null
+
+  return (
+    <section>
+      <div className="mb-3 flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold">Continue Playing</h2>
+          <p className="text-sm text-muted-foreground">Jump back into your recent quizzes</p>
+        </div>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        {recentSessions.map((session) => (
+          <Card key={session.id} className="overflow-hidden">
+            <div className="relative h-40 w-full bg-muted">
+              {session.coverImage ? (
+                <Image
+                  src={session.coverImage}
+                  alt={session.title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 33vw"
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center bg-[image:var(--background-image-card-gradient)] text-lg font-bold text-primary-foreground">
+                  {session.title}
+                </div>
+              )}
+            </div>
+            <CardContent className="space-y-4 p-4">
+              <div>
+                <h3 className="line-clamp-2 text-lg font-bold">{session.title}</h3>
+                <div className="mt-2 flex flex-wrap gap-3 text-sm text-muted-foreground">
+                  <span>Score {session.score.toLocaleString()}</span>
+                  <span>{new Date(session.playedAt).toLocaleDateString()}</span>
+                </div>
+              </div>
+              <Button asChild className="w-full">
+                <Link href={`/play/${session.quizId}`}>Play Again</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 export function HomePageClient({
   featuredCategories,
   topPlayers,
@@ -288,6 +349,7 @@ export function HomePageClient({
   popularQuizzes,
   newestQuizzes,
   personalizedQuizzes,
+  recentSessions,
   currentUser,
 }: HomePageClientProps) {
   const shouldReduce = useReducedMotion()
@@ -306,6 +368,12 @@ export function HomePageClient({
           <motion.div variants={sectionVariants}>
             <WelcomeBar currentUser={currentUser} />
           </motion.div>
+
+          {recentSessions.length > 0 ? (
+            <motion.div variants={sectionVariants}>
+              <RecentActivitySection recentSessions={recentSessions} />
+            </motion.div>
+          ) : null}
 
           {personalizedQuizzes.length > 0 ? (
             <motion.div variants={sectionVariants}>

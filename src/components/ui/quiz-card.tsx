@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { motion, useReducedMotion } from 'framer-motion'
 import { Badge } from '@/components/ui/badge'
@@ -11,6 +12,8 @@ export interface QuizCardData {
   title: string
   difficulty: 'EASY' | 'MEDIUM' | 'HARD'
   coverImage?: string | null
+  playCount?: number
+  avgScore?: number
   category: {
     name: string
     color: string
@@ -43,6 +46,11 @@ function getFallbackGradient(color: string) {
   return `linear-gradient(135deg, rgba(${r}, ${g}, ${b}, 0.95) 0%, rgba(${r}, ${g}, ${b}, 0.55) 100%)`
 }
 
+function formatAverageScore(avgScore: number) {
+  const normalizedScore = avgScore <= 1 ? avgScore * 100 : avgScore
+  return `${Math.round(normalizedScore)}%`
+}
+
 interface QuizCardProps {
   quiz: QuizCardData
   className?: string
@@ -65,11 +73,12 @@ export function QuizCard({ quiz, className }: QuizCardProps) {
           style={{ backgroundImage: getFallbackGradient(quiz.category.color) }}
         />
         {hasCoverImage ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={quiz.coverImage ?? ''}
             alt={quiz.title}
-            className="absolute inset-0 h-full w-full object-cover"
+            fill
+            className="absolute inset-0 object-cover"
+            sizes="(max-width: 768px) 100vw, 256px"
             onError={() => setImageFailed(true)}
           />
         ) : null}
@@ -90,6 +99,14 @@ export function QuizCard({ quiz, className }: QuizCardProps) {
           <h3 className="line-clamp-2 text-lg font-extrabold text-primary-foreground">
             {quiz.title}
           </h3>
+          {quiz.playCount && quiz.playCount > 0 ? (
+            <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs font-medium text-primary-foreground/85">
+              <span>🎮 {quiz.playCount.toLocaleString()} plays</span>
+              {typeof quiz.avgScore === 'number' ? (
+                <span>⭐ {formatAverageScore(quiz.avgScore)} avg score</span>
+              ) : null}
+            </div>
+          ) : null}
         </div>
       </motion.div>
     </Link>

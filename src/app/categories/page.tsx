@@ -56,6 +56,7 @@ export default async function CategoriesPage() {
           coverImage: true,
           difficulty: true,
           playCount: true,
+          avgScore: true,
         },
       },
     },
@@ -91,6 +92,8 @@ export default async function CategoriesPage() {
           id: quiz.id,
           title: quiz.title,
           coverImage: quiz.coverImage,
+          playCount: quiz.playCount,
+          avgScore: quiz.avgScore,
           difficulty:
             quiz.difficulty === 'EASY' || quiz.difficulty === 'MEDIUM' || quiz.difficulty === 'HARD'
               ? quiz.difficulty

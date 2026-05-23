@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useMemo, useCallback, useEffect } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import type React from 'react'
 import * as LucideIcons from 'lucide-react'
 import { Search } from 'lucide-react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { EmptyState } from '@/components/ui/empty-state'
+import { Input } from '@/components/ui/input'
 import { QuizCard } from '@/components/ui/quiz-card'
 import type { ParentCategoryData, SubcategoryData } from './page'
 
@@ -129,26 +130,23 @@ function ParentSection({ parent }: { parent: ParentCategoryData }) {
 
 export function CategoryBrowser({ parentCategories }: CategoryBrowserProps) {
   const [search, setSearch] = useState('')
-  const [debouncedSearch, setDebouncedSearch] = useState('')
-
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(search), 300)
-    return () => clearTimeout(timer)
-  }, [search])
+  const [sort, setSort] = useState<'most-quizzes' | 'az' | 'za'>('most-quizzes')
 
   const handleSearchChange = useCallback((value: string) => {
     setSearch(value)
   }, [])
 
   const filtered = useMemo(() => {
-    if (!debouncedSearch) return parentCategories
-    const q = debouncedSearch.toLowerCase()
-    return parentCategories
+    const q = search.trim().toLowerCase()
+    const matches = parentCategories
       .map((parent) => {
-        const parentMatches =
-          parent.name.toLowerCase().includes(q) || parent.description.toLowerCase().includes(q)
-        const matchingSubcats = parent.subcategories.filter(
-          (sub) => sub.name.toLowerCase().includes(q) || sub.description.toLowerCase().includes(q)
+        if (!q) {
+          return parent
+        }
+
+        const parentMatches = parent.name.toLowerCase().includes(q)
+        const matchingSubcats = parent.subcategories.filter((sub) =>
+          sub.name.toLowerCase().includes(q)
         )
         if (!parentMatches && matchingSubcats.length === 0) return null
         return {
@@ -157,29 +155,54 @@ export function CategoryBrowser({ parentCategories }: CategoryBrowserProps) {
         }
       })
       .filter(Boolean) as ParentCategoryData[]
-  }, [parentCategories, debouncedSearch])
+
+    const compare = (a: ParentCategoryData, b: ParentCategoryData) => {
+      if (sort === 'az') return a.name.localeCompare(b.name)
+      if (sort === 'za') return b.name.localeCompare(a.name)
+      return b.quizCount - a.quizCount || a.name.localeCompare(b.name)
+    }
+
+    return [...matches].sort(compare)
+  }, [parentCategories, search, sort])
 
   return (
     <div>
       {/* Search */}
-      <div className="mb-10 max-w-lg">
-        <label htmlFor="route-categories-search" className="sr-only">
-          Search quizzes
-        </label>
-        <div className="relative">
-          <Search
-            className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-            aria-hidden="true"
-          />
-          <input
-            id="route-categories-search"
-            type="search"
-            value={search}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            placeholder="Search categories…"
-            data-global-search="true"
-            className="w-full rounded-xl border border-input bg-background py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-          />
+      <div className="mb-10 grid gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
+        <div>
+          <label htmlFor="route-categories-search" className="sr-only">
+            Search category names
+          </label>
+          <div className="relative">
+            <Search
+              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden="true"
+            />
+            <Input
+              id="route-categories-search"
+              type="search"
+              value={search}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              placeholder="Search categories…"
+              className="pl-10"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="route-categories-sort" className="sr-only">
+            Sort categories
+          </label>
+          <select
+            id="route-categories-sort"
+            value={sort}
+            onChange={(event) => setSort(event.target.value as 'most-quizzes' | 'az' | 'za')}
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            <option value="az">A–Z</option>
+            <option value="za">Z–A</option>
+            <option value="most-quizzes">Most Quizzes</option>
+          </select>
         </div>
       </div>
 
