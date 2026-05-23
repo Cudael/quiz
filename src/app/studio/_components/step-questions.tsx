@@ -1,9 +1,28 @@
 'use client'
 
 import * as React from 'react'
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { PlusCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { useToast } from '@/components/ui/toast'
+import { DEFAULT_TIME_LIMIT_SEC } from '@/domain/quiz-constants'
 import { QuestionCard, makeDefaultChoices } from './question-card'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import type { QuestionType } from '@/store/quiz-creator-store'
@@ -20,15 +39,23 @@ const QUESTION_TYPES: Array<{ type: QuestionType; label: string }> = [
 ]
 
 export function StepQuestions({ quizId }: StepQuestionsProps) {
-  const { questions, addQuestion, updateQuestion, removeQuestion, reorderQuestions } =
+  const { questions, addQuestion, updateQuestion, removeQuestion, setQuestions } =
     useQuizCreatorStore()
+  const defaultTimeLimitSec = useQuizCreatorStore((state) => state.defaultTimeLimitSec)
+  const { addToast } = useToast()
 
   const [reorderMode, setReorderMode] = React.useState(false)
   const [showDropdown, setShowDropdown] = React.useState(false)
   const dropdownRef = React.useRef<HTMLDivElement>(null)
-
-  const [dragFrom, setDragFrom] = React.useState<number | null>(null)
-  const [dragOver, setDragOver] = React.useState<number | null>(null)
+  const [reorderPending, setReorderPending] = React.useState(false)
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
 
   React.useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -48,32 +75,40 @@ export function StepQuestions({ quizId }: StepQuestionsProps) {
       prompt: '',
       imageUrl: '',
       explanation: '',
-      timeLimitSec: 20,
+      timeLimitSec: defaultTimeLimitSec ?? DEFAULT_TIME_LIMIT_SEC,
       choices: makeDefaultChoices(type),
     })
     setShowDropdown(false)
   }
 
-  const handleDragStart = (index: number) => {
-    setDragFrom(index)
-  }
+  const handleDragEnd = async ({ active, over }: DragEndEvent) => {
+    if (!over || active.id === over.id) return
 
-  const handleDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault()
-    setDragOver(index)
-  }
+    const oldIndex = questions.findIndex((question) => question.localId === active.id)
+    const newIndex = questions.findIndex((question) => question.localId === over.id)
 
-  const handleDrop = (index: number) => {
-    if (dragFrom !== null && dragFrom !== index) {
-      reorderQuestions(dragFrom, index)
+    if (oldIndex === -1 || newIndex === -1) return
+
+    const nextQuestions = arrayMove(questions, oldIndex, newIndex)
+    setQuestions(nextQuestions)
+
+    const persistedQuestions = nextQuestions.flatMap((question, index) =>
+      question.dbId ? [{ id: question.dbId, order: index }] : []
+    )
+
+    if (persistedQuestions.length === 0 || !quizId) return
+
+    setReorderPending(true)
+    const response = await fetch(`/api/studio/quizzes/${quizId}/questions/reorder`, {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ questions: persistedQuestions }),
+    })
+    setReorderPending(false)
+
+    if (!response.ok) {
+      addToast('Could not save question order.', 'error')
     }
-    setDragFrom(null)
-    setDragOver(null)
-  }
-
-  const handleDragEnd = () => {
-    setDragFrom(null)
-    setDragOver(null)
   }
 
   return (
@@ -112,7 +147,7 @@ export function StepQuestions({ quizId }: StepQuestionsProps) {
           className="ml-auto"
           onClick={() => setReorderMode((v) => !v)}
         >
-          {reorderMode ? 'Done reordering' : 'Reorder'}
+          {reorderPending ? 'Saving order…' : reorderMode ? 'Done reordering' : 'Reorder'}
         </Button>
       </div>
 
@@ -125,29 +160,70 @@ export function StepQuestions({ quizId }: StepQuestionsProps) {
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {questions.map((question, index) => (
-            <div
-              key={question.localId}
-              draggable={reorderMode}
-              onDragStart={() => handleDragStart(index)}
-              onDragOver={(e) => handleDragOver(e, index)}
-              onDrop={() => handleDrop(index)}
-              onDragEnd={handleDragEnd}
-              className={dragOver === index ? 'opacity-50' : ''}
-            >
-              <QuestionCard
-                question={question}
-                index={index}
-                quizId={quizId}
-                reorderMode={reorderMode}
-                onUpdate={(updates) => updateQuestion(question.localId, updates)}
-                onRemove={() => removeQuestion(question.localId)}
-              />
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={reorderMode ? handleDragEnd : undefined}
+        >
+          <SortableContext
+            items={questions.map((question) => question.localId)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="space-y-3">
+              {reorderMode && (
+                <p className="text-sm text-muted-foreground">
+                  Drag with the handle or use keyboard sorting to rearrange questions.
+                </p>
+              )}
+              {questions.map((question, index) => (
+                <SortableQuestionItem
+                  key={question.localId}
+                  questionId={question.localId}
+                  disabled={!reorderMode}
+                >
+                  <QuestionCard
+                    question={question}
+                    index={index}
+                    quizId={quizId}
+                    reorderMode={reorderMode}
+                    onUpdate={(updates) => updateQuestion(question.localId, updates)}
+                    onRemove={() => removeQuestion(question.localId)}
+                  />
+                </SortableQuestionItem>
+              ))}
             </div>
-          ))}
-        </div>
+          </SortableContext>
+        </DndContext>
       )}
+    </div>
+  )
+}
+
+function SortableQuestionItem({
+  questionId,
+  disabled,
+  children,
+}: {
+  questionId: string
+  disabled: boolean
+  children: React.ReactNode
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+    id: questionId,
+    disabled,
+  })
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }}
+      {...(disabled ? {} : attributes)}
+      {...(disabled ? {} : listeners)}
+    >
+      {children}
     </div>
   )
 }

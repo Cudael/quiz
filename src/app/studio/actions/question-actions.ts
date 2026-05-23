@@ -4,12 +4,13 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
+import { questionSchema } from '@/schemas'
 
 const quizIdSchema = z.string().cuid()
 const questionIdSchema = z.string().cuid()
 
 export type QuestionActionResult =
-  | { ok: true }
+  | { ok: true; questionId?: string }
   | {
       ok: false
       error: 'UNAUTHORIZED' | 'FORBIDDEN' | 'NOT_FOUND' | 'VALIDATION_ERROR'
@@ -37,19 +38,10 @@ async function assertOwnership(
   return { ok: true }
 }
 
-const choiceSchema = z.object({
-  text: z.string().trim().min(1),
-  isCorrect: z.boolean(),
-})
-
-const questionInputSchema = z.object({
+const questionMetaSchema = z.object({
   quizId: z.string().cuid(),
-  type: z.enum(['SINGLE', 'MULTIPLE', 'TRUEFALSE', 'FILL_BLANK']),
-  prompt: z.string().trim().min(1),
   imageUrl: z.string().trim().url().optional(),
-  explanation: z.string().trim().max(500).optional(),
-  timeLimitSec: z.coerce.number().int().min(5).max(120),
-  choices: z.array(choiceSchema).min(1),
+  order: z.coerce.number().int().min(0),
 })
 
 export async function addQuestion(formData: FormData): Promise<QuestionActionResult> {
@@ -65,42 +57,56 @@ export async function addQuestion(formData: FormData): Promise<QuestionActionRes
     return { ok: false, error: 'VALIDATION_ERROR', message: 'Invalid choices JSON.' }
   }
 
-  const parsed = questionInputSchema.safeParse({
+  const parsedMeta = questionMetaSchema.safeParse({
     quizId: formData.get('quizId'),
+    imageUrl: formData.get('imageUrl') || undefined,
+    order: formData.get('order') ?? 0,
+  })
+  const parsedQuestion = questionSchema.safeParse({
     type: formData.get('type'),
     prompt: formData.get('prompt'),
-    imageUrl: formData.get('imageUrl') || undefined,
     explanation: formData.get('explanation') || undefined,
-    timeLimitSec: formData.get('timeLimitSec'),
+    timeLimitSec: Number(formData.get('timeLimitSec')),
     choices,
   })
 
-  if (!parsed.success) {
+  if (!parsedMeta.success || !parsedQuestion.success) {
     return { ok: false, error: 'VALIDATION_ERROR', message: 'Invalid question input.' }
   }
 
-  const allowed = await assertOwnership(parsed.data.quizId, session.user.id, session.user.role)
+  const allowed = await assertOwnership(parsedMeta.data.quizId, session.user.id, session.user.role)
   if (!allowed.ok) return allowed
 
-  const order = await prisma.question.count({ where: { quizId: parsed.data.quizId } })
-
-  await prisma.question.create({
-    data: {
-      quizId: parsed.data.quizId,
-      type: parsed.data.type,
-      prompt: parsed.data.prompt,
-      imageUrl: parsed.data.imageUrl || null,
-      explanation: parsed.data.explanation || null,
-      timeLimitSec: parsed.data.timeLimitSec,
-      order,
-      choices: {
-        create: parsed.data.choices,
+  const created = await prisma.$transaction(async (tx) => {
+    await tx.question.updateMany({
+      where: {
+        quizId: parsedMeta.data.quizId,
+        order: { gte: parsedMeta.data.order },
       },
-    },
+      data: {
+        order: { increment: 1 },
+      },
+    })
+
+    return tx.question.create({
+      data: {
+        quizId: parsedMeta.data.quizId,
+        type: parsedQuestion.data.type,
+        prompt: parsedQuestion.data.prompt,
+        imageUrl: parsedMeta.data.imageUrl || null,
+        explanation: parsedQuestion.data.explanation || null,
+        timeLimitSec: parsedQuestion.data.timeLimitSec,
+        order: parsedMeta.data.order,
+        choices: {
+          create: parsedQuestion.data.choices,
+        },
+      },
+      select: { id: true },
+    })
   })
 
-  revalidatePath(`/studio/quiz/${parsed.data.quizId}/edit`)
-  return { ok: true }
+  revalidatePath(`/studio/quiz/${parsedMeta.data.quizId}/edit`)
+  return { ok: true, questionId: created.id }
 }
 
 export async function updateQuestion(formData: FormData): Promise<QuestionActionResult> {
@@ -121,21 +127,23 @@ export async function updateQuestion(formData: FormData): Promise<QuestionAction
     return { ok: false, error: 'VALIDATION_ERROR', message: 'Invalid choices JSON.' }
   }
 
-  const parsed = questionInputSchema.safeParse({
+  const parsedMeta = questionMetaSchema.omit({ order: true }).safeParse({
     quizId: formData.get('quizId'),
+    imageUrl: formData.get('imageUrl') || undefined,
+  })
+  const parsedQuestion = questionSchema.safeParse({
     type: formData.get('type'),
     prompt: formData.get('prompt'),
-    imageUrl: formData.get('imageUrl') || undefined,
     explanation: formData.get('explanation') || undefined,
-    timeLimitSec: formData.get('timeLimitSec'),
+    timeLimitSec: Number(formData.get('timeLimitSec')),
     choices,
   })
 
-  if (!parsed.success) {
+  if (!parsedMeta.success || !parsedQuestion.success) {
     return { ok: false, error: 'VALIDATION_ERROR', message: 'Invalid question input.' }
   }
 
-  const allowed = await assertOwnership(parsed.data.quizId, session.user.id, session.user.role)
+  const allowed = await assertOwnership(parsedMeta.data.quizId, session.user.id, session.user.role)
   if (!allowed.ok) return allowed
 
   await prisma.$transaction([
@@ -143,19 +151,19 @@ export async function updateQuestion(formData: FormData): Promise<QuestionAction
     prisma.question.update({
       where: { id: questionIdParsed.data },
       data: {
-        type: parsed.data.type,
-        prompt: parsed.data.prompt,
-        imageUrl: parsed.data.imageUrl || null,
-        explanation: parsed.data.explanation || null,
-        timeLimitSec: parsed.data.timeLimitSec,
+        type: parsedQuestion.data.type,
+        prompt: parsedQuestion.data.prompt,
+        imageUrl: parsedMeta.data.imageUrl || null,
+        explanation: parsedQuestion.data.explanation || null,
+        timeLimitSec: parsedQuestion.data.timeLimitSec,
         choices: {
-          create: parsed.data.choices,
+          create: parsedQuestion.data.choices,
         },
       },
     }),
   ])
 
-  revalidatePath(`/studio/quiz/${parsed.data.quizId}/edit`)
+  revalidatePath(`/studio/quiz/${parsedMeta.data.quizId}/edit`)
   return { ok: true }
 }
 

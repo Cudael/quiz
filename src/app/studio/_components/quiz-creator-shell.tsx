@@ -27,6 +27,7 @@ interface InitialQuiz {
   coverImage: string | null
   categoryId: string
   difficulty: string
+  defaultTimeLimitSec: number | null
   isPublished: boolean
 }
 
@@ -80,6 +81,7 @@ export function QuizCreatorShell({
         difficulty: initialData.quiz.difficulty as 'EASY' | 'MEDIUM' | 'HARD',
         isPublished: initialData.quiz.isPublished,
         imageUrl: initialData.quiz.coverImage ?? '',
+        defaultTimeLimitSec: initialData.quiz.defaultTimeLimitSec,
       })
       const questions: DraftQuestion[] = initialData.questions.map((q) => ({
         localId: crypto.randomUUID(),
@@ -112,6 +114,7 @@ export function QuizCreatorShell({
     imageUrl,
     categoryId,
     difficulty,
+    defaultTimeLimitSec,
     isPublished,
     lastSavedAt,
     setStep,
@@ -131,6 +134,9 @@ export function QuizCreatorShell({
       fd.set('coverImage', imageUrl.trim())
       fd.set('categoryId', safeCategoryId)
       fd.set('difficulty', difficulty)
+      if (defaultTimeLimitSec !== null) {
+        fd.set('defaultTimeLimitSec', String(defaultTimeLimitSec))
+      }
       const result = await createQuizAndReturnId(fd)
       if (result.ok) {
         store.setQuizId(result.quizId)
@@ -145,6 +151,9 @@ export function QuizCreatorShell({
       fd.set('coverImage', imageUrl.trim())
       fd.set('categoryId', safeCategoryId)
       fd.set('difficulty', difficulty)
+      if (defaultTimeLimitSec !== null) {
+        fd.set('defaultTimeLimitSec', String(defaultTimeLimitSec))
+      }
       if (isPublished) fd.set('isPublished', 'on')
       const result = await updateQuiz(fd)
       if (result.ok) {

@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import type { Prisma } from '@prisma/client'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
 import { quizSchema } from '@/schemas'
@@ -25,6 +26,9 @@ export async function createQuizAndReturnId(formData: FormData): Promise<QuizMet
     coverImage: formData.get('coverImage') || undefined,
     categoryId: formData.get('categoryId'),
     difficulty: formData.get('difficulty'),
+    defaultTimeLimitSec: formData.get('defaultTimeLimitSec')
+      ? Number(formData.get('defaultTimeLimitSec'))
+      : undefined,
     isPublished: formData.get('isPublished') === 'on',
   })
 
@@ -32,13 +36,13 @@ export async function createQuizAndReturnId(formData: FormData): Promise<QuizMet
     return { ok: false, error: 'VALIDATION_ERROR', message: 'Invalid quiz input.' }
   }
 
-  const quiz = await prisma.quiz.create({
-    data: {
-      ...parsed.data,
-      coverImage: parsed.data.coverImage ?? null,
-      authorId: session.user.id,
-    },
-  })
+  const data: Prisma.QuizUncheckedCreateInput = {
+    ...parsed.data,
+    coverImage: parsed.data.coverImage ?? null,
+    authorId: session.user.id,
+  }
+
+  const quiz = await prisma.quiz.create({ data })
 
   revalidatePath('/studio')
   return { ok: true, quizId: quiz.id }

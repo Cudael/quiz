@@ -12,7 +12,16 @@ export default async function EditQuizPage({ params }: { params: Promise<{ id: s
   const { id } = await params
   const quiz = await prisma.quiz.findUnique({
     where: { id },
-    include: {
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      coverImage: true,
+      categoryId: true,
+      difficulty: true,
+      defaultTimeLimitSec: true,
+      isPublished: true,
+      authorId: true,
       questions: {
         orderBy: { order: 'asc' },
         include: { choices: true },
