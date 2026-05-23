@@ -50,6 +50,7 @@ model Category {
   icon        String
   color       String
   imageUrl    String?
+  parentSlug  String?
   createdById String?
   createdBy   User?    @relation("CreatedCategories", fields: [createdById], references: [id])
   quizzes     Quiz[]

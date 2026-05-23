@@ -64,6 +64,7 @@ async function main() {
         description: cat.description,
         icon: cat.icon,
         color: cat.color,
+        parentSlug: cat.parentSlug ?? null,
         createdById: users[0].id, // admin
       },
     })
