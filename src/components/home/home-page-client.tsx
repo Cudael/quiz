@@ -110,16 +110,28 @@ function QuizScrollerSection({
   )
 }
 
-function QuizGridSection({ title, quizzes }: { title: string; quizzes: QuizCardData[] }) {
+function QuizGridSection({
+  title,
+  quizzes,
+  excludeQuizId,
+}: {
+  title: string
+  quizzes: QuizCardData[]
+  excludeQuizId?: string
+}) {
+  const visibleQuizzes = excludeQuizId
+    ? quizzes.filter((quiz) => quiz.id !== excludeQuizId).slice(0, 6)
+    : quizzes.slice(0, 6)
+
   return (
     <section>
       <SectionHeader title={title} href="/categories" />
-      {quizzes.length > 0 ? (
+      {visibleQuizzes.length > 0 ? (
         <div
           className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
           aria-label={`${title} quizzes`}
         >
-          {quizzes.slice(0, 6).map((quiz) => (
+          {visibleQuizzes.map((quiz) => (
             <QuizCard key={quiz.id} quiz={quiz} className="w-full" />
           ))}
         </div>
@@ -134,15 +146,11 @@ function QuizGridSection({ title, quizzes }: { title: string; quizzes: QuizCardD
 
 function FeaturedQuizSection({
   title,
-  popularQuizzes,
-  trendingQuizzes,
+  featuredQuiz,
 }: {
   title: string
-  popularQuizzes: QuizCardData[]
-  trendingQuizzes: QuizCardData[]
+  featuredQuiz: QuizCardData | null
 }) {
-  const featuredQuiz = popularQuizzes[0] ?? trendingQuizzes[0]
-
   return (
     <section>
       <SectionHeader title={title} href="/categories" />
@@ -189,8 +197,13 @@ function CategoryMosaic({ featuredCategories }: { featuredCategories: HomeFeatur
                       {category.name}
                     </div>
                     <div className="mt-1 line-clamp-2 text-xs opacity-80">
-                      {isLarge ? category.description : `${category.quizCount} quizzes`}
+                      {category.description || `${category.quizCount} quizzes`}
                     </div>
+                    {category.description ? (
+                      <div className="mt-1 text-[11px] opacity-70">
+                        {category.quizCount} {category.quizCount === 1 ? 'quiz' : 'quizzes'}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               </Link>
@@ -371,6 +384,7 @@ export function HomePageClient({
   const shouldReduce = useReducedMotion()
   const containerVariants = withReducedMotion(staggerContainer(0.06), shouldReduce)
   const sectionVariants = withReducedMotion(fadeUp, shouldReduce)
+  const featuredQuiz = popularQuizzes[0] ?? trendingQuizzes[0] ?? null
 
   return (
     <motion.div
@@ -386,11 +400,7 @@ export function HomePageClient({
           </motion.div>
 
           <motion.div variants={sectionVariants}>
-            <FeaturedQuizSection
-              title="⭐ Today's Pick"
-              popularQuizzes={popularQuizzes}
-              trendingQuizzes={trendingQuizzes}
-            />
+            <FeaturedQuizSection title="⭐ Today's Pick" featuredQuiz={featuredQuiz} />
           </motion.div>
 
           {personalizedQuizzes.length > 0 ? (
@@ -404,7 +414,11 @@ export function HomePageClient({
           ) : null}
 
           <motion.div variants={sectionVariants}>
-            <QuizGridSection title="🔥 Trending" quizzes={trendingQuizzes} />
+            <QuizGridSection
+              title="🔥 Trending"
+              quizzes={trendingQuizzes}
+              excludeQuizId={featuredQuiz?.id}
+            />
           </motion.div>
 
           <motion.div variants={sectionVariants}>
@@ -426,15 +440,15 @@ export function HomePageClient({
           </motion.div>
 
           <motion.div variants={sectionVariants}>
-            <FeaturedQuizSection
-              title="⭐ Featured Quiz"
-              popularQuizzes={popularQuizzes}
-              trendingQuizzes={trendingQuizzes}
-            />
+            <FeaturedQuizSection title="⭐ Featured Quiz" featuredQuiz={featuredQuiz} />
           </motion.div>
 
           <motion.div variants={sectionVariants}>
-            <QuizGridSection title="🔥 Trending" quizzes={trendingQuizzes} />
+            <QuizGridSection
+              title="🔥 Trending"
+              quizzes={trendingQuizzes}
+              excludeQuizId={featuredQuiz?.id}
+            />
           </motion.div>
 
           <motion.div variants={sectionVariants}>

@@ -105,7 +105,7 @@ export function QuizCardFeatured({ quiz, className }: QuizCardProps) {
   const hasCoverImage = Boolean(quiz.coverImage) && !imageFailed
 
   return (
-    <Link href={`/quiz/${quiz.id}`} className={cn('block', className ?? 'h-72 w-full md:h-80')}>
+    <Link href={`/quiz/${quiz.id}`} className={cn('block h-72 w-full md:h-80', className)}>
       <motion.div
         whileHover={shouldReduceMotion ? undefined : { y: -4, scale: 1.01 }}
         transition={{ duration: 0.18, ease: 'easeOut' }}
