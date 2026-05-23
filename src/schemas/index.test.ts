@@ -103,6 +103,15 @@ describe('questionAnswerSchema', () => {
 })
 
 describe('submitAnswersSchema', () => {
+  it('allows an empty answers list', () => {
+    expect(
+      submitAnswersSchema.safeParse({
+        sessionId: 'ckq6xdr2w0000u3z5f6l6x4t5',
+        answers: [],
+      }).success
+    ).toBe(true)
+  })
+
   it('accepts a valid session id and answer list', () => {
     expect(
       submitAnswersSchema.safeParse({

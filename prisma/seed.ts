@@ -406,12 +406,17 @@ async function main() {
     include: { choices: true },
   })
 
-  if (elementaryPhysicsQuestions.length < 3) {
-    throw new Error('Expected at least 3 Elementary Physics questions to seed question answers.')
+  const SAMPLE_ANSWER_COUNT = 3
+  if (elementaryPhysicsQuestions.length < SAMPLE_ANSWER_COUNT) {
+    throw new Error(
+      `Expected at least ${SAMPLE_ANSWER_COUNT} Elementary Physics questions to seed question answers.`
+    )
   }
 
   let questionAnswerCount = 0
-  for (const [index, question] of elementaryPhysicsQuestions.slice(0, 3).entries()) {
+  for (const [index, question] of elementaryPhysicsQuestions
+    .slice(0, SAMPLE_ANSWER_COUNT)
+    .entries()) {
     if (question.choices.length === 0) {
       throw new Error(`Question ${question.id} has no choices; cannot seed question answers.`)
     }
