@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Modal } from '@/components/ui/modal'
 import { useToast } from '@/components/ui/toast'
-import { FILL_BLANK_PLACEHOLDER } from '@/domain/quiz-constants'
+import { renderFillBlankPrompt } from '@/domain/quiz-constants'
 import { usePlaySessionStore } from '@/store/play-session'
 import { cn } from '@/lib/utils'
 import { copy } from '@/lib/copy'
@@ -43,7 +43,7 @@ interface PlayViewProps {
 const SOUND_PREFERENCE_STORAGE_KEY = 'quiz-sound-enabled'
 
 function normalizeBlankAnswer(value: string) {
-  return value.trim().toLocaleLowerCase()
+  return value.trim().toLowerCase()
 }
 
 function imageLoader({ src }: { src: string }) {
@@ -526,7 +526,7 @@ export function PlayView({ quizId }: PlayViewProps) {
   const progress = ((store.currentQuestionIndex + (isAnswered ? 1 : 0)) / questions.length) * 100
   const renderedPrompt =
     currentQuestion.type === 'FILL_BLANK'
-      ? currentQuestion.prompt.replace(FILL_BLANK_PLACEHOLDER, '_____')
+      ? renderFillBlankPrompt(currentQuestion.prompt)
       : currentQuestion.prompt
   const canSubmitCurrentAnswer =
     currentQuestion.type === 'FILL_BLANK'
@@ -589,7 +589,7 @@ export function PlayView({ quizId }: PlayViewProps) {
         <button
           type="button"
           onClick={() => setShowQuitModal(true)}
-          className="rounded-full p-2 hover:bg-muted transition-colors"
+          className="rounded-full p-2 transition-colors hover:bg-muted"
           aria-label="Quit quiz"
         >
           <X className="h-5 w-5" />
@@ -653,7 +653,7 @@ export function PlayView({ quizId }: PlayViewProps) {
                 id={`fill-blank-help-${currentQuestion.id}`}
                 className="text-xs text-muted-foreground"
               >
-                Press Enter to submit your answer.
+                Press Enter or Space to submit your answer.
               </p>
             </div>
           ) : (

@@ -98,9 +98,9 @@ export async function POST(req: NextRequest) {
       .filter((c) => c.isCorrect)
       .map((c) => c.id)
       .sort()
-    const givenIds = [
-      ...new Set(answer.choiceIds.filter((choiceId) => validChoiceIds.has(choiceId))),
-    ].sort()
+    const givenIds = Array.from(
+      new Set(answer.choiceIds.filter((choiceId) => validChoiceIds.has(choiceId)))
+    ).sort()
     const isCorrect =
       correctChoiceIds.length === givenIds.length &&
       correctChoiceIds.every((id, i) => id === givenIds[i])

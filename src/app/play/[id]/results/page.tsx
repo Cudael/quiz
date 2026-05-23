@@ -17,7 +17,7 @@ import { LevelProgress } from '@/components/ui/level-progress'
 import { auth } from '@/server/auth'
 import { copy } from '@/lib/copy'
 import { GuestUpgradePrompt } from '@/components/auth/guest-upgrade-prompt'
-import { FILL_BLANK_PLACEHOLDER } from '@/domain/quiz-constants'
+import { renderFillBlankPrompt } from '@/domain/quiz-constants'
 
 function parseChosenIds(value: string) {
   try {
@@ -219,7 +219,7 @@ export default async function ResultsPage({
               .map((c) => c.text)
               .join(', ')
             const displayPrompt =
-              q.type === 'FILL_BLANK' ? q.prompt.replace(FILL_BLANK_PLACEHOLDER, '_____') : q.prompt
+              q.type === 'FILL_BLANK' ? renderFillBlankPrompt(q.prompt) : q.prompt
             const answer = answersByQuestionId.get(q.id) ?? null
             const chosenIds = new Set(answer?.chosenIds ?? [])
             const hasAnswerData = answer !== null
@@ -290,7 +290,7 @@ export default async function ResultsPage({
                         })}
                         {!isCorrectAnswer && chosenIds.size === 0 && q.type === 'FILL_BLANK' ? (
                           <p className="text-xs text-muted-foreground">
-                            Your answer did not match any accepted answer.
+                            No accepted answer was recorded for this response.
                           </p>
                         ) : null}
                       </div>
