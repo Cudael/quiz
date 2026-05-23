@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { FILL_BLANK_PLACEHOLDER } from '@/domain/quiz-constants'
 
 const { authMock, prismaMock, revalidatePathMock } = vi.hoisted(() => ({
   authMock: vi.fn(),
@@ -50,7 +51,7 @@ describe('POST /api/studio/quizzes/[id]/duplicate', () => {
       questions: [
         {
           type: 'FILL_BLANK',
-          prompt: 'The Sun is a {{blank}}.',
+          prompt: `The Sun is a ${FILL_BLANK_PLACEHOLDER}.`,
           imageUrl: null,
           explanation: 'It is a star.',
           timeLimitSec: 25,
@@ -79,7 +80,7 @@ describe('POST /api/studio/quizzes/[id]/duplicate', () => {
         questions: {
           create: [
             expect.objectContaining({
-              prompt: 'The Sun is a {{blank}}.',
+              prompt: `The Sun is a ${FILL_BLANK_PLACEHOLDER}.`,
               choices: {
                 create: [{ text: 'star', isCorrect: true }],
               },

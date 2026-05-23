@@ -223,7 +223,10 @@ function SortableQuestionItem({
     id: questionId,
     disabled,
   })
-  const sortableProps = disabled ? attributes : { ...attributes, ...listeners }
+  const sortableProps = {
+    ...attributes,
+    ...(disabled ? {} : listeners),
+  }
 
   return (
     <div
