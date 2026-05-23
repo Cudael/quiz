@@ -25,7 +25,7 @@ function actionBadgeClass(action: string) {
 
 function formatMeta(meta: string) {
   try {
-    const parsed = JSON.parse(meta)
+    const parsed = JSON.parse(meta) as Record<string, unknown>
     return JSON.stringify(parsed, null, 2)
   } catch {
     return meta || '—'
@@ -138,7 +138,7 @@ export default async function AdminAuditLogPage({
                           className="transition-colors hover:text-primary"
                           href={`/u/${actionRow.actor.username}`}
                         >
-                          {actionRow.actor.name ?? actionRow.actor.username}
+                          {actionRow.actor.name ?? 'Unknown admin'}
                           <span className="ml-1 text-muted-foreground">
                             (@{actionRow.actor.username})
                           </span>
