@@ -59,11 +59,8 @@ export async function POST(request: Request) {
     const verifyUrl = new URL('/api/auth/verify-email', request.url)
     verifyUrl.searchParams.set('token', token)
     if (process.env.NODE_ENV !== 'production') {
-      console.log('Verification email placeholder', {
-        userId: user.id,
-        email: user.email,
-        verifyUrl,
-      })
+      console.log('Verification email placeholder generated', { userId: user.id })
+      console.log('Verification URL (dev/test only)', verifyUrl.toString())
     }
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {

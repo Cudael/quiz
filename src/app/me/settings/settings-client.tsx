@@ -50,6 +50,10 @@ function isValidImageUrl(value: string) {
   }
 }
 
+function trimOrNull(value: string) {
+  return value.trim() || null
+}
+
 export function SettingsClient({
   initialProfile,
   email,
@@ -120,9 +124,9 @@ export function SettingsClient({
               headers: { 'content-type': 'application/json' },
               body: JSON.stringify({
                 ...profile,
-                bio: profile.bio.trim() || null,
-                image: profile.image.trim() || null,
-                bannerImage: profile.bannerImage.trim() || null,
+                bio: trimOrNull(profile.bio),
+                image: trimOrNull(profile.image),
+                bannerImage: trimOrNull(profile.bannerImage),
               }),
             })
 

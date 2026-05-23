@@ -38,7 +38,7 @@ export async function GET(request: Request) {
     })
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-      console.warn('Verification token used for missing user')
+      console.warn('Email verification failed: user account not found for identifier')
     } else {
       throw error
     }
