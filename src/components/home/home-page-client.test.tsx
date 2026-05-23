@@ -29,7 +29,7 @@ const featuredCategories: HomeFeaturedCategory[] = [
   {
     slug: 'science',
     name: 'Science',
-    icon: 'S',
+    icon: '🧪',
     color: 'linear-gradient(135deg, #7c3aed, #ec4899)',
     description: 'Experiments and facts',
     quizCount: 12,
@@ -124,7 +124,7 @@ describe('HomePageClient', () => {
     expect(screen.getByRole('heading', { name: '🔥 Trending' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: '✨ Just Added' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Top Players' })).toBeInTheDocument()
-    expect(screen.getByText('S')).toBeInTheDocument()
+    expect(screen.getByText('🧪')).toBeInTheDocument()
     expect(screen.getByText('Experiments and facts')).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'For You' })).not.toBeInTheDocument()
 
