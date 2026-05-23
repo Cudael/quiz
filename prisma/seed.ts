@@ -412,17 +412,25 @@ async function main() {
 
   let questionAnswerCount = 0
   for (const [index, question] of elementaryPhysicsQuestions.slice(0, 3).entries()) {
-    const correctChoice = question.choices.find((choice) => choice.isCorrect) ?? question.choices[0]
-    const incorrectChoice =
-      question.choices.find((choice) => !choice.isCorrect) ?? question.choices[0]
+    if (question.choices.length === 0) {
+      throw new Error(`Question ${question.id} has no choices; cannot seed question answers.`)
+    }
+
+    const correctChoice = question.choices.find((choice) => choice.isCorrect)
+    const incorrectChoice = question.choices.find((choice) => !choice.isCorrect)
+    if (!correctChoice || !incorrectChoice) {
+      throw new Error(
+        `Question ${question.id} must include at least one correct and one incorrect choice.`
+      )
+    }
     const selectedChoice = index === 1 ? incorrectChoice : correctChoice
 
     await prisma.questionAnswer.create({
       data: {
         sessionId: firstSessionId,
         questionId: question.id,
-        chosenIds: JSON.stringify(selectedChoice ? [selectedChoice.id] : []),
-        isCorrect: selectedChoice?.isCorrect ?? false,
+        chosenIds: JSON.stringify([selectedChoice.id]),
+        isCorrect: selectedChoice.isCorrect,
         timeTakenMs: 9000 + index * 3500,
       },
     })
