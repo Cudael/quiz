@@ -225,11 +225,17 @@ export default async function ResultsPage({
             const hasAnswerData = answer !== null
             const isCorrectAnswer = answer?.isCorrect === true
             const statusIcon = !hasAnswerData ? (
-              <MinusCircle className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
+              <MinusCircle
+                className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground"
+                aria-hidden="true"
+              />
             ) : isCorrectAnswer ? (
-              <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-quiz-green" />
+              <CheckCircle2
+                className="mt-0.5 h-5 w-5 shrink-0 text-quiz-green"
+                aria-hidden="true"
+              />
             ) : (
-              <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
+              <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" aria-hidden="true" />
             )
             const containerClassName = !hasAnswerData
               ? 'border-border'

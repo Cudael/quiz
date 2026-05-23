@@ -42,6 +42,15 @@ interface PlayViewProps {
 
 const SOUND_PREFERENCE_STORAGE_KEY = 'quiz-sound-enabled'
 
+function getSoundPreference() {
+  if (typeof window === 'undefined') {
+    return true
+  }
+
+  const storedPreference = localStorage.getItem(SOUND_PREFERENCE_STORAGE_KEY)
+  return storedPreference === null ? true : storedPreference === 'true'
+}
+
 // Fill-in-the-blank matching ignores surrounding whitespace and letter casing.
 function normalizeBlankAnswer(value: string) {
   return value.trim().toLowerCase()
@@ -59,7 +68,7 @@ function getQuestionImageSrc(imageUrl?: string | null) {
 
   try {
     const parsedUrl = new URL(imageUrl)
-    return parsedUrl.protocol === 'https:' || parsedUrl.protocol === 'http:' ? imageUrl : null
+    return parsedUrl.protocol === 'https:' ? imageUrl : null
   } catch {
     return null
   }
@@ -142,13 +151,7 @@ export function PlayView({ quizId }: PlayViewProps) {
     hiddenChoiceIds: string[]
   }>({ selectedChoiceIds: [], hiddenChoiceIds: [] })
   const [fillBlankValue, setFillBlankValue] = useState('')
-  const [soundEnabled, setSoundEnabled] = useState(() => {
-    if (typeof window === 'undefined') {
-      return true
-    }
-    const storedPreference = localStorage.getItem(SOUND_PREFERENCE_STORAGE_KEY)
-    return storedPreference === null ? true : storedPreference === 'true'
-  })
+  const [soundEnabled, setSoundEnabled] = useState(getSoundPreference)
   const [showQuitModal, setShowQuitModal] = useState(false)
   // Ref avoids render loops here; we only need to track previous question id without re-rendering.
   const prevQuestionIdRef = useRef<string | null>(null)
@@ -489,9 +492,19 @@ export function PlayView({ quizId }: PlayViewProps) {
       )
 
       const normalizedKey = event.key.toLowerCase()
-      const shortcutIndex = ['1', '2', '3', '4', 'a', 'b', 'c', 'd'].indexOf(normalizedKey)
-      if (visibleChoices && shortcutIndex >= 0) {
-        const choice = visibleChoices[shortcutIndex % 4]
+      const shortcutMap: Record<string, number> = {
+        '1': 0,
+        a: 0,
+        '2': 1,
+        b: 1,
+        '3': 2,
+        c: 2,
+        '4': 3,
+        d: 3,
+      }
+      const shortcutIndex = shortcutMap[normalizedKey]
+      if (visibleChoices && shortcutIndex !== undefined) {
+        const choice = visibleChoices[shortcutIndex]
         if (choice) {
           event.preventDefault()
           handleChoiceSelect(choice.id)

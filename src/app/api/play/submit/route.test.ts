@@ -100,7 +100,7 @@ describe('POST /api/play/submit', () => {
         answers: [
           {
             questionId: 'question-1',
-            choiceIds: ['choice-1', 'bogus-choice'],
+            choiceIds: ['bogus-choice', 'choice-1', 'choice-1'],
             timeTakenMs: 2500,
           },
         ],
