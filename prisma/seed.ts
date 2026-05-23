@@ -21,8 +21,11 @@ async function main() {
   // ------------------------------------------------------------------
   // Wipe existing data (dependency order: children before parents)
   // ------------------------------------------------------------------
+  await prisma.questionAnswer.deleteMany()
   await prisma.userBadge.deleteMany()
   await prisma.follow.deleteMany()
+  await prisma.favoriteQuiz.deleteMany()
+  await prisma.notification.deleteMany()
   await prisma.adminAction.deleteMany()
   await prisma.report.deleteMany()
   await prisma.categorySuggestion.deleteMany()
@@ -353,6 +356,7 @@ async function main() {
   sessionData.push(...generatedSessions)
 
   let sessionCount = 0
+  let firstSessionId: string | null = null
   const now = new Date()
   for (const s of sessionData) {
     const quizId = quizMap[s.quizTitle]
@@ -360,7 +364,7 @@ async function main() {
       console.warn(`  ⚠ Unknown quiz title for session: ${s.quizTitle}`)
       continue
     }
-    await prisma.playSession.create({
+    const createdSession = await prisma.playSession.create({
       data: {
         userId: s.userId,
         guestName: s.guestName,
@@ -382,9 +386,107 @@ async function main() {
         ),
       },
     })
+    if (!firstSessionId) {
+      firstSessionId = createdSession.id
+    }
     sessionCount++
   }
   console.log(`  ✓ Seeded ${sessionCount} play sessions`)
+
+  // ------------------------------------------------------------------
+  // Per-question answer data for seeded sessions
+  // ------------------------------------------------------------------
+  if (!firstSessionId) {
+    throw new Error('Expected at least one play session to seed question answers.')
+  }
+
+  const elementaryPhysicsQuestions = await prisma.question.findMany({
+    where: { quiz: { title: 'Elementary Physics' } },
+    orderBy: { order: 'asc' },
+    include: { choices: true },
+  })
+
+  if (elementaryPhysicsQuestions.length < 3) {
+    throw new Error('Expected at least 3 Elementary Physics questions to seed question answers.')
+  }
+
+  let questionAnswerCount = 0
+  for (const [index, question] of elementaryPhysicsQuestions.slice(0, 3).entries()) {
+    const correctChoice = question.choices.find((choice) => choice.isCorrect) ?? question.choices[0]
+    const incorrectChoice =
+      question.choices.find((choice) => !choice.isCorrect) ?? question.choices[0]
+    const selectedChoice = index === 1 ? incorrectChoice : correctChoice
+
+    await prisma.questionAnswer.create({
+      data: {
+        sessionId: firstSessionId,
+        questionId: question.id,
+        chosenIds: JSON.stringify(selectedChoice ? [selectedChoice.id] : []),
+        isCorrect: selectedChoice?.isCorrect ?? false,
+        timeTakenMs: 9000 + index * 3500,
+      },
+    })
+    questionAnswerCount++
+  }
+  console.log(`  ✓ Seeded ${questionAnswerCount} question answers`)
+
+  // ------------------------------------------------------------------
+  // Quiz favorites and notifications
+  // ------------------------------------------------------------------
+  const favoriteSeedData = [
+    { userId: 'user_demo_alice', quizTitle: 'World War II' },
+    { userId: 'user_demo_bob', quizTitle: 'Elementary Physics' },
+    { userId: 'user_demo_carol', quizTitle: 'Internet Basics' },
+  ]
+
+  let favoriteCount = 0
+  for (const favorite of favoriteSeedData) {
+    const quizId = quizMap[favorite.quizTitle]
+    if (!quizId) {
+      console.warn(`  ⚠ Unknown quiz title for favorite: ${favorite.quizTitle}`)
+      continue
+    }
+    await prisma.favoriteQuiz.create({
+      data: {
+        userId: favorite.userId,
+        quizId,
+      },
+    })
+    favoriteCount++
+  }
+  console.log(`  ✓ Seeded ${favoriteCount} favorite quizzes`)
+
+  const notificationSeedData = [
+    {
+      userId: 'user_demo_alice',
+      type: 'BADGE_EARNED',
+      title: 'Badge unlocked!',
+      message: 'You earned the Speed Demon badge.',
+      isRead: false,
+      meta: JSON.stringify({ badgeSlug: 'speed-demon' }),
+    },
+    {
+      userId: 'user_admin_quizarena',
+      type: 'NEW_FOLLOWER',
+      title: 'New follower',
+      message: 'Alice is now following you.',
+      isRead: false,
+      meta: JSON.stringify({ followerId: 'user_demo_alice' }),
+    },
+    {
+      userId: 'user_demo_bob',
+      type: 'QUIZ_PLAYED',
+      title: 'Quiz completed',
+      message: 'Your quiz "World War II" was played 10 times today.',
+      isRead: true,
+      meta: JSON.stringify({ quizTitle: 'World War II', playsToday: 10 }),
+    },
+  ] as const
+
+  for (const notification of notificationSeedData) {
+    await prisma.notification.create({ data: notification })
+  }
+  console.log(`  ✓ Seeded ${notificationSeedData.length} notifications`)
 
   // ------------------------------------------------------------------
   // Phase 4 moderation seed data
@@ -459,6 +561,8 @@ async function main() {
   console.log('   Badges:    ', await prisma.badge.count())
   console.log('   Users:     ', await prisma.user.count())
   console.log('   Sessions:  ', await prisma.playSession.count())
+  console.log('   Notifications:', await prisma.notification.count())
+  console.log('   Favorites:    ', await prisma.favoriteQuiz.count())
   console.log('   Reports:   ', await prisma.report.count())
   console.log('   Suggestions:', await prisma.categorySuggestion.count())
 }
