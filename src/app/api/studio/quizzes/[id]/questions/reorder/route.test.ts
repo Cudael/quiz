@@ -47,10 +47,13 @@ describe('PATCH /api/studio/quizzes/[id]/questions/reorder', () => {
   it('updates orders for quiz questions', async () => {
     authMock.mockResolvedValue({ user: { id: 'user_1', role: 'USER' } })
     prismaMock.quiz.findUnique.mockResolvedValue({ id: 'quiz_1', authorId: 'user_1' })
-    prismaMock.question.findMany.mockResolvedValue([{ id: 'q1' }, { id: 'q2' }])
+    prismaMock.question.findMany.mockResolvedValue([
+      { id: 'ckq6xdr2w0000u3z5f6l6x4t5' },
+      { id: 'ckq6xdr2w0000u3z5f6l6x4t6' },
+    ])
     prismaMock.question.update
-      .mockResolvedValueOnce({ id: 'q1' })
-      .mockResolvedValueOnce({ id: 'q2' })
+      .mockResolvedValueOnce({ id: 'ckq6xdr2w0000u3z5f6l6x4t5' })
+      .mockResolvedValueOnce({ id: 'ckq6xdr2w0000u3z5f6l6x4t6' })
     prismaMock.$transaction.mockImplementation(async (operations: Array<Promise<unknown>>) =>
       Promise.all(operations)
     )

@@ -39,13 +39,8 @@ const QUESTION_TYPES: Array<{ type: QuestionType; label: string }> = [
 ]
 
 export function StepQuestions({ quizId }: StepQuestionsProps) {
-  const {
-    questions,
-    addQuestion,
-    updateQuestion,
-    removeQuestion,
-    setQuestions: replaceQuestions,
-  } = useQuizCreatorStore()
+  const { questions, addQuestion, updateQuestion, removeQuestion, setQuestions } =
+    useQuizCreatorStore()
   const defaultTimeLimitSec = useQuizCreatorStore((state) => state.defaultTimeLimitSec)
   const { addToast } = useToast()
 
@@ -95,7 +90,7 @@ export function StepQuestions({ quizId }: StepQuestionsProps) {
     if (oldIndex === -1 || newIndex === -1) return
 
     const nextQuestions = arrayMove(questions, oldIndex, newIndex)
-    replaceQuestions(nextQuestions)
+    setQuestions(nextQuestions)
 
     const persistedQuestions = nextQuestions.reduce<Array<{ id: string; order: number }>>(
       (items, question, index) => {
