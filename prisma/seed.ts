@@ -356,7 +356,7 @@ async function main() {
   sessionData.push(...generatedSessions)
 
   let sessionCount = 0
-  let firstSessionId: string | null = null
+  let sessionIdForAnswers: string | null = null
   const now = new Date()
   for (const s of sessionData) {
     const quizId = quizMap[s.quizTitle]
@@ -386,8 +386,8 @@ async function main() {
         ),
       },
     })
-    if (!firstSessionId) {
-      firstSessionId = createdSession.id
+    if (!sessionIdForAnswers) {
+      sessionIdForAnswers = createdSession.id
     }
     sessionCount++
   }
@@ -396,7 +396,7 @@ async function main() {
   // ------------------------------------------------------------------
   // Per-question answer data for seeded sessions
   // ------------------------------------------------------------------
-  if (!firstSessionId) {
+  if (!sessionIdForAnswers) {
     throw new Error('Expected at least one play session to seed question answers.')
   }
 
@@ -432,7 +432,7 @@ async function main() {
 
     await prisma.questionAnswer.create({
       data: {
-        sessionId: firstSessionId,
+        sessionId: sessionIdForAnswers,
         questionId: question.id,
         chosenIds: JSON.stringify([selectedChoice.id]),
         isCorrect: selectedChoice.isCorrect,
