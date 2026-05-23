@@ -39,8 +39,13 @@ const QUESTION_TYPES: Array<{ type: QuestionType; label: string }> = [
 ]
 
 export function StepQuestions({ quizId }: StepQuestionsProps) {
-  const { questions, addQuestion, updateQuestion, removeQuestion, setQuestions } =
-    useQuizCreatorStore()
+  const {
+    questions,
+    addQuestion,
+    updateQuestion,
+    removeQuestion,
+    setQuestions: replaceQuestions,
+  } = useQuizCreatorStore()
   const defaultTimeLimitSec = useQuizCreatorStore((state) => state.defaultTimeLimitSec)
   const { addToast } = useToast()
 
@@ -90,7 +95,7 @@ export function StepQuestions({ quizId }: StepQuestionsProps) {
     if (oldIndex === -1 || newIndex === -1) return
 
     const nextQuestions = arrayMove(questions, oldIndex, newIndex)
-    setQuestions(nextQuestions)
+    replaceQuestions(nextQuestions)
 
     const persistedQuestions = nextQuestions.flatMap((question, index) =>
       question.dbId ? [{ id: question.dbId, order: index }] : []
@@ -212,6 +217,7 @@ function SortableQuestionItem({
     id: questionId,
     disabled,
   })
+  const sortableProps = disabled ? undefined : { ...attributes, ...listeners }
 
   return (
     <div
@@ -220,8 +226,7 @@ function SortableQuestionItem({
         transform: CSS.Transform.toString(transform),
         transition,
       }}
-      {...(disabled ? {} : attributes)}
-      {...(disabled ? {} : listeners)}
+      {...sortableProps}
     >
       {children}
     </div>
