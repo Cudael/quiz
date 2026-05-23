@@ -19,6 +19,7 @@ describe('quizSchema', () => {
         coverImage: 'https://example.com/cover.png',
         categoryId: 'ckq6xdr2w0000u3z5f6l6x4t5',
         difficulty: 'MEDIUM',
+        defaultTimeLimitSec: 30,
         isPublished: true,
       }).success
     ).toBe(true)
@@ -36,6 +37,19 @@ describe('quizSchema', () => {
       }).success
     ).toBe(false)
   })
+
+  it('rejects out-of-range default time limit overrides', () => {
+    expect(
+      quizSchema.safeParse({
+        title: 'Sample Quiz',
+        description: 'A valid description',
+        categoryId: 'ckq6xdr2w0000u3z5f6l6x4t5',
+        difficulty: 'MEDIUM',
+        defaultTimeLimitSec: 4,
+        isPublished: true,
+      }).success
+    ).toBe(false)
+  })
 })
 
 describe('questionSchema', () => {
@@ -48,6 +62,16 @@ describe('questionSchema', () => {
         { text: '3', isCorrect: false },
         { text: '4', isCorrect: false },
       ],
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('requires the fill blank placeholder for FILL_BLANK prompts', () => {
+    const result = questionSchema.safeParse({
+      type: 'FILL_BLANK',
+      prompt: 'The capital of France is Paris.',
+      timeLimitSec: 20,
+      choices: [{ text: 'Paris', isCorrect: true }],
     })
     expect(result.success).toBe(false)
   })

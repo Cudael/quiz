@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import type { Prisma } from '@prisma/client'
 import { z } from 'zod'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
@@ -104,6 +105,9 @@ export async function createQuiz(formData: FormData): Promise<ActionResult> {
     coverImage: formData.get('coverImage') || undefined,
     categoryId: formData.get('categoryId'),
     difficulty: formData.get('difficulty'),
+    defaultTimeLimitSec: formData.get('defaultTimeLimitSec')
+      ? Number(formData.get('defaultTimeLimitSec'))
+      : undefined,
     isPublished: formData.get('isPublished') === 'on',
   })
 
@@ -111,13 +115,13 @@ export async function createQuiz(formData: FormData): Promise<ActionResult> {
     return { ok: false, error: 'VALIDATION_ERROR', message: 'Invalid quiz input.' }
   }
 
-  await prisma.quiz.create({
-    data: {
-      ...parsed.data,
-      coverImage: parsed.data.coverImage ?? null,
-      authorId: session.user.id,
-    },
-  })
+  const data: Prisma.QuizUncheckedCreateInput = {
+    ...parsed.data,
+    coverImage: parsed.data.coverImage ?? null,
+    authorId: session.user.id,
+  }
+
+  await prisma.quiz.create({ data })
 
   revalidatePath('/studio')
   return { ok: true }
@@ -140,6 +144,9 @@ export async function updateQuiz(formData: FormData): Promise<ActionResult> {
     coverImage: formData.get('coverImage') || undefined,
     categoryId: formData.get('categoryId'),
     difficulty: formData.get('difficulty'),
+    defaultTimeLimitSec: formData.get('defaultTimeLimitSec')
+      ? Number(formData.get('defaultTimeLimitSec'))
+      : undefined,
     isPublished: formData.get('isPublished') === 'on',
   })
   if (!parsed.success) {
@@ -151,12 +158,14 @@ export async function updateQuiz(formData: FormData): Promise<ActionResult> {
     return allowed
   }
 
+  const data: Prisma.QuizUncheckedUpdateInput = {
+    ...parsed.data,
+    coverImage: parsed.data.coverImage ?? null,
+  }
+
   await prisma.quiz.update({
     where: { id: quizIdParsed.data },
-    data: {
-      ...parsed.data,
-      coverImage: parsed.data.coverImage ?? null,
-    },
+    data,
   })
 
   revalidatePath('/studio')

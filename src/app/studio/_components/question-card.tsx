@@ -5,6 +5,7 @@ import { ChevronDown, ChevronUp, GripVertical, Loader2, Check, Trash2 } from 'lu
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { FILL_BLANK_PLACEHOLDER } from '@/domain/quiz-constants'
 import { ImageUrlInput } from './image-url-input'
 import { QuestionTypeIcon } from './question-type-icon'
 import { addQuestion, updateQuestion } from '@/app/studio/actions/question-actions'
@@ -69,6 +70,7 @@ export function QuestionCard({
     formData.set('imageUrl', question.imageUrl)
     formData.set('explanation', question.explanation)
     formData.set('timeLimitSec', String(question.timeLimitSec))
+    formData.set('order', String(index))
     formData.set(
       'choices',
       JSON.stringify(question.choices.map((c) => ({ text: c.text, isCorrect: c.isCorrect })))
@@ -83,6 +85,9 @@ export function QuestionCard({
     }
 
     if (result.ok) {
+      if ('questionId' in result) {
+        onUpdate({ dbId: result.questionId })
+      }
       setSaveState('saved')
       setTimeout(() => setSaveState('idle'), 2000)
     } else {
@@ -180,10 +185,16 @@ export function QuestionCard({
               className="w-full rounded-md border bg-background px-3 py-2 text-sm"
               placeholder={
                 question.type === 'FILL_BLANK'
-                  ? 'Use {{blank}} as the placeholder, e.g. The capital of France is {{blank}}.'
+                  ? `Include ${FILL_BLANK_PLACEHOLDER} exactly once, e.g. The capital of France is ${FILL_BLANK_PLACEHOLDER}.`
                   : 'Enter your question...'
               }
             />
+            {question.type === 'FILL_BLANK' && (
+              <p className="text-xs text-muted-foreground">
+                Include {FILL_BLANK_PLACEHOLDER} exactly once in the prompt so players know where to
+                type the missing answer.
+              </p>
+            )}
           </div>
 
           {/* Time limit */}

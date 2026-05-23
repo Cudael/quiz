@@ -31,6 +31,7 @@ export interface QuizCreatorState {
   categoryId: string
   difficulty: Difficulty
   imageUrl: string
+  defaultTimeLimitSec: number | null
   isPublished: boolean
   questions: DraftQuestion[]
   currentStep: 1 | 2 | 3 | 4
@@ -44,7 +45,13 @@ export interface QuizCreatorActions {
     meta: Partial<
       Pick<
         QuizCreatorState,
-        'title' | 'description' | 'categoryId' | 'difficulty' | 'imageUrl' | 'isPublished'
+        | 'title'
+        | 'description'
+        | 'categoryId'
+        | 'difficulty'
+        | 'imageUrl'
+        | 'defaultTimeLimitSec'
+        | 'isPublished'
       >
     >
   ) => void
@@ -71,6 +78,7 @@ const initialState: QuizCreatorState = {
   categoryId: '',
   difficulty: 'MEDIUM',
   imageUrl: '',
+  defaultTimeLimitSec: null,
   isPublished: false,
   questions: [],
   currentStep: 1,

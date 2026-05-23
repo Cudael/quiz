@@ -7,6 +7,7 @@ export const quizSchema = z.object({
   coverImage: z.string().trim().url().optional(),
   categoryId: z.string().cuid(),
   difficulty: z.enum(['EASY', 'MEDIUM', 'HARD']),
+  defaultTimeLimitSec: z.number().int().min(5).max(120).optional(),
   isPublished: z.boolean().default(false),
 })
 

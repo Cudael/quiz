@@ -1,6 +1,8 @@
 'use client'
 
 import { cn } from '@/lib/utils'
+import { Input } from '@/components/ui/input'
+import { DEFAULT_TIME_LIMIT_SEC } from '@/domain/quiz-constants'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import { ImageUrlInput } from './image-url-input'
 import { TemplatePicker, QUIZ_TEMPLATES } from './template-picker'
@@ -79,6 +81,7 @@ export function StepMeta({ categories }: StepMetaProps) {
     categoryId,
     difficulty,
     imageUrl,
+    defaultTimeLimitSec,
     selectedTemplateId,
     setMeta,
     applyTemplate,
@@ -187,6 +190,30 @@ export function StepMeta({ categories }: StepMetaProps) {
           label="Cover image URL (optional)"
           aspectRatio="16/9"
         />
+
+        <div className="space-y-1">
+          <label htmlFor="quiz-default-time-limit" className="block text-sm font-medium">
+            Default time limit (seconds)
+          </label>
+          <Input
+            id="quiz-default-time-limit"
+            type="number"
+            min={5}
+            max={120}
+            step={1}
+            placeholder="20"
+            value={defaultTimeLimitSec ?? ''}
+            onChange={(event) =>
+              setMeta({
+                defaultTimeLimitSec: event.target.value === '' ? null : Number(event.target.value),
+              })
+            }
+          />
+          <p className="text-xs text-muted-foreground">
+            Optional. New questions will start with this time limit instead of{' '}
+            {DEFAULT_TIME_LIMIT_SEC} seconds.
+          </p>
+        </div>
       </div>
 
       {/* Right column */}
