@@ -19,7 +19,7 @@ import { copy } from '@/lib/copy'
 import { GuestUpgradePrompt } from '@/components/auth/guest-upgrade-prompt'
 import { renderFillBlankPrompt } from '@/domain/quiz-constants'
 
-function parseChosenIds(value: string) {
+function parseChosenIdsFromJson(value: string) {
   try {
     const parsed = JSON.parse(value)
     return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string') : []
@@ -134,7 +134,7 @@ export default async function ResultsPage({
       answer.questionId,
       {
         ...answer,
-        chosenIds: parseChosenIds(answer.chosenIds),
+        chosenIds: parseChosenIdsFromJson(answer.chosenIds),
       },
     ])
   )

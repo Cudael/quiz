@@ -4,5 +4,5 @@ export const DEFAULT_TIME_LIMIT_SEC = 20
 export const IMPORT_QUESTION_BATCH_SIZE = 50
 
 export function renderFillBlankPrompt(prompt: string, blank = '_____') {
-  return prompt.replace(FILL_BLANK_PLACEHOLDER, blank)
+  return prompt.replace('{{blank}}', blank)
 }

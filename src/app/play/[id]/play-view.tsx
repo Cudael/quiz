@@ -42,12 +42,27 @@ interface PlayViewProps {
 
 const SOUND_PREFERENCE_STORAGE_KEY = 'quiz-sound-enabled'
 
+// Fill-in-the-blank matching ignores surrounding whitespace and letter casing.
 function normalizeBlankAnswer(value: string) {
   return value.trim().toLowerCase()
 }
 
+// Question images can come from arbitrary quiz-authored URLs, so this loader intentionally
+// bypasses Next's remote-pattern restrictions while still using the <Image> component layout API.
 function imageLoader({ src }: { src: string }) {
   return src
+}
+
+function getQuestionImageSrc(imageUrl?: string | null) {
+  if (!imageUrl) return null
+  if (imageUrl.startsWith('/')) return imageUrl
+
+  try {
+    const parsedUrl = new URL(imageUrl)
+    return parsedUrl.protocol === 'https:' || parsedUrl.protocol === 'http:' ? imageUrl : null
+  } catch {
+    return null
+  }
 }
 
 function CountdownRing({
@@ -528,6 +543,7 @@ export function PlayView({ quizId }: PlayViewProps) {
     currentQuestion.type === 'FILL_BLANK'
       ? renderFillBlankPrompt(currentQuestion.prompt)
       : currentQuestion.prompt
+  const questionImageSrc = getQuestionImageSrc(currentQuestion.imageUrl)
   const canSubmitCurrentAnswer =
     currentQuestion.type === 'FILL_BLANK'
       ? fillBlankValue.trim().length > 0
@@ -605,13 +621,13 @@ export function PlayView({ quizId }: PlayViewProps) {
           transition={{ duration: 0.25 }}
         >
           <div className="mb-6 space-y-4">
-            {currentQuestion.imageUrl ? (
+            {questionImageSrc ? (
               <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-muted/20">
                 <Image
                   loader={imageLoader}
                   unoptimized
-                  src={currentQuestion.imageUrl}
-                  alt={`Illustration for question ${store.currentQuestionIndex + 1}`}
+                  src={questionImageSrc}
+                  alt={`Question illustration: ${renderedPrompt}`}
                   width={1200}
                   height={675}
                   sizes="(max-width: 768px) 100vw, 768px"
@@ -653,7 +669,7 @@ export function PlayView({ quizId }: PlayViewProps) {
                 id={`fill-blank-help-${currentQuestion.id}`}
                 className="text-xs text-muted-foreground"
               >
-                Press Enter or Space to submit your answer.
+                Press Enter to submit your answer.
               </p>
             </div>
           ) : (

@@ -20,35 +20,29 @@ vi.mock('next/image', () => ({
   default: ({
     src,
     alt,
-    loader: _loader,
-    unoptimized: _unoptimized,
     ...props
   }: {
     src: string
     alt: string
     loader?: unknown
     unoptimized?: boolean
+    [key: string]: unknown
   }) => {
-    void _loader
-    void _unoptimized
-    return <img src={src} alt={alt} {...props} />
+    const passthroughProps = { ...props }
+    delete passthroughProps.loader
+    delete passthroughProps.unoptimized
+    return <img src={src} alt={alt} {...passthroughProps} />
   },
 }))
 
 vi.mock('framer-motion', () => {
   const MotionDiv = ({ children, ...props }: { children: ReactNode; [key: string]: unknown }) => {
-    const {
-      initial: _initial,
-      animate: _animate,
-      exit: _exit,
-      transition: _transition,
-      ...rest
-    } = props
-    void _initial
-    void _animate
-    void _exit
-    void _transition
-    return <div {...rest}>{children}</div>
+    const passthroughProps = { ...props }
+    delete passthroughProps.initial
+    delete passthroughProps.animate
+    delete passthroughProps.exit
+    delete passthroughProps.transition
+    return <div {...passthroughProps}>{children}</div>
   }
 
   return {
@@ -107,7 +101,9 @@ describe('PlayView', () => {
     const { unmount } = render(<PlayView quizId="quiz-1" />)
 
     expect(
-      await screen.findByRole('img', { name: /illustration for question 1/i })
+      await screen.findByRole('img', {
+        name: /question illustration: which planet is closest to the sun\?/i,
+      })
     ).toHaveAttribute('src', 'https://cdn.example.com/mercury.png')
 
     fireEvent.click(screen.getByRole('button', { name: /mute sound/i }))

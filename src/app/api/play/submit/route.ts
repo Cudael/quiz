@@ -24,6 +24,10 @@ interface SubmitBody {
   guestName?: string
 }
 
+function sanitizeChoiceIds(choiceIds: string[], validChoiceIds: Set<string>) {
+  return Array.from(new Set(choiceIds.filter((choiceId) => validChoiceIds.has(choiceId)))).sort()
+}
+
 export async function POST(req: NextRequest) {
   const authSession = await auth()
   let body: SubmitBody
@@ -98,9 +102,7 @@ export async function POST(req: NextRequest) {
       .filter((c) => c.isCorrect)
       .map((c) => c.id)
       .sort()
-    const givenIds = Array.from(
-      new Set(answer.choiceIds.filter((choiceId) => validChoiceIds.has(choiceId)))
-    ).sort()
+    const givenIds = sanitizeChoiceIds(answer.choiceIds, validChoiceIds)
     const isCorrect =
       correctChoiceIds.length === givenIds.length &&
       correctChoiceIds.every((id, i) => id === givenIds[i])
