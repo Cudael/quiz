@@ -84,7 +84,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
             <p className="px-3 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
               System
             </p>
-            <AdminNavLink href="/admin/audit">
+            <AdminNavLink href="/admin/audit-log">
               <ScrollText className="h-4 w-4" />
               <span>Audit Log</span>
             </AdminNavLink>
