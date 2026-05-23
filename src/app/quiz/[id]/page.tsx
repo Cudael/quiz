@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar } from '@/components/ui/avatar'
+import { serializeJsonLd } from '@/lib/seo'
 import { prisma } from '@/server/prisma'
 import { ModeSelector } from './mode-selector'
 import { ReportQuizForm } from '../report-quiz-form'
@@ -49,6 +50,9 @@ export async function generateMetadata({
   return {
     title,
     description,
+    alternates: {
+      canonical: `/quiz/${id}`,
+    },
     openGraph: { title, description, url },
     twitter: { card: 'summary_large_image', title, description },
   }
@@ -91,9 +95,28 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
   }
 
   const questionCount = quiz.questions.length
+  const educationalLevel =
+    quiz.difficulty === 'EASY'
+      ? 'beginner'
+      : quiz.difficulty === 'HARD'
+        ? 'advanced'
+        : 'intermediate'
+  const quizJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Quiz',
+    name: quiz.title,
+    description: quiz.description || `Take ${quiz.title} and climb the leaderboard on QuizArena.`,
+    author: { '@type': 'Person', name: quiz.author.name },
+    educationalLevel,
+    numberOfQuestions: questionCount,
+  }
 
   return (
     <div className="container mx-auto px-4 py-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(quizJsonLd) }}
+      />
       {/* Back */}
       <div className="mb-6">
         <Button variant="ghost" asChild>

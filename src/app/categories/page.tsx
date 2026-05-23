@@ -11,6 +11,9 @@ import type { QuizCardData } from '@/components/ui/quiz-card'
 export const metadata: Metadata = {
   title: 'Categories | QuizArena',
   description: 'Browse quiz categories and jump into your next challenge.',
+  alternates: {
+    canonical: '/categories',
+  },
   openGraph: {
     title: 'QuizArena Categories',
     description: 'Browse quiz categories and discover new challenges.',

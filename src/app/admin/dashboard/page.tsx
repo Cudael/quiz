@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import type { LucideIcon } from 'lucide-react'
 import { BookOpen, EyeOff, Flag, Lightbulb, Play, TrendingUp, UserPlus, Users } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
@@ -130,7 +131,15 @@ export default async function AdminDashboardPage() {
       <Card>
         <CardContent className="pt-6">
           <div className="mb-4">
-            <h2 className="text-xl font-bold">Recent Activity</h2>
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-xl font-bold">Recent Actions</h2>
+              <Link
+                href="/admin/audit-log"
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              >
+                View all →
+              </Link>
+            </div>
             <p className="text-sm text-muted-foreground">
               The latest five admin actions across the site.
             </p>
