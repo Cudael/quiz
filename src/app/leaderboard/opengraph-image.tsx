@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og'
-import { prisma } from '@/server/prisma'
+import { getLeaderboardTopPlayerNames } from '@/server/leaderboard'
 
 export const alt = 'Leaderboard card'
 export const size = { width: 1200, height: 630 }
@@ -33,15 +33,13 @@ export function renderLeaderboardOgCard(topPlayers: string[]) {
 }
 
 export default async function Image() {
-  const sessions = await prisma.playSession.findMany({
-    include: { user: { select: { name: true } } },
-    orderBy: { score: 'desc' },
-    take: 3,
-  })
+  let topPlayers: string[] = []
 
-  const topPlayers = sessions.map(
-    (sessionRow) => sessionRow.user?.name ?? sessionRow.guestName ?? 'Guest'
-  )
+  try {
+    topPlayers = await getLeaderboardTopPlayerNames()
+  } catch {
+    topPlayers = []
+  }
 
   return new ImageResponse(renderLeaderboardOgCard(topPlayers), size)
 }

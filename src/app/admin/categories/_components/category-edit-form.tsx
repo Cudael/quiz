@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -123,11 +124,13 @@ export function CategoriesClient({ categories }: { categories: CategoryRecord[] 
                 <h2 className="font-semibold">{category.name}</h2>
                 <p className="line-clamp-2 text-sm text-muted-foreground">{category.description}</p>
                 {category.imageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    alt={category.name}
-                    className="h-10 w-16 rounded object-cover"
+                  <Image
+                    alt={`${category.name} category image`}
+                    className="rounded object-cover"
+                    height={40}
                     src={category.imageUrl}
+                    unoptimized
+                    width={64}
                   />
                 ) : null}
               </div>
