@@ -101,6 +101,7 @@ export async function createQuiz(formData: FormData): Promise<ActionResult> {
   const parsed = quizInputSchema.safeParse({
     title: formData.get('title'),
     description: formData.get('description'),
+    coverImage: formData.get('coverImage') || undefined,
     categoryId: formData.get('categoryId'),
     difficulty: formData.get('difficulty'),
     isPublished: formData.get('isPublished') === 'on',
@@ -113,6 +114,7 @@ export async function createQuiz(formData: FormData): Promise<ActionResult> {
   await prisma.quiz.create({
     data: {
       ...parsed.data,
+      coverImage: parsed.data.coverImage ?? null,
       authorId: session.user.id,
     },
   })
@@ -135,6 +137,7 @@ export async function updateQuiz(formData: FormData): Promise<ActionResult> {
   const parsed = quizInputSchema.safeParse({
     title: formData.get('title'),
     description: formData.get('description'),
+    coverImage: formData.get('coverImage') || undefined,
     categoryId: formData.get('categoryId'),
     difficulty: formData.get('difficulty'),
     isPublished: formData.get('isPublished') === 'on',
@@ -150,7 +153,10 @@ export async function updateQuiz(formData: FormData): Promise<ActionResult> {
 
   await prisma.quiz.update({
     where: { id: quizIdParsed.data },
-    data: parsed.data,
+    data: {
+      ...parsed.data,
+      coverImage: parsed.data.coverImage ?? null,
+    },
   })
 
   revalidatePath('/studio')

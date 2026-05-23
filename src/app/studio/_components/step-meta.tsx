@@ -184,7 +184,7 @@ export function StepMeta({ categories }: StepMetaProps) {
         <ImageUrlInput
           value={imageUrl}
           onChange={(v) => setMeta({ imageUrl: v })}
-          label="Cover image (optional)"
+          label="Cover image URL (optional)"
           aspectRatio="16/9"
         />
       </div>

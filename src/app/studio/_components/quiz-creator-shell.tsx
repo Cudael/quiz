@@ -24,6 +24,7 @@ interface InitialQuiz {
   id: string
   title: string
   description: string
+  coverImage: string | null
   categoryId: string
   difficulty: string
   isPublished: boolean
@@ -78,7 +79,7 @@ export function QuizCreatorShell({
         categoryId: initialData.quiz.categoryId,
         difficulty: initialData.quiz.difficulty as 'EASY' | 'MEDIUM' | 'HARD',
         isPublished: initialData.quiz.isPublished,
-        imageUrl: '',
+        imageUrl: initialData.quiz.coverImage ?? '',
       })
       const questions: DraftQuestion[] = initialData.questions.map((q) => ({
         localId: crypto.randomUUID(),
@@ -108,6 +109,7 @@ export function QuizCreatorShell({
     currentStep,
     title,
     description,
+    imageUrl,
     categoryId,
     difficulty,
     isPublished,
@@ -126,6 +128,7 @@ export function QuizCreatorShell({
       const fd = new FormData()
       fd.set('title', safeTitle)
       fd.set('description', safeDescription)
+      fd.set('coverImage', imageUrl.trim())
       fd.set('categoryId', safeCategoryId)
       fd.set('difficulty', difficulty)
       const result = await createQuizAndReturnId(fd)
@@ -139,6 +142,7 @@ export function QuizCreatorShell({
       fd.set('quizId', quizId)
       fd.set('title', safeTitle)
       fd.set('description', safeDescription)
+      fd.set('coverImage', imageUrl.trim())
       fd.set('categoryId', safeCategoryId)
       fd.set('difficulty', difficulty)
       if (isPublished) fd.set('isPublished', 'on')

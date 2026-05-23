@@ -26,7 +26,15 @@ export default async function StudioPage({
       authorId: session.user.id,
       isPublished: activeTab === 'published',
     },
-    include: {
+    select: {
+      id: true,
+      title: true,
+      coverImage: true,
+      difficulty: true,
+      playCount: true,
+      avgScore: true,
+      updatedAt: true,
+      isPublished: true,
       category: { select: { name: true, color: true } },
       questions: { select: { id: true } },
     },
@@ -84,12 +92,21 @@ export default async function StudioPage({
               {quizzes.map((quiz) => (
                 <tr key={quiz.id} className="border-t">
                   <td className="px-4 py-3">
-                    <div
-                      className="h-6 w-6 rounded-full border"
-                      style={{
-                        background: quiz.category.color,
-                      }}
-                    />
+                    {quiz.coverImage ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={quiz.coverImage}
+                        alt={quiz.title}
+                        className="h-10 w-16 rounded-md border object-cover"
+                      />
+                    ) : (
+                      <div
+                        className="h-6 w-6 rounded-full border"
+                        style={{
+                          background: quiz.category.color,
+                        }}
+                      />
+                    )}
                   </td>
                   <td className="px-4 py-3 font-medium">{quiz.title}</td>
                   <td className="px-4 py-3">{quiz.category.name}</td>

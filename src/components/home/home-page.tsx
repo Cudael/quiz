@@ -4,16 +4,17 @@ import {
   HomePageClient,
   type HomeCurrentUser,
   type HomeFeaturedCategory,
-  type HomeQuizCard,
   type HomeStats,
   type HomeTopPlayer,
 } from '@/components/home/home-page-client'
+import type { QuizCardData } from '@/components/ui/quiz-card'
 import { Skeleton } from '@/components/ui/skeleton'
 
 const FALLBACK_CATEGORY_GRADIENT = 'var(--background-image-card-gradient)'
 const PUBLISHED_QUIZ_SELECT = {
   id: true,
   title: true,
+  coverImage: true,
   difficulty: true,
   playCount: true,
   avgScore: true,
@@ -30,27 +31,23 @@ const PUBLISHED_QUIZ_SELECT = {
 function mapQuizCard(quiz: {
   id: string
   title: string
+  coverImage: string | null
   difficulty: string
-  playCount: number
-  avgScore: number
   category: {
-    slug: string
     name: string
-    icon: string
     color: string
   }
-}): HomeQuizCard {
+}): QuizCardData {
   return {
     id: quiz.id,
     title: quiz.title,
+    coverImage: quiz.coverImage,
     difficulty:
       quiz.difficulty === 'EASY' || quiz.difficulty === 'MEDIUM' || quiz.difficulty === 'HARD'
         ? quiz.difficulty
         : 'MEDIUM',
-    playCount: quiz.playCount,
-    avgScore: quiz.avgScore,
     category: {
-      ...quiz.category,
+      name: quiz.category.name,
       color: quiz.category.color || FALLBACK_CATEGORY_GRADIENT,
     },
   }
@@ -60,9 +57,9 @@ async function getHomePageData(): Promise<{
   featuredCategories: HomeFeaturedCategory[]
   topPlayers: HomeTopPlayer[]
   stats: HomeStats
-  popularQuizzes: HomeQuizCard[]
-  newestQuizzes: HomeQuizCard[]
-  personalizedQuizzes: HomeQuizCard[]
+  popularQuizzes: QuizCardData[]
+  newestQuizzes: QuizCardData[]
+  personalizedQuizzes: QuizCardData[]
   currentUser: HomeCurrentUser | null
 }> {
   const [
@@ -192,7 +189,7 @@ async function getHomePageData(): Promise<{
     })
     .filter((player): player is HomeTopPlayer => !!player)
 
-  let personalizedQuizzes: HomeQuizCard[] = []
+  let personalizedQuizzes: QuizCardData[] = []
 
   if (isAuthenticatedUser && session?.user?.id) {
     const userSessions = await prisma.playSession.findMany({

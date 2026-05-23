@@ -53,6 +53,7 @@ export function StepPublish({ quizId }: StepPublishProps) {
     fd.set('quizId', quizId)
     fd.set('title', title)
     fd.set('description', description)
+    fd.set('coverImage', imageUrl.trim())
     fd.set('categoryId', categoryId)
     fd.set('difficulty', difficulty)
     if (!isPublished) fd.set('isPublished', 'on')
@@ -83,7 +84,7 @@ export function StepPublish({ quizId }: StepPublishProps) {
       <ImageUrlInput
         value={imageUrl}
         onChange={(v) => setMeta({ imageUrl: v })}
-        label="Cover image (optional)"
+        label="Cover image URL (optional)"
         aspectRatio="16/9"
       />
 

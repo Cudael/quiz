@@ -28,6 +28,7 @@ export async function generateMetadata({
     select: {
       title: true,
       description: true,
+      coverImage: true,
       category: { select: { name: true } },
       author: { select: { name: true } },
     },
@@ -58,7 +59,14 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
 
   const quiz = await prisma.quiz.findUnique({
     where: { id },
-    include: {
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      coverImage: true,
+      difficulty: true,
+      playCount: true,
+      avgScore: true,
       category: true,
       author: { select: { id: true, name: true, image: true } },
       questions: { select: { id: true } },
@@ -99,6 +107,24 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
       <div className="grid gap-8 lg:grid-cols-3">
         {/* Main content */}
         <div className="lg:col-span-2">
+          <div className="mb-6 overflow-hidden rounded-2xl border">
+            {quiz.coverImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={quiz.coverImage}
+                alt={`${quiz.title} cover`}
+                className="h-56 w-full object-cover md:h-64"
+              />
+            ) : (
+              <div
+                className="h-56 w-full md:h-64"
+                style={{
+                  background: `linear-gradient(135deg, ${quiz.category.color} 0%, #111827 100%)`,
+                }}
+              />
+            )}
+          </div>
+
           {/* Header */}
           <div className="mb-6">
             <div className="mb-3 flex flex-wrap gap-2">

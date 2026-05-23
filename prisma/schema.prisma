@@ -61,6 +61,7 @@ model Quiz {
   id          String   @id @default(cuid())
   title       String
   description String
+  coverImage  String?
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id])
   difficulty  String   @default("MEDIUM") // Difficulty: EASY | MEDIUM | HARD

@@ -4,6 +4,7 @@ import { FILL_BLANK_PLACEHOLDER } from '@/domain/quiz-constants'
 export const quizSchema = z.object({
   title: z.string().trim().min(1).max(120),
   description: z.string().trim().min(1).max(500),
+  coverImage: z.string().trim().url().optional(),
   categoryId: z.string().cuid(),
   difficulty: z.enum(['EASY', 'MEDIUM', 'HARD']),
   isPublished: z.boolean().default(false),
