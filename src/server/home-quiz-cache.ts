@@ -1,10 +1,10 @@
 import { Prisma } from '@prisma/client'
 import { unstable_cache } from 'next/cache'
+import { WEEK_IN_MS } from '@/lib/time'
 import { prisma } from '@/server/prisma'
 
 export const HOME_POPULAR_QUIZZES_TAG = 'home-popular-quizzes'
 export const HOME_TRENDING_QUIZZES_TAG = 'home-trending-quizzes'
-const TRENDING_WINDOW_MS = 7 * 24 * 60 * 60 * 1000
 
 export const HOME_QUIZ_SELECT = {
   id: true,
@@ -42,7 +42,7 @@ const getPopularQuizzesCached = unstable_cache(
 
 const getTrendingQuizzesCached = unstable_cache(
   async () => {
-    const sevenDaysAgo = new Date(Date.now() - TRENDING_WINDOW_MS)
+    const sevenDaysAgo = new Date(Date.now() - WEEK_IN_MS)
     const quizGroups = await prisma.playSession.groupBy({
       by: ['quizId'],
       where: {

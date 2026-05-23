@@ -251,9 +251,7 @@ async function getHomePageData(): Promise<{
       totalCategories,
     },
     popularQuizzes: popularQuizzesRaw.map(mapQuizCard),
-    trendingQuizzes: (trendingQuizzesRaw.length > 0 ? trendingQuizzesRaw : popularQuizzesRaw).map(
-      mapQuizCard
-    ),
+    trendingQuizzes: trendingQuizzesRaw.map(mapQuizCard),
     newestQuizzes: newestQuizzesRaw.map(mapQuizCard),
     personalizedQuizzes,
     currentUser,

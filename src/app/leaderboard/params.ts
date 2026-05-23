@@ -1,3 +1,5 @@
+import { WEEK_IN_MS } from '@/lib/time'
+
 export type PeriodFilter = 'all' | 'week' | 'today'
 export type ModeFilter = 'ALL' | 'CLASSIC' | 'TIMED' | 'SURVIVAL' | 'DAILY'
 export type SortFilter = 'best' | 'total' | 'plays' | 'accuracy'
@@ -92,7 +94,7 @@ export function getPeriodStart(period: PeriodFilter): Date | undefined {
   }
 
   if (period === 'week') {
-    return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+    return new Date(now.getTime() - WEEK_IN_MS)
   }
 
   return undefined
