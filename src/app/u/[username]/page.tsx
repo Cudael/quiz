@@ -168,12 +168,21 @@ export default async function UserProfilePage({
   )
 
   const isSelf = session?.user?.id === user.id
+  const hasBio = Boolean(user.bio?.trim())
 
   return (
     <div className="container mx-auto px-4 py-8">
       {isSelf ? <GuestUpgradePrompt /> : null}
       <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
         <section className="rounded-xl border border-border bg-card p-6">
+          {user.bannerImage ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={user.bannerImage}
+              alt={`${user.name}'s banner`}
+              className="mb-6 h-32 w-full rounded-lg object-cover"
+            />
+          ) : null}
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <Avatar src={user.image} alt={user.name} fallback={user.name} size="xl" />
@@ -184,6 +193,7 @@ export default async function UserProfilePage({
                   Joined{' '}
                   {new Intl.DateTimeFormat('en', { dateStyle: 'medium' }).format(user.createdAt)}
                 </p>
+                {hasBio ? <p className="mt-2 text-sm text-muted-foreground">{user.bio}</p> : null}
               </div>
             </div>
 

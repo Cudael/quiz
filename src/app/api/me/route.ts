@@ -26,7 +26,7 @@ export async function DELETE(request: Request) {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { username: true, quizzes: { select: { id: true }, take: 1 } },
+    select: { username: true },
   })
 
   if (!user) {
@@ -36,13 +36,6 @@ export async function DELETE(request: Request) {
   const normalizedConfirm = parsed.data.confirmUsername.replace(/^@/, '')
   if (normalizedConfirm !== user.username) {
     return NextResponse.json({ error: GENERIC_ERROR }, { status: 400 })
-  }
-
-  if (user.quizzes.length > 0) {
-    return NextResponse.json(
-      { error: 'Unable to delete account while published or draft quizzes still exist.' },
-      { status: 400 }
-    )
   }
 
   await prisma.user.delete({

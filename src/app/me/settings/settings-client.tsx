@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { signOut } from 'next-auth/react'
 import { useTheme } from '@/components/theme/theme-provider'
+import { Avatar } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Modal } from '@/components/ui/modal'
@@ -19,6 +20,7 @@ interface SettingsClientProps {
     username: string
     bio: string
     image: string
+    bannerImage: string
   }
   email: string | null
   hasPassword: boolean
@@ -33,6 +35,23 @@ async function readErrorMessage(response: Response, fallback: string) {
   } catch {
     return fallback
   }
+}
+
+function isValidImageUrl(value: string) {
+  if (!value.trim()) {
+    return false
+  }
+
+  try {
+    const url = new URL(value)
+    return url.protocol === 'https:' && Boolean(url.hostname)
+  } catch {
+    return false
+  }
+}
+
+function trimOrNull(value: string) {
+  return value.trim() || null
 }
 
 export function SettingsClient({
@@ -103,7 +122,12 @@ export function SettingsClient({
             const response = await fetch('/api/me/profile', {
               method: 'PATCH',
               headers: { 'content-type': 'application/json' },
-              body: JSON.stringify(profile),
+              body: JSON.stringify({
+                ...profile,
+                bio: trimOrNull(profile.bio),
+                image: trimOrNull(profile.image),
+                bannerImage: trimOrNull(profile.bannerImage),
+              }),
             })
 
             if (!response.ok) {
@@ -163,8 +187,38 @@ export function SettingsClient({
               value={profile.image}
               onChange={(event) => setProfile((prev) => ({ ...prev, image: event.target.value }))}
             />
-            {/* TODO: support secure first-party avatar uploads in a follow-up PR. */}
           </div>
+          {isValidImageUrl(profile.image) ? (
+            <div className="space-y-1">
+              <p className="text-sm font-medium">Avatar preview</p>
+              <Avatar src={profile.image} fallback={profile.name} size="xl" />
+            </div>
+          ) : null}
+          <div className="space-y-1">
+            <label htmlFor="settings-banner-image" className="text-sm font-medium">
+              Banner image URL
+            </label>
+            <Input
+              id="settings-banner-image"
+              type="url"
+              placeholder="https://example.com/banner.png"
+              value={profile.bannerImage}
+              onChange={(event) =>
+                setProfile((prev) => ({ ...prev, bannerImage: event.target.value }))
+              }
+            />
+          </div>
+          {isValidImageUrl(profile.bannerImage) ? (
+            <div className="space-y-1">
+              <p className="text-sm font-medium">Banner preview</p>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={profile.bannerImage}
+                alt="Profile banner preview"
+                className="h-28 w-full rounded-lg border border-border object-cover"
+              />
+            </div>
+          ) : null}
           <Button type="submit">Save profile</Button>
         </form>
       </section>

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
+import { OauthProviderButtons } from '@/components/auth/oauth-provider-buttons'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -12,11 +13,17 @@ interface SignInFormProps {
   callbackUrl: string
   googleEnabled: boolean
   githubEnabled: boolean
+  verifiedMessage?: string
 }
 
 const AUTH_ERROR_MESSAGE = 'Sign in failed. Please check your details and try again.'
 
-export function SignInForm({ callbackUrl, googleEnabled, githubEnabled }: SignInFormProps) {
+export function SignInForm({
+  callbackUrl,
+  googleEnabled,
+  githubEnabled,
+  verifiedMessage,
+}: SignInFormProps) {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -24,11 +31,6 @@ export function SignInForm({ callbackUrl, googleEnabled, githubEnabled }: SignIn
   const [error, setError] = useState('')
   const [isSubmittingEmail, setIsSubmittingEmail] = useState(false)
   const [isSubmittingGuest, setIsSubmittingGuest] = useState(false)
-  const oauthProviders = [
-    googleEnabled ? { id: 'google', label: 'Continue with Google' } : null,
-    githubEnabled ? { id: 'github', label: 'Continue with GitHub' } : null,
-  ].filter(Boolean) as Array<{ id: 'google' | 'github'; label: string }>
-
   async function handleEmailPasswordSignIn(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError('')
@@ -80,21 +82,11 @@ export function SignInForm({ callbackUrl, googleEnabled, githubEnabled }: SignIn
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {oauthProviders.length > 0 && (
-            <div className="space-y-2">
-              {oauthProviders.map((provider) => (
-                <Button
-                  key={provider.id}
-                  type="button"
-                  variant={oauthProviders.length === 1 ? 'default' : 'outline'}
-                  className="w-full"
-                  onClick={() => signIn(provider.id, { callbackUrl })}
-                >
-                  {provider.label}
-                </Button>
-              ))}
-            </div>
-          )}
+          <OauthProviderButtons
+            callbackUrl={callbackUrl}
+            googleEnabled={googleEnabled}
+            githubEnabled={githubEnabled}
+          />
 
           <form className="space-y-3" onSubmit={handleEmailPasswordSignIn}>
             <div className="space-y-1">
@@ -155,6 +147,9 @@ export function SignInForm({ callbackUrl, googleEnabled, githubEnabled }: SignIn
           </div>
 
           {error && <p className="text-sm text-destructive">{error}</p>}
+          {verifiedMessage ? (
+            <p className="text-sm text-muted-foreground">{verifiedMessage}</p>
+          ) : null}
           <p className="text-sm text-muted-foreground">
             Need an account?{' '}
             <Link

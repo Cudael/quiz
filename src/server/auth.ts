@@ -57,6 +57,7 @@ const providers = [
           email: true,
           image: true,
           role: true,
+          emailVerified: true,
           passwordHash: true,
         },
       })
@@ -76,6 +77,7 @@ const providers = [
         email: user.email,
         image: user.image,
         role: user.role,
+        emailVerified: user.emailVerified,
       }
     },
   }),
@@ -123,11 +125,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         xp?: number
         level?: number
         streakDays?: number
+        emailVerified?: string | null
       }
 
       if (user) {
         tokenWithProfile.id = user.id
         tokenWithProfile.role = user.role
+        tokenWithProfile.emailVerified = user.emailVerified
+          ? new Date(user.emailVerified).toISOString()
+          : null
       }
 
       if (tokenWithProfile.id) {
@@ -139,6 +145,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             xp: true,
             level: true,
             streakDays: true,
+            emailVerified: true,
           },
         })
 
@@ -148,6 +155,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           tokenWithProfile.xp = dbUser.xp
           tokenWithProfile.level = dbUser.level
           tokenWithProfile.streakDays = dbUser.streakDays
+          tokenWithProfile.emailVerified = dbUser.emailVerified
+            ? dbUser.emailVerified.toISOString()
+            : null
         }
       }
       return token
@@ -161,6 +171,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           xp?: number
           level?: number
           streakDays?: number
+          emailVerified?: string | null
         }
         session.user.id = tokenWithProfile.id as string
         session.user.role = (tokenWithProfile.role as string) ?? 'USER'
@@ -168,6 +179,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.xp = Number(tokenWithProfile.xp ?? 0)
         session.user.level = Number(tokenWithProfile.level ?? 1)
         session.user.streakDays = Number(tokenWithProfile.streakDays ?? 0)
+        session.user.emailVerified = tokenWithProfile.emailVerified
+          ? new Date(tokenWithProfile.emailVerified)
+          : null
       }
 
       try {
@@ -196,10 +210,12 @@ declare module 'next-auth' {
       xp: number
       level: number
       streakDays: number
+      emailVerified: Date | null
     } & DefaultSession['user']
   }
 
   interface User {
     role: string
+    emailVerified?: Date | null
   }
 }

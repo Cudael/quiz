@@ -18,6 +18,7 @@ export default async function MeSettingsPage() {
       email: true,
       bio: true,
       image: true,
+      bannerImage: true,
       passwordHash: true,
       preferences: true,
       accounts: { select: { provider: true } },
@@ -35,6 +36,7 @@ export default async function MeSettingsPage() {
         username: user.username,
         bio: user.bio ?? '',
         image: user.image ?? '',
+        bannerImage: user.bannerImage ?? '',
       }}
       hasPassword={Boolean(user.passwordHash)}
       email={user.email ?? null}

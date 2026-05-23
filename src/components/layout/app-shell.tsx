@@ -2,6 +2,7 @@
 
 import { Navbar } from '@/components/layout/navbar'
 import { SiteFooter } from '@/components/layout/site-footer'
+import { EmailVerificationBanner } from '@/components/auth/email-verification-banner'
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
@@ -13,6 +14,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         Skip to content
       </a>
       <Navbar />
+      <EmailVerificationBanner />
       <main id="main-content">{children}</main>
       <SiteFooter />
     </>
