@@ -9,7 +9,7 @@ import { absoluteUrl } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'Categories | QuizArena',
-  description: 'Browse quiz categories, filter by difficulty, and jump into your next challenge.',
+  description: 'Browse quiz categories and jump into your next challenge.',
   openGraph: {
     title: 'QuizArena Categories',
     description: 'Browse quiz categories and discover new challenges.',
@@ -22,32 +22,76 @@ export const metadata: Metadata = {
   },
 }
 
+export interface SubcategoryData {
+  slug: string
+  name: string
+  description: string
+  icon: string
+  color: string
+  quizCount: number
+  totalPlays: number
+}
+
+export interface ParentCategoryData {
+  slug: string
+  name: string
+  description: string
+  icon: string
+  color: string
+  quizCount: number
+  totalPlays: number
+  subcategories: SubcategoryData[]
+}
+
 export default async function CategoriesPage() {
   const categories = await prisma.category.findMany({
-    orderBy: { createdAt: 'asc' },
     include: {
       quizzes: {
-        select: {
-          id: true,
-          title: true,
-          difficulty: true,
-          playCount: true,
-          createdAt: true,
-        },
         where: { isPublished: true },
+        select: { playCount: true },
       },
     },
+    orderBy: { name: 'asc' },
   })
 
-  // Serialize dates for client component
-  const serialized = categories.map((cat) => ({
-    ...cat,
-    createdAt: cat.createdAt.toISOString(),
-    quizzes: cat.quizzes.map((q) => ({
-      ...q,
-      createdAt: q.createdAt.toISOString(),
-    })),
-  }))
+  const parents = categories.filter((c) => !c.parentSlug)
+  const subcats = categories.filter((c) => Boolean(c.parentSlug))
+
+  const parentCategories: ParentCategoryData[] = parents
+    .map((parent) => {
+      const children = subcats.filter((s) => s.parentSlug === parent.slug)
+      const childSubcategories: SubcategoryData[] = children
+        .map((child) => ({
+          slug: child.slug,
+          name: child.name,
+          description: child.description,
+          icon: child.icon,
+          color: child.color,
+          quizCount: child.quizzes.length,
+          totalPlays: child.quizzes.reduce((s, q) => s + q.playCount, 0),
+        }))
+        .sort((a, b) => b.quizCount - a.quizCount)
+
+      const ownQuizCount = parent.quizzes.length
+      const childQuizCount = childSubcategories.reduce((s, c) => s + c.quizCount, 0)
+      const ownPlays = parent.quizzes.reduce((s, q) => s + q.playCount, 0)
+      const childPlays = childSubcategories.reduce((s, c) => s + c.totalPlays, 0)
+
+      return {
+        slug: parent.slug,
+        name: parent.name,
+        description: parent.description,
+        icon: parent.icon,
+        color: parent.color,
+        quizCount: ownQuizCount + childQuizCount,
+        totalPlays: ownPlays + childPlays,
+        subcategories: childSubcategories,
+      }
+    })
+    .sort((a, b) => b.quizCount - a.quizCount)
+
+  const totalQuizzes = parentCategories.reduce((s, p) => s + p.quizCount, 0)
+  const totalCategories = categories.length
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -68,10 +112,14 @@ export default async function CategoriesPage() {
             </span>
           </>
         }
-        description={`${categories.length} categories · ${categories.reduce((sum, c) => sum + c.quizzes.length, 0)} quizzes`}
+        description={`${totalCategories} categories · ${totalQuizzes} quizzes`}
       />
 
-      <CategoryBrowser categories={serialized} />
+      <CategoryBrowser
+        parentCategories={parentCategories}
+        totalQuizzes={totalQuizzes}
+        totalCategories={totalCategories}
+      />
     </div>
   )
 }

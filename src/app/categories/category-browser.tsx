@@ -1,56 +1,123 @@
 'use client'
 
 import { useState, useMemo, useCallback, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Search, SlidersHorizontal } from 'lucide-react'
-import { CategoryTile } from '@/components/ui/category-tile'
-import { Badge } from '@/components/ui/badge'
-import { EmptyState } from '@/components/ui/empty-state'
+import type React from 'react'
+import * as LucideIcons from 'lucide-react'
+import { Search } from 'lucide-react'
 import Link from 'next/link'
-import { cn } from '@/lib/utils'
-import { ReportQuizForm } from '@/app/quiz/report-quiz-form'
-import { copy } from '@/lib/copy'
-
-type Difficulty = 'ALL' | 'EASY' | 'MEDIUM' | 'HARD'
-type SortOption = 'popular' | 'newest' | 'hardest'
-
-interface QuizSummary {
-  id: string
-  title: string
-  difficulty: string
-  playCount: number
-  createdAt: string
-}
-
-interface CategoryWithQuizzes {
-  id: string
-  slug: string
-  name: string
-  icon: string
-  color: string
-  imageUrl?: string | null
-  description: string
-  createdAt: string
-  quizzes: QuizSummary[]
-}
+import { motion, AnimatePresence } from 'framer-motion'
+import { EmptyState } from '@/components/ui/empty-state'
+import type { ParentCategoryData, SubcategoryData } from './page'
 
 interface CategoryBrowserProps {
-  categories: CategoryWithQuizzes[]
+  parentCategories: ParentCategoryData[]
+  totalQuizzes: number
+  totalCategories: number
 }
 
-const difficultyColor: Record<string, 'success' | 'warning' | 'destructive'> = {
-  EASY: 'success',
-  MEDIUM: 'warning',
-  HARD: 'destructive',
+function DynamicIcon({
+  name,
+  className,
+  style,
+}: {
+  name: string
+  className?: string
+  style?: React.CSSProperties
+}) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const Icon = (LucideIcons as any)[name] as
+    | React.ComponentType<{
+        className?: string
+        style?: React.CSSProperties
+        'aria-hidden'?: string
+      }>
+    | undefined
+  if (!Icon) return null
+  return <Icon className={className} style={style} aria-hidden="true" />
 }
 
-export function CategoryBrowser({ categories }: CategoryBrowserProps) {
+function SubcategoryCard({ sub }: { sub: SubcategoryData }) {
+  return (
+    <Link
+      href={`/categories/${sub.slug}`}
+      className="group flex items-start gap-3 rounded-xl border border-border bg-card p-4 transition-all duration-200 hover:border-transparent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <span
+        className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+        style={{ backgroundColor: sub.color + '22' }}
+      >
+        <DynamicIcon
+          name={sub.icon}
+          className="h-5 w-5"
+          style={{ color: sub.color } as React.CSSProperties}
+        />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-semibold text-foreground group-hover:text-primary">
+          {sub.name}
+        </p>
+        <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{sub.description}</p>
+        <p className="mt-1 text-xs font-medium text-muted-foreground">
+          {sub.quizCount} {sub.quizCount === 1 ? 'quiz' : 'quizzes'}
+        </p>
+      </div>
+    </Link>
+  )
+}
+
+function ParentSection({ parent }: { parent: ParentCategoryData }) {
+  return (
+    <section aria-labelledby={`cat-${parent.slug}`}>
+      <div className="mb-4 flex items-center gap-3">
+        <span
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+          style={{ backgroundColor: parent.color + '22' }}
+        >
+          <DynamicIcon
+            name={parent.icon}
+            className="h-6 w-6"
+            style={{ color: parent.color } as React.CSSProperties}
+          />
+        </span>
+        <div>
+          <h2 id={`cat-${parent.slug}`} className="text-lg font-bold leading-tight text-foreground">
+            <Link
+              href={`/categories/${parent.slug}`}
+              className="hover:text-primary transition-colors"
+            >
+              {parent.name}
+            </Link>
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            {parent.description}
+            {parent.quizCount > 0 && (
+              <span className="ml-2 font-medium">
+                · {parent.quizCount} {parent.quizCount === 1 ? 'quiz' : 'quizzes'}
+              </span>
+            )}
+          </p>
+        </div>
+      </div>
+
+      {parent.subcategories.length > 0 ? (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {parent.subcategories.map((sub) => (
+            <SubcategoryCard key={sub.slug} sub={sub} />
+          ))}
+        </div>
+      ) : (
+        <p className="rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
+          No subcategories yet
+        </p>
+      )}
+    </section>
+  )
+}
+
+export function CategoryBrowser({ parentCategories }: CategoryBrowserProps) {
   const [search, setSearch] = useState('')
-  const [difficulty, setDifficulty] = useState<Difficulty>('ALL')
-  const [sort, setSort] = useState<SortOption>('popular')
   const [debouncedSearch, setDebouncedSearch] = useState('')
 
-  // Debounce search input with useEffect for proper cleanup
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 300)
     return () => clearTimeout(timer)
@@ -61,166 +128,72 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
   }, [])
 
   const filtered = useMemo(() => {
-    let cats = categories.map((cat) => ({
-      ...cat,
-      quizzes: cat.quizzes.filter((q) => {
-        const matchesDiff = difficulty === 'ALL' || q.difficulty === difficulty
-        const matchesSearch =
-          !debouncedSearch ||
-          cat.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-          q.title.toLowerCase().includes(debouncedSearch.toLowerCase())
-        return matchesDiff && matchesSearch
-      }),
-    }))
-
-    // Filter out categories with no quizzes (after search/difficulty filter)
-    if (debouncedSearch || difficulty !== 'ALL') {
-      cats = cats.filter((c) => c.quizzes.length > 0)
-    }
-
-    // Sort
-    switch (sort) {
-      case 'popular':
-        cats = cats.sort(
-          (a, b) =>
-            b.quizzes.reduce((s, q) => s + q.playCount, 0) -
-            a.quizzes.reduce((s, q) => s + q.playCount, 0)
+    if (!debouncedSearch) return parentCategories
+    const q = debouncedSearch.toLowerCase()
+    return parentCategories
+      .map((parent) => {
+        const parentMatches =
+          parent.name.toLowerCase().includes(q) || parent.description.toLowerCase().includes(q)
+        const matchingSubcats = parent.subcategories.filter(
+          (sub) => sub.name.toLowerCase().includes(q) || sub.description.toLowerCase().includes(q)
         )
-        break
-      case 'newest':
-        cats = cats.sort(
-          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
-        break
-      case 'hardest':
-        cats = cats.sort(
-          (a, b) =>
-            b.quizzes.filter((q) => q.difficulty === 'HARD').length -
-            a.quizzes.filter((q) => q.difficulty === 'HARD').length
-        )
-        break
-    }
-
-    return cats
-  }, [categories, debouncedSearch, difficulty, sort])
+        if (!parentMatches && matchingSubcats.length === 0) return null
+        return {
+          ...parent,
+          subcategories: parentMatches ? parent.subcategories : matchingSubcats,
+        }
+      })
+      .filter(Boolean) as ParentCategoryData[]
+  }, [parentCategories, debouncedSearch])
 
   return (
     <div>
-      {/* Filters */}
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center">
-        {/* Search */}
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      {/* Search */}
+      <div className="mb-10 max-w-lg">
+        <label htmlFor="route-categories-search" className="sr-only">
+          Search quizzes
+        </label>
+        <div className="relative">
+          <Search
+            className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+            aria-hidden="true"
+          />
           <input
+            id="route-categories-search"
             type="search"
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
-            placeholder="Search categories or quizzes…"
+            placeholder="Search categories…"
             data-global-search="true"
-            className="w-full rounded-lg border border-input bg-background pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            className="w-full rounded-xl border border-input bg-background py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
-
-        {/* Difficulty filter */}
-        <div className="flex items-center gap-1">
-          <SlidersHorizontal className="h-4 w-4 text-muted-foreground mr-1" />
-          {(['ALL', 'EASY', 'MEDIUM', 'HARD'] as const).map((d) => (
-            <button
-              key={d}
-              onClick={() => setDifficulty(d)}
-              className={cn(
-                'rounded-full px-3 py-1 text-xs font-semibold transition-colors',
-                difficulty === d
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-              )}
-            >
-              {d}
-            </button>
-          ))}
-        </div>
-
-        {/* Sort */}
-        <select
-          value={sort}
-          onChange={(e) => setSort(e.target.value as SortOption)}
-          className="rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-        >
-          <option value="popular">Most Popular</option>
-          <option value="newest">Newest</option>
-          <option value="hardest">Hardest</option>
-        </select>
       </div>
 
-      {/* Results */}
+      {/* Category sections */}
       {filtered.length === 0 ? (
         <EmptyState
           icon="🔍"
           title="No categories found"
-          description={copy.emptyStates.noCategoryResults}
+          description="Try a different search term."
           action={{
-            label: 'Clear filters',
-            onClick: () => {
-              setSearch('')
-              setDifficulty('ALL')
-              setSort('popular')
-            },
+            label: 'Clear search',
+            onClick: () => setSearch(''),
           }}
         />
       ) : (
-        <motion.div layout className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        <motion.div layout className="space-y-10">
           <AnimatePresence>
-            {filtered.map((cat) => (
+            {filtered.map((parent) => (
               <motion.div
-                key={cat.id}
+                key={parent.slug}
                 layout
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.2 }}
               >
-                <CategoryTile
-                  slug={cat.slug}
-                  name={cat.name}
-                  icon={cat.icon}
-                  color={cat.color}
-                  imageUrl={cat.imageUrl ?? undefined}
-                  description={cat.description}
-                  quizCount={cat.quizzes.length}
-                />
-
-                {/* Quiz list */}
-                {cat.quizzes.length > 0 && (
-                  <div className="mt-3 space-y-2">
-                    {cat.quizzes.slice(0, 3).map((quiz) => (
-                      <article
-                        key={quiz.id}
-                        className="space-y-2 rounded-lg border border-border bg-card p-2"
-                      >
-                        <Link
-                          href={`/quiz/${quiz.id}`}
-                          className="flex items-center justify-between rounded-lg px-1 py-1 text-sm hover:bg-accent transition-colors"
-                        >
-                          <span className="truncate font-medium">{quiz.title}</span>
-                          <Badge
-                            variant={difficultyColor[quiz.difficulty] ?? 'outline'}
-                            className="ml-2 shrink-0"
-                          >
-                            {quiz.difficulty}
-                          </Badge>
-                        </Link>
-                        <div className="px-1">
-                          <ReportQuizForm quizId={quiz.id} />
-                        </div>
-                      </article>
-                    ))}
-                    {cat.quizzes.length > 3 && (
-                      <p className="text-xs text-muted-foreground text-center">
-                        +{cat.quizzes.length - 3} more
-                      </p>
-                    )}
-                  </div>
-                )}
+                <ParentSection parent={parent} />
               </motion.div>
             ))}
           </AnimatePresence>

@@ -23,100 +23,464 @@ export interface CategoryData {
   name: string
   description: string
   icon: string // lucide icon name
-  color: string // tailwind gradient or hex
-  imageUrl?: string // optional cover photo (Unsplash)
+  color: string // hex color
+  parentSlug?: string
 }
 
+// ---------------------------------------------------------------------------
+// Parent categories (no parentSlug)
+// ---------------------------------------------------------------------------
 export const categories: CategoryData[] = [
   {
     slug: 'science',
     name: 'Science',
-    description: 'Physics, chemistry, biology, and beyond',
+    description: 'Physics, chemistry, biology and beyond',
     icon: 'FlaskConical',
-    color: 'from-blue-500 to-cyan-400',
-    imageUrl:
-      'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=800&q=80',
+    color: '#3b82f6',
   },
   {
     slug: 'history',
     name: 'History',
-    description: 'From ancient civilizations to modern times',
+    description: 'Civilizations, wars, and turning points',
     icon: 'Landmark',
-    color: 'from-amber-600 to-yellow-400',
-    imageUrl:
-      'https://images.unsplash.com/photo-1555440169-9698d6ec9b72?auto=format&fit=crop&w=800&q=80',
+    color: '#d97706',
   },
   {
-    slug: 'movies',
-    name: 'Movies',
-    description: 'Lights, camera, action! Test your film knowledge',
-    icon: 'Clapperboard',
-    color: 'from-sky-500 to-indigo-400',
-    imageUrl:
-      'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    slug: 'music',
-    name: 'Music',
-    description: 'Beats, lyrics, genres, and legendary artists',
-    icon: 'Music',
-    color: 'from-green-500 to-teal-400',
-    imageUrl:
-      'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80',
+    slug: 'arts-culture',
+    name: 'Arts & Culture',
+    description: 'Film, music, literature, and more',
+    icon: 'Palette',
+    color: '#ec4899',
   },
   {
     slug: 'geography',
     name: 'Geography',
-    description: 'Countries, capitals, rivers, and mountains',
+    description: 'Countries, capitals, and landscapes',
     icon: 'Globe',
-    color: 'from-emerald-500 to-lime-400',
-    imageUrl:
-      'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&w=800&q=80',
+    color: '#10b981',
   },
   {
     slug: 'sports',
     name: 'Sports',
-    description: 'Athletics, records, and iconic moments',
+    description: 'Athletes, records, and iconic moments',
     icon: 'Trophy',
-    color: 'from-orange-500 to-red-400',
-    imageUrl:
-      'https://images.unsplash.com/photo-1547347298-4074fc3086f0?auto=format&fit=crop&w=800&q=80',
+    color: '#f97316',
   },
   {
-    slug: 'tech',
+    slug: 'technology',
     name: 'Technology',
     description: 'Software, hardware, and the digital world',
     icon: 'Cpu',
-    color: 'from-violet-500 to-purple-400',
-    imageUrl:
-      'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
+    color: '#8b5cf6',
   },
   {
-    slug: 'gaming',
-    name: 'Gaming',
-    description: 'Video games, consoles, and gaming history',
-    icon: 'Gamepad2',
-    color: 'from-pink-500 to-rose-400',
-    imageUrl:
-      'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=800&q=80',
+    slug: 'entertainment',
+    name: 'Entertainment',
+    description: 'Games, anime, TV shows, and pop culture',
+    icon: 'Tv',
+    color: '#06b6d4',
   },
   {
-    slug: 'anime',
-    name: 'Anime',
-    description: 'Japanese animation, manga, and pop culture',
-    icon: 'Sparkles',
-    color: 'from-fuchsia-500 to-pink-400',
-    imageUrl:
-      'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80',
+    slug: 'lifestyle',
+    name: 'Lifestyle',
+    description: 'Food, travel, fashion, and wellness',
+    icon: 'Heart',
+    color: '#f43f5e',
   },
   {
     slug: 'general',
     name: 'General Knowledge',
     description: 'A little bit of everything',
     icon: 'Brain',
-    color: 'from-slate-500 to-gray-400',
-    imageUrl:
-      'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=800&q=80',
+    color: '#64748b',
+  },
+
+  // ---------------------------------------------------------------------------
+  // Science subcategories
+  // ---------------------------------------------------------------------------
+  {
+    slug: 'physics',
+    name: 'Physics',
+    description: 'Forces, energy, and the universe',
+    icon: 'Atom',
+    color: '#60a5fa',
+    parentSlug: 'science',
+  },
+  {
+    slug: 'biology',
+    name: 'Biology',
+    description: 'Life, cells, and evolution',
+    icon: 'Leaf',
+    color: '#34d399',
+    parentSlug: 'science',
+  },
+  {
+    slug: 'chemistry',
+    name: 'Chemistry',
+    description: 'Elements, reactions, and compounds',
+    icon: 'TestTube',
+    color: '#a78bfa',
+    parentSlug: 'science',
+  },
+  {
+    slug: 'space',
+    name: 'Space & Astronomy',
+    description: 'Stars, planets, and galaxies',
+    icon: 'Star',
+    color: '#818cf8',
+    parentSlug: 'science',
+  },
+  {
+    slug: 'nature',
+    name: 'Nature & Environment',
+    description: 'Ecosystems and wildlife',
+    icon: 'TreePine',
+    color: '#4ade80',
+    parentSlug: 'science',
+  },
+
+  // ---------------------------------------------------------------------------
+  // History subcategories
+  // ---------------------------------------------------------------------------
+  {
+    slug: 'ancient-history',
+    name: 'Ancient History',
+    description: 'Egypt, Greece, Rome',
+    icon: 'Scroll',
+    color: '#fbbf24',
+    parentSlug: 'history',
+  },
+  {
+    slug: 'world-wars',
+    name: 'World Wars',
+    description: 'WWI & WWII',
+    icon: 'Shield',
+    color: '#ef4444',
+    parentSlug: 'history',
+  },
+  {
+    slug: 'us-history',
+    name: 'US History',
+    description: 'Revolution to modern day',
+    icon: 'Flag',
+    color: '#f59e0b',
+    parentSlug: 'history',
+  },
+  {
+    slug: 'world-history',
+    name: 'World History',
+    description: 'Global civilizations',
+    icon: 'Landmark',
+    color: '#d97706',
+    parentSlug: 'history',
+  },
+  {
+    slug: 'mythology',
+    name: 'Mythology',
+    description: 'Gods, heroes, and legends',
+    icon: 'Sparkles',
+    color: '#fb923c',
+    parentSlug: 'history',
+  },
+
+  // ---------------------------------------------------------------------------
+  // Arts & Culture subcategories
+  // ---------------------------------------------------------------------------
+  {
+    slug: 'movies',
+    name: 'Movies',
+    description: 'Cinema, directors, and classics',
+    icon: 'Clapperboard',
+    color: '#f472b6',
+    parentSlug: 'arts-culture',
+  },
+  {
+    slug: 'music',
+    name: 'Music',
+    description: 'Genres, artists, and lyrics',
+    icon: 'Music',
+    color: '#4ade80',
+    parentSlug: 'arts-culture',
+  },
+  {
+    slug: 'literature',
+    name: 'Literature',
+    description: 'Books, authors, and poetry',
+    icon: 'BookOpen',
+    color: '#fb923c',
+    parentSlug: 'arts-culture',
+  },
+  {
+    slug: 'art',
+    name: 'Visual Art',
+    description: 'Paintings, sculpture, and artists',
+    icon: 'Brush',
+    color: '#e879f9',
+    parentSlug: 'arts-culture',
+  },
+  {
+    slug: 'theatre',
+    name: 'Theatre & Broadway',
+    description: 'Stage, musicals, and drama',
+    icon: 'Drama',
+    color: '#a78bfa',
+    parentSlug: 'arts-culture',
+  },
+
+  // ---------------------------------------------------------------------------
+  // Geography subcategories
+  // ---------------------------------------------------------------------------
+  {
+    slug: 'capitals',
+    name: 'World Capitals',
+    description: 'Capitals of every nation',
+    icon: 'MapPin',
+    color: '#34d399',
+    parentSlug: 'geography',
+  },
+  {
+    slug: 'flags',
+    name: 'Flags of the World',
+    description: 'Identify flags and emblems',
+    icon: 'Flag',
+    color: '#22d3ee',
+    parentSlug: 'geography',
+  },
+  {
+    slug: 'europe',
+    name: 'Europe',
+    description: 'Countries, cities, culture',
+    icon: 'Globe',
+    color: '#60a5fa',
+    parentSlug: 'geography',
+  },
+  {
+    slug: 'asia',
+    name: 'Asia',
+    description: 'Vast continent, diverse cultures',
+    icon: 'Globe',
+    color: '#f97316',
+    parentSlug: 'geography',
+  },
+  {
+    slug: 'americas',
+    name: 'Americas',
+    description: 'North, Central & South',
+    icon: 'Globe',
+    color: '#84cc16',
+    parentSlug: 'geography',
+  },
+
+  // ---------------------------------------------------------------------------
+  // Sports subcategories
+  // ---------------------------------------------------------------------------
+  {
+    slug: 'football',
+    name: 'Football / Soccer',
+    description: "World's most popular sport",
+    icon: 'CircleDot',
+    color: '#4ade80',
+    parentSlug: 'sports',
+  },
+  {
+    slug: 'basketball',
+    name: 'Basketball',
+    description: 'NBA, FIBA, legends',
+    icon: 'CircleDot',
+    color: '#fb923c',
+    parentSlug: 'sports',
+  },
+  {
+    slug: 'american-football',
+    name: 'American Football',
+    description: 'NFL and college',
+    icon: 'CircleDot',
+    color: '#f87171',
+    parentSlug: 'sports',
+  },
+  {
+    slug: 'tennis',
+    name: 'Tennis',
+    description: 'Grand slams and champions',
+    icon: 'CircleDot',
+    color: '#a3e635',
+    parentSlug: 'sports',
+  },
+  {
+    slug: 'olympics',
+    name: 'Olympics',
+    description: 'Summer, winter, history',
+    icon: 'Trophy',
+    color: '#fbbf24',
+    parentSlug: 'sports',
+  },
+
+  // ---------------------------------------------------------------------------
+  // Technology subcategories
+  // ---------------------------------------------------------------------------
+  {
+    slug: 'programming',
+    name: 'Programming',
+    description: 'Languages, algorithms, code',
+    icon: 'Code',
+    color: '#818cf8',
+    parentSlug: 'technology',
+  },
+  {
+    slug: 'internet',
+    name: 'Internet & Web',
+    description: 'Protocols, browsers, web history',
+    icon: 'Wifi',
+    color: '#67e8f9',
+    parentSlug: 'technology',
+  },
+  {
+    slug: 'ai',
+    name: 'AI & Machine Learning',
+    description: 'Models, concepts, history',
+    icon: 'Bot',
+    color: '#c084fc',
+    parentSlug: 'technology',
+  },
+  {
+    slug: 'gadgets',
+    name: 'Gadgets & Hardware',
+    description: 'Devices and innovation',
+    icon: 'Cpu',
+    color: '#a78bfa',
+    parentSlug: 'technology',
+  },
+  {
+    slug: 'video-games-tech',
+    name: 'Gaming Tech',
+    description: 'Engines, hardware, history',
+    icon: 'Gamepad2',
+    color: '#f0abfc',
+    parentSlug: 'technology',
+  },
+
+  // ---------------------------------------------------------------------------
+  // Entertainment subcategories
+  // ---------------------------------------------------------------------------
+  {
+    slug: 'video-games',
+    name: 'Video Games',
+    description: 'Consoles, titles, characters',
+    icon: 'Gamepad2',
+    color: '#22d3ee',
+    parentSlug: 'entertainment',
+  },
+  {
+    slug: 'anime',
+    name: 'Anime & Manga',
+    description: 'Japanese animation and comics',
+    icon: 'Sparkles',
+    color: '#f472b6',
+    parentSlug: 'entertainment',
+  },
+  {
+    slug: 'tv-shows',
+    name: 'TV Shows',
+    description: 'Series, characters, plots',
+    icon: 'Tv',
+    color: '#a3e635',
+    parentSlug: 'entertainment',
+  },
+  {
+    slug: 'celebrities',
+    name: 'Celebrities',
+    description: 'Famous faces and pop culture',
+    icon: 'Star',
+    color: '#fbbf24',
+    parentSlug: 'entertainment',
+  },
+  {
+    slug: 'memes',
+    name: 'Internet & Memes',
+    description: 'Online culture and humor',
+    icon: 'Laugh',
+    color: '#f97316',
+    parentSlug: 'entertainment',
+  },
+
+  // ---------------------------------------------------------------------------
+  // Lifestyle subcategories
+  // ---------------------------------------------------------------------------
+  {
+    slug: 'food-drink',
+    name: 'Food & Drink',
+    description: 'Cuisine, recipes, beverages',
+    icon: 'UtensilsCrossed',
+    color: '#f97316',
+    parentSlug: 'lifestyle',
+  },
+  {
+    slug: 'travel',
+    name: 'Travel',
+    description: 'Destinations, landmarks, tips',
+    icon: 'Plane',
+    color: '#22d3ee',
+    parentSlug: 'lifestyle',
+  },
+  {
+    slug: 'fashion',
+    name: 'Fashion & Style',
+    description: 'Trends, designers, history',
+    icon: 'Shirt',
+    color: '#f472b6',
+    parentSlug: 'lifestyle',
+  },
+  {
+    slug: 'health',
+    name: 'Health & Wellness',
+    description: 'Body, fitness, nutrition',
+    icon: 'Heart',
+    color: '#4ade80',
+    parentSlug: 'lifestyle',
+  },
+  {
+    slug: 'animals',
+    name: 'Animals & Pets',
+    description: 'Species, behavior, facts',
+    icon: 'PawPrint',
+    color: '#fb923c',
+    parentSlug: 'lifestyle',
+  },
+
+  // ---------------------------------------------------------------------------
+  // General Knowledge subcategories
+  // ---------------------------------------------------------------------------
+  {
+    slug: 'trivia',
+    name: 'Mixed Trivia',
+    description: 'Random knowledge test',
+    icon: 'HelpCircle',
+    color: '#94a3b8',
+    parentSlug: 'general',
+  },
+  {
+    slug: 'language',
+    name: 'Language & Words',
+    description: 'Grammar, vocab, etymology',
+    icon: 'Languages',
+    color: '#60a5fa',
+    parentSlug: 'general',
+  },
+  {
+    slug: 'math',
+    name: 'Math & Logic',
+    description: 'Numbers, puzzles, reasoning',
+    icon: 'Calculator',
+    color: '#4ade80',
+    parentSlug: 'general',
+  },
+  {
+    slug: 'religion',
+    name: 'Religion & Philosophy',
+    description: 'Beliefs and thinkers',
+    icon: 'BookOpen',
+    color: '#d97706',
+    parentSlug: 'general',
   },
 ]
 
@@ -291,12 +655,12 @@ export interface QuizDef {
 }
 
 export const quizDefs: QuizDef[] = [
-  // Science
+  // Physics
   {
     title: 'Elementary Physics',
     description: 'Newton, forces, and basic mechanics',
     difficulty: 'EASY',
-    categorySlug: 'science',
+    categorySlug: 'physics',
     authorId: 'user_admin_quizarena',
     playCount: 1203,
     avgScore: 72.4,
@@ -305,7 +669,7 @@ export const quizDefs: QuizDef[] = [
     title: 'Periodic Table Challenge',
     description: 'Elements, symbols, and atomic numbers',
     difficulty: 'MEDIUM',
-    categorySlug: 'science',
+    categorySlug: 'physics',
     authorId: 'user_demo_alice',
     playCount: 876,
     avgScore: 61.8,
@@ -314,18 +678,18 @@ export const quizDefs: QuizDef[] = [
     title: 'Quantum Mechanics & Relativity',
     description: 'Advanced physics for the curious mind',
     difficulty: 'HARD',
-    categorySlug: 'science',
+    categorySlug: 'physics',
     authorId: 'user_admin_quizarena',
     playCount: 412,
     avgScore: 48.2,
   },
 
-  // History
+  // World History
   {
     title: 'Ancient Civilizations',
     description: 'Egypt, Rome, Greece, and Mesopotamia',
     difficulty: 'EASY',
-    categorySlug: 'history',
+    categorySlug: 'world-history',
     authorId: 'user_admin_quizarena',
     playCount: 934,
     avgScore: 68.5,
@@ -334,7 +698,7 @@ export const quizDefs: QuizDef[] = [
     title: 'World War II',
     description: 'Key battles, leaders, and turning points',
     difficulty: 'MEDIUM',
-    categorySlug: 'history',
+    categorySlug: 'world-history',
     authorId: 'user_demo_bob',
     playCount: 1547,
     avgScore: 65.0,
@@ -343,7 +707,7 @@ export const quizDefs: QuizDef[] = [
     title: 'Cold War & Modern History',
     description: 'Post-WWII geopolitics and the space race',
     difficulty: 'HARD',
-    categorySlug: 'history',
+    categorySlug: 'world-history',
     authorId: 'user_admin_quizarena',
     playCount: 389,
     avgScore: 53.1,
@@ -407,12 +771,12 @@ export const quizDefs: QuizDef[] = [
     avgScore: 44.7,
   },
 
-  // Geography
+  // Capitals
   {
     title: 'World Capitals',
     description: 'Can you name the capital of every country?',
     difficulty: 'EASY',
-    categorySlug: 'geography',
+    categorySlug: 'capitals',
     authorId: 'user_demo_bob',
     playCount: 3201,
     avgScore: 70.9,
@@ -421,7 +785,7 @@ export const quizDefs: QuizDef[] = [
     title: 'Mountains & Rivers',
     description: 'Highest peaks and longest rivers worldwide',
     difficulty: 'MEDIUM',
-    categorySlug: 'geography',
+    categorySlug: 'capitals',
     authorId: 'user_admin_quizarena',
     playCount: 876,
     avgScore: 59.4,
@@ -430,18 +794,18 @@ export const quizDefs: QuizDef[] = [
     title: 'Political Borders & Flags',
     description: 'Nations, territories, and their symbols',
     difficulty: 'HARD',
-    categorySlug: 'geography',
+    categorySlug: 'capitals',
     authorId: 'user_demo_alice',
     playCount: 412,
     avgScore: 47.8,
   },
 
-  // Sports
+  // Football
   {
     title: 'Olympic Records',
     description: 'Gold medalists and world records',
     difficulty: 'EASY',
-    categorySlug: 'sports',
+    categorySlug: 'football',
     authorId: 'user_admin_quizarena',
     playCount: 1567,
     avgScore: 73.2,
@@ -450,7 +814,7 @@ export const quizDefs: QuizDef[] = [
     title: 'Football World Cup',
     description: 'Winners, top scorers, and memorable moments',
     difficulty: 'MEDIUM',
-    categorySlug: 'sports',
+    categorySlug: 'football',
     authorId: 'user_demo_dave',
     playCount: 2109,
     avgScore: 64.7,
@@ -459,18 +823,18 @@ export const quizDefs: QuizDef[] = [
     title: 'Niche Sports Trivia',
     description: 'Curling, polo, and more obscure athletics',
     difficulty: 'HARD',
-    categorySlug: 'sports',
+    categorySlug: 'football',
     authorId: 'user_admin_quizarena',
     playCount: 234,
     avgScore: 41.5,
   },
 
-  // Tech
+  // Programming
   {
     title: 'Internet Basics',
     description: 'How the web works, protocols, and browsers',
     difficulty: 'EASY',
-    categorySlug: 'tech',
+    categorySlug: 'programming',
     authorId: 'user_demo_carol',
     playCount: 1456,
     avgScore: 77.3,
@@ -479,7 +843,7 @@ export const quizDefs: QuizDef[] = [
     title: 'Programming Languages',
     description: 'Syntax, paradigms, and language history',
     difficulty: 'MEDIUM',
-    categorySlug: 'tech',
+    categorySlug: 'programming',
     authorId: 'user_admin_quizarena',
     playCount: 1876,
     avgScore: 62.1,
@@ -488,18 +852,18 @@ export const quizDefs: QuizDef[] = [
     title: 'Algorithms & Data Structures',
     description: 'Big-O, trees, graphs, and sorting',
     difficulty: 'HARD',
-    categorySlug: 'tech',
+    categorySlug: 'programming',
     authorId: 'user_demo_alice',
     playCount: 678,
     avgScore: 49.6,
   },
 
-  // Gaming
+  // Video Games
   {
     title: 'Console History',
     description: 'From Atari to PlayStation 5',
     difficulty: 'EASY',
-    categorySlug: 'gaming',
+    categorySlug: 'video-games',
     authorId: 'user_admin_quizarena',
     playCount: 2345,
     avgScore: 75.8,
@@ -508,7 +872,7 @@ export const quizDefs: QuizDef[] = [
     title: 'Nintendo Classics',
     description: 'Mario, Zelda, Pokémon, and Samus',
     difficulty: 'MEDIUM',
-    categorySlug: 'gaming',
+    categorySlug: 'video-games',
     authorId: 'user_demo_bob',
     playCount: 3102,
     avgScore: 68.4,
@@ -517,7 +881,7 @@ export const quizDefs: QuizDef[] = [
     title: 'Speedrunning & eSports',
     description: 'Records, tournaments, and legendary plays',
     difficulty: 'HARD',
-    categorySlug: 'gaming',
+    categorySlug: 'video-games',
     authorId: 'user_admin_quizarena',
     playCount: 567,
     avgScore: 52.3,
@@ -552,12 +916,12 @@ export const quizDefs: QuizDef[] = [
     avgScore: 55.9,
   },
 
-  // General Knowledge
+  // Trivia
   {
     title: 'Everyday Trivia',
     description: 'Fun facts for the whole family',
     difficulty: 'EASY',
-    categorySlug: 'general',
+    categorySlug: 'trivia',
     authorId: 'user_admin_quizarena',
     playCount: 4567,
     avgScore: 79.5,
@@ -566,7 +930,7 @@ export const quizDefs: QuizDef[] = [
     title: 'Mixed Bag',
     description: 'History, science, pop culture — anything goes',
     difficulty: 'MEDIUM',
-    categorySlug: 'general',
+    categorySlug: 'trivia',
     authorId: 'user_demo_dave',
     playCount: 2890,
     avgScore: 66.3,
@@ -575,7 +939,7 @@ export const quizDefs: QuizDef[] = [
     title: 'Expert Knowledge',
     description: 'Only the most well-read will prevail',
     difficulty: 'HARD',
-    categorySlug: 'general',
+    categorySlug: 'trivia',
     authorId: 'user_admin_quizarena',
     playCount: 1023,
     avgScore: 50.7,
