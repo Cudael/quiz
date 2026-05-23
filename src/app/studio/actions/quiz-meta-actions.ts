@@ -22,6 +22,7 @@ export async function createQuizAndReturnId(formData: FormData): Promise<QuizMet
   const parsed = quizSchema.safeParse({
     title: formData.get('title'),
     description: formData.get('description'),
+    coverImage: formData.get('coverImage') || undefined,
     categoryId: formData.get('categoryId'),
     difficulty: formData.get('difficulty'),
     isPublished: formData.get('isPublished') === 'on',
@@ -34,6 +35,7 @@ export async function createQuizAndReturnId(formData: FormData): Promise<QuizMet
   const quiz = await prisma.quiz.create({
     data: {
       ...parsed.data,
+      coverImage: parsed.data.coverImage ?? null,
       authorId: session.user.id,
     },
   })

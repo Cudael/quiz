@@ -14,11 +14,25 @@ describe('quizSchema', () => {
       quizSchema.safeParse({
         title: 'Sample Quiz',
         description: 'A valid description',
+        coverImage: 'https://example.com/cover.png',
         categoryId: 'ckq6xdr2w0000u3z5f6l6x4t5',
         difficulty: 'MEDIUM',
         isPublished: true,
       }).success
     ).toBe(true)
+  })
+
+  it('rejects invalid cover image URL', () => {
+    expect(
+      quizSchema.safeParse({
+        title: 'Sample Quiz',
+        description: 'A valid description',
+        coverImage: 'not-a-url',
+        categoryId: 'ckq6xdr2w0000u3z5f6l6x4t5',
+        difficulty: 'MEDIUM',
+        isPublished: true,
+      }).success
+    ).toBe(false)
   })
 })
 

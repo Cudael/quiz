@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { motion, useReducedMotion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
+import { QuizCard, type QuizCardData } from '@/components/ui/quiz-card'
 import { fadeUp, staggerContainer, withReducedMotion } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 
@@ -30,15 +31,6 @@ export interface HomeStats {
   totalCategories: number
 }
 
-export interface HomeQuizCard {
-  id: string
-  title: string
-  difficulty: 'EASY' | 'MEDIUM' | 'HARD'
-  playCount: number
-  avgScore: number
-  category: { slug: string; name: string; icon: string; color: string }
-}
-
 export interface HomeCurrentUser {
   name: string | null
   xp: number
@@ -50,9 +42,9 @@ interface HomePageClientProps {
   featuredCategories: HomeFeaturedCategory[]
   topPlayers: HomeTopPlayer[]
   stats: HomeStats
-  popularQuizzes: HomeQuizCard[]
-  newestQuizzes: HomeQuizCard[]
-  personalizedQuizzes: HomeQuizCard[]
+  popularQuizzes: QuizCardData[]
+  newestQuizzes: QuizCardData[]
+  personalizedQuizzes: QuizCardData[]
   currentUser: HomeCurrentUser | null
 }
 
@@ -62,43 +54,6 @@ const teaserPositions = [
   'top-8 right-6 -rotate-1 z-20',
   'top-16 right-12 rotate-1 z-10',
 ]
-
-function getDifficultyClass(difficulty: HomeQuizCard['difficulty']) {
-  if (difficulty === 'EASY') {
-    return 'text-green-500 bg-green-500/10'
-  }
-
-  if (difficulty === 'MEDIUM') {
-    return 'text-orange-500 bg-orange-500/10'
-  }
-
-  return 'text-red-400 bg-red-500/10'
-}
-
-function QuizCard({ quiz }: { quiz: HomeQuizCard }) {
-  return (
-    <Link href={`/quiz/${quiz.id}`} className="block">
-      <div className="w-64 shrink-0 snap-start overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-md">
-        <div className="h-1.5" style={{ background: quiz.category.color }} />
-        <div className="p-4">
-          <p className="mb-1 text-xs text-muted-foreground">{quiz.category.name}</p>
-          <p className="mb-3 line-clamp-2 text-sm font-semibold">{quiz.title}</p>
-          <div className="flex items-center justify-between">
-            <span
-              className={cn(
-                'rounded-full px-2 py-0.5 text-xs font-medium',
-                getDifficultyClass(quiz.difficulty)
-              )}
-            >
-              {quiz.difficulty}
-            </span>
-            <span className="text-xs text-muted-foreground">{quiz.playCount} plays</span>
-          </div>
-        </div>
-      </div>
-    </Link>
-  )
-}
 
 function SectionHeader({ title, href }: { title: string; href: string }) {
   return (
@@ -111,7 +66,7 @@ function SectionHeader({ title, href }: { title: string; href: string }) {
   )
 }
 
-function QuizScrollerSection({ title, quizzes }: { title: string; quizzes: HomeQuizCard[] }) {
+function QuizScrollerSection({ title, quizzes }: { title: string; quizzes: QuizCardData[] }) {
   return (
     <section>
       <SectionHeader title={title} href="/categories" />
@@ -122,7 +77,7 @@ function QuizScrollerSection({ title, quizzes }: { title: string; quizzes: HomeQ
           style={{ scrollbarWidth: 'none' }}
         >
           {quizzes.map((quiz) => (
-            <QuizCard key={quiz.id} quiz={quiz} />
+            <QuizCard key={quiz.id} quiz={quiz} className="w-64 shrink-0 snap-start" />
           ))}
         </div>
       ) : (
@@ -242,7 +197,7 @@ function GuestHero({
   popularQuizzes,
   stats,
 }: {
-  popularQuizzes: HomeQuizCard[]
+  popularQuizzes: QuizCardData[]
   stats: HomeStats
 }) {
   return (

@@ -7,6 +7,7 @@ import { Search } from 'lucide-react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { EmptyState } from '@/components/ui/empty-state'
+import { QuizCard } from '@/components/ui/quiz-card'
 import type { ParentCategoryData, SubcategoryData } from './page'
 
 interface CategoryBrowserProps {
@@ -99,11 +100,23 @@ function ParentSection({ parent }: { parent: ParentCategoryData }) {
         </div>
       </div>
 
-      {parent.subcategories.length > 0 ? (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {parent.subcategories.map((sub) => (
-            <SubcategoryCard key={sub.slug} sub={sub} />
-          ))}
+      {parent.subcategories.length > 0 || parent.featuredQuizzes.length > 0 ? (
+        <div className="space-y-4">
+          {parent.featuredQuizzes.length > 0 ? (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {parent.featuredQuizzes.map((quiz) => (
+                <QuizCard key={quiz.id} quiz={quiz} />
+              ))}
+            </div>
+          ) : null}
+
+          {parent.subcategories.length > 0 ? (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {parent.subcategories.map((sub) => (
+                <SubcategoryCard key={sub.slug} sub={sub} />
+              ))}
+            </div>
+          ) : null}
         </div>
       ) : (
         <p className="rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">

@@ -5,10 +5,10 @@ import {
   HomePageClient,
   type HomeCurrentUser,
   type HomeFeaturedCategory,
-  type HomeQuizCard,
   type HomeStats,
   type HomeTopPlayer,
 } from '@/components/home/home-page-client'
+import type { QuizCardData } from '@/components/ui/quiz-card'
 
 vi.mock('next/link', () => ({
   default: ({ href, children, ...props }: { href: string; children: ReactNode }) => (
@@ -40,49 +40,37 @@ const stats: HomeStats = {
   totalCategories: 14,
 }
 
-const popularQuizzes: HomeQuizCard[] = [
+const popularQuizzes: QuizCardData[] = [
   {
     id: 'quiz-1',
     title: 'World capitals challenge',
     difficulty: 'MEDIUM',
-    playCount: 420,
-    avgScore: 73,
     category: {
-      slug: 'geography',
       name: 'Geography',
-      icon: '🌍',
       color: '#7c3aed',
     },
   },
 ]
 
-const newestQuizzes: HomeQuizCard[] = [
+const newestQuizzes: QuizCardData[] = [
   {
     id: 'quiz-2',
     title: 'Fresh science facts',
     difficulty: 'EASY',
-    playCount: 12,
-    avgScore: 81,
     category: {
-      slug: 'science',
       name: 'Science',
-      icon: '🧪',
       color: '#10b981',
     },
   },
 ]
 
-const personalizedQuizzes: HomeQuizCard[] = [
+const personalizedQuizzes: QuizCardData[] = [
   {
     id: 'quiz-3',
     title: 'Physics speed round',
     difficulty: 'HARD',
-    playCount: 155,
-    avgScore: 62,
     category: {
-      slug: 'science',
       name: 'Science',
-      icon: '🧪',
       color: '#f59e0b',
     },
   },
