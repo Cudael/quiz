@@ -114,6 +114,7 @@ export function PlayView({ quizId }: PlayViewProps) {
     hiddenChoiceIds: string[]
   }>({ selectedChoiceIds: [], hiddenChoiceIds: [] })
   const [showQuitModal, setShowQuitModal] = useState(false)
+  // Ref avoids render loops here; we only need to track previous question id without re-rendering.
   const prevQuestionIdRef = useRef<string | null>(null)
   const globalTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
