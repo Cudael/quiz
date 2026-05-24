@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { Check, Copy, Loader2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { ImageUrlInput } from './image-url-input'
+import { ImageUpload } from './image-upload'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import { updateQuiz } from '@/app/studio/actions'
 
@@ -81,10 +81,10 @@ export function StepPublish({ quizId }: StepPublishProps) {
 
   return (
     <div className="space-y-6 max-w-xl">
-      <ImageUrlInput
+      <ImageUpload
         value={imageUrl}
         onChange={(v) => setMeta({ imageUrl: v })}
-        label="Cover image URL (optional)"
+        label="Cover image (optional)"
         aspectRatio="16/9"
       />
 

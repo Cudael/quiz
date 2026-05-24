@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { FILL_BLANK_PLACEHOLDER } from '@/domain/quiz-constants'
-import { ImageUrlInput } from './image-url-input'
+import { ImageUpload } from './image-upload'
 import { QuestionTypeIcon } from './question-type-icon'
 import { addQuestion, updateQuestion } from '@/app/studio/actions/question-actions'
 import type { DraftQuestion, DraftChoice } from '@/store/quiz-creator-store'
@@ -167,7 +167,7 @@ export function QuestionCard({
       {/* Body */}
       {open && (
         <div className="space-y-4 border-t px-4 py-4">
-          <ImageUrlInput
+          <ImageUpload
             value={question.imageUrl}
             onChange={(v) => onUpdate({ imageUrl: v })}
             label="Question image (optional)"
