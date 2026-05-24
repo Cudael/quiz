@@ -114,17 +114,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
   session: { strategy: 'jwt' },
   trustHost: true,
-  cookies: {
-    sessionToken: {
-      name: 'next-auth.session-token',
-      options: {
-        httpOnly: true,
-        sameSite: 'lax' as const,
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-      },
-    },
-  },
   callbacks: {
     async jwt({ token, user }) {
       const tokenWithProfile = token as typeof token & {
