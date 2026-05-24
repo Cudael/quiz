@@ -19,7 +19,8 @@ function encodeBase64url(buf: ArrayBuffer): string {
 }
 
 function decodeBase64url(str: string): ArrayBuffer {
-  return Buffer.from(str, 'base64url').buffer.slice(0) as ArrayBuffer
+  const buf = Buffer.from(str, 'base64url')
+  return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer
 }
 
 // ---------------------------------------------------------------------------
