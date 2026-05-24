@@ -12,6 +12,7 @@
 
 import { PrismaClient } from '@prisma/client'
 import { categories, badges, users, quizDefs, questionsByQuiz } from './seed-data'
+import type { PlayMode } from './seed-data'
 
 const prisma = new PrismaClient()
 
@@ -193,7 +194,7 @@ async function main() {
     correctCount: number
     totalCount: number
     timeTakenMs: number
-    mode: string
+    mode: PlayMode
     daysAgo: number
     hourUtc?: number
   }> = [
@@ -333,7 +334,7 @@ async function main() {
     },
   ]
 
-  const generatedSessions = Array.from({ length: 36 }, (_, index) => {
+  const generatedSessions: typeof sessionData = Array.from({ length: 36 }, (_, index) => {
     const cycle = index % 3
     const userId =
       cycle === 0 ? 'user_demo_alice' : cycle === 1 ? 'user_demo_bob' : 'user_demo_carol'

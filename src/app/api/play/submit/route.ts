@@ -26,8 +26,15 @@ interface SubmitBody {
   guestName?: string
 }
 
+const PLAY_MODES = ['CLASSIC', 'TIMED', 'SURVIVAL', 'DAILY'] as const
+type PlayMode = (typeof PLAY_MODES)[number]
+
 function sanitizeChoiceIds(choiceIds: string[], validChoiceIds: Set<string>) {
   return Array.from(new Set(choiceIds.filter((choiceId) => validChoiceIds.has(choiceId)))).sort()
+}
+
+function isPlayMode(value: string): value is PlayMode {
+  return PLAY_MODES.includes(value as PlayMode)
 }
 
 export async function POST(req: NextRequest) {
@@ -66,6 +73,9 @@ export async function POST(req: NextRequest) {
   }
 
   const normalizedMode = mode.toUpperCase()
+  if (!isPlayMode(normalizedMode)) {
+    return NextResponse.json({ error: 'Invalid play mode' }, { status: 400 })
+  }
   if (normalizedMode === 'DAILY') {
     const todayStart = new Date()
     todayStart.setUTCHours(0, 0, 0, 0)
