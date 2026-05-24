@@ -8,6 +8,7 @@ import { z } from 'zod'
 import { prisma } from '@/server/prisma'
 import { generateUniqueUsername } from '@/lib/usernames'
 import { verifyPassword } from '@/server/password'
+import { authConfig } from '@/server/auth.config'
 
 const credentialsSchema = z.object({
   name: z.string().trim().min(1).max(80),
@@ -18,102 +19,96 @@ const emailPasswordCredentialsSchema = z.object({
   password: z.string().min(1),
 })
 
-const providers = [
-  ...(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
-    ? [
-        GitHub({
-          clientId: process.env.GITHUB_CLIENT_ID,
-          clientSecret: process.env.GITHUB_CLIENT_SECRET,
-        }),
-      ]
-    : []),
-  ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
-    ? [
-        Google({
-          clientId: process.env.GOOGLE_CLIENT_ID,
-          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        }),
-      ]
-    : []),
-  Credentials({
-    id: 'email-password',
-    name: 'Email and Password',
-    credentials: {
-      email: { label: 'Email', type: 'email' },
-      password: { label: 'Password', type: 'password' },
-    },
-    authorize: async (rawCredentials) => {
-      const parsed = emailPasswordCredentialsSchema.safeParse(rawCredentials)
-      if (!parsed.success) {
-        return null
-      }
-
-      const user = await prisma.user.findUnique({
-        where: { email: parsed.data.email },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          image: true,
-          role: true,
-          emailVerified: true,
-          passwordHash: true,
-        },
-      })
-
-      if (!user?.passwordHash) {
-        return null
-      }
-
-      const isValid = await verifyPassword(parsed.data.password, user.passwordHash)
-      if (!isValid) {
-        return null
-      }
-
-      return {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        image: user.image,
-        role: user.role,
-        emailVerified: user.emailVerified,
-      }
-    },
-  }),
-  Credentials({
-    id: 'credentials',
-    name: 'Guest',
-    credentials: {
-      name: { label: 'Name', type: 'text' },
-    },
-    authorize: async (rawCredentials) => {
-      const parsed = credentialsSchema.safeParse(rawCredentials)
-      if (!parsed.success) {
-        return null
-      }
-
-      const name = parsed.data.name
-
-      return prisma.user.create({
-        data: {
-          name,
-          username: await generateUniqueUsername(name),
-          email: null,
-          role: 'USER',
-        },
-      })
-    },
-  }),
-]
-
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  providers,
-  pages: {
-    signIn: '/sign-in',
-  },
+  ...authConfig,
+  providers: [
+    ...(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
+      ? [
+          GitHub({
+            clientId: process.env.GITHUB_CLIENT_ID,
+            clientSecret: process.env.GITHUB_CLIENT_SECRET,
+          }),
+        ]
+      : []),
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+      ? [
+          Google({
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          }),
+        ]
+      : []),
+    Credentials({
+      id: 'email-password',
+      name: 'Email and Password',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+      },
+      authorize: async (rawCredentials) => {
+        const parsed = emailPasswordCredentialsSchema.safeParse(rawCredentials)
+        if (!parsed.success) {
+          return null
+        }
+
+        const user = await prisma.user.findUnique({
+          where: { email: parsed.data.email },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+            role: true,
+            emailVerified: true,
+            passwordHash: true,
+          },
+        })
+
+        if (!user?.passwordHash) {
+          return null
+        }
+
+        const isValid = await verifyPassword(parsed.data.password, user.passwordHash)
+        if (!isValid) {
+          return null
+        }
+
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+          role: user.role,
+          emailVerified: user.emailVerified,
+        }
+      },
+    }),
+    Credentials({
+      id: 'credentials',
+      name: 'Guest',
+      credentials: {
+        name: { label: 'Name', type: 'text' },
+      },
+      authorize: async (rawCredentials) => {
+        const parsed = credentialsSchema.safeParse(rawCredentials)
+        if (!parsed.success) {
+          return null
+        }
+
+        const name = parsed.data.name
+
+        return prisma.user.create({
+          data: {
+            name,
+            username: await generateUniqueUsername(name),
+            email: null,
+            role: 'USER',
+          },
+        })
+      },
+    }),
+  ],
   secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
-  session: { strategy: 'jwt' },
-  trustHost: true,
   callbacks: {
     async jwt({ token, user }) {
       const tokenWithProfile = token as typeof token & {

@@ -1,7 +1,10 @@
+import NextAuth from 'next-auth'
+import { authConfig } from '@/server/auth.config'
 import { NextResponse } from 'next/server'
-import { auth } from '@/server/auth'
 
 const PATHNAME_HEADER = 'x-quiz-pathname'
+
+const { auth } = NextAuth(authConfig)
 
 export default auth((req) => {
   const { pathname } = req.nextUrl
