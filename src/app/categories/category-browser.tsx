@@ -3,11 +3,10 @@
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import type React from 'react'
 import * as LucideIcons from 'lucide-react'
-import { Search } from 'lucide-react'
+import { ArrowRight, Search } from 'lucide-react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { EmptyState } from '@/components/ui/empty-state'
-import { QuizCard } from '@/components/ui/quiz-card'
 import type { ParentCategoryData, SubcategoryData } from './page'
 
 interface CategoryBrowserProps {
@@ -41,23 +40,22 @@ function SubcategoryCard({ sub }: { sub: SubcategoryData }) {
   return (
     <Link
       href={`/categories/${sub.slug}`}
-      className="group flex items-start gap-3 rounded-xl border border-border bg-card p-4 transition-all duration-200 hover:border-transparent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="group flex items-start gap-3 rounded-lg border border-border/80 bg-card/70 p-3 transition-all duration-200 hover:border-transparent hover:bg-card hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <span
-        className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+        className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md"
         style={{ backgroundColor: sub.color + '22' }}
       >
         <DynamicIcon
           name={sub.icon}
-          className="h-5 w-5"
+          className="h-4 w-4"
           style={{ color: sub.color } as React.CSSProperties}
         />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-foreground group-hover:text-primary">
+        <p className="truncate text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
           {sub.name}
         </p>
-        <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{sub.description}</p>
         <p className="mt-1 text-xs font-medium text-muted-foreground">
           {sub.quizCount} {sub.quizCount === 1 ? 'quiz' : 'quizzes'}
         </p>
@@ -69,60 +67,61 @@ function SubcategoryCard({ sub }: { sub: SubcategoryData }) {
 function ParentSection({ parent }: { parent: ParentCategoryData }) {
   return (
     <section aria-labelledby={`cat-${parent.slug}`}>
-      <div className="mb-4 flex items-center gap-3">
-        <span
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
-          style={{ backgroundColor: parent.color + '22' }}
-        >
-          <DynamicIcon
-            name={parent.icon}
-            className="h-6 w-6"
-            style={{ color: parent.color } as React.CSSProperties}
-          />
-        </span>
-        <div>
-          <h2 id={`cat-${parent.slug}`} className="text-lg font-bold leading-tight text-foreground">
+      <div className="rounded-2xl border border-border/70 bg-card/60 p-5">
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
+          <div className="flex min-w-0 items-start gap-3">
+            <span
+              className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+              style={{ backgroundColor: parent.color + '22' }}
+            >
+              <DynamicIcon
+                name={parent.icon}
+                className="h-5 w-5"
+                style={{ color: parent.color } as React.CSSProperties}
+              />
+            </span>
+            <div className="min-w-0">
+              <h2
+                id={`cat-${parent.slug}`}
+                className="text-lg font-bold leading-tight text-foreground"
+              >
+                <Link
+                  href={`/categories/${parent.slug}`}
+                  className="transition-colors hover:text-primary"
+                >
+                  {parent.name}
+                </Link>
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">{parent.description}</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span className="rounded-full border border-border bg-background px-3 py-1 text-xs font-semibold text-muted-foreground">
+              {parent.quizCount} {parent.quizCount === 1 ? 'quiz' : 'quizzes'}
+            </span>
             <Link
               href={`/categories/${parent.slug}`}
-              className="hover:text-primary transition-colors"
+              className="inline-flex items-center text-sm font-semibold text-primary transition-colors hover:text-primary/80"
             >
-              {parent.name}
+              Browse all
+              <ArrowRight className="ml-1 h-4 w-4" aria-hidden="true" />
             </Link>
-          </h2>
-          <p className="text-xs text-muted-foreground">
-            {parent.description}
-            {parent.quizCount > 0 && (
-              <span className="ml-2 font-medium">
-                · {parent.quizCount} {parent.quizCount === 1 ? 'quiz' : 'quizzes'}
-              </span>
-            )}
+          </div>
+        </div>
+
+        {parent.subcategories.length > 0 ? (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {parent.subcategories.map((sub) => (
+              <SubcategoryCard key={sub.slug} sub={sub} />
+            ))}
+          </div>
+        ) : (
+          <p className="rounded-xl border border-dashed border-border px-4 py-5 text-center text-sm text-muted-foreground">
+            No subcategories yet
           </p>
-        </div>
+        )}
       </div>
-
-      {parent.subcategories.length > 0 || parent.featuredQuizzes.length > 0 ? (
-        <div className="space-y-4">
-          {parent.featuredQuizzes.length > 0 ? (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {parent.featuredQuizzes.map((quiz) => (
-                <QuizCard key={quiz.id} quiz={quiz} />
-              ))}
-            </div>
-          ) : null}
-
-          {parent.subcategories.length > 0 ? (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {parent.subcategories.map((sub) => (
-                <SubcategoryCard key={sub.slug} sub={sub} />
-              ))}
-            </div>
-          ) : null}
-        </div>
-      ) : (
-        <p className="rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
-          No subcategories yet
-        </p>
-      )}
     </section>
   )
 }
