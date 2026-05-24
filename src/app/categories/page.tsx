@@ -6,7 +6,6 @@ import { PageHeader } from '@/components/ui/page-header'
 import { prisma } from '@/server/prisma'
 import { CategoryBrowser } from './category-browser'
 import { absoluteUrl } from '@/lib/site'
-import type { QuizCardData } from '@/components/ui/quiz-card'
 
 export const metadata: Metadata = {
   title: 'Categories | QuizArena',
@@ -45,7 +44,6 @@ export interface ParentCategoryData {
   quizCount: number
   totalPlays: number
   subcategories: SubcategoryData[]
-  featuredQuizzes: QuizCardData[]
 }
 
 export default async function CategoriesPage() {
@@ -87,22 +85,6 @@ export default async function CategoriesPage() {
       const childQuizCount = childSubcategories.reduce((s, c) => s + c.quizCount, 0)
       const ownPlays = parent.quizzes.reduce((s, q) => s + q.playCount, 0)
       const childPlays = childSubcategories.reduce((s, c) => s + c.totalPlays, 0)
-      const featuredQuizzes = [...parent.quizzes]
-        .sort((a, b) => b.playCount - a.playCount)
-        .slice(0, 4)
-        .map<QuizCardData>((quiz) => ({
-          id: quiz.id,
-          title: quiz.title,
-          coverImage: quiz.coverImage,
-          difficulty:
-            quiz.difficulty === 'EASY' || quiz.difficulty === 'MEDIUM' || quiz.difficulty === 'HARD'
-              ? quiz.difficulty
-              : 'MEDIUM',
-          category: {
-            name: parent.name,
-            color: parent.color,
-          },
-        }))
 
       return {
         slug: parent.slug,
@@ -113,7 +95,6 @@ export default async function CategoriesPage() {
         quizCount: ownQuizCount + childQuizCount,
         totalPlays: ownPlays + childPlays,
         subcategories: childSubcategories,
-        featuredQuizzes,
       }
     })
     .sort((a, b) => b.quizCount - a.quizCount)
