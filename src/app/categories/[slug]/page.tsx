@@ -11,6 +11,16 @@ import { QuizCard } from '@/components/ui/quiz-card'
 import type { QuizCardData } from '@/components/ui/quiz-card'
 import { prisma } from '@/server/prisma'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const lucideIconMap = LucideIcons as unknown as Record<string, React.ComponentType<any>>
+
+function renderLucideIcon(name: string, className: string, color: string) {
+  const Icon = lucideIconMap[name]
+  if (!Icon) return null
+
+  return <Icon className={className} style={{ color } as React.CSSProperties} aria-hidden="true" />
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -99,15 +109,6 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
       : Promise.resolve(null),
   ])
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const CategoryIcon = (LucideIcons as any)[category.icon] as
-    | React.ComponentType<{
-        className?: string
-        style?: React.CSSProperties
-        'aria-hidden'?: string
-      }>
-    | undefined
-
   const quizCards: QuizCardData[] = quizzes.map((quiz) => ({
     id: quiz.id,
     title: quiz.title,
@@ -172,13 +173,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
                 className="flex h-12 w-12 items-center justify-center rounded-xl"
                 style={{ backgroundColor: 'rgb(255 255 255 / 0.45)' }}
               >
-                {CategoryIcon ? (
-                  <CategoryIcon
-                    className="h-6 w-6"
-                    style={{ color: category.color } as React.CSSProperties}
-                    aria-hidden="true"
-                  />
-                ) : null}
+                {renderLucideIcon(category.icon, 'h-6 w-6', category.color)}
               </span>
               {category.name}
             </span>
@@ -197,15 +192,6 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
           <h2 className="text-xl font-bold">Subcategories</h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {subcategories.map((sub) => {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const SubIcon = (LucideIcons as any)[sub.icon] as
-                | React.ComponentType<{
-                    className?: string
-                    style?: React.CSSProperties
-                    'aria-hidden'?: string
-                  }>
-                | undefined
-
               return (
                 <Link
                   key={sub.slug}
@@ -218,13 +204,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
                         className="flex h-8 w-8 items-center justify-center rounded-md"
                         style={{ backgroundColor: `${sub.color}22` }}
                       >
-                        {SubIcon ? (
-                          <SubIcon
-                            className="h-4 w-4"
-                            style={{ color: sub.color } as React.CSSProperties}
-                            aria-hidden="true"
-                          />
-                        ) : null}
+                        {renderLucideIcon(sub.icon, 'h-4 w-4', sub.color)}
                       </span>
                       <span className="font-semibold transition-colors group-hover:text-primary">
                         {sub.name}

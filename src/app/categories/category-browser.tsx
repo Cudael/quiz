@@ -56,6 +56,7 @@ function SubcategoryCard({ sub }: { sub: SubcategoryData }) {
         <p className="truncate text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
           {sub.name}
         </p>
+        <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{sub.description}</p>
         <p className="mt-1 text-xs font-medium text-muted-foreground">
           {sub.quizCount} {sub.quizCount === 1 ? 'quiz' : 'quizzes'}
         </p>
