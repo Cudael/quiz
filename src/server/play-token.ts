@@ -19,7 +19,12 @@ function encodeBase64url(buf: ArrayBuffer): string {
 }
 
 function decodeBase64url(str: string): ArrayBuffer {
-  return Buffer.from(str, 'base64url').buffer.slice(0) as ArrayBuffer
+  const buf = Buffer.from(str, 'base64url')
+  // .buffer is the underlying shared Node.js pool ArrayBuffer — it must be
+  // sliced to the exact byte range occupied by this Buffer, otherwise
+  // crypto.subtle.verify() receives garbage bytes from the pool and always
+  // returns false (the root cause of "Invalid or expired play token").
+  return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer
 }
 
 // ---------------------------------------------------------------------------
