@@ -1,6 +1,7 @@
 import { revalidateTag } from 'next/cache'
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+import { PlayMode as PrismaPlayMode } from '@prisma/client'
 import { prisma } from '@/server/prisma'
 import { verifyPlayToken } from '@/server/play-token'
 import { scoreQuestion } from '@/domain/scoring'
@@ -28,6 +29,10 @@ interface SubmitBody {
 
 function sanitizeChoiceIds(choiceIds: string[], validChoiceIds: Set<string>) {
   return Array.from(new Set(choiceIds.filter((choiceId) => validChoiceIds.has(choiceId)))).sort()
+}
+
+function isPlayMode(value: string): value is PrismaPlayMode {
+  return value in PrismaPlayMode
 }
 
 export async function POST(req: NextRequest) {
@@ -66,6 +71,9 @@ export async function POST(req: NextRequest) {
   }
 
   const normalizedMode = mode.toUpperCase()
+  if (!isPlayMode(normalizedMode)) {
+    return NextResponse.json({ error: 'Invalid play mode' }, { status: 400 })
+  }
   if (normalizedMode === 'DAILY') {
     const todayStart = new Date()
     todayStart.setUTCHours(0, 0, 0, 0)

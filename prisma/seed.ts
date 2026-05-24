@@ -11,6 +11,7 @@
  */
 
 import { PrismaClient } from '@prisma/client'
+import type { PlayMode } from '@prisma/client'
 import { categories, badges, users, quizDefs, questionsByQuiz } from './seed-data'
 
 const prisma = new PrismaClient()
@@ -185,7 +186,7 @@ async function main() {
   // ------------------------------------------------------------------
   // Play sessions (for leaderboard data in Phase 5)
   // ------------------------------------------------------------------
-  const sessionData: Array<{
+  interface SessionSeed {
     userId: string | null
     guestName: string | null
     quizTitle: string
@@ -193,10 +194,12 @@ async function main() {
     correctCount: number
     totalCount: number
     timeTakenMs: number
-    mode: string
+    mode: PlayMode
     daysAgo: number
     hourUtc?: number
-  }> = [
+  }
+
+  const sessionData: SessionSeed[] = [
     {
       userId: 'user_demo_alice',
       guestName: null,
@@ -333,7 +336,7 @@ async function main() {
     },
   ]
 
-  const generatedSessions = Array.from({ length: 36 }, (_, index) => {
+  const generatedSessions: SessionSeed[] = Array.from({ length: 36 }, (_, index) => {
     const cycle = index % 3
     const userId =
       cycle === 0 ? 'user_demo_alice' : cycle === 1 ? 'user_demo_bob' : 'user_demo_carol'
