@@ -20,13 +20,22 @@ function isUploadedFile(value: FormDataEntryValue | null): value is File {
 }
 
 function sanitizeFilename(filename: string) {
-  const sanitized = filename
+  const trimmed = filename.trim()
+  const lastDotIndex = trimmed.lastIndexOf('.')
+  const rawExtension = lastDotIndex > 0 ? trimmed.slice(lastDotIndex + 1) : ''
+  const rawBaseName = lastDotIndex > 0 ? trimmed.slice(0, lastDotIndex) : trimmed
+
+  const sanitizedBaseName = rawBaseName
     .trim()
     .replace(/[^a-zA-Z0-9._-]+/g, '-')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '')
+    .slice(0, 80)
 
-  return sanitized || 'image'
+  const sanitizedExtension = rawExtension.replace(/[^a-zA-Z0-9]+/g, '').slice(0, 10)
+  const safeBaseName = sanitizedBaseName || 'image'
+
+  return sanitizedExtension ? `${safeBaseName}.${sanitizedExtension}` : safeBaseName
 }
 
 export async function POST(request: Request) {
@@ -55,7 +64,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Image must be 5 MB or smaller' }, { status: 413 })
   }
 
-  const pathname = `quiz-images/${session.user.id}/${Date.now()}-${sanitizeFilename(file.name)}`
+  const pathname = `quiz-images/${session.user.id}/${Date.now()}-${crypto.randomUUID()}-${sanitizeFilename(file.name)}`
 
   try {
     const blob = await put(pathname, file, {

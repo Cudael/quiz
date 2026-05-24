@@ -63,13 +63,14 @@ describe('POST /api/upload', () => {
       url: 'https://blob.vercel-storage.com/quiz-images/user_123/cover.png',
     })
     vi.spyOn(Date, 'now').mockReturnValue(1710000000000)
+    vi.spyOn(crypto, 'randomUUID').mockReturnValue('uuid-1234')
 
     const file = new File(['image'], 'My cover image!.png', { type: 'image/png' })
     const response = await POST(createRequest(file))
 
     expect(response.status).toBe(200)
     expect(putMock).toHaveBeenCalledWith(
-      'quiz-images/user_123/1710000000000-My-cover-image-.png',
+      'quiz-images/user_123/1710000000000-uuid-1234-My-cover-image.png',
       file,
       {
         access: 'public',
@@ -79,5 +80,28 @@ describe('POST /api/upload', () => {
     await expect(response.json()).resolves.toEqual({
       url: 'https://blob.vercel-storage.com/quiz-images/user_123/cover.png',
     })
+  })
+
+  it('preserves a safe extension when the original filename has no usable basename', async () => {
+    authMock.mockResolvedValue({ user: { id: 'user_123' } })
+    putMock.mockResolvedValue({
+      url: 'https://blob.vercel-storage.com/quiz-images/user_123/image.png',
+    })
+    vi.spyOn(Date, 'now').mockReturnValue(1710000000000)
+    vi.spyOn(crypto, 'randomUUID').mockReturnValue('uuid-5678')
+
+    const response = await POST(
+      createRequest(new File(['image'], '!!!.png', { type: 'image/png' }))
+    )
+
+    expect(response.status).toBe(200)
+    expect(putMock).toHaveBeenCalledWith(
+      'quiz-images/user_123/1710000000000-uuid-5678-image.png',
+      expect.any(File),
+      {
+        access: 'public',
+        addRandomSuffix: false,
+      }
+    )
   })
 })

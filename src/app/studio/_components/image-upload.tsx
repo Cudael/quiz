@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024
+const GENERIC_UPLOAD_ERROR = 'Unable to upload image. Please try again.'
 
 interface ImageUploadProps {
   value: string
@@ -25,7 +26,7 @@ function getUploadErrorMessage(error: unknown) {
     return error.error
   }
 
-  return 'Unable to upload image.'
+  return GENERIC_UPLOAD_ERROR
 }
 
 function validateFile(file: File) {
@@ -100,13 +101,13 @@ export function ImageUpload({
         !('url' in payload) ||
         typeof payload.url !== 'string'
       ) {
-        setError('Unable to upload image.')
+        setError(GENERIC_UPLOAD_ERROR)
         return
       }
 
       onChange(payload.url)
     } catch {
-      setError('Unable to upload image.')
+      setError(GENERIC_UPLOAD_ERROR)
     } finally {
       setIsUploading(false)
       if (inputRef.current) {
@@ -247,9 +248,9 @@ export function ImageUpload({
 
       {error ? (
         <p className="text-xs text-destructive">{error}</p>
-      ) : (
+      ) : !value ? (
         <p className="text-xs text-muted-foreground">Upload an image file up to 5 MB.</p>
-      )}
+      ) : null}
     </div>
   )
 }

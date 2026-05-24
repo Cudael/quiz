@@ -7,14 +7,13 @@ import { ImageUpload } from '@/app/studio/_components/image-upload'
 vi.mock('next/image', () => ({
   default: ({
     alt,
-    fill: _fill,
-    unoptimized: _unoptimized,
     ...props
   }: ImgHTMLAttributes<HTMLImageElement> & { fill?: boolean; unoptimized?: boolean }) => {
-    void _fill
-    void _unoptimized
+    const passthroughProps = { ...props }
+    delete passthroughProps.fill
+    delete passthroughProps.unoptimized
     // eslint-disable-next-line @next/next/no-img-element
-    return <img alt={alt ?? ''} {...props} />
+    return <img alt={alt ?? ''} {...passthroughProps} />
   },
 }))
 
