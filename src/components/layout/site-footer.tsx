@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { Brain, Github } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { ThemeToggle } from '@/components/theme/theme-toggle'
 
 export function SiteFooter() {
   return (
@@ -54,32 +54,29 @@ export function SiteFooter() {
               More
             </p>
             <div className="flex flex-col gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-auto justify-start px-0 py-0 text-sm text-muted-foreground hover:text-foreground"
-                asChild
+              <Link
+                href="https://github.com/Cudael/quiz"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
-                <Link href="https://github.com/Cudael/quiz" target="_blank" rel="noreferrer">
-                  <Github className="mr-2 h-4 w-4" />
-                  GitHub
-                </Link>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-auto justify-start px-0 py-0 text-sm text-muted-foreground hover:text-foreground"
-                asChild
+                <Github className="h-4 w-4" />
+                GitHub
+              </Link>
+              <Link
+                href="/about/accessibility"
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
-                <Link href="/about/accessibility">Accessibility</Link>
-              </Button>
+                Accessibility
+              </Link>
             </div>
           </div>
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-8 border-t border-border/40 pt-6 text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} QuizArena. All rights reserved.
+        <div className="mt-8 flex items-center justify-between border-t border-border/40 pt-6 text-xs text-muted-foreground">
+          <span>© {new Date().getFullYear()} QuizArena. All rights reserved.</span>
+          <ThemeToggle />
         </div>
       </div>
     </footer>

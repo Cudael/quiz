@@ -6,7 +6,6 @@ import { Brain, Menu } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Sheet } from '@/components/ui/sheet'
-import { ThemeToggle } from '@/components/theme/theme-toggle'
 import { AuthControls } from '@/components/auth/auth-controls'
 import { cn } from '@/lib/utils'
 
@@ -58,11 +57,7 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <ThemeToggle />
           <AuthControls />
-          <Button variant="gradient" size="sm" asChild className="hidden md:flex">
-            <Link href="/play">Play Now</Link>
-          </Button>
           <Button
             variant="ghost"
             size="icon"
@@ -95,13 +90,6 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
-          <div className="mt-3 border-t border-border/40 pt-3">
-            <Button variant="gradient" className="w-full" asChild>
-              <Link href="/play" onClick={() => setMobileOpen(false)}>
-                Play Now 🎮
-              </Link>
-            </Button>
-          </div>
         </nav>
       </Sheet>
     </header>
