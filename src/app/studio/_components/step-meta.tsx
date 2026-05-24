@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 import { DEFAULT_TIME_LIMIT_SEC } from '@/domain/quiz-constants'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
-import { ImageUrlInput } from './image-url-input'
+import { ImageUpload } from './image-upload'
 import { TemplatePicker, QUIZ_TEMPLATES } from './template-picker'
 import type { DraftQuestion, DraftChoice } from '@/store/quiz-creator-store'
 
@@ -184,10 +184,10 @@ export function StepMeta({ categories }: StepMetaProps) {
         </div>
 
         {/* Cover image */}
-        <ImageUrlInput
+        <ImageUpload
           value={imageUrl}
           onChange={(v) => setMeta({ imageUrl: v })}
-          label="Cover image URL (optional)"
+          label="Cover image (optional)"
           aspectRatio="16/9"
         />
 
