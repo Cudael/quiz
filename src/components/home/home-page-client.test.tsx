@@ -29,7 +29,7 @@ const featuredCategories: HomeFeaturedCategory[] = [
   {
     slug: 'science',
     name: 'Science',
-    icon: 'S',
+    icon: '🧪',
     color: 'linear-gradient(135deg, #7c3aed, #ec4899)',
     description: 'Experiments and facts',
     quizCount: 12,
@@ -120,10 +120,19 @@ describe('HomePageClient', () => {
     expect(
       screen.getByRole('heading', { name: /play great quizzes right now/i })
     ).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '⭐ Featured Quiz' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: '🔥 Trending' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: '✨ Just Added' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Top Players' })).toBeInTheDocument()
+    expect(screen.getByText('🧪')).toBeInTheDocument()
+    expect(screen.getByText('Experiments and facts')).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'For You' })).not.toBeInTheDocument()
+
+    const exploreByTopic = screen.getByRole('heading', { name: 'Explore by topic' })
+    const featuredQuiz = screen.getByRole('heading', { name: '⭐ Featured Quiz' })
+    expect(exploreByTopic.compareDocumentPosition(featuredQuiz)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING
+    )
   })
 
   it('renders the authenticated dashboard and personalized section', () => {
@@ -141,6 +150,7 @@ describe('HomePageClient', () => {
     )
 
     expect(screen.getByRole('heading', { name: /welcome back, cudael! 👋/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: "⭐ Today's Pick" })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'For You' })).toBeInTheDocument()
     expect(screen.getByText(/based on your activity/i)).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Top Players' })).not.toBeInTheDocument()

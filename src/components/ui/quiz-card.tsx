@@ -98,3 +98,56 @@ export function QuizCard({ quiz, className }: QuizCardProps) {
     </Link>
   )
 }
+
+export function QuizCardFeatured({ quiz, className }: QuizCardProps) {
+  const shouldReduceMotion = useReducedMotion()
+  const [imageFailed, setImageFailed] = React.useState(false)
+  const hasCoverImage = Boolean(quiz.coverImage) && !imageFailed
+
+  return (
+    <Link href={`/quiz/${quiz.id}`} className={cn('block h-72 w-full md:h-80', className)}>
+      <motion.div
+        whileHover={shouldReduceMotion ? undefined : { y: -4, scale: 1.01 }}
+        transition={{ duration: 0.18, ease: 'easeOut' }}
+        className="relative h-full overflow-hidden rounded-3xl border border-white/10 shadow-sm"
+      >
+        <div
+          className="absolute inset-0"
+          style={{ backgroundImage: getFallbackGradient(quiz.category.color) }}
+        />
+        {hasCoverImage ? (
+          <Image
+            src={quiz.coverImage ?? ''}
+            alt={`${quiz.title} cover image`}
+            fill
+            unoptimized
+            sizes="100vw"
+            className="object-cover"
+            onError={() => setImageFailed(true)}
+          />
+        ) : null}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
+
+        <div className="absolute right-4 top-4 flex flex-wrap justify-end gap-2">
+          <Badge variant={getDifficultyVariant(quiz.difficulty)}>{quiz.difficulty}</Badge>
+          <Badge
+            variant="outline"
+            className="border-white/25 text-primary-foreground"
+            style={{ backgroundColor: 'rgb(0 0 0 / 0.45)' }}
+          >
+            {quiz.category.name}
+          </Badge>
+        </div>
+
+        <div className="absolute bottom-0 left-0 right-0 p-6">
+          <h3 className="line-clamp-2 text-2xl font-black text-primary-foreground md:text-3xl">
+            {quiz.title}
+          </h3>
+          <span className="mt-4 inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
+            Play now →
+          </span>
+        </div>
+      </motion.div>
+    </Link>
+  )
+}
