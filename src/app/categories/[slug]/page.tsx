@@ -11,14 +11,22 @@ import { QuizCard } from '@/components/ui/quiz-card'
 import type { QuizCardData } from '@/components/ui/quiz-card'
 import { prisma } from '@/server/prisma'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const lucideIconMap = LucideIcons as unknown as Record<string, React.ComponentType<any>>
+type IconLikeProps = {
+  className?: string
+  style?: React.CSSProperties
+  'aria-hidden'?: boolean
+}
+
+function isIconComponent(value: unknown): value is React.ComponentType<IconLikeProps> {
+  return typeof value === 'function'
+}
 
 function renderLucideIcon(name: string, className: string, color: string) {
-  const Icon = lucideIconMap[name]
-  if (!Icon) return null
+  const maybeIcon = LucideIcons[name as keyof typeof LucideIcons]
+  if (!isIconComponent(maybeIcon)) return null
+  const Icon = maybeIcon
 
-  return <Icon className={className} style={{ color } as React.CSSProperties} aria-hidden="true" />
+  return <Icon className={className} style={{ color } as React.CSSProperties} aria-hidden />
 }
 
 export async function generateMetadata({

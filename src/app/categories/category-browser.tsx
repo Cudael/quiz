@@ -164,7 +164,7 @@ export function CategoryBrowser({ parentCategories }: CategoryBrowserProps) {
       {/* Search */}
       <div className="mb-10 max-w-lg">
         <label htmlFor="route-categories-search" className="sr-only">
-          Search quizzes
+          Search categories
         </label>
         <div className="relative">
           <Search

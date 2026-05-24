@@ -26,7 +26,7 @@ describe('axe smoke routes', () => {
     await expectNoSeriousOrCritical(
       <main>
         <h1>Categories</h1>
-        <label htmlFor="route-categories-search">Search quizzes</label>
+        <label htmlFor="route-categories-search">Search categories</label>
         <input id="route-categories-search" type="search" />
       </main>
     )

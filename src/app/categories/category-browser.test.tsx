@@ -73,7 +73,7 @@ describe('CategoryBrowser', () => {
       <CategoryBrowser parentCategories={parentCategories} totalQuizzes={3} totalCategories={3} />
     )
 
-    fireEvent.change(screen.getByLabelText('Search quizzes'), { target: { value: 'myth' } })
+    fireEvent.change(screen.getByLabelText('Search categories'), { target: { value: 'myth' } })
 
     await waitFor(() => {
       expect(screen.getByRole('link', { name: /mythology/i })).toBeInTheDocument()
