@@ -11,8 +11,8 @@
  */
 
 import { PrismaClient } from '@prisma/client'
+import type { PlayMode } from '@prisma/client'
 import { categories, badges, users, quizDefs, questionsByQuiz } from './seed-data'
-import type { PlayMode } from './seed-data'
 
 const prisma = new PrismaClient()
 

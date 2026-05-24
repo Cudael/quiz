@@ -1,6 +1,7 @@
 import { revalidateTag } from 'next/cache'
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+import { PlayMode as PrismaPlayMode } from '@prisma/client'
 import { prisma } from '@/server/prisma'
 import { verifyPlayToken } from '@/server/play-token'
 import { scoreQuestion } from '@/domain/scoring'
@@ -26,8 +27,8 @@ interface SubmitBody {
   guestName?: string
 }
 
-const PLAY_MODES = ['CLASSIC', 'TIMED', 'SURVIVAL', 'DAILY'] as const
-type PlayMode = (typeof PLAY_MODES)[number]
+type PlayMode = (typeof PrismaPlayMode)[keyof typeof PrismaPlayMode]
+const PLAY_MODES = Object.values(PrismaPlayMode)
 
 function sanitizeChoiceIds(choiceIds: string[], validChoiceIds: Set<string>) {
   return Array.from(new Set(choiceIds.filter((choiceId) => validChoiceIds.has(choiceId)))).sort()
