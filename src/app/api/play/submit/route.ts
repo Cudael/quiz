@@ -27,15 +27,12 @@ interface SubmitBody {
   guestName?: string
 }
 
-type PlayMode = (typeof PrismaPlayMode)[keyof typeof PrismaPlayMode]
-const PLAY_MODES = Object.values(PrismaPlayMode)
-
 function sanitizeChoiceIds(choiceIds: string[], validChoiceIds: Set<string>) {
   return Array.from(new Set(choiceIds.filter((choiceId) => validChoiceIds.has(choiceId)))).sort()
 }
 
-function isPlayMode(value: string): value is PlayMode {
-  return PLAY_MODES.includes(value as PlayMode)
+function isPlayMode(value: string): value is PrismaPlayMode {
+  return value in PrismaPlayMode
 }
 
 export async function POST(req: NextRequest) {

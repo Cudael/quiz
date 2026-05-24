@@ -186,7 +186,7 @@ async function main() {
   // ------------------------------------------------------------------
   // Play sessions (for leaderboard data in Phase 5)
   // ------------------------------------------------------------------
-  const sessionData: Array<{
+  interface SessionSeed {
     userId: string | null
     guestName: string | null
     quizTitle: string
@@ -197,7 +197,9 @@ async function main() {
     mode: PlayMode
     daysAgo: number
     hourUtc?: number
-  }> = [
+  }
+
+  const sessionData: SessionSeed[] = [
     {
       userId: 'user_demo_alice',
       guestName: null,
@@ -334,7 +336,7 @@ async function main() {
     },
   ]
 
-  const generatedSessions: typeof sessionData = Array.from({ length: 36 }, (_, index) => {
+  const generatedSessions: SessionSeed[] = Array.from({ length: 36 }, (_, index) => {
     const cycle = index % 3
     const userId =
       cycle === 0 ? 'user_demo_alice' : cycle === 1 ? 'user_demo_bob' : 'user_demo_carol'
