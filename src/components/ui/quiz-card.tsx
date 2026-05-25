@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, useReducedMotion } from 'framer-motion'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 export interface QuizCardData {
@@ -16,6 +17,8 @@ export interface QuizCardData {
     name: string
     color: string
   }
+  playCount?: number
+  avgScore?: number
 }
 
 function getDifficultyVariant(difficulty: QuizCardData['difficulty']) {
@@ -44,6 +47,16 @@ function getFallbackGradient(color: string) {
   return `linear-gradient(135deg, rgba(${r}, ${g}, ${b}, 0.95) 0%, rgba(${r}, ${g}, ${b}, 0.55) 100%)`
 }
 
+function formatPlayCount(count: number): string {
+  if (count >= 1_000_000) {
+    return `${(count / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`
+  }
+  if (count >= 1000) {
+    return `${(count / 1000).toFixed(1).replace(/\.0$/, '')}k`
+  }
+  return count.toString()
+}
+
 interface QuizCardProps {
   quiz: QuizCardData
   className?: string
@@ -57,9 +70,10 @@ export function QuizCard({ quiz, className }: QuizCardProps) {
   return (
     <Link href={`/quiz/${quiz.id}`} className={cn('block', className)}>
       <motion.div
-        whileHover={shouldReduceMotion ? undefined : { y: -4, scale: 1.01 }}
+        whileHover={shouldReduceMotion ? undefined : { y: -6, scale: 1.01 }}
         transition={{ duration: 0.18, ease: 'easeOut' }}
-        className="relative h-52 overflow-hidden rounded-2xl border border-white/10 shadow-sm"
+        className="relative h-60 overflow-hidden rounded-2xl border border-white/10 shadow-sm"
+        style={{ borderTopColor: quiz.category.color, borderTopWidth: 3 }}
       >
         <div
           className="absolute inset-0"
@@ -78,21 +92,20 @@ export function QuizCard({ quiz, className }: QuizCardProps) {
         ) : null}
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
 
-        <div className="absolute right-3 top-3 flex flex-wrap justify-end gap-2">
-          <Badge variant={getDifficultyVariant(quiz.difficulty)}>{quiz.difficulty}</Badge>
-          <Badge
-            variant="outline"
-            className="border-white/25 text-primary-foreground"
-            style={{ backgroundColor: 'rgb(0 0 0 / 0.45)' }}
-          >
-            {quiz.category.name}
-          </Badge>
-        </div>
-
         <div className="absolute bottom-0 left-0 right-0 p-4">
           <h3 className="line-clamp-2 text-lg font-extrabold text-primary-foreground">
             {quiz.title}
           </h3>
+          <div className="mt-2 flex items-center gap-2">
+            {quiz.playCount !== undefined ? (
+              <span className="text-xs font-medium text-primary-foreground/70">
+                🎮 {formatPlayCount(quiz.playCount)} plays
+              </span>
+            ) : null}
+            <Badge variant={getDifficultyVariant(quiz.difficulty)} className="ml-auto text-xs">
+              {quiz.difficulty}
+            </Badge>
+          </div>
         </div>
       </motion.div>
     </Link>
@@ -105,7 +118,7 @@ export function QuizCardFeatured({ quiz, className }: QuizCardProps) {
   const hasCoverImage = Boolean(quiz.coverImage) && !imageFailed
 
   return (
-    <Link href={`/quiz/${quiz.id}`} className={cn('block h-72 w-full md:h-80', className)}>
+    <Link href={`/quiz/${quiz.id}`} className={cn('block h-80 w-full md:h-96', className)}>
       <motion.div
         whileHover={shouldReduceMotion ? undefined : { y: -4, scale: 1.01 }}
         transition={{ duration: 0.18, ease: 'easeOut' }}
@@ -128,24 +141,23 @@ export function QuizCardFeatured({ quiz, className }: QuizCardProps) {
         ) : null}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
 
-        <div className="absolute right-4 top-4 flex flex-wrap justify-end gap-2">
-          <Badge variant={getDifficultyVariant(quiz.difficulty)}>{quiz.difficulty}</Badge>
-          <Badge
-            variant="outline"
-            className="border-white/25 text-primary-foreground"
-            style={{ backgroundColor: 'rgb(0 0 0 / 0.45)' }}
-          >
-            {quiz.category.name}
-          </Badge>
+        <div className="absolute left-4 top-4">
+          <span className="inline-flex items-center rounded-full bg-amber-500 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-950">
+            ★ Featured
+          </span>
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 p-6">
           <h3 className="line-clamp-2 text-2xl font-black text-primary-foreground md:text-3xl">
             {quiz.title}
           </h3>
-          <span className="mt-4 inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
-            Play now →
-          </span>
+          <Button
+            size="sm"
+            className="mt-4 bg-primary hover:bg-primary/90 font-semibold shadow-md"
+            tabIndex={-1}
+          >
+            Play Now →
+          </Button>
         </div>
       </motion.div>
     </Link>
