@@ -4,9 +4,11 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Brain, Menu } from 'lucide-react'
 import { useState } from 'react'
+import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Sheet } from '@/components/ui/sheet'
 import { AuthControls } from '@/components/auth/auth-controls'
+import { NotificationBell } from '@/components/notifications/notification-bell'
 import { cn } from '@/lib/utils'
 
 const navLinks = [
@@ -18,6 +20,7 @@ const navLinks = [
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const pathname = usePathname()
+  const { data: session } = useSession()
 
   function isActive(href: string) {
     return pathname === href || pathname.startsWith(href + '/')
@@ -26,8 +29,8 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link 
-          href="/" 
+        <Link
+          href="/"
           className="flex items-center gap-2 font-bold text-xl transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
         >
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-quiz-purple to-quiz-pink shadow-sm">
@@ -60,6 +63,7 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-3">
+          {session?.user ? <NotificationBell /> : null}
           <AuthControls />
           <Button
             variant="ghost"
