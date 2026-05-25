@@ -1,5 +1,5 @@
+// src/app/sign-in/page.tsx
 import { SignInForm } from '@/components/auth/sign-in-form'
-import { safeCallbackUrl } from '@/lib/safe-callback-url'
 
 export default async function SignInPage({
   searchParams,
@@ -9,13 +9,15 @@ export default async function SignInPage({
   const { callbackUrl, verified } = await searchParams
 
   return (
-    <SignInForm
-      callbackUrl={safeCallbackUrl(callbackUrl, '/me')}
-      googleEnabled={Boolean(process.env.GOOGLE_CLIENT_ID)}
-      githubEnabled={Boolean(process.env.GITHUB_CLIENT_ID)}
-      verifiedMessage={
-        verified === '1' ? 'Email verified. You can now sign in with your credentials.' : undefined
-      }
-    />
+    <div className="flex min-h-[80vh] items-center justify-center p-4">
+      <SignInForm
+        callbackUrl={callbackUrl || '/me'}
+        googleEnabled={Boolean(process.env.GOOGLE_CLIENT_ID)}
+        githubEnabled={Boolean(process.env.GITHUB_CLIENT_ID)}
+        verifiedMessage={
+          verified === '1' ? 'Email verified. You can now sign in with your credentials.' : undefined
+        }
+      />
+    </div>
   )
 }
