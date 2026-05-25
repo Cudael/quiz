@@ -1,6 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { prismaMock, hashPasswordMock, generateUniqueUsernameMock } = vi.hoisted(() => ({
+const {
+  prismaMock,
+  hashPasswordMock,
+  generateUniqueUsernameMock,
+  sendVerificationEmailMock,
+  checkRateLimitMock,
+} = vi.hoisted(() => ({
   prismaMock: {
     user: {
       findUnique: vi.fn(),
@@ -12,11 +18,18 @@ const { prismaMock, hashPasswordMock, generateUniqueUsernameMock } = vi.hoisted(
   },
   hashPasswordMock: vi.fn(),
   generateUniqueUsernameMock: vi.fn(),
+  sendVerificationEmailMock: vi.fn(),
+  checkRateLimitMock: vi.fn().mockReturnValue(true),
 }))
 
 vi.mock('@/server/prisma', () => ({ prisma: prismaMock }))
 vi.mock('@/server/password', () => ({ hashPassword: hashPasswordMock }))
 vi.mock('@/lib/usernames', () => ({ generateUniqueUsername: generateUniqueUsernameMock }))
+vi.mock('@/server/email', () => ({ sendVerificationEmail: sendVerificationEmailMock }))
+vi.mock('@/server/rate-limit', () => ({
+  checkRateLimit: checkRateLimitMock,
+  getClientIp: vi.fn().mockReturnValue('127.0.0.1'),
+}))
 
 import { POST } from '@/app/api/auth/register/route'
 
@@ -31,7 +44,7 @@ function createRequest(body: unknown) {
 describe('POST /api/auth/register', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.spyOn(console, 'log').mockImplementation(() => {})
+    checkRateLimitMock.mockReturnValue(true)
   })
 
   it('creates a user and returns 201 for valid registration data', async () => {
@@ -45,7 +58,7 @@ describe('POST /api/auth/register', () => {
       createRequest({
         name: 'Player One',
         email: 'player@example.com',
-        password: 'password123',
+        password: 'Password1!',
       })
     )
 
@@ -53,7 +66,6 @@ describe('POST /api/auth/register', () => {
     await expect(response.json()).resolves.toEqual({ ok: true })
     expect(prismaMock.user.create).toHaveBeenCalledOnce()
     expect(prismaMock.verificationToken.create).toHaveBeenCalledOnce()
-    expect(console.log).toHaveBeenCalled()
   })
 
   it('returns 409 when the email already exists', async () => {
@@ -63,7 +75,7 @@ describe('POST /api/auth/register', () => {
       createRequest({
         name: 'Player One',
         email: 'player@example.com',
-        password: 'password123',
+        password: 'Password1!',
       })
     )
 
@@ -91,7 +103,7 @@ describe('POST /api/auth/register', () => {
       createRequest({
         name: 'Player One',
         email: 'not-an-email',
-        password: 'password123',
+        password: 'Password1!',
       })
     )
 

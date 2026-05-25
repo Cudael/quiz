@@ -291,6 +291,9 @@ export function SettingsClient({
                 }
                 required
               />
+              <p className="text-xs text-muted-foreground">
+                At least 8 characters, one uppercase letter, and one number or special character.
+              </p>
             </div>
             <div className="space-y-1">
               <label htmlFor="settings-confirm-password" className="text-sm font-medium">

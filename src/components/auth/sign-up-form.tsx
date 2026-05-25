@@ -118,6 +118,9 @@ export function SignUpForm({ callbackUrl, googleEnabled, githubEnabled }: SignUp
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
               />
+              <p className="text-xs text-muted-foreground">
+                At least 8 characters, one uppercase letter, and one number or special character.
+              </p>
             </div>
             <div className="space-y-1">
               <label htmlFor="confirm-password" className="text-sm font-medium leading-none">

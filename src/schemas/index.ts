@@ -62,10 +62,18 @@ export const categorySuggestionSchema = z.object({
     .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/),
 })
 
+const passwordSchema = z
+  .string()
+  .min(8)
+  .regex(/^(?=.*[A-Z])(?=.*[0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~])/, {
+    message:
+      'Password must contain at least one uppercase letter and one number or special character.',
+  })
+
 export const registerSchema = z.object({
   name: z.string().trim().min(1).max(80),
   email: z.email().trim().toLowerCase(),
-  password: z.string().min(8),
+  password: passwordSchema,
 })
 
 export const usernameSchema = z
@@ -99,7 +107,7 @@ export const mePreferencesSchema = z.object({
 
 export const mePasswordSchema = z.object({
   currentPassword: z.string().min(1),
-  newPassword: z.string().min(8),
+  newPassword: passwordSchema,
 })
 
 export const meDeleteSchema = z.object({
