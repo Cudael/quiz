@@ -11,26 +11,26 @@ export function SiteFooter() {
         {/* Main grid */}
         <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3">
           {/* Brand */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div className="flex items-center gap-2 font-bold">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-quiz-purple to-quiz-pink">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-quiz-purple to-quiz-pink shadow-sm">
                 <Brain className="h-4 w-4 text-primary-foreground" />
               </div>
-              <span className="bg-gradient-to-r from-quiz-purple-light to-quiz-pink bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-quiz-purple-light to-quiz-pink bg-clip-text text-transparent text-lg tracking-tight">
                 QuizArena
               </span>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Compete, create, and climb the global quiz leaderboard.
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Compete, create, and climb the global quiz leaderboard. Your ultimate destination for trivia.
             </p>
           </div>
 
           {/* Quick links */}
-          <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="space-y-4">
+            <p className="text-xs font-bold uppercase tracking-wider text-foreground">
               Explore
             </p>
-            <nav className="flex flex-col gap-2" aria-label="Footer navigation">
+            <nav className="flex flex-col gap-2.5" aria-label="Footer navigation">
               {[
                 { href: '/categories', label: 'Categories' },
                 { href: '/leaderboard', label: 'Leaderboard' },
@@ -40,7 +40,7 @@ export function SiteFooter() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                  className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
                 >
                   {link.label}
                 </Link>
@@ -49,23 +49,23 @@ export function SiteFooter() {
           </div>
 
           {/* Meta / Tools */}
-          <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="space-y-4">
+            <p className="text-xs font-bold uppercase tracking-wider text-foreground">
               More
             </p>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2.5">
               <Link
                 href="https://github.com/Cudael/quiz"
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
               >
                 <Github className="h-4 w-4" />
                 GitHub
               </Link>
               <Link
                 href="/about/accessibility"
-                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
               >
                 Accessibility
               </Link>
@@ -74,8 +74,9 @@ export function SiteFooter() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-8 flex items-center justify-between border-t border-border/40 pt-6 text-xs text-muted-foreground">
-          <span>© {new Date().getFullYear()} QuizArena. All rights reserved.</span>
+        <div className="mt-12 flex items-center justify-between border-t border-border/40 pt-6 text-xs text-muted-foreground">
+          {/* Hydration fix applied here via suppressHydrationWarning */}
+          <span suppressHydrationWarning>© {new Date().getFullYear()} QuizArena. All rights reserved.</span>
           <ThemeToggle />
         </div>
       </div>
