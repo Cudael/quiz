@@ -49,10 +49,20 @@ export async function POST(request: Request) {
   const token = `RESET:${randomBytes(32).toString('hex')}`
   const expires = new Date(Date.now() + RESET_TOKEN_EXPIRY_MS)
 
-  // Upsert: delete any existing reset token for this email before creating a new one
-  await prisma.verificationToken.deleteMany({
-    where: { identifier: email, token: { startsWith: 'RESET:' } },
+  // Delete any existing reset tokens for this email before creating a new one.
+  // Filter in application code to avoid relying on database-level string matching.
+  const existingTokens = await prisma.verificationToken.findMany({
+    where: { identifier: email },
+    select: { token: true },
   })
+  const resetTokensToDelete = existingTokens
+    .filter((t) => t.token.startsWith('RESET:'))
+    .map((t) => t.token)
+  if (resetTokensToDelete.length > 0) {
+    await prisma.verificationToken.deleteMany({
+      where: { identifier: email, token: { in: resetTokensToDelete } },
+    })
+  }
 
   await prisma.verificationToken.create({
     data: { identifier: email, token, expires },

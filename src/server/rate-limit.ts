@@ -1,8 +1,12 @@
 /**
  * Simple in-memory sliding-window rate limiter.
  *
- * Suitable for serverless deployments (Vercel) where each cold start gets a
- * fresh Map. Provides basic brute-force protection within a single instance.
+ * **Serverless limitation:** On platforms like Vercel, each function instance
+ * has its own isolated memory. Rate limit counters reset on cold starts and
+ * are not shared across concurrent instances. This provides basic brute-force
+ * protection within a single warm instance but does not enforce strict global
+ * limits across all instances. For stricter global rate limiting, use an
+ * external store such as Redis (e.g. Upstash).
  */
 
 interface RateLimitEntry {

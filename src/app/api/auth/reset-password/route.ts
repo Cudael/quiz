@@ -3,16 +3,11 @@ import { z } from 'zod'
 import { prisma } from '@/server/prisma'
 import { hashPassword } from '@/server/password'
 import { checkRateLimit, getClientIp } from '@/server/rate-limit'
+import { PASSWORD_REGEX, PASSWORD_REGEX_MESSAGE } from '@/schemas'
 
 const resetPasswordSchema = z.object({
   token: z.string().min(1),
-  newPassword: z
-    .string()
-    .min(8)
-    .regex(/^(?=.*[A-Z])(?=.*[0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~])/, {
-      message:
-        'Password must contain at least one uppercase letter and one number or special character.',
-    }),
+  newPassword: z.string().min(8).regex(PASSWORD_REGEX, { message: PASSWORD_REGEX_MESSAGE }),
 })
 
 export async function POST(request: Request) {

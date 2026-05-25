@@ -16,6 +16,9 @@ export async function GET(request: Request) {
 
   const cutoff = new Date(Date.now() - GUEST_MAX_AGE_DAYS * 24 * 60 * 60 * 1000)
 
+  // Guest accounts are identified by a null email — this is the established
+  // convention in this codebase (see auth.ts). Persistent accounts always have
+  // a non-null email set at registration or via OAuth.
   const { count } = await prisma.user.deleteMany({
     where: {
       email: null,
