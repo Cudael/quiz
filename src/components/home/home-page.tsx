@@ -245,8 +245,8 @@ async function getHomePageData(): Promise<{
       prisma.playSession.findMany({
         where: { userId: session.user.id },
         orderBy: { createdAt: 'desc' },
-        take: 6,
         distinct: ['quizId'],
+        take: 6,
         select: {
           quiz: {
             select: {
@@ -271,7 +271,6 @@ async function getHomePageData(): Promise<{
     personalizedQuizzes = personalizedRaw.map(mapQuizCard)
     recentlyPlayed = recentlyPlayedSessions
       .map((s) => s.quiz)
-      .filter((q): q is NonNullable<typeof q> => q !== null)
       .map((quiz) => ({
         id: quiz.id,
         title: quiz.title,
