@@ -52,6 +52,10 @@ vi.mock('@/server/play-token', () => ({ verifyPlayToken: verifyPlayTokenMock }))
 vi.mock('@/domain/badges', () => ({ evaluateBadgesWithClient: evaluateBadgesWithClientMock }))
 vi.mock('@/server/prisma', () => ({ prisma: prismaMock }))
 vi.mock('next/headers', () => ({ cookies: vi.fn().mockResolvedValue(cookieStoreMock) }))
+vi.mock('next/cache', () => ({
+  revalidateTag: vi.fn(),
+  unstable_cache: vi.fn((fn: () => unknown) => fn),
+}))
 
 import { POST } from '@/app/api/play/submit/route'
 
@@ -126,6 +130,79 @@ describe('POST /api/play/submit', () => {
           timeTakenMs: 2500,
         },
       ],
+    })
+  })
+
+  it('rejects a request with missing required fields', async () => {
+    const response = await POST(createRequest({ quizId: 'quiz-1' }))
+    expect(response.status).toBe(400)
+  })
+
+  it('deduplicates repeated submissions for the same question', async () => {
+    prismaMock.quiz.findUnique.mockResolvedValue({
+      id: 'quiz-1',
+      questions: [
+        {
+          id: 'question-1',
+          type: 'SINGLE',
+          timeLimitSec: 20,
+          choices: [
+            { id: 'choice-1', text: 'Mercury', isCorrect: true },
+            { id: 'choice-2', text: 'Venus', isCorrect: false },
+          ],
+        },
+      ],
+    })
+
+    const response = await POST(
+      createRequest({
+        playToken: 'token',
+        quizId: 'quiz-1',
+        mode: 'classic',
+        answers: [
+          { questionId: 'question-1', choiceIds: ['choice-1'], timeTakenMs: 2500 },
+          { questionId: 'question-1', choiceIds: ['choice-2'], timeTakenMs: 1000 },
+        ],
+      })
+    )
+
+    expect(response.status).toBe(200)
+    const data = await response.json()
+    // Only the first submission should count
+    expect(data.correctCount).toBe(1)
+    expect(txMock.questionAnswer.createMany).toHaveBeenCalledWith({
+      data: [expect.objectContaining({ questionId: 'question-1', isCorrect: true })],
+    })
+  })
+
+  it('clamps negative timeTakenMs to 0', async () => {
+    prismaMock.quiz.findUnique.mockResolvedValue({
+      id: 'quiz-1',
+      questions: [
+        {
+          id: 'question-1',
+          type: 'SINGLE',
+          timeLimitSec: 20,
+          choices: [
+            { id: 'choice-1', text: 'Mercury', isCorrect: true },
+            { id: 'choice-2', text: 'Venus', isCorrect: false },
+          ],
+        },
+      ],
+    })
+
+    const response = await POST(
+      createRequest({
+        playToken: 'token',
+        quizId: 'quiz-1',
+        mode: 'classic',
+        answers: [{ questionId: 'question-1', choiceIds: ['choice-1'], timeTakenMs: -5000 }],
+      })
+    )
+
+    expect(response.status).toBe(200)
+    expect(txMock.questionAnswer.createMany).toHaveBeenCalledWith({
+      data: [expect.objectContaining({ questionId: 'question-1', timeTakenMs: 0 })],
     })
   })
 })

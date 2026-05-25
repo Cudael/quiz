@@ -48,6 +48,16 @@ describe('scoreQuestion', () => {
   it('handles timeLimitMs = 0 gracefully', () => {
     expect(scoreQuestion({ correct: true, timeRemainingMs: 0, timeLimitMs: 0 })).toBe(100)
   })
+
+  it('clamps speed bonus to 0 when timeRemainingMs is negative', () => {
+    // Negative timeRemainingMs (e.g. client sent negative timeTakenMs) should not inflate score
+    expect(scoreQuestion({ correct: true, timeRemainingMs: -5000, timeLimitMs: 20000 })).toBe(100)
+  })
+
+  it('clamps speed ratio to 1 when timeRemainingMs exceeds timeLimitMs', () => {
+    // timeRemainingMs > timeLimitMs should not give more than 100% speed bonus
+    expect(scoreQuestion({ correct: true, timeRemainingMs: 30000, timeLimitMs: 20000 })).toBe(200)
+  })
 })
 
 describe('xpForLevel', () => {

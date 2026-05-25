@@ -26,7 +26,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params
   const quiz = await prisma.quiz.findUnique({
-    where: { id },
+    where: { id, isPublished: true },
     select: {
       title: true,
       description: true,
@@ -63,7 +63,7 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
   const { id } = await params
 
   const quiz = await prisma.quiz.findUnique({
-    where: { id },
+    where: { id, isPublished: true },
     select: {
       id: true,
       title: true,

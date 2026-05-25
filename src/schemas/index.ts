@@ -35,6 +35,21 @@ export const questionSchema = z
     }
   })
 
+export const submitAnswerInputSchema = z.object({
+  questionId: z.string().min(1).max(100),
+  choiceIds: z.array(z.string().max(100)).max(20),
+  timeTakenMs: z.number().finite(),
+  textAnswer: z.string().max(1000).optional(),
+})
+
+export const submitPlaySchema = z.object({
+  playToken: z.string().min(1),
+  quizId: z.string().min(1).max(100),
+  mode: z.string().min(1).max(20),
+  answers: z.array(submitAnswerInputSchema).max(200),
+  guestName: z.string().max(60).optional(),
+})
+
 export const questionAnswerSchema = z.object({
   questionId: z.string().cuid(),
   chosenIds: z.array(z.string().cuid()),

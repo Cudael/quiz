@@ -48,7 +48,7 @@ export function renderQuizOgCard(data: {
 export default async function Image({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const quiz = await prisma.quiz.findUnique({
-    where: { id },
+    where: { id, isPublished: true },
     select: {
       title: true,
       difficulty: true,

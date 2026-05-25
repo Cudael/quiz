@@ -4,6 +4,7 @@ import { prisma } from '@/server/prisma'
 import { hashPassword } from '@/server/password'
 import { checkRateLimit, getClientIp } from '@/server/rate-limit'
 import { PASSWORD_REGEX, PASSWORD_REGEX_MESSAGE } from '@/schemas'
+import { hashToken } from '@/server/token-hash'
 
 const resetPasswordSchema = z.object({
   token: z.string().min(1),
@@ -35,18 +36,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid request.' }, { status: 400 })
   }
 
-  const { token, newPassword } = parsed.data
-
-  if (!token.startsWith('RESET:')) {
-    return NextResponse.json({ error: 'Invalid or expired reset link.' }, { status: 400 })
-  }
+  const { token: rawToken, newPassword } = parsed.data
+  const tokenHash = hashToken(rawToken)
 
   const verificationToken = await prisma.verificationToken.findUnique({
-    where: { token },
+    where: { token: tokenHash },
     select: { identifier: true, expires: true, token: true },
   })
 
-  if (!verificationToken) {
+  if (!verificationToken || !verificationToken.identifier.startsWith('reset:')) {
     return NextResponse.json({ error: 'Invalid or expired reset link.' }, { status: 400 })
   }
 
@@ -65,9 +63,12 @@ export async function POST(request: Request) {
     )
   }
 
+  // Extract email from the "reset:<email>" identifier
+  const email = verificationToken.identifier.slice('reset:'.length)
+
   const passwordHash = await hashPassword(newPassword)
   await prisma.user.update({
-    where: { email: verificationToken.identifier },
+    where: { email },
     data: { passwordHash },
   })
 

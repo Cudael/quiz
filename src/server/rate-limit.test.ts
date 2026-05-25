@@ -33,6 +33,13 @@ describe('checkRateLimit', () => {
 })
 
 describe('getClientIp', () => {
+  it('prefers x-real-ip over x-forwarded-for', () => {
+    const req = new Request('http://localhost/', {
+      headers: { 'x-real-ip': '9.8.7.6', 'x-forwarded-for': '1.2.3.4, 5.6.7.8' },
+    })
+    expect(getClientIp(req)).toBe('9.8.7.6')
+  })
+
   it('extracts the first IP from x-forwarded-for', () => {
     const req = new Request('http://localhost/', {
       headers: { 'x-forwarded-for': '1.2.3.4, 5.6.7.8' },
