@@ -60,7 +60,7 @@ src/
 │   ├── ui/             # Design system primitives (shadcn-style)
 │   ├── layout/         # AppShell, Navbar, SiteFooter
 │   ├── auth/           # Auth controls, provider, email verification banner
-│   ├── notifications/  # NotificationBell dropdown
+│   ├── notifications/  # Notification bell and inbox
 │   ├── theme/          # ThemeProvider, ThemeToggle
 │   └── home/           # HomePage server component + HomePageClient
 ├── server/             # Server-only modules (see below)

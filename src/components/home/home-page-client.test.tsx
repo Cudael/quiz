@@ -113,6 +113,7 @@ describe('HomePageClient', () => {
         trendingQuizzes={trendingQuizzes}
         newestQuizzes={newestQuizzes}
         personalizedQuizzes={[]}
+        recentlyPlayed={[]}
         currentUser={null}
       />
     )
@@ -120,16 +121,16 @@ describe('HomePageClient', () => {
     expect(
       screen.getByRole('heading', { name: /play great quizzes right now/i })
     ).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: '⭐ Featured Quiz' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: '🔥 Trending' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: '✨ Just Added' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: "⭐ Editor's Pick" })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '🔥 Trending Globally' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '✨ Freshly Added' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Top Players' })).toBeInTheDocument()
     expect(screen.getByText('🧪')).toBeInTheDocument()
     expect(screen.getByText('Experiments and facts')).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'For You' })).not.toBeInTheDocument()
 
     const exploreByTopic = screen.getByRole('heading', { name: 'Explore by topic' })
-    const featuredQuiz = screen.getByRole('heading', { name: '⭐ Featured Quiz' })
+    const featuredQuiz = screen.getByRole('heading', { name: "⭐ Editor's Pick" })
     expect(exploreByTopic.compareDocumentPosition(featuredQuiz)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING
     )
@@ -145,6 +146,7 @@ describe('HomePageClient', () => {
         trendingQuizzes={trendingQuizzes}
         newestQuizzes={newestQuizzes}
         personalizedQuizzes={personalizedQuizzes}
+        recentlyPlayed={[]}
         currentUser={currentUser}
       />
     )
@@ -166,6 +168,7 @@ describe('HomePageClient', () => {
         trendingQuizzes={trendingQuizzes}
         newestQuizzes={newestQuizzes}
         personalizedQuizzes={[]}
+        recentlyPlayed={[]}
         currentUser={currentUser}
       />
     )

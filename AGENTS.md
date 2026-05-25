@@ -15,7 +15,7 @@ src/
     ui/             Primitive design-system components (shadcn-style)
     layout/         App shell (AppShell), Navbar, SiteFooter
     auth/           Auth controls, provider, email verification banner
-    notifications/  NotificationBell dropdown
+    notifications/  Notification bell and inbox
     theme/          Theme provider and toggle
     home/           HomePage server component + HomePageClient
   server/           Server-only modules:

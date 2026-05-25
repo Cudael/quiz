@@ -30,6 +30,8 @@ function mapQuizCard(quiz: HomeQuizRecord): QuizCardData {
       name: quiz.category.name,
       color: quiz.category.color || FALLBACK_CATEGORY_GRADIENT,
     },
+    playCount: quiz.playCount,
+    avgScore: quiz.avgScore ?? undefined,
   }
 }
 
@@ -41,6 +43,7 @@ async function getHomePageData(): Promise<{
   trendingQuizzes: QuizCardData[]
   newestQuizzes: QuizCardData[]
   personalizedQuizzes: QuizCardData[]
+  recentlyPlayed: QuizCardData[]
   currentUser: HomeCurrentUser | null
 }> {
   const [
@@ -183,6 +186,7 @@ async function getHomePageData(): Promise<{
     .filter((player): player is HomeTopPlayer => !!player)
 
   let personalizedQuizzes: QuizCardData[] = []
+  let recentlyPlayed: QuizCardData[] = []
 
   if (isAuthenticatedUser && session?.user?.id) {
     const userSessions = await prisma.playSession.findMany({
@@ -210,35 +214,78 @@ async function getHomePageData(): Promise<{
       .slice(0, 2)
       .map(([categoryId]) => categoryId)
 
-    if (topCategoryIds.length > 0) {
-      const personalizedQuizzesRaw = await prisma.quiz.findMany({
-        where: {
-          isPublished: true,
-          categoryId: { in: topCategoryIds },
-          ...(playedQuizIds.length > 0 ? { id: { notIn: playedQuizIds } } : {}),
-        },
-        orderBy: [{ playCount: 'desc' }, { createdAt: 'desc' }],
-        take: 8,
-        select: {
-          id: true,
-          title: true,
-          coverImage: true,
-          difficulty: true,
-          playCount: true,
-          avgScore: true,
-          category: {
+    const [personalizedRaw, recentlyPlayedSessions] = await Promise.all([
+      topCategoryIds.length > 0
+        ? prisma.quiz.findMany({
+            where: {
+              isPublished: true,
+              categoryId: { in: topCategoryIds },
+              ...(playedQuizIds.length > 0 ? { id: { notIn: playedQuizIds } } : {}),
+            },
+            orderBy: [{ playCount: 'desc' }, { createdAt: 'desc' }],
+            take: 8,
             select: {
-              slug: true,
-              name: true,
-              icon: true,
-              color: true,
+              id: true,
+              title: true,
+              coverImage: true,
+              difficulty: true,
+              playCount: true,
+              avgScore: true,
+              category: {
+                select: {
+                  slug: true,
+                  name: true,
+                  icon: true,
+                  color: true,
+                },
+              },
+            },
+          })
+        : Promise.resolve([]),
+      prisma.playSession.findMany({
+        where: { userId: session.user.id },
+        orderBy: { createdAt: 'desc' },
+        distinct: ['quizId'],
+        take: 6,
+        select: {
+          quiz: {
+            select: {
+              id: true,
+              title: true,
+              coverImage: true,
+              difficulty: true,
+              playCount: true,
+              avgScore: true,
+              category: {
+                select: {
+                  name: true,
+                  color: true,
+                },
+              },
             },
           },
         },
-      })
+      }),
+    ])
 
-      personalizedQuizzes = personalizedQuizzesRaw.map(mapQuizCard)
-    }
+    personalizedQuizzes = personalizedRaw.map(mapQuizCard)
+    recentlyPlayed = recentlyPlayedSessions
+      .map((s) => s.quiz)
+      .map((quiz) => ({
+        id: quiz.id,
+        title: quiz.title,
+        coverImage: quiz.coverImage,
+        difficulty:
+          quiz.difficulty === 'EASY' || quiz.difficulty === 'MEDIUM' || quiz.difficulty === 'HARD'
+            ? quiz.difficulty
+            : ('MEDIUM' as const),
+        category: {
+          name: quiz.category.name,
+          color: quiz.category.color || FALLBACK_CATEGORY_GRADIENT,
+        },
+        playCount: quiz.playCount,
+        avgScore: quiz.avgScore ?? undefined,
+      }))
   }
 
   return {
@@ -254,6 +301,7 @@ async function getHomePageData(): Promise<{
     trendingQuizzes: trendingQuizzesRaw.map(mapQuizCard),
     newestQuizzes: newestQuizzesRaw.map(mapQuizCard),
     personalizedQuizzes,
+    recentlyPlayed,
     currentUser,
   }
 }
