@@ -54,6 +54,9 @@ vi.mock('@/server/prisma', () => ({ prisma: prismaMock }))
 vi.mock('next/headers', () => ({ cookies: vi.fn().mockResolvedValue(cookieStoreMock) }))
 vi.mock('next/cache', () => ({
   revalidateTag: vi.fn(),
+  // unstable_cache is used by home-quiz-cache.ts which is transitively imported.
+  // We bypass the cache layer here since these tests verify submit route logic,
+  // not caching behaviour. The wrapped function is called directly.
   unstable_cache: vi.fn((fn: () => unknown) => fn),
 }))
 

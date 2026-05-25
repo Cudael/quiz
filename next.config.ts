@@ -19,6 +19,8 @@ const securityHeaders = [
       "default-src 'self'",
       // 'unsafe-eval' is only included in development (Next.js hot reload requires it).
       // Production builds do not use eval(); only 'unsafe-inline' is needed for inline Next.js scripts.
+      // TODO: Migrate to nonce-based CSP via Next.js middleware to eliminate 'unsafe-inline' for scripts.
+      //       See: https://nextjs.org/docs/app/building-your-application/configuring/content-security-policy
       process.env.NODE_ENV === 'production'
         ? "script-src 'self' 'unsafe-inline'"
         : "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
