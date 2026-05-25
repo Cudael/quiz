@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { prisma } from '@/server/prisma'
 import { sendPasswordResetEmail } from '@/server/email'
 import { checkRateLimit, getClientIp } from '@/server/rate-limit'
+import { hashToken } from '@/server/token-hash'
 
 const RESET_TOKEN_EXPIRY_MS = 60 * 60 * 1000 // 1 hour
 
@@ -46,30 +47,23 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true })
   }
 
-  const token = `RESET:${randomBytes(32).toString('hex')}`
+  const rawToken = randomBytes(32).toString('hex')
+  const tokenHash = hashToken(rawToken)
   const expires = new Date(Date.now() + RESET_TOKEN_EXPIRY_MS)
 
   // Delete any existing reset tokens for this email before creating a new one.
-  // Filter in application code to avoid relying on database-level string matching.
-  const existingTokens = await prisma.verificationToken.findMany({
-    where: { identifier: email },
-    select: { token: true },
+  // Reset tokens use the identifier prefix "reset:" to distinguish them from
+  // email-verification tokens.
+  await prisma.verificationToken.deleteMany({
+    where: { identifier: `reset:${email}` },
   })
-  const resetTokensToDelete = existingTokens
-    .filter((t) => t.token.startsWith('RESET:'))
-    .map((t) => t.token)
-  if (resetTokensToDelete.length > 0) {
-    await prisma.verificationToken.deleteMany({
-      where: { identifier: email, token: { in: resetTokensToDelete } },
-    })
-  }
 
   await prisma.verificationToken.create({
-    data: { identifier: email, token, expires },
+    data: { identifier: `reset:${email}`, token: tokenHash, expires },
   })
 
   const resetUrl = new URL('/reset-password', request.url)
-  resetUrl.searchParams.set('token', token)
+  resetUrl.searchParams.set('token', rawToken)
   await sendPasswordResetEmail(email, resetUrl.toString())
 
   return NextResponse.json({ ok: true })

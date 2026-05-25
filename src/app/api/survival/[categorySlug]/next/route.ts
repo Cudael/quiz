@@ -17,7 +17,7 @@ export async function GET(
   // Fetch a random question from the category not already seen
   const questions = await prisma.question.findMany({
     where: {
-      quiz: { categoryId: category.id },
+      quiz: { categoryId: category.id, isPublished: true },
       id: { notIn: seen.length > 0 ? seen : undefined },
     },
     include: {

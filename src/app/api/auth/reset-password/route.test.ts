@@ -31,7 +31,8 @@ function createRequest(body: unknown) {
   })
 }
 
-const VALID_TOKEN = `RESET:${'a'.repeat(64)}`
+// A valid raw token (64 hex chars) as the user would receive in their email
+const VALID_RAW_TOKEN = 'a'.repeat(64)
 const FUTURE_EXPIRY = new Date(Date.now() + 60 * 60 * 1000)
 
 describe('POST /api/auth/reset-password', () => {
@@ -40,9 +41,23 @@ describe('POST /api/auth/reset-password', () => {
     checkRateLimitMock.mockReturnValue(true)
   })
 
-  it('rejects a token that does not start with RESET:', async () => {
+  it('rejects a token not found in the database', async () => {
+    prismaMock.verificationToken.findUnique.mockResolvedValue(null)
     const response = await POST(
-      createRequest({ token: 'verifytoken123', newPassword: 'Password1!' })
+      createRequest({ token: VALID_RAW_TOKEN, newPassword: 'Password1!' })
+    )
+    expect(response.status).toBe(400)
+  })
+
+  it('rejects a token without the reset: identifier prefix', async () => {
+    // Token exists in DB but has a verify identifier, not a reset: one
+    prismaMock.verificationToken.findUnique.mockResolvedValue({
+      identifier: 'user@example.com', // no "reset:" prefix
+      token: 'somehash',
+      expires: FUTURE_EXPIRY,
+    })
+    const response = await POST(
+      createRequest({ token: VALID_RAW_TOKEN, newPassword: 'Password1!' })
     )
     expect(response.status).toBe(400)
     await expect(response.json()).resolves.toEqual({
@@ -50,21 +65,17 @@ describe('POST /api/auth/reset-password', () => {
     })
   })
 
-  it('rejects a token not found in the database', async () => {
-    prismaMock.verificationToken.findUnique.mockResolvedValue(null)
-    const response = await POST(createRequest({ token: VALID_TOKEN, newPassword: 'Password1!' }))
-    expect(response.status).toBe(400)
-  })
-
   it('rejects an expired token', async () => {
     prismaMock.verificationToken.findUnique.mockResolvedValue({
-      identifier: 'user@example.com',
-      token: VALID_TOKEN,
+      identifier: 'reset:user@example.com',
+      token: 'somehash',
       expires: new Date(Date.now() - 1000),
     })
     prismaMock.verificationToken.delete.mockResolvedValue({})
 
-    const response = await POST(createRequest({ token: VALID_TOKEN, newPassword: 'Password1!' }))
+    const response = await POST(
+      createRequest({ token: VALID_RAW_TOKEN, newPassword: 'Password1!' })
+    )
     expect(response.status).toBe(400)
     await expect(response.json()).resolves.toMatchObject({
       error: expect.stringContaining('expired'),
@@ -74,15 +85,17 @@ describe('POST /api/auth/reset-password', () => {
 
   it('updates the password and deletes the token on success', async () => {
     prismaMock.verificationToken.findUnique.mockResolvedValue({
-      identifier: 'user@example.com',
-      token: VALID_TOKEN,
+      identifier: 'reset:user@example.com',
+      token: 'somehash',
       expires: FUTURE_EXPIRY,
     })
     hashPasswordMock.mockResolvedValue('new-hash')
     prismaMock.user.update.mockResolvedValue({})
     prismaMock.verificationToken.delete.mockResolvedValue({})
 
-    const response = await POST(createRequest({ token: VALID_TOKEN, newPassword: 'Password1!' }))
+    const response = await POST(
+      createRequest({ token: VALID_RAW_TOKEN, newPassword: 'Password1!' })
+    )
 
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toEqual({ ok: true })
@@ -95,12 +108,14 @@ describe('POST /api/auth/reset-password', () => {
 
   it('returns 429 when rate limited', async () => {
     checkRateLimitMock.mockReturnValue(false)
-    const response = await POST(createRequest({ token: VALID_TOKEN, newPassword: 'Password1!' }))
+    const response = await POST(
+      createRequest({ token: VALID_RAW_TOKEN, newPassword: 'Password1!' })
+    )
     expect(response.status).toBe(429)
   })
 
   it('rejects a weak new password', async () => {
-    const response = await POST(createRequest({ token: VALID_TOKEN, newPassword: 'weakpass' }))
+    const response = await POST(createRequest({ token: VALID_RAW_TOKEN, newPassword: 'weakpass' }))
     expect(response.status).toBe(400)
     expect(prismaMock.user.update).not.toHaveBeenCalled()
   })

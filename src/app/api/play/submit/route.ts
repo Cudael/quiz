@@ -11,21 +11,7 @@ import { evaluateBadgesWithClient } from '@/domain/badges'
 import { levelForXp } from '@/domain/leveling'
 import { computeStreak } from '@/domain/streak'
 import { HOME_POPULAR_QUIZZES_TAG, HOME_TRENDING_QUIZZES_TAG } from '@/server/home-quiz-cache'
-
-interface AnswerInput {
-  questionId: string
-  choiceIds: string[]
-  timeTakenMs: number
-  textAnswer?: string
-}
-
-interface SubmitBody {
-  playToken: string
-  quizId: string
-  mode: string
-  answers: AnswerInput[]
-  guestName?: string
-}
+import { submitPlaySchema } from '@/schemas'
 
 function sanitizeChoiceIds(choiceIds: string[], validChoiceIds: Set<string>) {
   return Array.from(new Set(choiceIds.filter((choiceId) => validChoiceIds.has(choiceId)))).sort()
@@ -37,14 +23,19 @@ function isPlayMode(value: string): value is PrismaPlayMode {
 
 export async function POST(req: NextRequest) {
   const authSession = await auth()
-  let body: SubmitBody
+  let rawBody: unknown
   try {
-    body = await req.json()
+    rawBody = await req.json()
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const { playToken, quizId, mode, answers, guestName } = body
+  const parsed = submitPlaySchema.safeParse(rawBody)
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+  }
+
+  const { playToken, quizId, mode, answers, guestName } = parsed.data
 
   const tokenResult = await verifyPlayToken(playToken, quizId)
   if (!tokenResult.valid) {
@@ -103,7 +94,12 @@ export async function POST(req: NextRequest) {
     timeTakenMs: number
   }> = []
 
+  // Deduplicate answers: keep the first submission per question ID
+  const seenQuestionIds = new Set<string>()
   for (const answer of answers) {
+    if (seenQuestionIds.has(answer.questionId)) continue
+    seenQuestionIds.add(answer.questionId)
+
     const question = quiz.questions.find((q) => q.id === answer.questionId)
     if (!question) continue
 
@@ -117,7 +113,8 @@ export async function POST(req: NextRequest) {
       correctChoiceIds.length === givenIds.length &&
       correctChoiceIds.every((id, i) => id === givenIds[i])
     const timeLimitMs = question.timeLimitSec * 1000
-    const timeTakenMs = Math.min(answer.timeTakenMs, timeLimitMs)
+    // Clamp timeTakenMs to [0, timeLimitMs] to prevent negative-time exploits
+    const timeTakenMs = Math.min(Math.max(0, answer.timeTakenMs), timeLimitMs)
 
     evaluatedAnswers.push({
       questionId: question.id,
@@ -141,7 +138,9 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const totalTimeTakenMs = answers.reduce((sum, a) => sum + a.timeTakenMs, 0)
+  // Use evaluated (deduplicated + clamped) answers for the total time, so that
+  // duplicate submissions and out-of-range timeTakenMs values cannot inflate the total.
+  const totalTimeTakenMs = evaluatedAnswers.reduce((sum, a) => sum + a.timeTakenMs, 0)
   const xpEarned = Math.round(score / 10)
 
   const now = new Date()
@@ -255,6 +254,8 @@ export async function POST(req: NextRequest) {
       maxAge: 60 * 60 * 24 * 365,
       httpOnly: true,
       sameSite: 'lax',
+      path: '/',
+      secure: process.env.NODE_ENV === 'production',
     })
   }
 

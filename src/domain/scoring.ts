@@ -33,7 +33,7 @@ export function scoreQuestion({
 }: ScoreQuestionParams): number {
   if (!correct) return 0
   const base = 100
-  const ratio = timeLimitMs > 0 ? Math.max(0, timeRemainingMs / timeLimitMs) : 0
+  const ratio = timeLimitMs > 0 ? Math.min(1, Math.max(0, timeRemainingMs / timeLimitMs)) : 0
   const speedBonus = Math.round(100 * ratio)
   const rawScore = base + speedBonus
   const multiplier = 1 + 0.25 * Math.floor(streak / 3)

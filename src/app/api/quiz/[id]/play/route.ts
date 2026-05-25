@@ -6,7 +6,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const { id } = await params
 
   const quiz = await prisma.quiz.findUnique({
-    where: { id },
+    where: { id, isPublished: true },
     include: {
       category: true,
       author: { select: { id: true, name: true, image: true } },

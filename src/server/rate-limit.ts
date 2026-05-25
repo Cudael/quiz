@@ -48,9 +48,12 @@ export function checkRateLimit(key: string, config: RateLimitConfig): boolean {
 
 /**
  * Extracts the client IP from a `Request` object.
- * Prefers the `x-forwarded-for` header (set by Vercel / proxies).
+ * Prefers the `x-real-ip` header (set by Vercel and trusted proxies, not
+ * overridable by the client) before falling back to `x-forwarded-for`.
  */
 export function getClientIp(request: Request): string {
+  const realIp = request.headers.get('x-real-ip')
+  if (realIp) return realIp.trim()
   const forwarded = request.headers.get('x-forwarded-for')
   if (forwarded) {
     return forwarded.split(',')[0].trim()

@@ -7,6 +7,7 @@ import { generateUniqueUsername } from '@/lib/usernames'
 import { hashPassword } from '@/server/password'
 import { sendVerificationEmail } from '@/server/email'
 import { checkRateLimit, getClientIp } from '@/server/rate-limit'
+import { hashToken } from '@/server/token-hash'
 
 const VERIFICATION_TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000
 
@@ -54,19 +55,20 @@ export async function POST(request: Request) {
       select: { id: true },
     })
 
-    const token = randomBytes(32).toString('hex')
+    const rawToken = randomBytes(32).toString('hex')
+    const tokenHash = hashToken(rawToken)
     const expires = new Date(Date.now() + VERIFICATION_TOKEN_EXPIRY_MS)
 
     await prisma.verificationToken.create({
       data: {
         identifier: email,
-        token,
+        token: tokenHash,
         expires,
       },
     })
 
     const verifyUrl = new URL('/api/auth/verify-email', request.url)
-    verifyUrl.searchParams.set('token', token)
+    verifyUrl.searchParams.set('token', rawToken)
     await sendVerificationEmail(email, verifyUrl.toString())
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {

@@ -7,7 +7,14 @@ import 'server-only'
 const DEV_SECRET = 'quiz-arena-dev-secret-do-not-use-in-prod'
 
 function getSecret(): string {
-  return process.env.NEXTAUTH_SECRET || DEV_SECRET
+  const secret = process.env.PLAY_TOKEN_SECRET || process.env.AUTH_SECRET
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('PLAY_TOKEN_SECRET or AUTH_SECRET must be set in production')
+    }
+    return DEV_SECRET
+  }
+  return secret
 }
 
 // ---------------------------------------------------------------------------

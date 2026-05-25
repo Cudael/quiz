@@ -1,17 +1,19 @@
 import { NextResponse } from 'next/server'
 import { Prisma } from '@prisma/client'
 import { prisma } from '@/server/prisma'
+import { hashToken } from '@/server/token-hash'
 
 export async function GET(request: Request) {
   const now = new Date()
   const { searchParams } = new URL(request.url)
-  const token = searchParams.get('token')
-  if (!token) {
+  const rawToken = searchParams.get('token')
+  if (!rawToken) {
     return NextResponse.redirect(new URL('/sign-in', request.url))
   }
 
+  const tokenHash = hashToken(rawToken)
   const verificationToken = await prisma.verificationToken.findUnique({
-    where: { token },
+    where: { token: tokenHash },
     select: { identifier: true, expires: true, token: true },
   })
 

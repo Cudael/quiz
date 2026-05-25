@@ -6,7 +6,6 @@ const { prismaMock, sendPasswordResetEmailMock, checkRateLimitMock } = vi.hoiste
       findUnique: vi.fn(),
     },
     verificationToken: {
-      findMany: vi.fn(),
       deleteMany: vi.fn(),
       create: vi.fn(),
     },
@@ -46,9 +45,9 @@ describe('POST /api/auth/forgot-password', () => {
     expect(sendPasswordResetEmailMock).not.toHaveBeenCalled()
   })
 
-  it('creates a reset token and sends email when user exists', async () => {
+  it('creates a hashed reset token and sends email when user exists', async () => {
     prismaMock.user.findUnique.mockResolvedValue({ id: 'user_1' })
-    prismaMock.verificationToken.findMany.mockResolvedValue([])
+    prismaMock.verificationToken.deleteMany.mockResolvedValue({ count: 0 })
     prismaMock.verificationToken.create.mockResolvedValue({})
 
     const response = await POST(createRequest({ email: 'user@example.com' }))
@@ -57,23 +56,22 @@ describe('POST /api/auth/forgot-password', () => {
     await expect(response.json()).resolves.toEqual({ ok: true })
     expect(prismaMock.verificationToken.create).toHaveBeenCalledOnce()
     const createdData = prismaMock.verificationToken.create.mock.calls[0][0].data
-    expect(createdData.token).toMatch(/^RESET:/)
+    // Token is stored as a SHA-256 hex hash (64 characters), not the raw token
+    expect(createdData.token).toMatch(/^[0-9a-f]{64}$/)
+    // Identifier uses the "reset:" prefix to distinguish from verify tokens
+    expect(createdData.identifier).toBe('reset:user@example.com')
     expect(sendPasswordResetEmailMock).toHaveBeenCalledOnce()
   })
 
   it('deletes existing reset tokens before creating a new one', async () => {
     prismaMock.user.findUnique.mockResolvedValue({ id: 'user_1' })
-    prismaMock.verificationToken.findMany.mockResolvedValue([
-      { token: 'RESET:oldtoken123' },
-      { token: 'verifytoken456' },
-    ])
     prismaMock.verificationToken.deleteMany.mockResolvedValue({ count: 1 })
     prismaMock.verificationToken.create.mockResolvedValue({})
 
     await POST(createRequest({ email: 'user@example.com' }))
 
     expect(prismaMock.verificationToken.deleteMany).toHaveBeenCalledWith({
-      where: { identifier: 'user@example.com', token: { in: ['RESET:oldtoken123'] } },
+      where: { identifier: 'reset:user@example.com' },
     })
   })
 
