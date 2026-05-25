@@ -1,12 +1,12 @@
 # QuizArena 🧠
 
-A full-featured, Kahoot-inspired quiz platform built with Next.js 16, TypeScript, Tailwind CSS v4, and Prisma.
+A full-featured quiz platform built with Next.js, TypeScript, Tailwind CSS v4, and Prisma — featuring a creation studio, competitive leaderboards, gamification, and admin moderation.
 
 ## 🚀 Quick Start
 
 ```bash
 npm install
-cp .env.example .env
+cp .env.example .env    # edit DATABASE_URL and AUTH_SECRET at minimum
 npm run db:push
 npm run db:seed
 npm run dev
@@ -16,77 +16,83 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ## 🛠 Tech Stack
 
-- **Framework**: Next.js 16 (App Router) + TypeScript
-- **Styling**: Tailwind CSS v4 + shadcn/ui + Framer Motion
-- **Database**: Prisma ORM + SQLite (dev) / PostgreSQL (prod)
-- **Auth**: NextAuth.js (Phase 3+)
+- **Framework**: Next.js (App Router) + TypeScript
+- **Styling**: Tailwind CSS v4 + shadcn/ui primitives + Framer Motion
+- **Database**: PostgreSQL + Prisma ORM
+- **Auth**: NextAuth.js v5 (email/password, GitHub OAuth, Google OAuth, guest)
 - **State**: Zustand
-- **Testing**: Vitest + React Testing Library
+- **Testing**: Vitest + React Testing Library + vitest-axe
 
 ## 📦 Scripts
 
-| Script                | Description                        |
-| --------------------- | ---------------------------------- |
-| `npm run dev`         | Start development server           |
-| `npm run build`       | Build for production               |
-| `npm run lint`        | Run ESLint                         |
-| `npm run typecheck`   | Run TypeScript type checker        |
-| `npm test`            | Run unit tests                     |
-| `npm run db:push`     | Sync Prisma schema → SQLite        |
-| `npm run db:seed`     | Seed database with demo content    |
-| `npm run db:reset`    | Reset and re-migrate (destructive) |
-| `npm run db:generate` | Regenerate Prisma client           |
+| Script                | Description                                          |
+| --------------------- | ---------------------------------------------------- |
+| `npm run dev`         | Start development server                             |
+| `npm run build`       | Build for production (requires `DATABASE_URL`)       |
+| `npm start`           | Start production server                              |
+| `npm run lint`        | ESLint + hardcoded-color check                       |
+| `npm run typecheck`   | TypeScript type check (`tsc --noEmit`)               |
+| `npm test`            | Run Vitest unit tests                                |
+| `npm run db:push`     | Sync Prisma schema to database                       |
+| `npm run db:migrate`  | Run Prisma migrations                                |
+| `npm run db:seed`     | Seed database with demo content                      |
+| `npm run db:reset`    | Reset and reseed (destructive)                       |
+| `npm run db:generate` | Regenerate Prisma client                             |
+
+> **Note**: `npm run build` queries Prisma at build time for leaderboard OG image generation, so `DATABASE_URL` must be set even for a production build.
 
 ## 🗂 Project Structure
 
 ```
 prisma/
-├── schema.prisma   # Database schema
-├── seed-data.ts    # Seed content (categories, quizzes, etc.)
-└── seed.ts         # Seed runner script
+├── schema.prisma             # PostgreSQL schema with native enums
+├── seed-data.ts              # Seed content (categories, quizzes, badges, users)
+└── seed.ts                   # Seed runner script
+scripts/
+└── check-hardcoded-colors.mjs  # Lint rule: ban raw Tailwind color utilities
+docs/
+├── architecture.md
+├── testing.md
+└── theming.md
 src/
-├── app/           # Next.js App Router pages and API routes
-├── components/    # Reusable UI components
-│   ├── ui/        # Design system primitives
-│   ├── layout/    # App shell, navbar, footer
-│   ├── auth/      # Auth controls and provider
-│   ├── theme/     # Theme provider and toggle
-│   ├── sound/     # Sound controls
-│   ├── hotkeys/   # Global hotkeys and shortcuts cheatsheet
-│   └── home/      # Home page components
-├── hooks/         # React hooks
-├── server/        # Server-only modules
-├── domain/        # Pure domain logic
-├── schemas/       # Zod schemas
-├── lib/           # Generic utilities
-├── store/         # Zustand stores
-└── test/          # Test setup and utilities
+├── app/                # Next.js App Router pages and API routes
+├── components/
+│   ├── ui/             # Design system primitives (shadcn-style)
+│   ├── layout/         # AppShell, Navbar, SiteFooter
+│   ├── auth/           # Auth controls, provider, email verification banner
+│   ├── notifications/  # NotificationBell dropdown
+│   ├── theme/          # ThemeProvider, ThemeToggle
+│   └── home/           # HomePage server component + HomePageClient
+├── server/             # Server-only modules (see below)
+├── domain/             # Pure domain logic (see below)
+├── schemas/            # Zod schemas (index.ts)
+├── lib/                # Generic utilities (see below)
+├── store/              # Zustand stores
+└── test/               # Test infrastructure (setup, axe-smoke, lucide-icons, seed-data)
 ```
 
-## 🗄️ Phase 2 — Database Setup
+## 🗄️ Database Setup
 
-The project uses **SQLite** for local development and is designed to be **Postgres-ready** for production (just swap the `provider` and `DATABASE_URL`).
-
-### Setting up the dev database
+QuizArena uses **PostgreSQL** for all environments.
 
 ```bash
-cp .env.example .env          # sets DATABASE_URL=file:./dev.db
-npm run db:push               # creates prisma/dev.db and syncs schema
-npm run db:seed               # populates with demo content
+cp .env.example .env
+# Set DATABASE_URL to your PostgreSQL connection string
+npm run db:push    # create tables / sync schema
+npm run db:seed    # populate with demo content
 ```
 
 ### Seeded content
 
-| Entity        | Count |
-| ------------- | ----- |
-| Categories    | 10    |
-| Quizzes       | 30    |
-| Questions     | ~100+ |
-| Badges        | 10    |
-| Demo users    | 5     |
-| Play sessions | 48+   |
+| Entity     | Count |
+| ---------- | ----- |
+| Categories | 10+   |
+| Quizzes    | 30+   |
+| Questions  | 80+   |
+| Badges     | 10+   |
+| Demo users | 5     |
 
-**Demo users:**
+**Demo accounts (after `npm run db:seed`):**
 
 | Name         | Email               | Role  |
 | ------------ | ------------------- | ----- |
@@ -96,88 +102,124 @@ npm run db:seed               # populates with demo content
 | Carol Zhang  | carol@quizarena.dev | USER  |
 | Dave Okonkwo | demo@quizarena.dev  | USER  |
 
-### Switching to PostgreSQL
-
-1. Change `provider = "sqlite"` to `provider = "postgresql"` in `prisma/schema.prisma`
-2. Update `DATABASE_URL` in `.env` to your Postgres connection string
-3. Run `npm run db:migrate` instead of `db:push`
-4. (Optional) Add back the enum types now that Postgres supports them
+Sign in with email/password on the `/sign-in` page. The password for each demo account is defined in `prisma/seed.ts`.
 
 ## 🔧 Environment Variables
 
-Copy `.env.example` to `.env` and fill in the values:
-
-```bash
-cp .env.example .env
-```
-
-Generate auth secret:
+Copy `.env.example` to `.env`. Generate an auth secret with:
 
 ```bash
 openssl rand -base64 32
 ```
 
-Required auth env vars (Phase 4):
+| Variable                | Required      | Description                                              |
+| ----------------------- | ------------- | -------------------------------------------------------- |
+| `DATABASE_URL`          | ✅ Always     | PostgreSQL connection string                             |
+| `AUTH_SECRET`           | ✅ Always     | NextAuth JWT signing secret                              |
+| `NEXTAUTH_URL`          | Prod          | Full public URL (e.g. `https://quizarena.app`)           |
+| `NEXTAUTH_SECRET`       | Fallback      | Older NextAuth secret alias                              |
+| `PLAY_TOKEN_SECRET`     | Prod          | HMAC secret for play tokens (falls back to `AUTH_SECRET`) |
+| `GITHUB_CLIENT_ID`      | OAuth only    | GitHub OAuth app client ID                               |
+| `GITHUB_CLIENT_SECRET`  | OAuth only    | GitHub OAuth app secret                                  |
+| `GOOGLE_CLIENT_ID`      | OAuth only    | Google OAuth app client ID                               |
+| `GOOGLE_CLIENT_SECRET`  | OAuth only    | Google OAuth app secret                                  |
+| `RESEND_API_KEY`        | Email         | Resend.com API key for transactional email               |
+| `RESEND_FROM_EMAIL`     | Email         | Sender address (default: `noreply@quizarena.app`)        |
+| `CRON_SECRET`           | Cron          | Bearer token for `/api/cron/cleanup-guests`              |
+| `OPENAI_API_KEY`        | AI features   | OpenAI API key (optional)                                |
+| `BLOB_READ_WRITE_TOKEN` | Uploads       | Vercel Blob token for image uploads                      |
+| `NEXT_PUBLIC_SITE_URL`  | Optional      | Public URL override (falls back to `VERCEL_URL`)         |
 
-```env
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET=""
-AUTH_SECRET=""
-GITHUB_CLIENT_ID=""
-GITHUB_CLIENT_SECRET=""
-GOOGLE_CLIENT_ID=""
-GOOGLE_CLIENT_SECRET=""
-```
+**Minimum required**: `DATABASE_URL` + `AUTH_SECRET`. Email/password auth works without any OAuth keys. OAuth provider buttons are hidden when their env vars are absent.
 
-Email/password registration and sign-in work with no additional provider env vars — only
-`DATABASE_URL` and `AUTH_SECRET` are required. Google/GitHub env vars are only needed for OAuth
-buttons.
+**OAuth callback URLs:**
+- GitHub: `{NEXTAUTH_URL}/api/auth/callback/github`
+- Google: `{NEXTAUTH_URL}/api/auth/callback/google`
 
-OAuth callback URLs:
+## 🧠 Domain Logic Reference
 
-- GitHub OAuth app callback URL: `http://localhost:3000/api/auth/callback/github`
-- Google OAuth app authorized redirect URI: `http://localhost:3000/api/auth/callback/google`
+### XP & Leveling (`src/domain/leveling.ts`)
 
-## 🧯 Troubleshooting
+`xpForLevel(n) = 100 * (n-1) * n / 2` — cumulative XP required to reach level `n` (level 1 = 0 XP).
 
-### Theme not switching?
+| Level | XP Required |
+| ----- | ----------- |
+| 1     | 0           |
+| 2     | 100         |
+| 3     | 300         |
+| 4     | 600         |
+| 5     | 1000        |
+| 6     | 1500        |
+| 7     | 2100        |
+| 8     | 2800        |
+| 9     | 3600        |
+| 10    | 4500        |
 
-- The root layout now runs a pre-paint theme script before hydration so `<html>` gets the correct `light`/`dark` class immediately.
-- Theme-aware components should use semantic Tailwind tokens (`bg-background`, `text-foreground`, `border-border`, etc.) instead of hardcoded color utilities.
-- See `docs/theming.md` for the token model and examples.
+### Scoring (`src/domain/scoring.ts`)
 
-### Icons not rendering?
+Per-question: `base(100) + speedBonus(round(100 × timeRemaining / timeLimit))`.  
+Survival mode applies a streak multiplier: `1 + 0.25 × floor(streak / 3)`.
 
-- Ensure `lucide-react` is on the supported package line (`0.5xx.x`), not `1.x`.
-- If you upgrade icons, run tests to validate all used icon exports still exist (`src/test/lucide-icons.test.ts`).
+### Streak rules (`src/domain/streak.ts`)
 
-### DB empty after `npm run db:push`?
+- Same UTC calendar day as `lastPlayedAt` → no change.
+- Yesterday (by UTC day boundary) → increment by 1.
+- Older than yesterday but within 36h grace window from `lastPlayedAt` → increment by 1.
+- Outside grace window → reset to 1.
+- `bestStreak` is always `max(previousBest, newStreak)`.
 
-- `db:push` only syncs schema. It does not insert data.
-- Run `npm run db:seed` after `db:push` to populate demo users, categories, quizzes, and sessions.
+**Win definition**: any session where `correctCount / totalCount >= 0.7`.
 
-## 🧪 Phase 4 — Quiz Creation Studio
+### Badge criteria (`src/domain/badges.ts`)
 
-Phase 4 introduces authentication and authoring/moderation workflows.
+Badges are stored in the database with a JSON `criteria` field. The engine evaluates all unevaluated badges against collected stats after each session.
 
-### Sign-in providers
+| Slug                      | Criterion type    | Threshold                     |
+| ------------------------- | ----------------- | ----------------------------- |
+| `first-win`               | `wins`            | 1                             |
+| `perfect-score`           | `perfectScore`    | —                             |
+| `streak-7`                | `streak`          | 7 days                        |
+| `streak-30`               | `streak`          | 30 days                       |
+| `quiz-author`             | `quizzesAuthored` | 1                             |
+| `category-master-science` | `categoryMaster`  | 10 quizzes in `science`       |
+| `speed-demon`             | `avgAnswerMs`     | < 5000 ms average answer time |
+| `night-owl`               | `playedBetween`   | 00:00–05:00 UTC               |
+| `centurion`               | `playsCount`      | 100 sessions                  |
+| `daily-devotee`           | `dailyChallenges` | 14 daily sessions             |
 
-- GitHub OAuth
-- Google OAuth
-- Credentials provider (guest play by name)
+### Daily mode (`src/server/daily-seed.ts`)
 
-### Studio overview
+`dailySeed(date, quizId)` produces a deterministic `uint32` seed via djb2 variant. A mulberry32 PRNG then shuffles questions in a reproducible order for a given (date, quiz) pair. One attempt per player per day is enforced server-side.
 
-- `/studio` dashboard with Drafts/Published tabs
-- `/studio/quiz/new` and `/studio/quiz/[id]/edit`
-- `/studio/quiz/[id]/import` CSV/JSON bulk import
+### Play token (`src/server/play-token.ts`)
 
-Screenshots:
+HMAC-SHA256 tokens bind a `quizId` and `issuedAt` timestamp. Tokens expire after 4 hours. The secret is `PLAY_TOKEN_SECRET`, falling back to `AUTH_SECRET` (or a dev constant when neither is set).
 
-![Studio dashboard](docs/screenshots/phase-4/studio-dashboard.png)
-![Quiz editor](docs/screenshots/phase-4/quiz-editor.png)
+### Leaderboard query strategy (`src/server/leaderboard.ts`)
 
-### CSV import schema
+Raw SQL `GROUP BY` over `PlaySession` with optional filters for period (`all` / `week` / `today`), mode (`CLASSIC` / `TIMED` / `SURVIVAL` / `DAILY` / `ALL`), category slugs, and quiz ID. Sort options: `total`, `best`, `plays`, `accuracy`.
+
+## 🎮 Quiz Modes
+
+| Mode     | Description                                                      |
+| -------- | ---------------------------------------------------------------- |
+| CLASSIC  | Per-question timer, full question set                            |
+| TIMED    | 60-second global countdown — speed maximises score              |
+| SURVIVAL | 3 one-use lifelines (50/50, Skip, +10 s); streak score multiplier |
+| DAILY    | Deterministic daily shuffle; one attempt per player per day      |
+
+**Lifelines (Survival only):** **50/50** removes two wrong choices; **Skip** skips the question without penalty; **Extra Time** adds 10 s to the current question timer.
+
+## 🏗 Studio (Quiz Creation)
+
+### Routes
+
+- `/studio` — Dashboard with Drafts / Published tabs
+- `/studio/quiz/new` — Create a new quiz
+- `/studio/quiz/[id]/edit` — Edit questions (add / update / delete / reorder)
+- `/studio/quiz/[id]/import` — Bulk import via CSV or JSON
+
+### CSV import format
 
 ```csv
 type,prompt,explanation,timeLimitSec,choices
@@ -187,7 +229,9 @@ TRUEFALSE,"The sky is blue.","",10,"*True;False"
 FILL_BLANK,"Capital of France is {{blank}}.","",15,"*Paris;*paris"
 ```
 
-### JSON import schema
+Prefix a choice with `*` to mark it correct. Choices are semicolon-separated.
+
+### JSON import format
 
 ```json
 [
@@ -204,258 +248,61 @@ FILL_BLANK,"Capital of France is {{blank}}.","",15,"*Paris;*paris"
 ]
 ```
 
-### Roles & permissions
+## 🛡 Roles & Permissions
 
-- `USER`: play quizzes, report quizzes, suggest categories, manage own quizzes in studio
-- `ADMIN`: all user permissions + moderation queue (`/admin`) with approve/reject/dismiss/unpublish/delete
+| Role    | Capabilities                                                                                              |
+| ------- | --------------------------------------------------------------------------------------------------------- |
+| `USER`  | Play quizzes, create/manage own quizzes in Studio, report quizzes, suggest categories, follow users       |
+| `ADMIN` | Everything above + full moderation queue (`/admin`): approve/reject category suggestions, resolve reports (dismiss / unpublish / delete quiz), toggle any quiz publish status, manage user roles, view audit log |
 
-### Seeded admin sign-in
+## 🔔 Notifications
 
-After `npm run db:seed`, an admin demo account is seeded.  
-Use Credentials sign-in with name: **Admin Demo**.
+Authenticated users see a bell icon in the navbar (`src/components/notifications/notification-bell.tsx`). Notification types:
 
-### Updated architecture (Phase 4)
+- `BADGE_EARNED` — links to `/me`
+- `NEW_FOLLOWER` — links to `/u/[username]`
+- `QUIZ_PLAYED` — links to `/quiz/[id]`
 
-```mermaid
-flowchart LR
-  UI[Next.js App Router]
-  Auth[NextAuth v5]
-  Studio[/studio routes]
-  Admin[/admin routes]
-  API[/app/api/*]
-  DB[(Prisma + SQLite/Postgres)]
-  U[(User)]
-  Q[(Quiz)]
-  PS[(PlaySession)]
-  A[(Account)]
-  S[(Session)]
-  VT[(VerificationToken)]
-  R[(Report)]
-  CS[(CategorySuggestion)]
-  AA[(AdminAction)]
+Fetched via `GET /api/notifications`; marked read via `PATCH /api/notifications/read`.
 
-  UI --> Auth
-  UI --> Studio
-  UI --> Admin
-  UI --> API
-  Auth --> A
-  Auth --> S
-  Auth --> VT
-  Studio --> Q
-  Studio --> CS
-  API --> PS
-  API --> R
-  Admin --> CS
-  Admin --> R
-  Admin --> AA
-  DB --- U
-  DB --- Q
-  DB --- PS
-  DB --- A
-  DB --- S
-  DB --- VT
-  DB --- R
-  DB --- CS
-  DB --- AA
-```
+## ♿ Accessibility
 
-## 🏆 Phase 5 — Leaderboards, Profiles & Gamification
+- Skip-to-content link in `AppShell`
+- Semantic landmarks (`<header>`, `<main>`, `<footer>`, `<nav aria-label>`)
+- All interactive elements have `aria-label` or visible text
+- Focus trapping + restore in modal dialogs
+- `aria-live="polite"` countdown announcements (10 s, 5 s, 0 s)
+- Keyboard play shortcuts: `1`–`4` / `A`–`D` select choices; `Enter` / `Space` submit or advance
+- Reduced motion: respects `prefers-reduced-motion` media query and a `localStorage.reducedMotion` override
+- Axe smoke tests for key routes (`src/test/axe-smoke.test.tsx`) — fail on `serious`/`critical` violations
 
-### XP formula
+## 🌐 SEO & Open Graph
 
-`xpForLevel(n) = 100 * (n-1) * n / 2` (total XP required to reach level `n`, with level 1 at 0 XP).
+Dynamic OG image routes (Node.js runtime):
+- `src/app/opengraph-image.tsx` — site root
+- `src/app/quiz/[id]/opengraph-image.tsx`
+- `src/app/u/[username]/opengraph-image.tsx`
+- `src/app/leaderboard/opengraph-image.tsx`
 
-| Level | XP to Reach |
-| ----- | ----------- |
-| 1     | 0           |
-| 2     | 100         |
-| 3     | 300         |
-| 4     | 600         |
-| 5     | 1000        |
-| 6     | 1500        |
-| 7     | 2100        |
-| 8     | 2800        |
-| 9     | 3600        |
-| 10    | 4500        |
+Crawl / PWA support:
+- `src/app/robots.ts` — disallows `/api`, `/studio`, `/admin`, `/auth`
+- `src/app/sitemap.ts` — dynamic sitemap from published quizzes + categories
+- `src/app/manifest.ts` — PWA web app manifest
 
-### Win definition
+## 🧯 Troubleshooting
 
-A **win** is any completed session with `correctCount / totalCount >= 0.7` (70% accuracy).
+### Theme not switching?
 
-### Streak rules
+The root layout runs a pre-paint script before hydration (`src/lib/theme.ts` → `THEME_INIT_SCRIPT`). Theme-aware components must use semantic Tailwind tokens (`bg-background`, `text-foreground`, `border-border`, etc.) — not hardcoded color utilities. See `docs/theming.md`.
 
-- Same UTC calendar day as `lastPlayedAt` → no change.
-- Yesterday → increment streak by 1.
-- Older than yesterday but still within 36h grace from `lastPlayedAt` → increment streak by 1.
-- Outside the grace window → reset to 1.
-- `bestStreak` is always `max(previousBest, currentStreak)`.
+### Icons not rendering?
 
-### Badge catalog
+Run `npm test -- --run`; the `src/test/lucide-icons.test.ts` suite verifies every used icon is exported by the installed `lucide-react` version.
 
-| Slug                      | Name           | Criteria                                                              |
-| ------------------------- | -------------- | --------------------------------------------------------------------- |
-| `first-win`               | First Win      | `{ type: 'wins', count: 1 }`                                          |
-| `perfect-score`           | Perfect Score  | `{ type: 'perfectScore' }`                                            |
-| `streak-7`                | 7-Day Streak   | `{ type: 'streak', days: 7 }`                                         |
-| `streak-30`               | 30-Day Streak  | `{ type: 'streak', days: 30 }`                                        |
-| `quiz-author`             | Quiz Author    | `{ type: 'quizzesAuthored', count: 1 }`                               |
-| `category-master-science` | Science Master | `{ type: 'categoryMaster', categorySlug: 'science', minQuizzes: 10 }` |
-| `speed-demon`             | Speed Demon    | `{ type: 'avgAnswerMs', lt: 5000 }`                                   |
-| `night-owl`               | Night Owl      | `{ type: 'playedBetween', fromHour: 0, toHour: 5 }`                   |
-| `centurion`               | Centurion      | `{ type: 'playsCount', count: 100 }`                                  |
-| `daily-devotee`           | Daily Devotee  | `{ type: 'dailyChallenges', count: 14 }`                              |
+### DB empty after `npm run db:push`?
 
-### Leaderboard query strategy
+`db:push` only syncs the schema. Run `npm run db:seed` afterwards to insert demo content.
 
-- Query source: `PlaySession` filtered by `range`, `mode`, and optional category list.
-- Indexes used:
-  - `PlaySession(userId)`
-  - `PlaySession(createdAt)`
-  - `PlaySession(quizId)`
-  - composite: `PlaySession(createdAt, mode, quizId)`
-- `range` mapping:
-  - `all` → no date filter
-  - `week` → `createdAt >= now - 7 days`
-  - `today` → `createdAt >= UTC day start`
-- Expected cost: bounded by filtered `PlaySession` rows; in-memory grouping is O(n) on the filtered subset.
+### Build fails?
 
-### Screenshots
-
-![Phase 5 leaderboard](docs/screenshots/phase-5/leaderboard.png)
-![Phase 5 profile](docs/screenshots/phase-5/profile.png)
-
-### Updated architecture (Phase 5)
-
-```mermaid
-flowchart LR
-  UI[Next.js App Router]
-  Auth[NextAuth v5]
-  Leaderboard[/leaderboard]
-  Profile[/u/[username], /me]
-  PlayAPI[/api/play/submit]
-  BadgeEngine[src/domain/badges.ts]
-  Leveling[src/domain/leveling.ts]
-  Streak[src/domain/streak.ts]
-  DB[(Prisma)]
-  U[(User)]
-  PS[(PlaySession)]
-  B[(Badge/UserBadge)]
-  F[(Follow)]
-
-  UI --> Leaderboard
-  UI --> Profile
-  UI --> PlayAPI
-  UI --> Auth
-  PlayAPI --> Leveling
-  PlayAPI --> Streak
-  PlayAPI --> BadgeEngine
-  BadgeEngine --> DB
-  Leaderboard --> DB
-  Profile --> DB
-  DB --- U
-  DB --- PS
-  DB --- B
-  DB --- F
-```
-
-## ✨ Phase 6 — Polish & Delight
-
-### Sound system
-
-- New client hook: `src/hooks/use-sound.ts` (persisted `soundEnabled`, `soundVolume` in `localStorage`)
-- Lazy initialization after first user interaction to avoid autoplay-policy issues
-- Wired moments:
-  - Quiz start CTA (`start`)
-  - Countdown urgency (`tick`, skipped when reduced-motion is enabled)
-  - Results celebrations (`level-up`, `badge`)
-- Sound assets are bundled in `public/sfx/`
-
-| File           | Purpose                | License             |
-| -------------- | ---------------------- | ------------------- |
-| `correct.mp3`  | Correct-answer chime   | CC0 / Public Domain |
-| `wrong.mp3`    | Wrong-answer buzzer    | CC0 / Public Domain |
-| `tick.mp3`     | Countdown urgency tick | CC0 / Public Domain |
-| `level-up.mp3` | Level-up fanfare       | CC0 / Public Domain |
-| `badge.mp3`    | Badge unlock sparkle   | CC0 / Public Domain |
-| `start.mp3`    | Quiz start whoosh      | CC0 / Public Domain |
-
-### Keyboard shortcuts
-
-- `g h` → Home
-- `g c` → Categories
-- `g l` → Leaderboard
-- `g s` → Studio
-- `g p` → Profile (`/me`)
-- `/` → Focus search (when present)
-- `?` → Open shortcuts cheatsheet
-- During play: `1-4` answer choices, `Enter` next, `Esc` quit dialog
-
-### Accessibility statement
-
-- Target: WCAG AA contrast and keyboard-only usability
-- Skip-to-content link in global shell
-- Focus trapping + focus restore in modal dialogs
-- Countdown live region announces 10s, 5s, and 0s
-- Reduced-motion respected in hot spots (confetti and urgent tick behavior)
-- Axe smoke tests added for key routes and configured to fail on `serious`/`critical` violations
-
-### SEO / metadata / OG strategy
-
-- Route-level metadata for `/`, `/categories`, `/quiz/[id]`, `/leaderboard`, `/u/[username]`
-- Dynamic OG image routes:
-  - `src/app/opengraph-image.tsx`
-  - `src/app/quiz/[id]/opengraph-image.tsx`
-  - `src/app/u/[username]/opengraph-image.tsx`
-  - `src/app/leaderboard/opengraph-image.tsx`
-- Crawl / PWA files:
-  - `src/app/robots.ts`
-  - `src/app/sitemap.ts`
-  - `src/app/manifest.ts`
-  - `public/icon-192-maskable.png`, `public/icon-512-maskable.png`
-
-OG screenshot:
-
-![Phase 6 OG card](docs/screenshots/phase-6/og-card.png)
-
-### Performance notes
-
-- `canvas-confetti` remains dynamically imported at celebration trigger time
-- Sound playback is lazily initialized to avoid loading on first paint
-- Lighthouse snapshot:
-
-![Phase 6 Lighthouse](docs/screenshots/phase-6/lighthouse.png)
-
-### Updated architecture (Phase 6)
-
-```mermaid
-flowchart LR
-  UI[App Shell]
-  HK[Global Hotkeys]
-  SFX[useSound + Howler]
-  SEO[Metadata + OG routes]
-  A11Y[Modal focus trap + Axe tests]
-  PWA[robots/sitemap/manifest/icons]
-
-  UI --> HK
-  UI --> SFX
-  UI --> SEO
-  UI --> A11Y
-  UI --> PWA
-```
-
-### Roadmap / Future (Out of Scope)
-
-- Real-time multiplayer versus mode
-- AI-generated question authoring
-- Native mobile app
-- Email notifications
-
-## 🏗 Development Phases
-
-- [x] **Phase 1** — Foundation & Design System
-- [x] **Phase 2** — Data Model & Seed Content
-- [x] **Phase 3** — Core Quiz Gameplay
-- [x] **Phase 4** — Quiz Creation Studio
-- [x] **Phase 5** — Leaderboards, Profiles & Gamification
-- [x] **Phase 6** — Polish & Delight
-- [x] **Phase 7** — Tests & Docs
+`npm run build` queries Prisma at build time (leaderboard OG image). Set `DATABASE_URL` before running the build.
