@@ -138,6 +138,8 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Use evaluated (deduplicated + clamped) answers for the total time, so that
+  // duplicate submissions and out-of-range timeTakenMs values cannot inflate the total.
   const totalTimeTakenMs = evaluatedAnswers.reduce((sum, a) => sum + a.timeTakenMs, 0)
   const xpEarned = Math.round(score / 10)
 
