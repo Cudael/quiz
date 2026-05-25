@@ -1,22 +1,28 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { authMock, prismaMock, verifyPasswordMock, hashPasswordMock } = vi.hoisted(() => ({
-  authMock: vi.fn(),
-  prismaMock: {
-    user: {
-      findUnique: vi.fn(),
-      update: vi.fn(),
+const { authMock, prismaMock, verifyPasswordMock, hashPasswordMock, checkRateLimitMock } =
+  vi.hoisted(() => ({
+    authMock: vi.fn(),
+    prismaMock: {
+      user: {
+        findUnique: vi.fn(),
+        update: vi.fn(),
+      },
     },
-  },
-  verifyPasswordMock: vi.fn(),
-  hashPasswordMock: vi.fn(),
-}))
+    verifyPasswordMock: vi.fn(),
+    hashPasswordMock: vi.fn(),
+    checkRateLimitMock: vi.fn().mockReturnValue(true),
+  }))
 
 vi.mock('@/server/auth', () => ({ auth: authMock }))
 vi.mock('@/server/prisma', () => ({ prisma: prismaMock }))
 vi.mock('@/server/password', () => ({
   verifyPassword: verifyPasswordMock,
   hashPassword: hashPasswordMock,
+}))
+vi.mock('@/server/rate-limit', () => ({
+  checkRateLimit: checkRateLimitMock,
+  getClientIp: vi.fn().mockReturnValue('127.0.0.1'),
 }))
 
 import { POST } from '@/app/api/me/password/route'
@@ -36,7 +42,8 @@ describe('POST /api/me/password', () => {
 
   it('returns 401 when not signed in', async () => {
     authMock.mockResolvedValue(null)
-    const response = await POST(createRequest({ currentPassword: 'a', newPassword: 'password123' }))
+    checkRateLimitMock.mockReturnValue(true)
+    const response = await POST(createRequest({ currentPassword: 'a', newPassword: 'Password1!' }))
     expect(response.status).toBe(401)
   })
 
@@ -44,9 +51,10 @@ describe('POST /api/me/password', () => {
     authMock.mockResolvedValue({ user: { id: 'user_1' } })
     prismaMock.user.findUnique.mockResolvedValue({ passwordHash: 'hash' })
     verifyPasswordMock.mockResolvedValue(false)
+    checkRateLimitMock.mockReturnValue(true)
 
     const response = await POST(
-      createRequest({ currentPassword: 'wrong-pass', newPassword: 'password123' })
+      createRequest({ currentPassword: 'wrong-pass', newPassword: 'Password1!' })
     )
 
     expect(response.status).toBe(400)
@@ -60,9 +68,10 @@ describe('POST /api/me/password', () => {
     verifyPasswordMock.mockResolvedValue(true)
     hashPasswordMock.mockResolvedValue('new-hash')
     prismaMock.user.update.mockResolvedValue({})
+    checkRateLimitMock.mockReturnValue(true)
 
     const response = await POST(
-      createRequest({ currentPassword: 'password123', newPassword: 'new-password123' })
+      createRequest({ currentPassword: 'Password1!', newPassword: 'NewPassword1!' })
     )
 
     expect(response.status).toBe(200)

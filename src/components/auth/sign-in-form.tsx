@@ -16,7 +16,8 @@ interface SignInFormProps {
   verifiedMessage?: string
 }
 
-const AUTH_ERROR_MESSAGE = 'Sign in failed. Please check your details and try again.'
+const AUTH_ERROR_MESSAGE =
+  'Sign in failed. Please check your details and try again. If you registered recently, verify your email first.'
 
 export function SignInForm({
   callbackUrl,
@@ -114,6 +115,11 @@ export function SignInForm({
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
               />
+              <p className="text-right text-xs text-muted-foreground">
+                <Link href="/forgot-password" className="underline">
+                  Forgot password?
+                </Link>
+              </p>
             </div>
             <Button type="submit" className="w-full" disabled={isSubmittingEmail}>
               {isSubmittingEmail ? 'Signing in…' : 'Sign in with email'}

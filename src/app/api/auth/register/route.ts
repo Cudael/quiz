@@ -5,10 +5,19 @@ import { prisma } from '@/server/prisma'
 import { registerSchema } from '@/schemas'
 import { generateUniqueUsername } from '@/lib/usernames'
 import { hashPassword } from '@/server/password'
+import { sendVerificationEmail } from '@/server/email'
+import { checkRateLimit, getClientIp } from '@/server/rate-limit'
 
 const VERIFICATION_TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000
 
 export async function POST(request: Request) {
+  if (!checkRateLimit(`register:${getClientIp(request)}`, { limit: 5, windowMs: 15 * 60 * 1000 })) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please try again later.' },
+      { status: 429 }
+    )
+  }
+
   let rawBody: unknown
   try {
     rawBody = await request.json()
@@ -34,7 +43,7 @@ export async function POST(request: Request) {
 
   try {
     const passwordHash = await hashPassword(password)
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: {
         name,
         email,
@@ -42,7 +51,7 @@ export async function POST(request: Request) {
         role: 'USER',
         username: await generateUniqueUsername(name),
       },
-      select: { id: true, email: true },
+      select: { id: true },
     })
 
     const token = randomBytes(32).toString('hex')
@@ -58,10 +67,7 @@ export async function POST(request: Request) {
 
     const verifyUrl = new URL('/api/auth/verify-email', request.url)
     verifyUrl.searchParams.set('token', token)
-    if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
-      console.log('Verification email placeholder generated', { userId: user.id })
-      console.log('Verification URL (dev/test only)', verifyUrl.toString())
-    }
+    await sendVerificationEmail(email, verifyUrl.toString())
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
       return NextResponse.json({ error: 'Unable to register account.' }, { status: 409 })
@@ -70,6 +76,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unable to register account.' }, { status: 400 })
   }
 
-  // TODO: add email verification and password reset flows in a follow-up PR.
+  // Registration successful. Email verification is sent asynchronously.
   return NextResponse.json({ ok: true }, { status: 201 })
 }

@@ -1,4 +1,5 @@
 import { SignInForm } from '@/components/auth/sign-in-form'
+import { safeCallbackUrl } from '@/lib/safe-callback-url'
 
 export default async function SignInPage({
   searchParams,
@@ -9,7 +10,7 @@ export default async function SignInPage({
 
   return (
     <SignInForm
-      callbackUrl={callbackUrl || '/me'}
+      callbackUrl={safeCallbackUrl(callbackUrl, '/me')}
       googleEnabled={Boolean(process.env.GOOGLE_CLIENT_ID)}
       githubEnabled={Boolean(process.env.GITHUB_CLIENT_ID)}
       verifiedMessage={
