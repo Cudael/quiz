@@ -6,6 +6,11 @@ const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? 'noreply@quizarena.app'
 function getResendClient(): Resend | null {
   const apiKey = process.env.RESEND_API_KEY
   if (!apiKey) return null
+  if (!process.env.RESEND_FROM_EMAIL) {
+    console.warn(
+      'RESEND_FROM_EMAIL is not set. Emails will be sent from the fallback address which may not be verified in Resend.'
+    )
+  }
   return new Resend(apiKey)
 }
 
