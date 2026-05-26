@@ -4,14 +4,11 @@ import * as React from 'react'
 import { ChevronDown, ChevronUp, GripVertical, Loader2, Check, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { FILL_BLANK_PLACEHOLDER } from '@/domain/quiz-constants'
 import { ImageUpload } from './image-upload'
 import { QuestionTypeIcon } from './question-type-icon'
 import { addQuestion, updateQuestion } from '@/app/studio/actions/question-actions'
 import type { DraftQuestion, DraftChoice } from '@/store/quiz-creator-store'
-
-const TIME_PRESETS = [5, 10, 15, 20, 30, 45, 60]
 
 interface QuestionCardProps {
   question: DraftQuestion
@@ -139,9 +136,6 @@ export function QuestionCard({
           </span>
         </button>
         <QuestionTypeIcon type={question.type} showLabel />
-        <Badge variant="outline" className="shrink-0 text-xs">
-          {question.timeLimitSec}s
-        </Badge>
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
@@ -167,73 +161,35 @@ export function QuestionCard({
       {/* Body */}
       {open && (
         <div className="space-y-4 border-t px-4 py-4">
-          <ImageUpload
-            value={question.imageUrl}
-            onChange={(v) => onUpdate({ imageUrl: v })}
-            label="Question image (optional)"
-          />
-
-          <div className="space-y-1">
-            <label htmlFor={`prompt-${question.localId}`} className="block text-sm font-medium">
-              Question
-            </label>
-            <textarea
-              id={`prompt-${question.localId}`}
-              value={question.prompt}
-              onChange={(e) => onUpdate({ prompt: e.target.value })}
-              rows={3}
-              className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-              placeholder={
-                question.type === 'FILL_BLANK'
-                  ? `Include ${FILL_BLANK_PLACEHOLDER} exactly once, e.g. The capital of France is ${FILL_BLANK_PLACEHOLDER}.`
-                  : 'Enter your question...'
-              }
-            />
-            {question.type === 'FILL_BLANK' && (
-              <p className="text-xs text-muted-foreground">
-                Include {FILL_BLANK_PLACEHOLDER} exactly once in the prompt so players know where to
-                type the missing answer.
-              </p>
-            )}
-          </div>
-
-          {/* Time limit */}
-          <div className="space-y-2">
-            <p className="block text-sm font-medium">Time limit</p>
-            <div className="flex flex-wrap gap-1.5">
-              {TIME_PRESETS.map((sec) => (
-                <button
-                  key={sec}
-                  type="button"
-                  onClick={() => onUpdate({ timeLimitSec: sec })}
-                  className={cn(
-                    'rounded-full border px-3 py-1 text-xs transition-colors',
-                    question.timeLimitSec === sec
-                      ? 'border-primary bg-primary text-primary-foreground'
-                      : 'border-border hover:border-primary/50'
-                  )}
-                >
-                  {sec}s
-                </button>
-              ))}
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="range"
-                min={5}
-                max={120}
-                step={5}
-                value={question.timeLimitSec}
-                onChange={(e) => onUpdate({ timeLimitSec: Number(e.target.value) })}
-                className="flex-1"
+          <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
+            <div className="space-y-1">
+              <label htmlFor={`prompt-${question.localId}`} className="block text-sm font-medium">
+                Question
+              </label>
+              <textarea
+                id={`prompt-${question.localId}`}
+                value={question.prompt}
+                onChange={(e) => onUpdate({ prompt: e.target.value })}
+                rows={3}
+                className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                placeholder={
+                  question.type === 'FILL_BLANK'
+                    ? `Include ${FILL_BLANK_PLACEHOLDER} exactly once, e.g. The capital of France is ${FILL_BLANK_PLACEHOLDER}.`
+                    : 'Enter your question...'
+                }
               />
-              <input
-                type="number"
-                min={5}
-                max={120}
-                value={question.timeLimitSec}
-                onChange={(e) => onUpdate({ timeLimitSec: Number(e.target.value) })}
-                className="w-16 rounded-md border bg-background px-2 py-1 text-sm"
+              {question.type === 'FILL_BLANK' && (
+                <p className="text-xs text-muted-foreground">
+                  Include {FILL_BLANK_PLACEHOLDER} exactly once in the prompt so players know where
+                  to type the missing answer.
+                </p>
+              )}
+            </div>
+            <div className="sm:w-48">
+              <ImageUpload
+                compact
+                value={question.imageUrl}
+                onChange={(v) => onUpdate({ imageUrl: v })}
               />
             </div>
           </div>

@@ -49,11 +49,11 @@ export default async function StudioPage({
       />
 
       <div className="mb-6 flex items-center gap-2">
-        <Button variant={activeTab === 'drafts' ? 'default' : 'outline'} asChild>
-          <Link href="/studio?tab=drafts">Drafts</Link>
-        </Button>
         <Button variant={activeTab === 'published' ? 'default' : 'outline'} asChild>
           <Link href="/studio?tab=published">Published</Link>
+        </Button>
+        <Button variant={activeTab === 'drafts' ? 'default' : 'outline'} asChild>
+          <Link href="/studio?tab=drafts">Drafts</Link>
         </Button>
         <Button asChild className="ml-auto">
           <Link href="/studio/quiz/new">
@@ -70,7 +70,7 @@ export default async function StudioPage({
           description={
             activeTab === 'published'
               ? 'Finish a draft and publish it to see it here.'
-              : 'Start from scratch or use a sample template to move faster.'
+              : 'Start from scratch or use a sample template.'
           }
           action={
             activeTab === 'published'

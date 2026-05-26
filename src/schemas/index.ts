@@ -7,8 +7,13 @@ export const quizSchema = z.object({
   coverImage: z.string().trim().url().optional(),
   categoryId: z.string().cuid(),
   difficulty: z.enum(['EASY', 'MEDIUM', 'HARD']),
-  defaultTimeLimitSec: z.number().int().min(5).max(120).optional(),
+  defaultTimeLimitSec: z.number().int().min(60).max(3600).optional(),
   isPublished: z.boolean().default(false),
+})
+
+export const draftQuizSchema = quizSchema.extend({
+  title: z.string().trim().max(120),
+  description: z.string().trim().max(500),
 })
 
 export const questionSchema = z

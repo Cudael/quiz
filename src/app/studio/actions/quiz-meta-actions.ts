@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import type { Prisma } from '@prisma/client'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
-import { quizSchema } from '@/schemas'
+import { draftQuizSchema } from '@/schemas'
 
 export type QuizMetaActionResult =
   | { ok: true; quizId: string }
@@ -20,7 +20,7 @@ export async function createQuizAndReturnId(formData: FormData): Promise<QuizMet
     return { ok: false, error: 'UNAUTHORIZED', message: 'Please sign in.' }
   }
 
-  const parsed = quizSchema.safeParse({
+  const parsed = draftQuizSchema.safeParse({
     title: formData.get('title'),
     description: formData.get('description'),
     coverImage: formData.get('coverImage') || undefined,
