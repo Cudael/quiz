@@ -135,7 +135,7 @@ export function QuestionCard({
           onClick={() => setOpen((v) => !v)}
         >
           <span className="block truncate text-sm font-medium">
-            {question.prompt || 'Untitled question'}
+            {question.prompt || 'New question'}
           </span>
         </button>
         <QuestionTypeIcon type={question.type} showLabel />
@@ -175,7 +175,7 @@ export function QuestionCard({
 
           <div className="space-y-1">
             <label htmlFor={`prompt-${question.localId}`} className="block text-sm font-medium">
-              Prompt
+              Question
             </label>
             <textarea
               id={`prompt-${question.localId}`}

@@ -19,7 +19,7 @@ export default async function StudioPage({
   }
 
   const { tab } = await searchParams
-  const activeTab = tab === 'published' ? 'published' : 'drafts'
+  const activeTab = tab === 'drafts' ? 'drafts' : 'published'
 
   const quizzes = await prisma.quiz.findMany({
     where: {
@@ -46,31 +46,37 @@ export default async function StudioPage({
       <PageHeader
         title="Quiz Studio"
         description="Manage your drafts and published quizzes in one place."
-        actions={
-          <Button asChild>
-            <Link href="/studio/quiz/new">
-              <Plus className="mr-2 h-4 w-4" />
-              New Quiz
-            </Link>
-          </Button>
-        }
       />
 
-      <div className="mb-6 flex gap-2">
+      <div className="mb-6 flex items-center gap-2">
         <Button variant={activeTab === 'drafts' ? 'default' : 'outline'} asChild>
           <Link href="/studio?tab=drafts">Drafts</Link>
         </Button>
         <Button variant={activeTab === 'published' ? 'default' : 'outline'} asChild>
           <Link href="/studio?tab=published">Published</Link>
         </Button>
+        <Button asChild className="ml-auto">
+          <Link href="/studio/quiz/new">
+            <Plus className="mr-2 h-4 w-4" />
+            New Quiz
+          </Link>
+        </Button>
       </div>
 
       {quizzes.length === 0 ? (
         <EmptyState
           icon="✏️"
-          title="No quizzes yet in this tab."
-          description="Start from scratch or use a sample template to move faster."
-          action={{ label: 'View sample template', href: '/templates/quiz-import.json' }}
+          title={activeTab === 'published' ? 'No published quizzes yet.' : 'No drafts yet.'}
+          description={
+            activeTab === 'published'
+              ? 'Finish a draft and publish it to see it here.'
+              : 'Start from scratch or use a sample template to move faster.'
+          }
+          action={
+            activeTab === 'published'
+              ? { label: 'Go to Drafts', href: '/studio?tab=drafts' }
+              : { label: 'Create a quiz', href: '/studio/quiz/new' }
+          }
         />
       ) : (
         <StudioQuizBrowser

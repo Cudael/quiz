@@ -1,7 +1,6 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { Badge } from '@/components/ui/badge'
 import type { QuestionType } from '@/store/quiz-creator-store'
 
 export interface QuizTemplate {
@@ -57,16 +56,6 @@ export const QUIZ_TEMPLATES: QuizTemplate[] = [
     defaultPrompt: 'Question {{blank}} here',
   },
   {
-    id: 'speed-round',
-    emoji: '⚡',
-    name: 'Speed Round',
-    description: 'Race against the clock with rapid-fire single-answer questions.',
-    type: 'SINGLE',
-    timeLimitSec: 8,
-    questionCount: 10,
-    defaultPrompt: '',
-  },
-  {
     id: 'image-quiz',
     emoji: '🖼️',
     name: 'Image Quiz',
@@ -77,20 +66,6 @@ export const QUIZ_TEMPLATES: QuizTemplate[] = [
     defaultPrompt: 'What is shown?',
   },
 ]
-
-const TYPE_VARIANT: Record<QuestionType, 'purple' | 'info' | 'success' | 'warning'> = {
-  SINGLE: 'purple',
-  MULTIPLE: 'info',
-  TRUEFALSE: 'success',
-  FILL_BLANK: 'warning',
-}
-
-const TYPE_LABEL: Record<QuestionType, string> = {
-  SINGLE: 'Single',
-  MULTIPLE: 'Multiple',
-  TRUEFALSE: 'True/False',
-  FILL_BLANK: 'Fill Blank',
-}
 
 function TemplatePreview({ id }: { id: string }) {
   if (id === 'blank') {
@@ -103,22 +78,15 @@ function TemplatePreview({ id }: { id: string }) {
     )
   }
 
-  if (id === 'classic-trivia' || id === 'speed-round') {
-    const isSpeed = id === 'speed-round'
+  if (id === 'classic-trivia') {
     return (
       <div className="flex flex-col gap-1.5 py-1">
-        {!isSpeed && <div className="h-2 w-full rounded bg-muted" />}
-        <div className={cn('grid grid-cols-2 gap-1', isSpeed && 'mt-0.5')}>
-          <div className={cn('rounded bg-muted', isSpeed ? 'h-3' : 'h-5')} />
-          <div className={cn('rounded bg-muted', isSpeed ? 'h-3' : 'h-5')} />
-          <div className={cn('rounded bg-muted', isSpeed ? 'h-3' : 'h-5')} />
-          <div className={cn('rounded bg-muted', isSpeed ? 'h-3' : 'h-5')} />
-          {isSpeed && (
-            <>
-              <div className="h-3 rounded bg-muted" />
-              <div className="h-3 rounded bg-muted" />
-            </>
-          )}
+        <div className="h-2 w-full rounded bg-muted" />
+        <div className="grid grid-cols-2 gap-1">
+          <div className="h-5 rounded bg-muted" />
+          <div className="h-5 rounded bg-muted" />
+          <div className="h-5 rounded bg-muted" />
+          <div className="h-5 rounded bg-muted" />
         </div>
       </div>
     )
@@ -228,12 +196,6 @@ export function TemplatePicker({ selectedId, onSelect }: TemplatePickerProps) {
             <span className="text-sm font-semibold">
               {template.emoji} {template.name}
             </span>
-            <div className="mt-1 flex items-center gap-1.5">
-              <Badge variant={TYPE_VARIANT[template.type]} className="text-xs">
-                {TYPE_LABEL[template.type]}
-              </Badge>
-              <span className="text-xs text-muted-foreground">{template.timeLimitSec}s</span>
-            </div>
           </button>
         ))}
       </div>
