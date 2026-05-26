@@ -1,11 +1,17 @@
 import { describe, expect, it } from 'vitest'
 import { authConfig } from '@/server/auth.config'
+import type { NextAuthConfig } from 'next-auth'
+
+type JwtCallback = NonNullable<NonNullable<NextAuthConfig['callbacks']>['jwt']>
+type JwtParams = Parameters<JwtCallback>[0]
+type SessionCallback = NonNullable<NonNullable<NextAuthConfig['callbacks']>['session']>
+type SessionParams = Parameters<SessionCallback>[0]
 
 describe('authConfig edge callbacks', () => {
   it('stamps role onto the token on sign-in', async () => {
     const jwt = authConfig.callbacks?.jwt
     if (!jwt) throw new Error('Missing jwt callback')
-    const token = await jwt({ token: {}, user: { role: 'ADMIN' } as never })
+    const token = await jwt({ token: {}, user: { role: 'ADMIN' } } as JwtParams)
     if (!token) throw new Error('Missing token')
 
     expect(token.role).toBe('ADMIN')
@@ -14,7 +20,10 @@ describe('authConfig edge callbacks', () => {
   it('preserves existing token role when user is not present', async () => {
     const jwt = authConfig.callbacks?.jwt
     if (!jwt) throw new Error('Missing jwt callback')
-    const token = await jwt({ token: { role: 'USER' }, user: undefined as never })
+    const token = await jwt({
+      token: { role: 'USER' },
+      user: undefined as unknown as JwtParams['user'],
+    })
     if (!token) throw new Error('Missing token')
 
     expect(token.role).toBe('USER')
@@ -27,7 +36,7 @@ describe('authConfig edge callbacks', () => {
     const session = (await sessionCallback({
       session: { user: { name: 'Admin', email: 'admin@example.com', image: null } },
       token: { role: 'ADMIN' },
-    } as never)) as { user: { role?: string } }
+    } as unknown as SessionParams)) as { user: { role?: string } }
 
     expect(session.user.role).toBe('ADMIN')
   })
