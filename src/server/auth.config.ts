@@ -41,5 +41,17 @@ export const authConfig: NextAuthConfig = {
       // Actual route protection logic stays in middleware.ts.
       return !!auth
     },
+    jwt({ token, user }) {
+      if (user?.role) {
+        token.role = user.role
+      }
+      return token
+    },
+    session({ session, token }) {
+      if (session.user && token.role) {
+        session.user.role = token.role as string
+      }
+      return session
+    },
   },
 }
