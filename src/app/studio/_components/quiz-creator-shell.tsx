@@ -132,14 +132,14 @@ export function QuizCreatorShell({
   const handleSaveDraft = async () => {
     setSavingDraft(true)
 
-    const safeTitle = title.trim()
-    const safeDescription = description.trim()
+    const trimmedTitle = title.trim()
+    const trimmedDescription = description.trim()
     const safeCategoryId = categoryId || (categories[0]?.id ?? '')
 
     if (mode === 'new' && !quizId) {
       const fd = new FormData()
-      fd.set('title', safeTitle)
-      fd.set('description', safeDescription)
+      fd.set('title', trimmedTitle)
+      fd.set('description', trimmedDescription)
       fd.set('coverImage', imageUrl.trim())
       fd.set('categoryId', safeCategoryId)
       fd.set('difficulty', difficulty)
@@ -155,8 +155,8 @@ export function QuizCreatorShell({
     } else if (quizId) {
       const fd = new FormData()
       fd.set('quizId', quizId)
-      fd.set('title', safeTitle)
-      fd.set('description', safeDescription)
+      fd.set('title', trimmedTitle)
+      fd.set('description', trimmedDescription)
       fd.set('coverImage', imageUrl.trim())
       fd.set('categoryId', safeCategoryId)
       fd.set('difficulty', difficulty)
