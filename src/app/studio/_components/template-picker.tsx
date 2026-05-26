@@ -32,7 +32,7 @@ export const QUIZ_TEMPLATES: QuizTemplate[] = [
     description: 'Quick true/false questions for fast-paced rounds.',
     type: 'TRUEFALSE',
     timeLimitSec: 15,
-    questionCount: 8,
+    questionCount: 5,
     defaultPrompt: '',
   },
   {

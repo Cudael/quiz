@@ -2,11 +2,10 @@ import type { Prisma } from '@prisma/client'
 import Link from 'next/link'
 import { prisma } from '@/server/prisma'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader } from '@/components/ui/page-header'
 import { cn } from '@/lib/utils'
-import { deleteQuiz, toggleQuizPublished } from './actions'
+import { AdminQuizActions } from './_components/quiz-actions'
 
 const PAGE_SIZE = 25
 
@@ -89,8 +88,6 @@ export default async function AdminQuizzesPage({
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
   const currentPage = pageIndex + 1
-  const publishAction = toggleQuizPublished as unknown as (formData: FormData) => Promise<void>
-  const deleteAction = deleteQuiz as unknown as (formData: FormData) => Promise<void>
 
   return (
     <div className="space-y-6">
@@ -160,8 +157,6 @@ export default async function AdminQuizzesPage({
               </thead>
               <tbody>
                 {quizzes.map((quiz) => {
-                  const nextPublish = quiz.isPublished ? 'false' : 'true'
-
                   return (
                     <tr key={quiz.id} className="border-t border-border align-top">
                       <td className="px-4 py-3">
@@ -215,27 +210,12 @@ export default async function AdminQuizzesPage({
                         {quiz.createdAt.toLocaleDateString()}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex flex-wrap gap-2">
-                          <Button asChild size="sm" variant="outline">
-                            <Link href={`/quiz/${quiz.id}`}>View</Link>
-                          </Button>
-                          <Button asChild size="sm" variant="outline">
-                            <Link href={`/studio/quiz/${quiz.id}/edit`}>Edit</Link>
-                          </Button>
-                          <form action={publishAction}>
-                            <input name="quizId" type="hidden" value={quiz.id} />
-                            <input name="publish" type="hidden" value={nextPublish} />
-                            <Button size="sm" type="submit" variant="outline">
-                              {quiz.isPublished ? 'Unpublish' : 'Publish'}
-                            </Button>
-                          </form>
-                          <form action={deleteAction}>
-                            <input name="quizId" type="hidden" value={quiz.id} />
-                            <Button size="sm" type="submit" variant="destructive">
-                              Delete
-                            </Button>
-                          </form>
-                        </div>
+                        <AdminQuizActions
+                          quizId={quiz.id}
+                          quizTitle={quiz.title}
+                          isPublished={quiz.isPublished}
+                          nextPublish={quiz.isPublished ? 'false' : 'true'}
+                        />
                       </td>
                     </tr>
                   )

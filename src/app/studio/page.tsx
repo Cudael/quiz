@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { Plus } from 'lucide-react'
 import { auth } from '@/server/auth'
 import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/ui/page-header'
@@ -56,10 +55,7 @@ export default async function StudioPage({
           <Link href="/studio?tab=drafts">Drafts</Link>
         </Button>
         <Button asChild className="ml-auto">
-          <Link href="/studio/quiz/new">
-            <Plus className="mr-2 h-4 w-4" />
-            New Quiz
-          </Link>
+          <Link href="/studio/quiz/new">New Quiz</Link>
         </Button>
       </div>
 
