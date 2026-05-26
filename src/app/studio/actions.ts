@@ -6,7 +6,7 @@ import { z } from 'zod'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
 import { parseCsvQuizImport, parseJsonQuizImport } from '@/domain/quiz-import'
-import { categorySuggestionSchema, quizSchema } from '@/schemas'
+import { categorySuggestionSchema, draftQuizSchema, quizSchema } from '@/schemas'
 import { IMPORT_QUESTION_BATCH_SIZE } from '@/domain/quiz-constants'
 
 const quizIdSchema = z.string().cuid()
@@ -148,6 +148,63 @@ export async function updateQuiz(formData: FormData): Promise<ActionResult> {
       ? Number(formData.get('defaultTimeLimitSec'))
       : undefined,
     isPublished: formData.get('isPublished') === 'on',
+  })
+  if (!parsed.success) {
+    return { ok: false, error: 'VALIDATION_ERROR', message: 'Invalid quiz input.' }
+  }
+
+  const allowed = await assertOwnership(quizIdParsed.data, session.user.id, session.user.role)
+  if (!allowed.ok) {
+    return allowed
+  }
+
+  if (parsed.data.isPublished) {
+    const questionCount = await prisma.question.count({ where: { quizId: quizIdParsed.data } })
+    if (questionCount < 5) {
+      return {
+        ok: false,
+        error: 'VALIDATION_ERROR',
+        message: 'A quiz must have at least 5 questions before publishing.',
+      }
+    }
+  }
+
+  const data: Prisma.QuizUncheckedUpdateInput = {
+    ...parsed.data,
+    coverImage: parsed.data.coverImage ?? null,
+  }
+
+  await prisma.quiz.update({
+    where: { id: quizIdParsed.data },
+    data,
+  })
+
+  revalidatePath('/studio')
+  revalidatePath(`/studio/quiz/${quizIdParsed.data}/edit`)
+  return { ok: true }
+}
+
+export async function saveDraft(formData: FormData): Promise<ActionResult> {
+  const session = await auth()
+  if (!session?.user?.id) {
+    return { ok: false, error: 'UNAUTHORIZED', message: 'Please sign in.' }
+  }
+
+  const quizIdParsed = quizIdSchema.safeParse(formData.get('quizId'))
+  if (!quizIdParsed.success) {
+    return { ok: false, error: 'VALIDATION_ERROR', message: 'Invalid quiz id.' }
+  }
+
+  const parsed = draftQuizSchema.safeParse({
+    title: formData.get('title'),
+    description: formData.get('description'),
+    coverImage: formData.get('coverImage') || undefined,
+    categoryId: formData.get('categoryId'),
+    difficulty: formData.get('difficulty'),
+    defaultTimeLimitSec: formData.get('defaultTimeLimitSec')
+      ? Number(formData.get('defaultTimeLimitSec'))
+      : undefined,
+    isPublished: false,
   })
   if (!parsed.success) {
     return { ok: false, error: 'VALIDATION_ERROR', message: 'Invalid quiz input.' }

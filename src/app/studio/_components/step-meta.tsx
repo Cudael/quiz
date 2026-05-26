@@ -1,8 +1,6 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { Input } from '@/components/ui/input'
-import { DEFAULT_TIME_LIMIT_SEC } from '@/domain/quiz-constants'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import { ImageUpload } from './image-upload'
 import { TemplatePicker, QUIZ_TEMPLATES } from './template-picker'
@@ -190,27 +188,31 @@ export function StepMeta({ categories }: StepMetaProps) {
         />
 
         <div className="space-y-1">
-          <label htmlFor="quiz-default-time-limit" className="block text-sm font-medium">
-            Default time limit (seconds)
-          </label>
-          <Input
-            id="quiz-default-time-limit"
-            type="number"
-            min={5}
-            max={120}
-            step={1}
-            placeholder="20"
-            value={defaultTimeLimitSec ?? ''}
-            onChange={(event) =>
-              setMeta({
-                defaultTimeLimitSec: event.target.value === '' ? null : Number(event.target.value),
-              })
-            }
-          />
-          <p className="text-xs text-muted-foreground">
-            Optional. New questions will start with this time limit instead of{' '}
-            {DEFAULT_TIME_LIMIT_SEC} seconds.
-          </p>
+          <p className="block text-sm font-medium">Quiz time limit</p>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { label: '1 min', value: 60 },
+              { label: '2 min', value: 120 },
+              { label: '3 min', value: 180 },
+              { label: '5 min', value: 300 },
+              { label: '10 min', value: 600 },
+              { label: 'No limit', value: null },
+            ].map(({ label, value }) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => setMeta({ defaultTimeLimitSec: value })}
+                className={cn(
+                  'rounded-full border px-4 py-1.5 text-sm font-medium transition-colors',
+                  defaultTimeLimitSec === value
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'border-border text-muted-foreground hover:border-primary/50'
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

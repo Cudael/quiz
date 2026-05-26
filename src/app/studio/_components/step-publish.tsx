@@ -33,13 +33,16 @@ export function StepPublish({ quizId }: StepPublishProps) {
   const [saving, setSavingLocal] = React.useState(false)
   const [copied, setCopied] = React.useState(false)
 
+  const MIN_QUESTIONS = 5
   const checks: CheckItem[] = [
-    { label: 'Title is not empty', ok: title.trim().length > 0 },
-    { label: 'Description is not empty', ok: description.trim().length > 0 },
-    { label: 'At least 1 question', ok: questions.length > 0 },
+    { label: 'Title is set', ok: title.trim().length > 0 },
+    { label: 'Description is set', ok: description.trim().length > 0 },
+    { label: `At least ${MIN_QUESTIONS} questions`, ok: questions.length >= MIN_QUESTIONS },
     {
-      label: 'All questions have a correct answer',
-      ok: questions.every((q) => q.choices.some((c) => c.isCorrect)),
+      label: 'All questions saved with a correct answer',
+      ok:
+        questions.length > 0 &&
+        questions.every((q) => q.dbId !== null && q.choices.some((c) => c.isCorrect)),
     },
   ]
 

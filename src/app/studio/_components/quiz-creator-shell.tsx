@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import { createQuizAndReturnId } from '@/app/studio/actions/quiz-meta-actions'
-import { updateQuiz } from '@/app/studio/actions'
+import { saveDraft } from '@/app/studio/actions'
 import { StepMeta } from './step-meta'
 import { StepQuestions } from './step-questions'
 import { StepPreview } from './step-preview'
@@ -125,7 +125,6 @@ export function QuizCreatorShell({
     categoryId,
     difficulty,
     defaultTimeLimitSec,
-    isPublished,
     lastSavedAt,
     setStep,
   } = store
@@ -133,14 +132,14 @@ export function QuizCreatorShell({
   const handleSaveDraft = async () => {
     setSavingDraft(true)
 
-    const safeTitle = title.trim() || 'Untitled quiz'
-    const safeDescription = description.trim() || 'No description yet.'
+    const trimmedTitle = title.trim()
+    const trimmedDescription = description.trim()
     const safeCategoryId = categoryId || (categories[0]?.id ?? '')
 
     if (mode === 'new' && !quizId) {
       const fd = new FormData()
-      fd.set('title', safeTitle)
-      fd.set('description', safeDescription)
+      fd.set('title', trimmedTitle)
+      fd.set('description', trimmedDescription)
       fd.set('coverImage', imageUrl.trim())
       fd.set('categoryId', safeCategoryId)
       fd.set('difficulty', difficulty)
@@ -156,16 +155,15 @@ export function QuizCreatorShell({
     } else if (quizId) {
       const fd = new FormData()
       fd.set('quizId', quizId)
-      fd.set('title', safeTitle)
-      fd.set('description', safeDescription)
+      fd.set('title', trimmedTitle)
+      fd.set('description', trimmedDescription)
       fd.set('coverImage', imageUrl.trim())
       fd.set('categoryId', safeCategoryId)
       fd.set('difficulty', difficulty)
       if (defaultTimeLimitSec !== null) {
         fd.set('defaultTimeLimitSec', String(defaultTimeLimitSec))
       }
-      if (isPublished) fd.set('isPublished', 'on')
-      const result = await updateQuiz(fd)
+      const result = await saveDraft(fd)
       if (result.ok) {
         store.setLastSaved(new Date())
       }
