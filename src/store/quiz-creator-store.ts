@@ -65,6 +65,7 @@ export interface QuizCreatorActions {
   applyTemplate: (id: string, questions: DraftQuestion[]) => void
   setSaving: (saving: boolean) => void
   setLastSaved: (at: Date) => void
+  reset: () => void
 }
 
 // ---------------------------------------------------------------------------
@@ -127,4 +128,6 @@ export const useQuizCreatorStore = create<QuizCreatorState & QuizCreatorActions>
   setSaving: (saving) => set({ saving }),
 
   setLastSaved: (at) => set({ lastSavedAt: at }),
+
+  reset: () => set(initialState),
 }))
