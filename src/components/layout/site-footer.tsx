@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { Brain, Github, Zap } from 'lucide-react'
+import Image from 'next/image'
+import { Github, Zap } from 'lucide-react'
 import { ThemeToggle } from '@/components/theme/theme-toggle'
 
 export function SiteFooter() {
@@ -17,9 +18,13 @@ export function SiteFooter() {
           {/* Brand */}
           <div className="space-y-4 md:col-span-2">
             <div className="flex items-center gap-2 font-bold">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-quiz-purple to-quiz-pink shadow-md shadow-quiz-purple/25">
-                <Brain className="h-5 w-5 text-primary-foreground" />
-              </div>
+              <Image
+                src="/logo.png"
+                alt="QuizArena logo"
+                width={36}
+                height={36}
+                className="rounded-xl"
+              />
               <span className="bg-gradient-to-r from-quiz-purple to-quiz-pink bg-clip-text text-transparent text-xl font-black tracking-tight">
                 QuizArena
               </span>
