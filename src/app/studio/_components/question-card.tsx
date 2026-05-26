@@ -161,7 +161,14 @@ export function QuestionCard({
       {/* Body */}
       {open && (
         <div className="space-y-4 border-t px-4 py-4">
-          <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
+          <div className="grid gap-4 sm:grid-cols-[auto_1fr]">
+            <div className="sm:w-48">
+              <ImageUpload
+                compact
+                value={question.imageUrl}
+                onChange={(v) => onUpdate({ imageUrl: v })}
+              />
+            </div>
             <div className="space-y-1">
               <label htmlFor={`prompt-${question.localId}`} className="block text-sm font-medium">
                 Question
@@ -184,13 +191,6 @@ export function QuestionCard({
                   to type the missing answer.
                 </p>
               )}
-            </div>
-            <div className="sm:w-48">
-              <ImageUpload
-                compact
-                value={question.imageUrl}
-                onChange={(v) => onUpdate({ imageUrl: v })}
-              />
             </div>
           </div>
 

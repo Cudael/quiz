@@ -18,6 +18,7 @@ interface Category {
   id: string
   name: string
   color: string
+  parentSlug: string | null
 }
 
 interface InitialQuiz {

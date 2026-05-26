@@ -10,6 +10,7 @@ interface Category {
   id: string
   name: string
   color: string
+  parentSlug: string | null
 }
 
 interface StepMetaProps {
@@ -137,24 +138,30 @@ export function StepMeta({ categories }: StepMetaProps) {
             className="w-full rounded-md border bg-background px-3 py-2 text-sm"
           >
             <option value="">Select a category…</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
+            {(() => {
+              const parents = categories.filter((c) => c.parentSlug === null)
+              const children = categories.filter((c) => c.parentSlug !== null)
+              return parents.map((parent) => {
+                const subs = children.filter((c) => c.parentSlug === parent.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || c.parentSlug === parent.name)
+                if (subs.length > 0) {
+                  return (
+                    <optgroup key={parent.id} label={parent.name}>
+                      {subs.map((sub) => (
+                        <option key={sub.id} value={sub.id}>
+                          {sub.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )
+                }
+                return (
+                  <option key={parent.id} value={parent.id}>
+                    {parent.name}
+                  </option>
+                )
+              })
+            })()}
           </select>
-          {/* Color dots */}
-          {categoryId && (
-            <div className="flex items-center gap-1.5 pt-1">
-              {categories
-                .filter((c) => c.id === categoryId)
-                .map((c) => (
-                  <span key={c.id} className="text-xs text-muted-foreground">
-                    {c.color}
-                  </span>
-                ))}
-            </div>
-          )}
         </div>
 
         {/* Difficulty */}
@@ -218,6 +225,7 @@ export function StepMeta({ categories }: StepMetaProps) {
 
       {/* Right column */}
       <div>
+        <p className="mb-2 text-sm font-medium">Start from a template</p>
         <TemplatePicker
           selectedId={selectedTemplateId}
           onSelect={(template) => {
