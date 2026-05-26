@@ -227,14 +227,14 @@ function CategoryMosaic({ featuredCategories }: { featuredCategories: HomeFeatur
                 href={`/categories/${category.slug}`}
                 className={cn(
                   isLarge ? 'col-span-2 row-span-2' : 'col-span-1',
-                  'group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-2xl block'
+                  'group relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-2xl block hover:z-10'
                 )}
               >
                 <div
                   style={{
                     background: `linear-gradient(135deg, ${category.color}20, ${category.color}85)`,
                   }}
-                  className="relative flex h-full min-h-[8rem] cursor-pointer flex-col justify-between overflow-hidden rounded-2xl border border-border/30 p-5 shadow-sm transition-all duration-200 group-hover:scale-[1.02] group-hover:shadow-lg"
+                  className="relative flex h-full min-h-[8rem] cursor-pointer flex-col justify-between overflow-hidden rounded-2xl border border-border/30 p-5 shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-lg"
                 >
                   {/* Subtle glow on hover */}
                   <div
@@ -648,52 +648,7 @@ function JoinCTABanner({ stats }: { stats: HomeStats }) {
   )
 }
 
-function DailyChallengeBanner({ currentUser }: { currentUser: HomeCurrentUser }) {
-  return (
-    <section>
-      <div className="relative overflow-hidden flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/5 border border-orange-500/25 rounded-2xl px-6 py-5 shadow-sm">
-        {/* Glow accent */}
-        <div
-          className="pointer-events-none absolute -left-4 top-1/2 h-16 w-16 -translate-y-1/2 rounded-full bg-orange-500/30 blur-2xl"
-          aria-hidden="true"
-        />
-        <div className="relative flex items-center gap-4">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 shadow-lg shadow-orange-500/30">
-            <Flame className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-black text-base">Daily Challenge</span>
-              <span className="rounded-full bg-orange-500/15 border border-orange-500/25 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400">
-                Live
-              </span>
-            </div>
-            {currentUser.streakDays > 0 ? (
-              <span className="text-sm text-muted-foreground font-medium">
-                🔥{' '}
-                <span className="font-bold text-orange-500 dark:text-orange-400">
-                  {currentUser.streakDays}-day streak
-                </span>{' '}
-                — keep it going!
-              </span>
-            ) : (
-              <span className="text-sm text-muted-foreground">Start your streak today!</span>
-            )}
-          </div>
-        </div>
-        <Button
-          asChild
-          size="sm"
-          className="relative rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 font-bold shadow-md shadow-orange-500/25 hover:opacity-90"
-        >
-          <Link href="/random-quiz">Play Challenge →</Link>
-        </Button>
-      </div>
-    </section>
-  )
-}
-
-function WelcomeBar({ currentUser }: { currentUser: HomeCurrentUser }) {
+function WelcomeDailyHero({ currentUser }: { currentUser: HomeCurrentUser }) {
   const displayName = currentUser.name?.trim() || 'Quizzer'
   const firstName = displayName.split(/\s+/)[0] || 'Quizzer'
   const { pct: xpPct } = xpProgress(currentUser.xp)
@@ -701,92 +656,115 @@ function WelcomeBar({ currentUser }: { currentUser: HomeCurrentUser }) {
 
   return (
     <section>
-      <div className="relative overflow-hidden rounded-[2rem] border border-border/50 bg-gradient-to-br from-card via-card to-accent/10 px-6 py-7 md:px-8 shadow-md">
-        {/* Ambient glow */}
+      <div className="relative overflow-hidden rounded-[2rem] border border-border/50 bg-gradient-to-br from-card via-card to-accent/10 shadow-md">
+        {/* Ambient glows */}
         <div
           className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-primary/10 blur-3xl"
           aria-hidden="true"
         />
-        <div className="relative flex flex-wrap items-center justify-between gap-6">
-          <div className="flex-1 min-w-0">
-            <h1 className="text-2xl font-black tracking-tight md:text-3xl">
-              Welcome back, {firstName}! 👋
-            </h1>
+        <div
+          className="pointer-events-none absolute -left-4 bottom-0 h-32 w-32 rounded-full bg-orange-500/10 blur-2xl"
+          aria-hidden="true"
+        />
 
-            {/* Stat pills */}
-            <div className="mt-4 flex flex-wrap gap-2.5">
-              <div className="flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3.5 py-1.5">
-                <Zap className="h-3.5 w-3.5 text-primary" />
-                <span className="text-sm font-black text-primary">Lv.{currentUser.level}</span>
-              </div>
-              <div className="flex items-center gap-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 px-3.5 py-1.5">
-                <Flame className="h-3.5 w-3.5 text-orange-500" />
-                <span className="text-sm font-black text-orange-500 dark:text-orange-400">
-                  {currentUser.streakDays}d streak
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 rounded-full bg-muted/80 border border-border px-3.5 py-1.5">
-                <Trophy className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-sm font-bold text-muted-foreground">
-                  {currentUser.xp.toLocaleString()} XP
-                </span>
-              </div>
-            </div>
+        {/* Welcome section */}
+        <div className="relative px-6 pt-6 pb-5 md:px-8">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl font-black tracking-tight md:text-3xl">
+                Welcome back, {firstName}! 👋
+              </h1>
 
-            {/* XP progress bar */}
-            <div className="mt-4 max-w-sm space-y-1">
-              <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
-                <span>
-                  Level {currentUser.level} → {nextLevel}
-                </span>
-                <span>{Math.round(xpPct)}%</span>
+              {/* Stat pills */}
+              <div className="mt-4 flex flex-wrap gap-2.5">
+                <div className="flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3.5 py-1.5">
+                  <Zap className="h-3.5 w-3.5 text-primary" />
+                  <span className="text-sm font-black text-primary">Lv.{currentUser.level}</span>
+                </div>
+                <div className="flex items-center gap-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 px-3.5 py-1.5">
+                  <Flame className="h-3.5 w-3.5 text-orange-500" />
+                  <span className="text-sm font-black text-orange-500 dark:text-orange-400">
+                    {currentUser.streakDays}d streak
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 rounded-full bg-muted/80 border border-border px-3.5 py-1.5">
+                  <Trophy className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="text-sm font-bold text-muted-foreground">
+                    {currentUser.xp.toLocaleString()} XP
+                  </span>
+                </div>
               </div>
-              <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-quiz-purple to-quiz-pink transition-all duration-700"
-                  style={{ width: `${xpPct}%` }}
-                />
+
+              {/* XP progress bar */}
+              <div className="mt-4 max-w-sm space-y-1">
+                <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
+                  <span>
+                    Level {currentUser.level} → {nextLevel}
+                  </span>
+                  <span>{Math.round(xpPct)}%</span>
+                </div>
+                <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-quiz-purple to-quiz-pink transition-all duration-700"
+                    style={{ width: `${xpPct}%` }}
+                  />
+                </div>
               </div>
             </div>
           </div>
-
-          <Button
-            asChild
-            size="lg"
-            variant="gradient"
-            className="rounded-2xl font-bold shadow-lg shadow-quiz-purple/20 shrink-0"
-          >
-            <Link href="/random-quiz">
-              <Play className="h-4 w-4" />
-              Continue Playing
-            </Link>
-          </Button>
         </div>
-      </div>
-    </section>
-  )
-}
 
-function QuickActions() {
-  const actions = [
-    { label: '🎲 Random Quiz', href: '/random-quiz' },
-    { label: '🔥 Daily Challenge', href: '/random-quiz' },
-    { label: '🏆 Leaderboard', href: '/leaderboard' },
-    { label: '✏️ Create Quiz', href: '/studio/quiz/new' },
-  ]
-  return (
-    <section>
-      <div className="flex flex-wrap gap-2.5">
-        {actions.map((action) => (
-          <Button
-            key={action.href + action.label}
-            asChild
-            variant="outline"
-            className="rounded-xl font-semibold hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-colors"
-          >
-            <Link href={action.href}>{action.label}</Link>
-          </Button>
-        ))}
+        {/* Daily challenge strip */}
+        <div className="relative border-t border-orange-500/20 bg-gradient-to-r from-orange-500/10 via-amber-500/5 to-transparent px-6 py-4 md:px-8">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 shadow-md shadow-orange-500/25">
+                <Flame className="h-4 w-4 text-primary-foreground" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-black text-sm">Daily Challenge</span>
+                  <span className="rounded-full bg-orange-500/15 border border-orange-500/25 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400">
+                    Live
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground font-medium">
+                  {currentUser.streakDays > 0 ? (
+                    <>
+                      🔥{' '}
+                      <span className="font-bold text-orange-500 dark:text-orange-400">
+                        {currentUser.streakDays}-day streak
+                      </span>{' '}
+                      — keep it going!
+                    </>
+                  ) : (
+                    'Start your streak today!'
+                  )}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                asChild
+                size="sm"
+                className="rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 font-bold shadow-sm shadow-orange-500/20 hover:opacity-90"
+              >
+                <Link href="/random-quiz">Play Challenge →</Link>
+              </Button>
+              <Button
+                asChild
+                size="sm"
+                variant="outline"
+                className="rounded-xl font-semibold"
+              >
+                <Link href="/random-quiz">
+                  <Play className="h-3.5 w-3.5" />
+                  Continue
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   )
@@ -810,7 +788,7 @@ export function HomePageClient({
 
   return (
     <motion.div
-      className="mx-auto max-w-7xl space-y-16 px-4 py-8"
+      className="mx-auto max-w-7xl space-y-10 px-4 py-8"
       variants={containerVariants}
       initial="hidden"
       animate="show"
@@ -818,19 +796,7 @@ export function HomePageClient({
       {currentUser ? (
         <>
           <motion.div variants={sectionVariants}>
-            <DailyChallengeBanner currentUser={currentUser} />
-          </motion.div>
-
-          <Divider />
-
-          <motion.div variants={sectionVariants}>
-            <WelcomeBar currentUser={currentUser} />
-          </motion.div>
-
-          <Divider />
-
-          <motion.div variants={sectionVariants}>
-            <QuickActions />
+            <WelcomeDailyHero currentUser={currentUser} />
           </motion.div>
 
           <Divider />
