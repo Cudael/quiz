@@ -24,6 +24,7 @@ export function LevelProgress({ xp, size = 'md', className }: LevelProgressProps
   const radius = width / 2 - stroke
   const circumference = 2 * Math.PI * radius
   const offset = circumference * (1 - progress.pct / 100)
+  const gradientId = `level-gradient-${size}`
 
   return (
     <div className={cn('w-full', className)}>
@@ -35,6 +36,13 @@ export function LevelProgress({ xp, size = 'md', className }: LevelProgressProps
           aria-label={`Level progress indicator: level ${progress.level}, total XP ${xp.toLocaleString()}`}
         >
           <svg width={width} height={width} className="-rotate-90">
+            <defs>
+              <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="var(--color-quiz-purple)" />
+                <stop offset="100%" stopColor="var(--color-quiz-pink)" />
+              </linearGradient>
+            </defs>
+            {/* Track */}
             <circle
               cx={width / 2}
               cy={width / 2}
@@ -44,6 +52,7 @@ export function LevelProgress({ xp, size = 'md', className }: LevelProgressProps
               strokeWidth={stroke}
               className="text-muted/30"
             />
+            {/* Progress arc */}
             <motion.circle
               cx={width / 2}
               cy={width / 2}
@@ -53,7 +62,7 @@ export function LevelProgress({ xp, size = 'md', className }: LevelProgressProps
               strokeDasharray={circumference}
               strokeDashoffset={circumference}
               strokeLinecap="round"
-              className="stroke-quiz-purple"
+              stroke={`url(#${gradientId})`}
               animate={{ strokeDashoffset: offset }}
               transition={{ duration: 0.8, ease: 'easeOut' }}
             />
@@ -61,7 +70,7 @@ export function LevelProgress({ xp, size = 'md', className }: LevelProgressProps
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span
               className={cn(
-                'font-extrabold',
+                'font-black bg-gradient-to-br from-quiz-purple to-quiz-pink bg-clip-text text-transparent',
                 size === 'sm' ? 'text-sm' : size === 'md' ? 'text-2xl' : 'text-3xl'
               )}
             >
