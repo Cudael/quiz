@@ -105,7 +105,6 @@ export function StepMeta({ categories }: StepMetaProps) {
             value={title}
             onChange={(e) => setMeta({ title: e.target.value })}
             maxLength={120}
-            placeholder="My awesome quiz"
             className="w-full rounded-md border bg-background px-3 py-2 text-sm"
           />
         </div>
@@ -124,7 +123,6 @@ export function StepMeta({ categories }: StepMetaProps) {
             onChange={(e) => setMeta({ description: e.target.value })}
             maxLength={500}
             rows={4}
-            placeholder="What is this quiz about?"
             className="w-full rounded-md border bg-background px-3 py-2 text-sm"
           />
         </div>
