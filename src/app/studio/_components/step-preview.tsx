@@ -77,9 +77,6 @@ export function StepPreview({ categories }: StepPreviewProps) {
                   <p className="font-medium">{question.prompt || 'Untitled question'}</p>
                   <div className="mt-1 flex items-center gap-2">
                     <QuestionTypeIcon type={question.type} showLabel />
-                    <Badge variant="outline" className="text-xs">
-                      {question.timeLimitSec}s
-                    </Badge>
                     {!hasCorrect && (
                       <Badge variant="destructive" className="text-xs">
                         No correct answer

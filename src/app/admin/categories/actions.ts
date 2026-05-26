@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
+import { slugify } from '@/lib/slugify'
 
 type AdminActionResult = { ok: true } | { ok: false; message: string }
 
@@ -118,6 +119,76 @@ export async function deleteCategory(
         targetType: 'Category',
         targetId: parsed.data.categoryId,
         meta: '{}',
+      },
+    })
+  })
+
+  revalidatePath('/admin/categories')
+  return { ok: true }
+}
+
+export async function createCategory(
+  formData: FormData
+): Promise<{ ok: boolean; message?: string }> {
+  const parsed = z
+    .object({
+      name: z.string().trim().min(2).max(80),
+      description: z.string().trim().min(5).max(200),
+      icon: z.string().trim().min(1).max(40),
+      color: z
+        .string()
+        .trim()
+        .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/),
+      imageUrl: imageUrlSchema,
+      parentSlug: z.preprocess(
+        (v) => (typeof v === 'string' && v.trim() === '' ? null : v),
+        z.string().trim().nullable().optional()
+      ),
+    })
+    .safeParse({
+      name: formData.get('name'),
+      description: formData.get('description'),
+      icon: formData.get('icon'),
+      color: formData.get('color'),
+      imageUrl: formData.get('imageUrl'),
+      parentSlug: formData.get('parentSlug'),
+    })
+
+  if (!parsed.success) {
+    return { ok: false, message: 'Invalid category create payload.' }
+  }
+
+  const guard = await assertAdmin()
+  if (!guard.ok) return guard satisfies AdminActionResult
+
+  const slug = slugify(parsed.data.name)
+
+  await prisma.$transaction(async (tx) => {
+    const category = await tx.category.create({
+      data: {
+        slug,
+        name: parsed.data.name,
+        description: parsed.data.description,
+        icon: parsed.data.icon,
+        color: parsed.data.color,
+        imageUrl: parsed.data.imageUrl ?? null,
+        parentSlug: parsed.data.parentSlug ?? null,
+      },
+    })
+
+    await tx.adminAction.create({
+      data: {
+        actorId: guard.userId,
+        action: 'CATEGORY_CREATE',
+        targetType: 'Category',
+        targetId: category.id,
+        meta: JSON.stringify({
+          name: parsed.data.name,
+          slug,
+          icon: parsed.data.icon,
+          color: parsed.data.color,
+          parentSlug: parsed.data.parentSlug ?? null,
+        }),
       },
     })
   })

@@ -153,9 +153,7 @@ interface TemplatePickerProps {
 
 export function TemplatePicker({ selectedId, onSelect }: TemplatePickerProps) {
   return (
-    <div className="space-y-2">
-      <p className="text-sm font-medium">Start from a template</p>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {/* Blank option */}
         <button
           type="button"
@@ -198,7 +196,6 @@ export function TemplatePicker({ selectedId, onSelect }: TemplatePickerProps) {
             </span>
           </button>
         ))}
-      </div>
     </div>
   )
 }

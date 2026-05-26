@@ -226,6 +226,16 @@ function QuizActions({
   duplicatingQuizId: string | null
   onDuplicate: (quizId: string) => Promise<void>
 }) {
+  const router = useRouter()
+
+  const handleDelete = async () => {
+    if (!window.confirm(`Delete "${quiz.title}"? This cannot be undone.`)) return
+    const formData = new FormData()
+    formData.set('quizId', quiz.id)
+    await deleteQuiz(formData)
+    router.refresh()
+  }
+
   return (
     <div className={cn('flex flex-wrap gap-2')}>
       <Button variant="outline" size="sm" asChild>
@@ -244,18 +254,22 @@ function QuizActions({
         <Copy className="mr-2 h-4 w-4" />
         {duplicatingQuizId === quiz.id ? 'Duplicating…' : 'Duplicate'}
       </Button>
-      <form action={togglePublish as unknown as (formData: FormData) => Promise<void>}>
+      <form
+        action={togglePublish as unknown as (formData: FormData) => Promise<void>}
+        onSubmit={(e) => {
+          if (quiz.isPublished && !window.confirm('Unpublish this quiz?')) {
+            e.preventDefault()
+          }
+        }}
+      >
         <input type="hidden" name="quizId" value={quiz.id} />
         <Button variant="outline" size="sm" type="submit">
           {quiz.isPublished ? 'Unpublish' : 'Publish'}
         </Button>
       </form>
-      <form action={deleteQuiz as unknown as (formData: FormData) => Promise<void>}>
-        <input type="hidden" name="quizId" value={quiz.id} />
-        <Button variant="destructive" size="sm" type="submit">
-          Delete
-        </Button>
-      </form>
+      <Button variant="destructive" size="sm" type="button" onClick={() => void handleDelete()}>
+        Delete
+      </Button>
     </div>
   )
 }
