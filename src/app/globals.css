@@ -54,6 +54,8 @@
   --animate-pulse-slow: pulse 3s infinite;
   --animate-float: float 3s ease-in-out infinite;
   --animate-shimmer: shimmer 2s linear infinite;
+  --animate-glow-pulse: glow-pulse 2.5s ease-in-out infinite;
+  --animate-gradient-x: gradient-x 4s ease infinite;
 
   --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
   --background-image-gradient-conic: conic-gradient(
@@ -61,8 +63,13 @@
     var(--tw-gradient-stops)
   );
   --background-image-hero-gradient:
-    radial-gradient(ellipse 80% 60% at 20% 40%, hsl(var(--hero-stop-2) / 0.6) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 70%, hsl(var(--hero-stop-4) / 0.5) 0%, transparent 55%),
+    radial-gradient(
+      ellipse 100% 80% at 10% 30%,
+      hsl(var(--hero-stop-2) / 0.65) 0%,
+      transparent 55%
+    ),
+    radial-gradient(ellipse 70% 60% at 85% 75%, hsl(var(--hero-stop-4) / 0.55) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 60% 20%, hsl(var(--hero-stop-3) / 0.4) 0%, transparent 50%),
     linear-gradient(
       135deg,
       hsl(var(--hero-stop-1)) 0%,
@@ -117,26 +124,46 @@
   }
 }
 
+@keyframes glow-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4);
+  }
+  50% {
+    box-shadow: 0 0 20px 4px hsl(var(--primary) / 0.15);
+  }
+}
+
+@keyframes gradient-x {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
 :root {
   --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
+  --foreground: 248 15% 8%;
   --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
+  --card-foreground: 248 15% 8%;
   --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
-  --primary: 262 80% 60%;
+  --popover-foreground: 248 15% 8%;
+  --primary: 262 80% 58%;
   --primary-foreground: 0 0% 98%;
-  --secondary: 142 70% 45%;
+  --secondary: 142 70% 42%;
   --secondary-foreground: 0 0% 98%;
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-  --accent: 262 80% 60%;
-  --accent-foreground: 0 0% 98%;
+  --muted: 248 8% 95%;
+  --muted-foreground: 248 8% 46%;
+  --accent: 262 60% 95%;
+  --accent-foreground: 262 80% 35%;
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 0 0% 98%;
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --ring: 262 80% 60%;
+  --border: 248 10% 90%;
+  --input: 248 10% 90%;
+  --ring: 262 80% 58%;
   --radius: 0.75rem;
 
   /* Warning token — amber hue for countdown urgency, status */
@@ -144,60 +171,60 @@
   --warning-foreground: 0 0% 98%;
 
   /* Surface elevation tiers (light: progressively more tinted) */
-  --surface-1: 240 4.8% 97%;
-  --surface-2: 240 4.8% 94%;
-  --surface-3: 240 4.8% 91%;
+  --surface-1: 248 8% 97%;
+  --surface-2: 248 8% 94%;
+  --surface-3: 248 8% 91%;
 
   /* Shadow scale — theme-aware (light: neutral dark) */
-  --shadow-sm: 0 1px 2px 0 hsl(240 10% 10% / 0.05);
-  --shadow-md: 0 4px 6px -1px hsl(240 10% 10% / 0.07), 0 2px 4px -2px hsl(240 10% 10% / 0.05);
-  --shadow-lg: 0 10px 15px -3px hsl(240 10% 10% / 0.08), 0 4px 6px -4px hsl(240 10% 10% / 0.05);
+  --shadow-sm: 0 1px 2px 0 hsl(248 15% 10% / 0.06);
+  --shadow-md: 0 4px 6px -1px hsl(248 15% 10% / 0.08), 0 2px 4px -2px hsl(248 15% 10% / 0.05);
+  --shadow-lg: 0 10px 15px -3px hsl(248 15% 10% / 0.1), 0 4px 6px -4px hsl(248 15% 10% / 0.06);
 
   --hero-stop-1: 266 90% 97%;
-  --hero-stop-2: 285 85% 94%;
-  --hero-stop-3: 316 88% 95%;
+  --hero-stop-2: 280 85% 94%;
+  --hero-stop-3: 310 88% 95%;
   --hero-stop-4: 48 96% 94%;
 }
 
 .dark {
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  --card: 240 10% 7%;
-  --card-foreground: 0 0% 98%;
-  --popover: 240 10% 7%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 262 80% 65%;
+  --background: 248 18% 5%;
+  --foreground: 0 0% 97%;
+  --card: 248 14% 8%;
+  --card-foreground: 0 0% 97%;
+  --popover: 248 14% 8%;
+  --popover-foreground: 0 0% 97%;
+  --primary: 262 80% 68%;
   --primary-foreground: 0 0% 98%;
   --secondary: 142 70% 45%;
   --secondary-foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --accent: 262 80% 65%;
+  --muted: 248 10% 15%;
+  --muted-foreground: 240 5% 62%;
+  --accent: 262 60% 18%;
   --accent-foreground: 0 0% 98%;
   --destructive: 0 72% 50%;
   --destructive-foreground: 0 0% 98%;
-  --border: 240 3.7% 18%;
-  --input: 240 3.7% 15.9%;
-  --ring: 262 80% 65%;
+  --border: 248 10% 18%;
+  --input: 248 10% 15%;
+  --ring: 262 80% 68%;
 
   /* Warning token */
   --warning: 38 92% 55%;
   --warning-foreground: 240 10% 3.9%;
 
-  /* Surface elevation tiers (dark: progressively lighter) */
-  --surface-1: 240 6% 8%;
-  --surface-2: 240 6% 11%;
-  --surface-3: 240 6% 14%;
+  /* Surface elevation tiers (dark: progressively lighter, purple-tinted) */
+  --surface-1: 248 12% 8%;
+  --surface-2: 248 10% 11%;
+  --surface-3: 248 8% 15%;
 
-  /* Shadow scale — dark mode uses blue-tinted shadows so they don't look pitch-black */
-  --shadow-sm: 0 1px 2px 0 hsl(240 40% 4% / 0.4);
-  --shadow-md: 0 4px 6px -1px hsl(240 40% 4% / 0.5), 0 2px 4px -2px hsl(240 40% 4% / 0.35);
-  --shadow-lg: 0 10px 15px -3px hsl(240 40% 4% / 0.55), 0 4px 6px -4px hsl(240 40% 4% / 0.35);
+  /* Shadow scale — dark mode uses purple-tinted shadows */
+  --shadow-sm: 0 1px 2px 0 hsl(248 40% 4% / 0.5);
+  --shadow-md: 0 4px 6px -1px hsl(248 40% 4% / 0.6), 0 2px 4px -2px hsl(248 40% 4% / 0.4);
+  --shadow-lg: 0 10px 15px -3px hsl(248 40% 4% / 0.65), 0 4px 6px -4px hsl(248 40% 4% / 0.4);
 
-  --hero-stop-1: 246 43% 18%;
-  --hero-stop-2: 262 55% 26%;
-  --hero-stop-3: 273 67% 35%;
-  --hero-stop-4: 316 55% 30%;
+  --hero-stop-1: 248 50% 10%;
+  --hero-stop-2: 262 62% 20%;
+  --hero-stop-3: 276 70% 28%;
+  --hero-stop-4: 316 58% 28%;
 }
 
 @layer base {

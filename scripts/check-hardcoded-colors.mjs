@@ -18,6 +18,8 @@ const allowlist = new Set([
   'components/ui/button.tsx',
   'components/ui/category-tile.tsx',
   'components/ui/modal.tsx',
+  // Notification badge: text-white on bg-red-500 (unread count pill — intentional contrast)
+  'components/notifications/notification-bell.tsx',
 ])
 
 async function walk(dir) {
