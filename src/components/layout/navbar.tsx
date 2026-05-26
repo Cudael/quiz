@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Brain, Menu, Zap } from 'lucide-react'
+import { Menu, Zap } from 'lucide-react'
+import Image from 'next/image'
 import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
@@ -37,9 +38,14 @@ export function Navbar() {
             href="/"
             className="flex items-center gap-2 font-bold text-xl transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-quiz-purple to-quiz-pink shadow-md shadow-quiz-purple/30">
-              <Brain className="h-4.5 w-4.5 text-primary-foreground" />
-            </div>
+            <Image
+              src="/logo.png"
+              alt="QuizArena logo"
+              width={32}
+              height={32}
+              className="rounded-xl"
+              priority
+            />
             <span className="bg-gradient-to-r from-quiz-purple to-quiz-pink bg-clip-text text-transparent font-black tracking-tight">
               QuizArena
             </span>
