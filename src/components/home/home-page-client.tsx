@@ -657,13 +657,9 @@ function WelcomeDailyHero({ currentUser }: { currentUser: HomeCurrentUser }) {
   return (
     <section>
       <div className="relative overflow-hidden rounded-[2rem] border border-border/50 bg-gradient-to-br from-card via-card to-accent/10 shadow-md">
-        {/* Ambient glows */}
+        {/* Ambient glow — welcome area */}
         <div
           className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-primary/10 blur-3xl"
-          aria-hidden="true"
-        />
-        <div
-          className="pointer-events-none absolute -left-4 bottom-0 h-32 w-32 rounded-full bg-orange-500/10 blur-2xl"
           aria-hidden="true"
         />
 
@@ -716,7 +712,12 @@ function WelcomeDailyHero({ currentUser }: { currentUser: HomeCurrentUser }) {
 
         {/* Daily challenge strip */}
         <div className="relative border-t border-orange-500/20 bg-gradient-to-r from-orange-500/10 via-amber-500/5 to-transparent px-6 py-4 md:px-8">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          {/* Ambient glow — daily challenge area */}
+          <div
+            className="pointer-events-none absolute -left-4 top-1/2 h-16 w-16 -translate-y-1/2 rounded-full bg-orange-500/20 blur-2xl"
+            aria-hidden="true"
+          />
+          <div className="relative flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 shadow-md shadow-orange-500/25">
                 <Flame className="h-4 w-4 text-primary-foreground" />
@@ -743,26 +744,13 @@ function WelcomeDailyHero({ currentUser }: { currentUser: HomeCurrentUser }) {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                asChild
-                size="sm"
-                className="rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 font-bold shadow-sm shadow-orange-500/20 hover:opacity-90"
-              >
-                <Link href="/random-quiz">Play Challenge →</Link>
-              </Button>
-              <Button
-                asChild
-                size="sm"
-                variant="outline"
-                className="rounded-xl font-semibold"
-              >
-                <Link href="/random-quiz">
-                  <Play className="h-3.5 w-3.5" />
-                  Continue
-                </Link>
-              </Button>
-            </div>
+            <Button
+              asChild
+              size="sm"
+              className="rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 font-bold shadow-sm shadow-orange-500/20 hover:opacity-90"
+            >
+              <Link href="/random-quiz">Play Challenge →</Link>
+            </Button>
           </div>
         </div>
       </div>
