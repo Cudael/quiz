@@ -530,6 +530,12 @@ function GuestHero({
   )
 }
 
+const howItWorksColorClass: Record<string, string> = {
+  'quiz-purple': 'text-quiz-purple',
+  'quiz-pink': 'text-quiz-pink',
+  'quiz-blue': 'text-quiz-blue',
+}
+
 function HowItWorks() {
   const steps = [
     {
@@ -537,21 +543,21 @@ function HowItWorks() {
       emoji: '🎯',
       title: 'Pick a quiz',
       desc: 'Browse hundreds of quizzes across science, history, pop culture, and more.',
-      color: 'quiz-purple',
+      colorKey: 'quiz-purple',
     },
     {
       num: '02',
       emoji: '⚡',
       title: 'Compete and score',
       desc: 'Race against the clock, earn XP, and climb the global leaderboard.',
-      color: 'quiz-pink',
+      colorKey: 'quiz-pink',
     },
     {
       num: '03',
       emoji: '✏️',
       title: 'Create your own',
       desc: 'Build and publish quizzes in the Studio — share them with the world.',
-      color: 'quiz-blue',
+      colorKey: 'quiz-blue',
     },
   ]
   return (
@@ -570,7 +576,7 @@ function HowItWorks() {
             <span
               className={cn(
                 'pointer-events-none absolute -right-2 -top-4 font-black text-[5rem] leading-none opacity-5 select-none',
-                `text-${step.color}`
+                howItWorksColorClass[step.colorKey]
               )}
               aria-hidden="true"
             >

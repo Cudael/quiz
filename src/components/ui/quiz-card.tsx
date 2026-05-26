@@ -152,7 +152,7 @@ export function QuizCard({ quiz, className }: QuizCardProps) {
             ) : null}
             <Badge
               variant={getDifficultyVariant(quiz.difficulty)}
-              className="ml-auto text-[10px] py-0"
+              className="ml-auto text-[10px] py-0.5"
             >
               {quiz.difficulty}
             </Badge>

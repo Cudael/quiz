@@ -25,12 +25,12 @@ const labelSize = {
 
 export function StreakFlame({ value, best, size = 'md', className }: StreakFlameProps) {
   const pulse = Math.min(1.6, 1 + value / 25)
-  const isHot = value >= 3
+  const shouldAnimate = value >= 3
 
   return (
     <div className={cn('inline-flex items-center gap-2', className)}>
       <motion.span
-        animate={isHot ? { scale: [1, pulse, 1], opacity: [0.85, 1, 0.85] } : {}}
+        animate={shouldAnimate ? { scale: [1, pulse, 1], opacity: [0.85, 1, 0.85] } : {}}
         transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
         className="relative inline-flex"
       >
