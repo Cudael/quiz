@@ -38,8 +38,8 @@ export default async function EditQuizPage({ params }: { params: Promise<{ id: s
   }
 
   const categories = await prisma.category.findMany({
-    orderBy: { name: 'asc' },
-    select: { id: true, name: true, color: true },
+    orderBy: [{ parentSlug: 'asc' }, { name: 'asc' }],
+    select: { id: true, name: true, color: true, parentSlug: true },
   })
 
   return (
