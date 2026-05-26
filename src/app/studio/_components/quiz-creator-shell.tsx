@@ -73,6 +73,8 @@ export function QuizCreatorShell({
     initializedRef.current = true
 
     if (mode === 'edit' && initialData) {
+      const alreadyHasThisQuiz = store.quizId === initialData.quiz.id
+
       store.setQuizId(initialData.quiz.id)
       store.setMeta({
         title: initialData.quiz.title,
@@ -83,25 +85,33 @@ export function QuizCreatorShell({
         imageUrl: initialData.quiz.coverImage ?? '',
         defaultTimeLimitSec: initialData.quiz.defaultTimeLimitSec,
       })
-      const questions: DraftQuestion[] = initialData.questions.map((q) => ({
-        localId: crypto.randomUUID(),
-        dbId: q.id,
-        type: q.type as DraftQuestion['type'],
-        prompt: q.prompt,
-        imageUrl: q.imageUrl ?? '',
-        explanation: q.explanation ?? '',
-        timeLimitSec: q.timeLimitSec,
-        choices: q.choices.map(
-          (c): DraftChoice => ({
-            localId: crypto.randomUUID(),
-            text: c.text,
-            isCorrect: c.isCorrect,
-          })
-        ),
-      }))
-      store.setQuestions(questions)
+
+      // When redirected from new→edit after choosing a template, the server
+      // has no questions yet but the store already holds the template questions.
+      // Skip overwriting the store in that case.
+      if (!(alreadyHasThisQuiz && initialData.questions.length === 0)) {
+        const questions: DraftQuestion[] = initialData.questions.map((q) => ({
+          localId: crypto.randomUUID(),
+          dbId: q.id,
+          type: q.type as DraftQuestion['type'],
+          prompt: q.prompt,
+          imageUrl: q.imageUrl ?? '',
+          explanation: q.explanation ?? '',
+          timeLimitSec: q.timeLimitSec,
+          choices: q.choices.map(
+            (c): DraftChoice => ({
+              localId: crypto.randomUUID(),
+              text: c.text,
+              isCorrect: c.isCorrect,
+            })
+          ),
+        }))
+        store.setQuestions(questions)
+      }
     } else if (mode === 'new' && initialQuizId) {
       store.setQuizId(initialQuizId)
+    } else if (mode === 'new' && !initialQuizId) {
+      store.reset()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
