@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { slugify } from '@/lib/slugify'
 import { createCategory, deleteCategory, updateCategory } from '../actions'
 
 interface CategoryRecord {
@@ -182,10 +183,7 @@ function NewCategoryForm({ topLevelCategories, onCancel }: NewCategoryFormProps)
           {topLevelCategories.map((cat) => (
             <option
               key={cat.id}
-              value={cat.name
-                .toLowerCase()
-                .replace(/[^a-z0-9]+/g, '-')
-                .replace(/(^-|-$)/g, '')}
+              value={slugify(cat.name)}
             >
               {cat.name}
             </option>

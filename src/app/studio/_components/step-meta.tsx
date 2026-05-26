@@ -1,6 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
+import { slugify } from '@/lib/slugify'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import { ImageUpload } from './image-upload'
 import { TemplatePicker, QUIZ_TEMPLATES } from './template-picker'
@@ -142,7 +143,7 @@ export function StepMeta({ categories }: StepMetaProps) {
               const parents = categories.filter((c) => c.parentSlug === null)
               const children = categories.filter((c) => c.parentSlug !== null)
               return parents.map((parent) => {
-                const subs = children.filter((c) => c.parentSlug === parent.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || c.parentSlug === parent.name)
+                const subs = children.filter((c) => c.parentSlug === slugify(parent.name))
                 if (subs.length > 0) {
                   return (
                     <optgroup key={parent.id} label={parent.name}>
