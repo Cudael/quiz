@@ -27,7 +27,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https://images.unsplash.com https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://*.public.blob.vercel-storage.com",
       "font-src 'self'",
-      "connect-src 'self' https://busquiz.com",
+      "connect-src 'self' https://busquiz.com https://www.busquiz.com",
       "frame-ancestors 'self'",
     ].join('; '),
   },
