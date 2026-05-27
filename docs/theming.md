@@ -1,6 +1,6 @@
 # Theming guide
 
-QuizArena uses CSS-variable-driven semantic tokens in `src/app/globals.css`.
+BusQuiz uses CSS-variable-driven semantic tokens in `src/app/globals.css`.
 
 ## Core idea
 

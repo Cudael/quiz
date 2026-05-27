@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'QuizArena',
-    short_name: 'QuizArena',
+    name: 'BusQuiz',
+    short_name: 'BusQuiz',
     description: 'Play quizzes, climb leaderboards, and unlock badges.',
     start_url: '/',
     display: 'standalone',

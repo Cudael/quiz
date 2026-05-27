@@ -62,12 +62,12 @@ export async function generateMetadata({
 
   if (!user) {
     return {
-      title: 'Profile not found | QuizArena',
+      title: 'Profile not found | BusQuiz',
       description: 'This player profile could not be found.',
     }
   }
 
-  const title = `${user.name} (@${user.username}) on QuizArena — Level ${user.level}, ${user.badges.length} badges`
+  const title = `${user.name} (@${user.username}) on BusQuiz — Level ${user.level}, ${user.badges.length} badges`
   const description = `See ${user.name}'s stats, streaks, badges, and recent quiz sessions.`
   const url = absoluteUrl(`/u/${user.username}`)
   return {

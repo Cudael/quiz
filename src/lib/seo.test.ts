@@ -14,7 +14,7 @@ describe('serializeJsonLd', () => {
   })
 
   it('returns valid JSON text', () => {
-    const json = serializeJsonLd({ name: 'Quiz Arena', count: 10 })
-    expect(JSON.parse(json)).toEqual({ name: 'Quiz Arena', count: 10 })
+    const json = serializeJsonLd({ name: 'BusQuiz', count: 10 })
+    expect(JSON.parse(json)).toEqual({ name: 'BusQuiz', count: 10 })
   })
 })

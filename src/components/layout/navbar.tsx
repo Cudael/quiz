@@ -41,14 +41,14 @@ export function Navbar() {
           >
             <Image
               src="/logo.png"
-              alt="QuizArena logo"
+              alt="BusQuiz logo"
               width={32}
               height={32}
               className="rounded-xl"
               priority
             />
             <span className="bg-gradient-to-r from-quiz-purple to-quiz-pink bg-clip-text text-transparent font-black tracking-tight">
-              QuizArena
+              BusQuiz
             </span>
           </Link>
 

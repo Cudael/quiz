@@ -63,7 +63,7 @@ export default async function Image({ params }: { params: Promise<{ username: st
 
   return new ImageResponse(
     renderUserOgCard({
-      name: user?.name ?? 'QuizArena Player',
+      name: user?.name ?? 'BusQuiz Player',
       username: user?.username ?? username,
       level: user?.level ?? 1,
       xp: user?.xp ?? 0,

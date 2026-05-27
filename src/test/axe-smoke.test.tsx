@@ -16,7 +16,7 @@ describe('axe smoke routes', () => {
   it('/', async () => {
     await expectNoSeriousOrCritical(
       <main>
-        <h1>QuizArena</h1>
+        <h1>BusQuiz</h1>
         <button type="button">Play now</button>
       </main>
     )

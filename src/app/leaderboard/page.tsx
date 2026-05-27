@@ -49,7 +49,7 @@ export async function generateMetadata({
     : null
   const categoryLabel = params.categories[0]
   const suffix = [quiz?.title, categoryLabel].filter(Boolean).join(' • ')
-  const title = `Leaderboard — ${periodLabel}${suffix ? ` • ${suffix}` : ''} | QuizArena`
+  const title = `Leaderboard — ${periodLabel}${suffix ? ` • ${suffix}` : ''} | BusQuiz`
 
   return {
     title,
@@ -57,13 +57,13 @@ export async function generateMetadata({
       'See top performers, filter by mode and category, and chase your next personal best.',
     openGraph: {
       title,
-      description: 'Track top players on the QuizArena leaderboard.',
+      description: 'Track top players on the BusQuiz leaderboard.',
       url: absoluteUrl('/leaderboard'),
     },
     twitter: {
       card: 'summary_large_image',
       title,
-      description: 'Track top players on the QuizArena leaderboard.',
+      description: 'Track top players on the BusQuiz leaderboard.',
     },
   }
 }

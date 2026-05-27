@@ -1,4 +1,4 @@
-# QuizArena 🧠
+# BusQuiz 🧠
 
 A full-featured quiz platform built with Next.js, TypeScript, Tailwind CSS v4, and Prisma — featuring a creation studio, competitive leaderboards, gamification, and admin moderation.
 
@@ -25,19 +25,19 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ## 📦 Scripts
 
-| Script                | Description                                          |
-| --------------------- | ---------------------------------------------------- |
-| `npm run dev`         | Start development server                             |
-| `npm run build`       | Build for production (requires `DATABASE_URL`)       |
-| `npm start`           | Start production server                              |
-| `npm run lint`        | ESLint + hardcoded-color check                       |
-| `npm run typecheck`   | TypeScript type check (`tsc --noEmit`)               |
-| `npm test`            | Run Vitest unit tests                                |
-| `npm run db:push`     | Sync Prisma schema to database                       |
-| `npm run db:migrate`  | Run Prisma migrations                                |
-| `npm run db:seed`     | Seed database with demo content                      |
-| `npm run db:reset`    | Reset and reseed (destructive)                       |
-| `npm run db:generate` | Regenerate Prisma client                             |
+| Script                | Description                                    |
+| --------------------- | ---------------------------------------------- |
+| `npm run dev`         | Start development server                       |
+| `npm run build`       | Build for production (requires `DATABASE_URL`) |
+| `npm start`           | Start production server                        |
+| `npm run lint`        | ESLint + hardcoded-color check                 |
+| `npm run typecheck`   | TypeScript type check (`tsc --noEmit`)         |
+| `npm test`            | Run Vitest unit tests                          |
+| `npm run db:push`     | Sync Prisma schema to database                 |
+| `npm run db:migrate`  | Run Prisma migrations                          |
+| `npm run db:seed`     | Seed database with demo content                |
+| `npm run db:reset`    | Reset and reseed (destructive)                 |
+| `npm run db:generate` | Regenerate Prisma client                       |
 
 > **Note**: `npm run build` queries Prisma at build time for leaderboard OG image generation, so `DATABASE_URL` must be set even for a production build.
 
@@ -73,7 +73,7 @@ src/
 
 ## 🗄️ Database Setup
 
-QuizArena uses **PostgreSQL** for all environments.
+BusQuiz uses **PostgreSQL** for all environments.
 
 ```bash
 cp .env.example .env
@@ -94,13 +94,13 @@ npm run db:seed    # populate with demo content
 
 **Demo accounts (after `npm run db:seed`):**
 
-| Name         | Email               | Role  |
-| ------------ | ------------------- | ----- |
-| Admin Demo   | admin@quizarena.dev | ADMIN |
-| Alice Chen   | alice@quizarena.dev | USER  |
-| Bob Martinez | bob@quizarena.dev   | USER  |
-| Carol Zhang  | carol@quizarena.dev | USER  |
-| Dave Okonkwo | demo@quizarena.dev  | USER  |
+| Name         | Email             | Role  |
+| ------------ | ----------------- | ----- |
+| Admin Demo   | admin@busquiz.com | ADMIN |
+| Alice Chen   | alice@busquiz.com | USER  |
+| Bob Martinez | bob@busquiz.com   | USER  |
+| Carol Zhang  | carol@busquiz.com | USER  |
+| Dave Okonkwo | demo@busquiz.com  | USER  |
 
 Sign in with email/password on the `/sign-in` page. The password for each demo account is defined in `prisma/seed.ts`.
 
@@ -112,27 +112,28 @@ Copy `.env.example` to `.env`. Generate an auth secret with:
 openssl rand -base64 32
 ```
 
-| Variable                | Required      | Description                                              |
-| ----------------------- | ------------- | -------------------------------------------------------- |
-| `DATABASE_URL`          | ✅ Always     | PostgreSQL connection string                             |
-| `AUTH_SECRET`           | ✅ Always     | NextAuth JWT signing secret                              |
-| `NEXTAUTH_URL`          | Prod          | Full public URL (e.g. `https://quizarena.app`)           |
-| `NEXTAUTH_SECRET`       | Fallback      | Older NextAuth secret alias                              |
-| `PLAY_TOKEN_SECRET`     | Prod          | HMAC secret for play tokens (falls back to `AUTH_SECRET`) |
-| `GITHUB_CLIENT_ID`      | OAuth only    | GitHub OAuth app client ID                               |
-| `GITHUB_CLIENT_SECRET`  | OAuth only    | GitHub OAuth app secret                                  |
-| `GOOGLE_CLIENT_ID`      | OAuth only    | Google OAuth app client ID                               |
-| `GOOGLE_CLIENT_SECRET`  | OAuth only    | Google OAuth app secret                                  |
-| `RESEND_API_KEY`        | Email         | Resend.com API key for transactional email               |
-| `RESEND_FROM_EMAIL`     | Email         | Sender address (default: `noreply@quizarena.app`)        |
-| `CRON_SECRET`           | Cron          | Bearer token for `/api/cron/cleanup-guests`              |
-| `OPENAI_API_KEY`        | AI features   | OpenAI API key (optional)                                |
-| `BLOB_READ_WRITE_TOKEN` | Uploads       | Vercel Blob token for image uploads                      |
-| `NEXT_PUBLIC_SITE_URL`  | Optional      | Public URL override (falls back to `VERCEL_URL`)         |
+| Variable                | Required    | Description                                               |
+| ----------------------- | ----------- | --------------------------------------------------------- |
+| `DATABASE_URL`          | ✅ Always   | PostgreSQL connection string                              |
+| `AUTH_SECRET`           | ✅ Always   | NextAuth JWT signing secret                               |
+| `NEXTAUTH_URL`          | Prod        | Full public URL (e.g. `https://busquiz.com`)              |
+| `NEXTAUTH_SECRET`       | Fallback    | Older NextAuth secret alias                               |
+| `PLAY_TOKEN_SECRET`     | Prod        | HMAC secret for play tokens (falls back to `AUTH_SECRET`) |
+| `GITHUB_CLIENT_ID`      | OAuth only  | GitHub OAuth app client ID                                |
+| `GITHUB_CLIENT_SECRET`  | OAuth only  | GitHub OAuth app secret                                   |
+| `GOOGLE_CLIENT_ID`      | OAuth only  | Google OAuth app client ID                                |
+| `GOOGLE_CLIENT_SECRET`  | OAuth only  | Google OAuth app secret                                   |
+| `RESEND_API_KEY`        | Email       | Resend.com API key for transactional email                |
+| `RESEND_FROM_EMAIL`     | Email       | Sender address (default: `noreply@busquiz.com`)           |
+| `CRON_SECRET`           | Cron        | Bearer token for `/api/cron/cleanup-guests`               |
+| `OPENAI_API_KEY`        | AI features | OpenAI API key (optional)                                 |
+| `BLOB_READ_WRITE_TOKEN` | Uploads     | Vercel Blob token for image uploads                       |
+| `NEXT_PUBLIC_SITE_URL`  | Optional    | Public URL override (falls back to `VERCEL_URL`)          |
 
 **Minimum required**: `DATABASE_URL` + `AUTH_SECRET`. Email/password auth works without any OAuth keys. OAuth provider buttons are hidden when their env vars are absent.
 
 **OAuth callback URLs:**
+
 - GitHub: `{NEXTAUTH_URL}/api/auth/callback/github`
 - Google: `{NEXTAUTH_URL}/api/auth/callback/google`
 
@@ -201,12 +202,12 @@ Raw SQL `GROUP BY` over `PlaySession` with optional filters for period (`all` / 
 
 ## 🎮 Quiz Modes
 
-| Mode     | Description                                                      |
-| -------- | ---------------------------------------------------------------- |
-| CLASSIC  | Per-question timer, full question set                            |
-| TIMED    | 60-second global countdown — speed maximises score              |
+| Mode     | Description                                                       |
+| -------- | ----------------------------------------------------------------- |
+| CLASSIC  | Per-question timer, full question set                             |
+| TIMED    | 60-second global countdown — speed maximises score                |
 | SURVIVAL | 3 one-use lifelines (50/50, Skip, +10 s); streak score multiplier |
-| DAILY    | Deterministic daily shuffle; one attempt per player per day      |
+| DAILY    | Deterministic daily shuffle; one attempt per player per day       |
 
 **Lifelines (Survival only):** **50/50** removes two wrong choices; **Skip** skips the question without penalty; **Extra Time** adds 10 s to the current question timer.
 
@@ -250,9 +251,9 @@ Prefix a choice with `*` to mark it correct. Choices are semicolon-separated.
 
 ## 🛡 Roles & Permissions
 
-| Role    | Capabilities                                                                                              |
-| ------- | --------------------------------------------------------------------------------------------------------- |
-| `USER`  | Play quizzes, create/manage own quizzes in Studio, report quizzes, suggest categories, follow users       |
+| Role    | Capabilities                                                                                                                                                                                                     |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `USER`  | Play quizzes, create/manage own quizzes in Studio, report quizzes, suggest categories, follow users                                                                                                              |
 | `ADMIN` | Everything above + full moderation queue (`/admin`): approve/reject category suggestions, resolve reports (dismiss / unpublish / delete quiz), toggle any quiz publish status, manage user roles, view audit log |
 
 ## 🔔 Notifications
@@ -279,12 +280,14 @@ Fetched via `GET /api/notifications`; marked read via `PATCH /api/notifications/
 ## 🌐 SEO & Open Graph
 
 Dynamic OG image routes (Node.js runtime):
+
 - `src/app/opengraph-image.tsx` — site root
 - `src/app/quiz/[id]/opengraph-image.tsx`
 - `src/app/u/[username]/opengraph-image.tsx`
 - `src/app/leaderboard/opengraph-image.tsx`
 
 Crawl / PWA support:
+
 - `src/app/robots.ts` — disallows `/api`, `/studio`, `/admin`, `/auth`
 - `src/app/sitemap.ts` — dynamic sitemap from published quizzes + categories
 - `src/app/manifest.ts` — PWA web app manifest

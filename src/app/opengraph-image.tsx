@@ -19,7 +19,7 @@ export function renderDefaultOgCard() {
         color: '#fff',
       }}
     >
-      <div style={{ fontSize: 28, opacity: 0.9 }}>QuizArena</div>
+      <div style={{ fontSize: 28, opacity: 0.9 }}>BusQuiz</div>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         <div style={{ fontSize: 72, fontWeight: 800, lineHeight: 1.1 }}>Play. Learn. Climb.</div>
         <div style={{ fontSize: 34, marginTop: 16, opacity: 0.9 }}>

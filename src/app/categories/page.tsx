@@ -8,19 +8,19 @@ import { CategoryBrowser } from './category-browser'
 import { absoluteUrl } from '@/lib/site'
 
 export const metadata: Metadata = {
-  title: 'Categories | QuizArena',
+  title: 'Categories | BusQuiz',
   description: 'Browse quiz categories and jump into your next challenge.',
   alternates: {
     canonical: '/categories',
   },
   openGraph: {
-    title: 'QuizArena Categories',
+    title: 'BusQuiz Categories',
     description: 'Browse quiz categories and discover new challenges.',
     url: absoluteUrl('/categories'),
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'QuizArena Categories',
+    title: 'BusQuiz Categories',
     description: 'Browse quiz categories and discover new challenges.',
   },
 }
