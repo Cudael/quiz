@@ -37,19 +37,15 @@ export function Navbar() {
           {/* Logo */}
           <Link
             href="/"
-            className="flex items-center gap-2 font-bold text-xl transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
+            className="flex items-center transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
           >
             <Image
               src="/logo.png"
               alt="BusQuiz logo"
-              width={32}
-              height={32}
-              className="rounded-xl"
+              width={151}
+              height={36}
               priority
             />
-            <span className="bg-gradient-to-r from-quiz-purple to-quiz-pink bg-clip-text text-transparent font-black tracking-tight">
-              BusQuiz
-            </span>
           </Link>
 
           {/* Desktop nav */}

@@ -28,17 +28,13 @@ export function SiteFooter() {
         <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-4">
           {/* Brand */}
           <div className="space-y-4 md:col-span-2">
-            <div className="flex items-center gap-2 font-bold">
+            <div className="flex items-center font-bold">
               <Image
                 src="/logo.png"
                 alt="BusQuiz logo"
-                width={36}
-                height={36}
-                className="rounded-xl"
+                width={168}
+                height={40}
               />
-              <span className="bg-gradient-to-r from-quiz-purple to-quiz-pink bg-clip-text text-transparent text-xl font-black tracking-tight">
-                BusQuiz
-              </span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
               The ultimate destination for quiz lovers and knowledge seekers. Compete, create, and
