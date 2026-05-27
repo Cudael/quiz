@@ -126,18 +126,20 @@ export function DuelView({ duelId }: DuelViewProps) {
 
   useEffect(() => {
     let active = true
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchState()
-      .catch(() => addToast('Could not load duel.', 'error'))
-      .finally(() => {
-        if (active) setLoading(false)
-      })
+    const bootstrapTimer = setTimeout(() => {
+      fetchState()
+        .catch(() => addToast('Could not load duel.', 'error'))
+        .finally(() => {
+          if (active) setLoading(false)
+        })
+    }, 0)
 
     const interval = setInterval(() => {
       fetchState().catch(() => {})
     }, 2000)
     return () => {
       active = false
+      clearTimeout(bootstrapTimer)
       clearInterval(interval)
     }
   }, [fetchState, addToast])
@@ -157,10 +159,8 @@ export function DuelView({ duelId }: DuelViewProps) {
     ) {
       return
     }
-
     const limit = state.duel.timeLimitSec * 1000
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setTimeRemainingMs(limit)
+    const setTimeTimer = setTimeout(() => setTimeRemainingMs(limit), 0)
     questionStartRef.current = Date.now()
     timerRef.current = setInterval(() => {
       setTimeRemainingMs((current) => {
@@ -176,6 +176,7 @@ export function DuelView({ duelId }: DuelViewProps) {
     }, 200)
 
     return () => {
+      clearTimeout(setTimeTimer)
       if (timerRef.current) {
         clearInterval(timerRef.current)
         timerRef.current = null
@@ -209,8 +210,10 @@ export function DuelView({ duelId }: DuelViewProps) {
     if (!state || state.duel.status !== 'IN_PROGRESS' || submitted) return
     if (!state.questions || state.questions.length === 0) return
     if (Object.keys(answers).length >= state.questions.length) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      submitDuelAnswers().catch(() => addToast('Could not submit duel answers.', 'error'))
+      const submitTimer = setTimeout(() => {
+        submitDuelAnswers().catch(() => addToast('Could not submit duel answers.', 'error'))
+      }, 0)
+      return () => clearTimeout(submitTimer)
     }
   }, [state, submitted, answers, submitDuelAnswers, addToast])
 
@@ -222,13 +225,15 @@ export function DuelView({ duelId }: DuelViewProps) {
       !hasAnsweredCurrent &&
       !submitted
     ) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setAnswers((prev) => ({
-        ...prev,
-        [currentQuestion.id]: { choiceIds: [], timeTakenMs: state.duel.timeLimitSec * 1000 },
-      }))
-      setCurrentQuestionIndex((index) => index + 1)
-      setFillBlankValue('')
+      const timeoutTimer = setTimeout(() => {
+        setAnswers((prev) => ({
+          ...prev,
+          [currentQuestion.id]: { choiceIds: [], timeTakenMs: state.duel.timeLimitSec * 1000 },
+        }))
+        setCurrentQuestionIndex((index) => index + 1)
+        setFillBlankValue('')
+      }, 0)
+      return () => clearTimeout(timeoutTimer)
     }
   }, [timeRemainingMs, state, currentQuestion, hasAnsweredCurrent, submitted])
 
