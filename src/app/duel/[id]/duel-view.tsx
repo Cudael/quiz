@@ -161,6 +161,10 @@ export function DuelView({ duelId }: DuelViewProps) {
       return
     }
     const limit = state.duel.timeLimitSec * 1000
+    // Setting state directly in the effect body (rather than via a setTimeout) is intentional:
+    // it ensures timeRemainingMs is initialised to the full limit synchronously as part of the
+    // same React batch, preventing the timeout effect from seeing a stale 0 value and
+    // immediately advancing the question before the timer has a chance to start.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setTimeRemainingMs(limit)
     questionStartRef.current = Date.now()
@@ -478,7 +482,8 @@ export function DuelView({ duelId }: DuelViewProps) {
                       }))
 
                       if (currentQuestion.type !== 'MULTIPLE') {
-                        // Advance is handled by the auto-advance effect after a brief highlight delay
+                        // Question advances automatically after a 400ms highlight delay
+                        // via the useEffect at the bottom of this component.
                         setLocalScore(
                           (prev) =>
                             prev + getOptimisticPoints(state.duel.timeLimitSec, timeTakenMs)
