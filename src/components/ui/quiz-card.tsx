@@ -83,40 +83,48 @@ export function QuizCard({ quiz, className }: QuizCardProps) {
       <motion.div
         whileHover={shouldReduceMotion ? undefined : { y: -5, scale: 1.02 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="relative h-60 overflow-hidden rounded-2xl border border-border/50 shadow-md transition-shadow duration-300 group-hover:shadow-xl group-hover:shadow-quiz-purple/10"
-        style={{ borderTopColor: quiz.category.color, borderTopWidth: 3 }}
+        className="relative h-60 rounded-2xl border border-border/50 shadow-md transition-shadow duration-300 group-hover:shadow-xl group-hover:shadow-quiz-purple/10"
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
-        {/* Background */}
-        <div
-          className="absolute inset-0"
-          style={{ backgroundImage: getFallbackGradient(quiz.category.color) }}
-        />
-        {hasCoverImage ? (
-          <Image
-            src={quiz.coverImage ?? ''}
-            alt={`${quiz.title} cover image`}
-            fill
-            unoptimized
-            sizes="(max-width: 768px) 100vw, 256px"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-            onError={() => setImageFailed(true)}
-          />
-        ) : null}
-
-        {/* Dark gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-
-        {/* Spotlight hover */}
-        {spotlight.visible && (
+        {/* Inner clip wrapper — kept separate from the transform element so
+            border-radius clipping never breaks during the scale animation */}
+        <div className="absolute inset-0 overflow-hidden rounded-2xl">
+          {/* Colored top accent bar */}
           <div
-            className="pointer-events-none absolute inset-0 rounded-2xl transition-opacity duration-200"
-            style={{
-              background: `radial-gradient(circle 180px at ${spotlight.x}px ${spotlight.y}px, rgba(255,255,255,0.08), transparent 80%)`,
-            }}
+            className="absolute inset-x-0 top-0 z-10 h-1"
+            style={{ backgroundColor: quiz.category.color }}
           />
-        )}
+          {/* Background */}
+          <div
+            className="absolute inset-0"
+            style={{ backgroundImage: getFallbackGradient(quiz.category.color) }}
+          />
+          {hasCoverImage ? (
+            <Image
+              src={quiz.coverImage ?? ''}
+              alt={`${quiz.title} cover image`}
+              fill
+              unoptimized
+              sizes="(max-width: 768px) 100vw, 256px"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              onError={() => setImageFailed(true)}
+            />
+          ) : null}
+
+          {/* Dark gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+
+          {/* Spotlight hover */}
+          {spotlight.visible && (
+            <div
+              className="pointer-events-none absolute inset-0 transition-opacity duration-200"
+              style={{
+                background: `radial-gradient(circle 180px at ${spotlight.x}px ${spotlight.y}px, rgba(255,255,255,0.08), transparent 80%)`,
+              }}
+            />
+          )}
+        </div>
 
         {/* Category pill */}
         <div className="absolute left-3 top-3">
@@ -184,37 +192,40 @@ export function QuizCardFeatured({ quiz, className }: QuizCardProps) {
       <motion.div
         whileHover={shouldReduceMotion ? undefined : { y: -3, scale: 1.005 }}
         transition={{ duration: 0.25, ease: 'easeOut' }}
-        className="relative h-full overflow-hidden rounded-3xl border border-border/50 shadow-xl transition-shadow duration-300 group-hover:shadow-2xl group-hover:shadow-quiz-purple/20"
+        className="relative h-full rounded-3xl border border-border/50 shadow-xl transition-shadow duration-300 group-hover:shadow-2xl group-hover:shadow-quiz-purple/20"
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
-        {/* Background */}
-        <div
-          className="absolute inset-0"
-          style={{ backgroundImage: getFallbackGradient(quiz.category.color) }}
-        />
-        {hasCoverImage ? (
-          <Image
-            src={quiz.coverImage ?? ''}
-            alt={`${quiz.title} cover image`}
-            fill
-            unoptimized
-            sizes="100vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-            onError={() => setImageFailed(true)}
-          />
-        ) : null}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/5" />
-
-        {/* Spotlight */}
-        {spotlight.visible && (
+        {/* Inner clip wrapper — kept separate from the transform element */}
+        <div className="absolute inset-0 overflow-hidden rounded-3xl">
+          {/* Background */}
           <div
-            className="pointer-events-none absolute inset-0 rounded-3xl"
-            style={{
-              background: `radial-gradient(circle 300px at ${spotlight.x}px ${spotlight.y}px, rgba(255,255,255,0.07), transparent 80%)`,
-            }}
+            className="absolute inset-0"
+            style={{ backgroundImage: getFallbackGradient(quiz.category.color) }}
           />
-        )}
+          {hasCoverImage ? (
+            <Image
+              src={quiz.coverImage ?? ''}
+              alt={`${quiz.title} cover image`}
+              fill
+              unoptimized
+              sizes="100vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
+              onError={() => setImageFailed(true)}
+            />
+          ) : null}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/5" />
+
+          {/* Spotlight */}
+          {spotlight.visible && (
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background: `radial-gradient(circle 300px at ${spotlight.x}px ${spotlight.y}px, rgba(255,255,255,0.07), transparent 80%)`,
+              }}
+            />
+          )}
+        </div>
 
         {/* Featured badge */}
         <div className="absolute left-5 top-5">
