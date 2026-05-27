@@ -1,11 +1,22 @@
 'use client'
 
+import type React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Github, Zap } from 'lucide-react'
+import { Instagram, MessageCircle, Twitter, Zap } from 'lucide-react'
 import { ThemeToggle } from '@/components/theme/theme-toggle'
 
 export function SiteFooter() {
+  const preventPlaceholderNavigation = (
+    event: React.MouseEvent<HTMLAnchorElement> | React.KeyboardEvent<HTMLAnchorElement>
+  ) => {
+    if ('key' in event && event.key !== 'Enter' && event.key !== ' ') {
+      return
+    }
+
+    event.preventDefault()
+  }
+
   return (
     <footer className="mt-24 bg-surface-1">
       {/* Gradient top border */}
@@ -33,9 +44,47 @@ export function SiteFooter() {
               The ultimate destination for quiz lovers and knowledge seekers. Compete, create, and
               climb the global leaderboard.
             </p>
+            <p className="mt-1 text-xs italic text-muted-foreground/70">
+              Test your knowledge. Challenge your friends.
+            </p>
             <div className="flex items-center gap-1.5 rounded-full border border-quiz-purple/20 bg-quiz-purple/5 px-3 py-1.5 w-fit">
               <Zap className="h-3.5 w-3.5 text-quiz-purple" />
               <span className="text-xs font-semibold text-quiz-purple">Free to play, forever</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <a
+                href="#"
+                aria-label="Twitter / X"
+                aria-disabled="true"
+                role="link"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background/50 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                onClick={preventPlaceholderNavigation}
+                onKeyDown={preventPlaceholderNavigation}
+              >
+                <Twitter className="h-3.5 w-3.5" />
+              </a>
+              <a
+                href="#"
+                aria-label="Instagram"
+                aria-disabled="true"
+                role="link"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background/50 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                onClick={preventPlaceholderNavigation}
+                onKeyDown={preventPlaceholderNavigation}
+              >
+                <Instagram className="h-3.5 w-3.5" />
+              </a>
+              <a
+                href="#"
+                aria-label="Discord"
+                aria-disabled="true"
+                role="link"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background/50 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                onClick={preventPlaceholderNavigation}
+                onKeyDown={preventPlaceholderNavigation}
+              >
+                <MessageCircle className="h-3.5 w-3.5" />
+              </a>
             </div>
           </div>
 
@@ -45,9 +94,9 @@ export function SiteFooter() {
             <nav className="flex flex-col gap-2.5" aria-label="Footer navigation">
               {[
                 { href: '/categories', label: 'Browse Categories' },
-                { href: '/leaderboard', label: 'Leaderboard' },
                 { href: '/studio', label: 'Quiz Studio' },
                 { href: '/random-quiz', label: 'Play Now' },
+                { href: '/about', label: 'About' },
               ].map((link) => (
                 <Link
                   key={link.href}
@@ -62,17 +111,42 @@ export function SiteFooter() {
 
           {/* Meta / Tools */}
           <div className="space-y-4">
-            <p className="text-xs font-black uppercase tracking-widest text-foreground">More</p>
+            <p className="text-xs font-black uppercase tracking-widest text-foreground">
+              Community
+            </p>
             <div className="flex flex-col gap-2.5">
               <Link
-                href="https://github.com/Cudael/quiz"
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
+                href="/leaderboard"
+                className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
               >
-                <Github className="h-4 w-4" />
-                GitHub
+                Leaderboard
               </Link>
+              <Link
+                href="/duel"
+                className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
+              >
+                Duel
+              </Link>
+              <a
+                href="#"
+                aria-disabled="true"
+                role="link"
+                className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
+                onClick={preventPlaceholderNavigation}
+                onKeyDown={preventPlaceholderNavigation}
+              >
+                Discord
+              </a>
+              <a
+                href="#"
+                aria-disabled="true"
+                role="link"
+                className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
+                onClick={preventPlaceholderNavigation}
+                onKeyDown={preventPlaceholderNavigation}
+              >
+                Twitter / X
+              </a>
               <Link
                 href="/about/accessibility"
                 className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
@@ -87,7 +161,7 @@ export function SiteFooter() {
         <div className="mt-12 flex items-center justify-between border-t border-border/40 pt-6 text-xs text-muted-foreground">
           {/* Hydration fix applied here via suppressHydrationWarning */}
           <span suppressHydrationWarning>
-            © {new Date().getFullYear()} BusQuiz. Made with ❤️ for curious minds.
+            © {new Date().getFullYear()} BusQuiz. All rights reserved.
           </span>
           <ThemeToggle />
         </div>

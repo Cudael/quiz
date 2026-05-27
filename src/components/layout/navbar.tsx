@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils'
 
 const navLinks = [
   { href: '/categories', label: 'Categories' },
-  { href: '/duel', label: 'Duel', icon: Swords },
+  { href: '/duel', label: 'Duel', icon: Swords, highlighted: true },
   { href: '/leaderboard', label: 'Leaderboard' },
   { href: '/studio', label: 'Create' },
 ]
@@ -54,38 +54,31 @@ export function Navbar() {
 
           {/* Desktop nav */}
           <nav className="hidden items-center gap-1 md:flex" aria-label="Main navigation">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  'relative rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-                  isActive(link.href)
-                    ? 'text-primary bg-primary/8'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
-                )}
-                aria-current={isActive(link.href) ? 'page' : undefined}
-              >
-                {link.icon ? <link.icon className="mr-1 inline-flex h-3.5 w-3.5" /> : null}
-                {link.label}
-                {isActive(link.href) && (
-                  <span className="absolute inset-x-3 bottom-0.5 h-0.5 rounded-full bg-gradient-to-r from-quiz-purple to-quiz-pink" />
-                )}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const active = isActive(link.href)
 
-            {/* Quick Play CTA */}
-            <Button
-              asChild
-              size="sm"
-              variant="gradient"
-              className="ml-2 rounded-xl font-bold shadow-md shadow-quiz-purple/20"
-            >
-              <Link href="/random-quiz">
-                <Zap className="h-3.5 w-3.5" />
-                Play
-              </Link>
-            </Button>
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    'relative rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                    active
+                      ? 'text-primary bg-primary/8'
+                      : link.highlighted
+                        ? 'text-quiz-pink font-bold hover:text-quiz-pink/80 hover:bg-quiz-pink/10'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                  )}
+                  aria-current={active ? 'page' : undefined}
+                >
+                  {link.icon ? <link.icon className="mr-1 inline-flex h-3.5 w-3.5" /> : null}
+                  {link.label}
+                  {active && (
+                    <span className="absolute inset-x-3 bottom-0.5 h-0.5 rounded-full bg-gradient-to-r from-quiz-purple to-quiz-pink" />
+                  )}
+                </Link>
+              )
+            })}
           </nav>
 
           <div className="flex items-center gap-2">
