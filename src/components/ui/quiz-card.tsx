@@ -81,7 +81,7 @@ export function QuizCard({ quiz, className }: QuizCardProps) {
   return (
     <Link href={`/quiz/${quiz.id}`} className={cn('group block', className)}>
       <motion.div
-        whileHover={shouldReduceMotion ? undefined : { y: -5, scale: 1.02 }}
+        whileHover={shouldReduceMotion ? undefined : { y: -3, scale: 1.01 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
         className="relative h-60 rounded-2xl border border-border/50 shadow-md transition-shadow duration-300 group-hover:shadow-xl group-hover:shadow-quiz-purple/10"
         onMouseMove={handleMouseMove}
@@ -90,11 +90,6 @@ export function QuizCard({ quiz, className }: QuizCardProps) {
         {/* Inner clip wrapper — kept separate from the transform element so
             border-radius clipping never breaks during the scale animation */}
         <div className="absolute inset-0 overflow-hidden rounded-2xl">
-          {/* Colored top accent bar */}
-          <div
-            className="absolute inset-x-0 top-0 z-10 h-1"
-            style={{ backgroundColor: quiz.category.color }}
-          />
           {/* Background */}
           <div
             className="absolute inset-0"

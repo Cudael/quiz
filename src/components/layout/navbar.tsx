@@ -31,7 +31,7 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-40 w-full">
       {/* Gradient line at very top */}
-      <div className="h-[2px] w-full bg-gradient-to-r from-quiz-purple via-quiz-pink to-quiz-orange" />
+      <div className="h-[1px] w-full bg-gradient-to-r from-quiz-purple via-quiz-pink to-quiz-orange opacity-60" />
       <div className="bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 border-b border-border/40 shadow-sm">
         <div className="container mx-auto flex h-14 items-center justify-between px-4 md:px-6">
           {/* Logo */}
