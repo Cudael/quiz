@@ -1,11 +1,22 @@
 'use client'
 
+import type React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Instagram, MessageCircle, Twitter, Zap } from 'lucide-react'
 import { ThemeToggle } from '@/components/theme/theme-toggle'
 
 export function SiteFooter() {
+  const preventPlaceholderNavigation = (
+    event: React.MouseEvent<HTMLAnchorElement> | React.KeyboardEvent<HTMLAnchorElement>
+  ) => {
+    if ('key' in event && event.key !== 'Enter' && event.key !== ' ') {
+      return
+    }
+
+    event.preventDefault()
+  }
+
   return (
     <footer className="mt-24 bg-surface-1">
       {/* Gradient top border */}
@@ -44,21 +55,33 @@ export function SiteFooter() {
               <a
                 href="#"
                 aria-label="Twitter / X"
+                aria-disabled="true"
+                role="link"
                 className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background/50 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                onClick={preventPlaceholderNavigation}
+                onKeyDown={preventPlaceholderNavigation}
               >
                 <Twitter className="h-3.5 w-3.5" />
               </a>
               <a
                 href="#"
                 aria-label="Instagram"
+                aria-disabled="true"
+                role="link"
                 className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background/50 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                onClick={preventPlaceholderNavigation}
+                onKeyDown={preventPlaceholderNavigation}
               >
                 <Instagram className="h-3.5 w-3.5" />
               </a>
               <a
                 href="#"
                 aria-label="Discord"
+                aria-disabled="true"
+                role="link"
                 className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background/50 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                onClick={preventPlaceholderNavigation}
+                onKeyDown={preventPlaceholderNavigation}
               >
                 <MessageCircle className="h-3.5 w-3.5" />
               </a>
@@ -104,18 +127,26 @@ export function SiteFooter() {
               >
                 Duel
               </Link>
-              <Link
+              <a
                 href="#"
+                aria-disabled="true"
+                role="link"
                 className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
+                onClick={preventPlaceholderNavigation}
+                onKeyDown={preventPlaceholderNavigation}
               >
                 Discord
-              </Link>
-              <Link
+              </a>
+              <a
                 href="#"
+                aria-disabled="true"
+                role="link"
                 className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
+                onClick={preventPlaceholderNavigation}
+                onKeyDown={preventPlaceholderNavigation}
               >
                 Twitter / X
-              </Link>
+              </a>
               <Link
                 href="/about/accessibility"
                 className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"

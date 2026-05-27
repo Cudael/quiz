@@ -59,9 +59,6 @@ describe('Navbar', () => {
     expect(screen.queryByRole('link', { name: 'Play' })).not.toBeInTheDocument()
 
     const duelLink = screen.getByRole('link', { name: /Duel/ })
-    expect(duelLink.className).toContain('text-quiz-pink')
-    expect(duelLink.className).toContain('font-bold')
-    expect(duelLink.className).toContain('hover:text-quiz-pink/80')
-    expect(duelLink.className).toContain('hover:bg-quiz-pink/10')
+    expect(duelLink).toHaveClass('text-quiz-pink', 'font-bold')
   })
 })

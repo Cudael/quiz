@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils'
 
 const navLinks = [
   { href: '/categories', label: 'Categories' },
-  { href: '/duel', label: 'Duel', icon: Swords },
+  { href: '/duel', label: 'Duel', icon: Swords, highlighted: true },
   { href: '/leaderboard', label: 'Leaderboard' },
   { href: '/studio', label: 'Create' },
 ]
@@ -65,7 +65,7 @@ export function Navbar() {
                     'relative rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
                     active
                       ? 'text-primary bg-primary/8'
-                      : link.href === '/duel'
+                      : link.highlighted
                         ? 'text-quiz-pink font-bold hover:text-quiz-pink/80 hover:bg-quiz-pink/10'
                         : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
                   )}

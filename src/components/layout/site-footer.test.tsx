@@ -30,8 +30,21 @@ describe('SiteFooter', () => {
     expect(screen.getAllByRole('link', { name: 'Twitter / X' })).toHaveLength(2)
     expect(screen.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/about')
     expect(screen.getByLabelText('Twitter / X')).toHaveAttribute('href', '#')
+    expect(screen.getByLabelText('Twitter / X')).toHaveAttribute('aria-disabled', 'true')
     expect(screen.getByLabelText('Instagram')).toHaveAttribute('href', '#')
+    expect(screen.getByLabelText('Instagram')).toHaveAttribute('aria-disabled', 'true')
     expect(screen.getByLabelText('Discord')).toHaveAttribute('href', '#')
+    expect(screen.getByLabelText('Discord')).toHaveAttribute('aria-disabled', 'true')
+    expect(
+      screen
+        .getAllByRole('link', { name: 'Discord' })
+        .find((element) => element.textContent === 'Discord')
+    ).toHaveAttribute('aria-disabled', 'true')
+    expect(
+      screen
+        .getAllByRole('link', { name: 'Twitter / X' })
+        .find((element) => element.textContent === 'Twitter / X')
+    ).toHaveAttribute('aria-disabled', 'true')
     expect(screen.getByText('Test your knowledge. Challenge your friends.')).toBeInTheDocument()
     expect(screen.getByText(/All rights reserved\./)).toBeInTheDocument()
   })
