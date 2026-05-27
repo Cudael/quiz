@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { useToast } from '@/components/ui/toast'
 import { scoreQuestion } from '@/domain/scoring'
+import { cn } from '@/lib/utils'
 
 interface DuelQuestionChoice {
   id: string
@@ -25,7 +26,7 @@ interface DuelQuestion {
 interface DuelParticipant {
   id: string
   userId: string | null
-  guestName: string | null
+  name: string | null
   score: number
   correctCount: number
   finished: boolean
@@ -87,7 +88,7 @@ export function DuelView({ duelId }: DuelViewProps) {
     Record<string, { choiceIds: string[]; timeTakenMs: number }>
   >({})
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-  const [timeRemainingMs, setTimeRemainingMs] = useState(0)
+  const [timeRemainingMs, setTimeRemainingMs] = useState<number | null>(null)
   const [fillBlankValue, setFillBlankValue] = useState('')
   const [localScore, setLocalScore] = useState(0)
   const [submitted, setSubmitted] = useState(false)
@@ -160,11 +161,16 @@ export function DuelView({ duelId }: DuelViewProps) {
       return
     }
     const limit = state.duel.timeLimitSec * 1000
-    const setTimeTimer = setTimeout(() => setTimeRemainingMs(limit), 0)
+    // Setting state directly in the effect body (rather than via a setTimeout) is intentional:
+    // it ensures timeRemainingMs is initialised to the full limit synchronously as part of the
+    // same React batch, preventing the timeout effect from seeing a stale 0 value and
+    // immediately advancing the question before the timer has a chance to start.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setTimeRemainingMs(limit)
     questionStartRef.current = Date.now()
     timerRef.current = setInterval(() => {
       setTimeRemainingMs((current) => {
-        if (current <= 200) {
+        if (current === null || current <= 200) {
           if (timerRef.current) {
             clearInterval(timerRef.current)
             timerRef.current = null
@@ -176,7 +182,6 @@ export function DuelView({ duelId }: DuelViewProps) {
     }, 200)
 
     return () => {
-      clearTimeout(setTimeTimer)
       if (timerRef.current) {
         clearInterval(timerRef.current)
         timerRef.current = null
@@ -226,6 +231,7 @@ export function DuelView({ duelId }: DuelViewProps) {
       !submitted
     ) {
       const timeoutTimer = setTimeout(() => {
+        setTimeRemainingMs(null)
         setAnswers((prev) => ({
           ...prev,
           [currentQuestion.id]: { choiceIds: [], timeTakenMs: state.duel.timeLimitSec * 1000 },
@@ -236,6 +242,22 @@ export function DuelView({ duelId }: DuelViewProps) {
       return () => clearTimeout(timeoutTimer)
     }
   }, [timeRemainingMs, state, currentQuestion, hasAnsweredCurrent, submitted])
+
+  // For single-choice questions, show the selected answer briefly before advancing.
+  useEffect(() => {
+    if (
+      !hasAnsweredCurrent ||
+      !currentQuestion ||
+      currentQuestion.type === 'MULTIPLE' ||
+      currentQuestion.type === 'FILL_BLANK' ||
+      submitted
+    )
+      return
+    const advanceTimer = setTimeout(() => {
+      setCurrentQuestionIndex((index) => index + 1)
+    }, 400)
+    return () => clearTimeout(advanceTimer)
+  }, [hasAnsweredCurrent, currentQuestion?.id, currentQuestion?.type, submitted])
 
   if (loading || !state) {
     return (
@@ -264,8 +286,7 @@ export function DuelView({ duelId }: DuelViewProps) {
                   key={participant.id}
                   className="rounded-md border border-border px-3 py-2 text-sm"
                 >
-                  {participant.guestName ||
-                    (participant.userId ? 'Registered player' : 'Guest player')}
+                  {participant.name || 'Unknown player'}
                 </li>
               ))}
             </ul>
@@ -323,8 +344,7 @@ export function DuelView({ duelId }: DuelViewProps) {
                       className={index === 0 ? 'bg-quiz-yellow/10 font-semibold' : undefined}
                     >
                       <td className="py-2 pr-2">
-                        {participant.guestName ||
-                          (participant.userId ? 'Registered player' : 'Guest player')}
+                        {participant.name || 'Unknown player'}
                       </td>
                       <td className="py-2 pr-2">{participant.score}</td>
                       <td className="py-2">{participant.correctCount}</td>
@@ -390,7 +410,7 @@ export function DuelView({ duelId }: DuelViewProps) {
           <div className="flex items-center justify-between">
             <CardTitle>{currentQuestion.prompt}</CardTitle>
             <span className="rounded-md border border-border px-2 py-1 text-sm font-semibold">
-              {Math.ceil(timeRemainingMs / 1000)}s
+              {Math.ceil((timeRemainingMs ?? 0) / 1000)}s
             </span>
           </div>
         </CardHeader>
@@ -429,40 +449,52 @@ export function DuelView({ duelId }: DuelViewProps) {
             </div>
           ) : (
             <div className="grid gap-2">
-              {currentQuestion.choices.map((choice) => (
-                <Button
-                  key={choice.id}
-                  variant="outline"
-                  className="justify-start"
-                  onClick={() => {
-                    const elapsed = Date.now() - questionStartRef.current
-                    const timeLimitMs = state.duel.timeLimitSec * 1000
-                    const timeTakenMs = Math.min(Math.max(elapsed, 0), timeLimitMs)
-                    const choiceIds =
-                      currentQuestion.type === 'MULTIPLE'
-                        ? (answers[currentQuestion.id]?.choiceIds ?? []).includes(choice.id)
-                          ? (answers[currentQuestion.id]?.choiceIds ?? []).filter(
-                              (id) => id !== choice.id
-                            )
-                          : [...(answers[currentQuestion.id]?.choiceIds ?? []), choice.id]
-                        : [choice.id]
+              {currentQuestion.choices.map((choice) => {
+                const isSelected = (answers[currentQuestion.id]?.choiceIds ?? []).includes(
+                  choice.id
+                )
+                return (
+                  <Button
+                    key={choice.id}
+                    variant="outline"
+                    className={cn(
+                      'justify-start',
+                      isSelected && 'border-primary bg-primary/10'
+                    )}
+                    disabled={currentQuestion.type !== 'MULTIPLE' && hasAnsweredCurrent}
+                    onClick={() => {
+                      if (currentQuestion.type !== 'MULTIPLE' && hasAnsweredCurrent) return
+                      const elapsed = Date.now() - questionStartRef.current
+                      const timeLimitMs = state.duel.timeLimitSec * 1000
+                      const timeTakenMs = Math.min(Math.max(elapsed, 0), timeLimitMs)
+                      const choiceIds =
+                        currentQuestion.type === 'MULTIPLE'
+                          ? (answers[currentQuestion.id]?.choiceIds ?? []).includes(choice.id)
+                            ? (answers[currentQuestion.id]?.choiceIds ?? []).filter(
+                                (id) => id !== choice.id
+                              )
+                            : [...(answers[currentQuestion.id]?.choiceIds ?? []), choice.id]
+                          : [choice.id]
 
-                    setAnswers((prev) => ({
-                      ...prev,
-                      [currentQuestion.id]: { choiceIds, timeTakenMs },
-                    }))
+                      setAnswers((prev) => ({
+                        ...prev,
+                        [currentQuestion.id]: { choiceIds, timeTakenMs },
+                      }))
 
-                    if (currentQuestion.type !== 'MULTIPLE') {
-                      setCurrentQuestionIndex((index) => index + 1)
-                      setLocalScore(
-                        (prev) => prev + getOptimisticPoints(state.duel.timeLimitSec, timeTakenMs)
-                      )
-                    }
-                  }}
-                >
-                  {choice.text}
-                </Button>
-              ))}
+                      if (currentQuestion.type !== 'MULTIPLE') {
+                        // Question advances automatically after a 400ms highlight delay
+                        // via the useEffect at the bottom of this component.
+                        setLocalScore(
+                          (prev) =>
+                            prev + getOptimisticPoints(state.duel.timeLimitSec, timeTakenMs)
+                        )
+                      }
+                    }}
+                  >
+                    {choice.text}
+                  </Button>
+                )
+              })}
               {currentQuestion.type === 'MULTIPLE' ? (
                 <Button
                   onClick={() => {
