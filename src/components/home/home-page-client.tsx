@@ -773,6 +773,7 @@ export function HomePageClient({
   const containerVariants = withReducedMotion(staggerContainer(0.06), shouldReduce)
   const sectionVariants = withReducedMotion(fadeUp, shouldReduce)
   const featuredQuiz = popularQuizzes[0] ?? trendingQuizzes[0] ?? null
+  const minGeographyQuizzesToShow = 2
   const geographyMatcher = /countr|geograph/i
   const loggedInGeographyQuizzes = [...popularQuizzes, ...trendingQuizzes].filter((quiz) =>
     geographyMatcher.test(quiz.category.name)
@@ -833,7 +834,7 @@ export function HomePageClient({
           <Divider />
 
           <motion.div variants={sectionVariants}>
-            {loggedInGeographyQuizzes.length >= 2 ? (
+            {loggedInGeographyQuizzes.length >= minGeographyQuizzesToShow ? (
               <QuizGridSection
                 title="🌍 Countries & Geography"
                 quizzes={loggedInGeographyQuizzes}
@@ -912,7 +913,7 @@ export function HomePageClient({
 
           <Divider />
 
-          {guestGeographyQuizzes.length >= 2 ? (
+          {guestGeographyQuizzes.length >= minGeographyQuizzesToShow ? (
             <>
               <motion.div variants={sectionVariants}>
                 <QuizScrollerSection
