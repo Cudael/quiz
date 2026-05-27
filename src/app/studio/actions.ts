@@ -16,7 +16,7 @@ export type ActionResult =
   | { ok: true }
   | {
       ok: false
-      error: 'UNAUTHORIZED' | 'FORBIDDEN' | 'NOT_FOUND' | 'VALIDATION_ERROR'
+      error: 'UNAUTHORIZED' | 'FORBIDDEN' | 'NOT_FOUND' | 'VALIDATION_ERROR' | 'EMAIL_NOT_VERIFIED'
       message: string
     }
 
@@ -35,6 +35,17 @@ async function assertOwnership(quizId: string, userId: string, role?: string) {
   }
 
   return { ok: true as const }
+}
+
+function assertEmailVerified(emailVerified: Date | null | undefined): ActionResult | null {
+  if (!emailVerified) {
+    return {
+      ok: false,
+      error: 'EMAIL_NOT_VERIFIED',
+      message: 'Please verify your email address before creating or editing quizzes.',
+    }
+  }
+  return null
 }
 
 export async function togglePublish(formData: FormData): Promise<ActionResult> {
@@ -99,6 +110,9 @@ export async function createQuiz(formData: FormData): Promise<ActionResult> {
     return { ok: false, error: 'UNAUTHORIZED', message: 'Please sign in.' }
   }
 
+  const emailCheck = assertEmailVerified(session.user.emailVerified)
+  if (emailCheck) return emailCheck
+
   const parsed = quizInputSchema.safeParse({
     title: formData.get('title'),
     description: formData.get('description'),
@@ -132,6 +146,9 @@ export async function updateQuiz(formData: FormData): Promise<ActionResult> {
   if (!session?.user?.id) {
     return { ok: false, error: 'UNAUTHORIZED', message: 'Please sign in.' }
   }
+
+  const emailCheck = assertEmailVerified(session.user.emailVerified)
+  if (emailCheck) return emailCheck
 
   const quizIdParsed = quizIdSchema.safeParse(formData.get('quizId'))
   if (!quizIdParsed.success) {
@@ -190,6 +207,9 @@ export async function saveDraft(formData: FormData): Promise<ActionResult> {
     return { ok: false, error: 'UNAUTHORIZED', message: 'Please sign in.' }
   }
 
+  const emailCheck = assertEmailVerified(session.user.emailVerified)
+  if (emailCheck) return emailCheck
+
   const quizIdParsed = quizIdSchema.safeParse(formData.get('quizId'))
   if (!quizIdParsed.success) {
     return { ok: false, error: 'VALIDATION_ERROR', message: 'Invalid quiz id.' }
@@ -235,6 +255,9 @@ export async function importQuestions(formData: FormData): Promise<ActionResult>
   if (!session?.user?.id) {
     return { ok: false, error: 'UNAUTHORIZED', message: 'Please sign in.' }
   }
+
+  const emailCheck = assertEmailVerified(session.user.emailVerified)
+  if (emailCheck) return emailCheck
 
   const quizIdParsed = quizIdSchema.safeParse(formData.get('quizId'))
   const format = formData.get('format')

@@ -73,10 +73,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null
         }
 
-        if (!user.emailVerified) {
-          return null
-        }
-
+        // Allow sign-in regardless of email verification status.
+        // Email verification is only required for creating quizzes (enforced in studio actions).
         return {
           id: user.id,
           name: user.name,
