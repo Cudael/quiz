@@ -91,7 +91,7 @@ function Divider() {
 
 function SectionHeader({ title, href }: { title: string; href: string }) {
   return (
-    <div className="mb-5 flex items-end justify-between">
+    <div className="mb-3 flex items-end justify-between">
       <h2 className="text-2xl font-black tracking-tight">{title}</h2>
       <Link
         href={href}
@@ -115,7 +115,7 @@ function QuizScrollerSection({
   return (
     <section>
       {subtitle ? (
-        <div className="mb-5 flex items-end justify-between">
+        <div className="mb-3 flex items-end justify-between">
           <div>
             <h2 className="text-2xl font-black tracking-tight">{title}</h2>
             <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
@@ -735,7 +735,7 @@ function TodaysPickWithChallenge({
         </div>
 
         {/* Right: Daily Challenge card */}
-        <div className="relative flex flex-col gap-4 overflow-hidden rounded-2xl border border-orange-500/25 bg-gradient-to-br from-orange-500/15 via-amber-500/10 to-orange-500/5 p-5">
+        <div className="relative flex flex-col gap-3 overflow-hidden rounded-2xl border border-orange-500/25 bg-gradient-to-br from-orange-500/15 via-amber-500/10 to-orange-500/5 p-4">
           {/* Ambient glow */}
           <div
             className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-orange-500/20 blur-2xl"
@@ -822,7 +822,7 @@ export function HomePageClient({
 
   return (
     <motion.div
-      className="container mx-auto space-y-10 px-4 md:px-6 py-8"
+      className="container mx-auto space-y-8 px-4 md:px-6 py-8"
       variants={containerVariants}
       initial="hidden"
       animate="show"

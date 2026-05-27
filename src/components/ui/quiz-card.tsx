@@ -188,7 +188,7 @@ export function QuizCardFeatured({ quiz, className }: QuizCardProps) {
   }
 
   return (
-    <Link href={`/quiz/${quiz.id}`} className={cn('group block h-80 w-full md:h-96', className)}>
+    <Link href={`/quiz/${quiz.id}`} className={cn('group block h-64 w-full md:h-72', className)}>
       <motion.div
         whileHover={shouldReduceMotion ? undefined : { y: -3, scale: 1.005 }}
         transition={{ duration: 0.25, ease: 'easeOut' }}
