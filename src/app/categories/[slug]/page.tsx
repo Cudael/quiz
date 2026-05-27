@@ -42,7 +42,7 @@ export async function generateMetadata({
 
   if (!category) {
     return {
-      title: 'Category not found | QuizArena',
+      title: 'Category not found | BusQuiz',
       description: 'This category could not be found.',
       alternates: {
         canonical: `/categories/${slug}`,
@@ -50,9 +50,9 @@ export async function generateMetadata({
     }
   }
 
-  const title = `${category.name} Quizzes | QuizArena`
+  const title = `${category.name} Quizzes | BusQuiz`
   const description =
-    category.description || `Play quizzes in the ${category.name} category on QuizArena.`
+    category.description || `Play quizzes in the ${category.name} category on BusQuiz.`
   const url = absoluteUrl(`/categories/${category.slug}`)
 
   return {

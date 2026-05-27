@@ -19,7 +19,7 @@ export function renderLeaderboardOgCard(topPlayers: string[]) {
         color: '#fff',
       }}
     >
-      <div style={{ fontSize: 62, fontWeight: 800, marginBottom: 24 }}>QuizArena Leaderboard</div>
+      <div style={{ fontSize: 62, fontWeight: 800, marginBottom: 24 }}>BusQuiz Leaderboard</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18, fontSize: 36 }}>
         {(topPlayers.length ? topPlayers : ['No players yet']).map((name, index) => (
           <div key={`${name}-${index}`} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>

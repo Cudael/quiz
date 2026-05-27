@@ -1,5 +1,5 @@
 /**
- * prisma/seed.ts — QuizArena database seed
+ * prisma/seed.ts — BusQuiz database seed
  *
  * Trivia content is authored inline in the style of Open Trivia DB (opentdb.com).
  * No live API calls are made.
@@ -52,7 +52,7 @@ async function main() {
   console.log(`  ✓ Seeded ${users.length} users`)
   if (process.env.NODE_ENV !== 'production') {
     console.log(
-      "  ✓ Admin demo user: admin@quizarena.dev — sign in via Credentials provider with name 'Admin Demo'"
+      "  ✓ Admin demo user: admin@busquiz.com — sign in via Credentials provider with name 'Admin Demo'"
     )
   }
 
@@ -150,11 +150,11 @@ async function main() {
   // Award badges to demo users
   // ------------------------------------------------------------------
   const badgeAwards: Array<{ userId: string; badgeSlug: string }> = [
-    { userId: 'user_admin_quizarena', badgeSlug: 'first-win' },
-    { userId: 'user_admin_quizarena', badgeSlug: 'perfect-score' },
-    { userId: 'user_admin_quizarena', badgeSlug: 'streak-30' },
-    { userId: 'user_admin_quizarena', badgeSlug: 'quiz-author' },
-    { userId: 'user_admin_quizarena', badgeSlug: 'centurion' },
+    { userId: 'user_admin_busquiz', badgeSlug: 'first-win' },
+    { userId: 'user_admin_busquiz', badgeSlug: 'perfect-score' },
+    { userId: 'user_admin_busquiz', badgeSlug: 'streak-30' },
+    { userId: 'user_admin_busquiz', badgeSlug: 'quiz-author' },
+    { userId: 'user_admin_busquiz', badgeSlug: 'centurion' },
     { userId: 'user_demo_alice', badgeSlug: 'first-win' },
     { userId: 'user_demo_alice', badgeSlug: 'streak-7' },
     { userId: 'user_demo_alice', badgeSlug: 'quiz-author' },
@@ -245,7 +245,7 @@ async function main() {
       daysAgo: 0,
     },
     {
-      userId: 'user_admin_quizarena',
+      userId: 'user_admin_busquiz',
       guestName: null,
       quizTitle: 'Internet Basics',
       score: 1000,
@@ -323,7 +323,7 @@ async function main() {
       daysAgo: 9,
     },
     {
-      userId: 'user_admin_quizarena',
+      userId: 'user_admin_busquiz',
       guestName: null,
       quizTitle: 'Programming Languages',
       score: 1000,
@@ -482,7 +482,7 @@ async function main() {
       meta: JSON.stringify({ badgeSlug: 'speed-demon' }),
     },
     {
-      userId: 'user_admin_quizarena',
+      userId: 'user_admin_busquiz',
       type: 'NEW_FOLLOWER',
       title: 'New follower',
       message: 'Alice is now following you.',
@@ -555,7 +555,7 @@ async function main() {
 
   await prisma.adminAction.create({
     data: {
-      actorId: 'user_admin_quizarena',
+      actorId: 'user_admin_busquiz',
       action: 'SEED_PHASE4_MODERATION',
       targetType: 'System',
       targetId: 'seed',

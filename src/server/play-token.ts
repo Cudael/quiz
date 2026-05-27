@@ -4,7 +4,7 @@ import 'server-only'
  * The token is issued server-side at quiz start; the submit endpoint validates it.
  */
 
-const DEV_SECRET = 'quiz-arena-dev-secret-do-not-use-in-prod'
+const DEV_SECRET = 'busquiz-dev-secret-do-not-use-in-prod'
 
 function getSecret(): string {
   const secret = process.env.PLAY_TOKEN_SECRET || process.env.AUTH_SECRET

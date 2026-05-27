@@ -2,7 +2,7 @@ import { levelForXp, xpForLevel } from './leveling'
 import { computeStreak as computeStreakDetailed } from './streak'
 
 /**
- * Pure scoring functions for QuizArena.
+ * Pure scoring functions for BusQuiz.
  * All logic is server-authoritative; these functions run on both client (display)
  * and server (submission validation).
  */

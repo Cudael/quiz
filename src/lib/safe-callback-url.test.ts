@@ -31,19 +31,17 @@ describe('safeCallbackUrl', () => {
   })
 
   it('allows an absolute URL matching NEXTAUTH_URL origin', () => {
-    process.env.NEXTAUTH_URL = 'https://quizarena.app'
-    expect(safeCallbackUrl('https://quizarena.app/me', '/fallback')).toBe(
-      'https://quizarena.app/me'
-    )
+    process.env.NEXTAUTH_URL = 'https://busquiz.com'
+    expect(safeCallbackUrl('https://busquiz.com/me', '/fallback')).toBe('https://busquiz.com/me')
   })
 
   it('rejects an absolute URL with different origin even when NEXTAUTH_URL is set', () => {
-    process.env.NEXTAUTH_URL = 'https://quizarena.app'
+    process.env.NEXTAUTH_URL = 'https://busquiz.com'
     expect(safeCallbackUrl('https://other.com/page', '/fallback')).toBe('/fallback')
   })
 
   it('rejects an invalid absolute URL gracefully', () => {
-    process.env.NEXTAUTH_URL = 'https://quizarena.app'
+    process.env.NEXTAUTH_URL = 'https://busquiz.com'
     expect(safeCallbackUrl('not-a-url', '/fallback')).toBe('/fallback')
   })
 })

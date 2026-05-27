@@ -38,14 +38,13 @@ export async function generateMetadata({
 
   if (!quiz) {
     return {
-      title: 'Quiz not found | QuizArena',
+      title: 'Quiz not found | BusQuiz',
       description: 'This quiz could not be found.',
     }
   }
 
-  const title = `${quiz.title} by ${quiz.author.name} • ${quiz.category.name} | QuizArena`
-  const description =
-    quiz.description || `Take ${quiz.title} and climb the leaderboard on QuizArena.`
+  const title = `${quiz.title} by ${quiz.author.name} • ${quiz.category.name} | BusQuiz`
+  const description = quiz.description || `Take ${quiz.title} and climb the leaderboard on BusQuiz.`
   const url = absoluteUrl(`/quiz/${id}`)
 
   return {
@@ -106,7 +105,7 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
     '@context': 'https://schema.org',
     '@type': 'Quiz',
     name: quiz.title,
-    description: quiz.description || `Take ${quiz.title} and climb the leaderboard on QuizArena.`,
+    description: quiz.description || `Take ${quiz.title} and climb the leaderboard on BusQuiz.`,
     author: { '@type': 'Person', name: quiz.author.name },
     educationalLevel,
     numberOfQuestions: questionCount,

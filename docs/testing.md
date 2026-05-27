@@ -1,6 +1,6 @@
 # Testing guide
 
-QuizArena uses **Vitest** (v2) with **React Testing Library** and **jsdom** for all unit and component tests.
+BusQuiz uses **Vitest** (v2) with **React Testing Library** and **jsdom** for all unit and component tests.
 
 ## Running tests
 

@@ -26,6 +26,6 @@ describe('OG renderers', () => {
     expect(markup.default).toContain('Play. Learn. Climb.')
     expect(markup.quiz).toContain('Science Sprint')
     expect(markup.user).toContain('@ada')
-    expect(markup.leaderboard).toContain('QuizArena Leaderboard')
+    expect(markup.leaderboard).toContain('BusQuiz Leaderboard')
   })
 })

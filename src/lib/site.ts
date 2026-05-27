@@ -1,6 +1,6 @@
 export const siteConfig = {
-  name: 'QuizArena',
-  title: 'QuizArena — Play, Create & Compete',
+  name: 'BusQuiz',
+  title: 'BusQuiz — Play, Create & Compete',
   description:
     'Test your knowledge across hundreds of categories. Create quizzes, compete on leaderboards, and earn badges.',
 }

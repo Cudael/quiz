@@ -1,6 +1,6 @@
 # Architecture
 
-QuizArena is a **Next.js 16 App Router** application with a clear layered architecture.
+BusQuiz is a **Next.js 16 App Router** application with a clear layered architecture.
 
 ## High-level overview
 

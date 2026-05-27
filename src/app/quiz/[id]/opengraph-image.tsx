@@ -58,10 +58,10 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   })
 
   const card = renderQuizOgCard({
-    title: quiz?.title ?? 'QuizArena quiz',
+    title: quiz?.title ?? 'BusQuiz quiz',
     category: quiz?.category.name ?? 'Category',
     difficulty: quiz?.difficulty ?? 'MEDIUM',
-    author: quiz?.author.name ?? 'QuizArena',
+    author: quiz?.author.name ?? 'BusQuiz',
   })
 
   return new ImageResponse(card, size)
