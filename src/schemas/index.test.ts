@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
+  createDuelSchema,
   categorySuggestionSchema,
+  joinDuelSchema,
   meProfileSchema,
   questionSchema,
   questionAnswerSchema,
@@ -168,5 +170,33 @@ describe('userPreferencesSchema', () => {
         unknownPreference: true,
       }).success
     ).toBe(false)
+  })
+})
+
+describe('createDuelSchema', () => {
+  it('accepts valid duel configuration values', () => {
+    expect(
+      createDuelSchema.safeParse({
+        categoryId: 'ckq6xdr2w0000u3z5f6l6x4t5',
+        questionCount: 10,
+        timeLimitSec: 20,
+      }).success
+    ).toBe(true)
+  })
+
+  it('rejects unsupported duel timer values', () => {
+    expect(
+      createDuelSchema.safeParse({
+        questionCount: 10,
+        timeLimitSec: 25,
+      }).success
+    ).toBe(false)
+  })
+})
+
+describe('joinDuelSchema', () => {
+  it('normalizes the invite code to uppercase', () => {
+    const parsed = joinDuelSchema.parse({ code: 'ab12cd' })
+    expect(parsed.code).toBe('AB12CD')
   })
 })
