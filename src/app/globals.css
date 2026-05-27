@@ -65,11 +65,11 @@
   --background-image-hero-gradient:
     radial-gradient(
       ellipse 100% 80% at 10% 30%,
-      hsl(var(--hero-stop-2) / 0.65) 0%,
+      hsl(var(--hero-stop-2) / 0.4) 0%,
       transparent 55%
     ),
-    radial-gradient(ellipse 70% 60% at 85% 75%, hsl(var(--hero-stop-4) / 0.55) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 40% at 60% 20%, hsl(var(--hero-stop-3) / 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse 70% 60% at 85% 75%, hsl(var(--hero-stop-4) / 0.3) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 60% 20%, hsl(var(--hero-stop-3) / 0.2) 0%, transparent 50%),
     linear-gradient(
       135deg,
       hsl(var(--hero-stop-1)) 0%,

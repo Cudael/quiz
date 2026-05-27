@@ -346,7 +346,7 @@ function LeaderboardSection({
 
       {/* CTA card */}
       {currentUser ? (
-        <div className="rounded-3xl border border-primary/20 bg-gradient-to-b from-primary/10 via-primary/5 to-transparent p-6 shadow-sm">
+        <div className="rounded-3xl border border-primary/15 bg-gradient-to-b from-primary/6 via-primary/3 to-transparent p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
             <Users className="h-5 w-5 text-primary" />
             <h3 className="font-black text-lg">Your Stats</h3>
@@ -376,7 +376,7 @@ function LeaderboardSection({
           </div>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-primary/20 bg-gradient-to-b from-primary/10 via-primary/5 to-transparent p-7 text-center shadow-sm">
+        <div className="flex flex-col items-center justify-center rounded-3xl border border-primary/15 bg-gradient-to-b from-primary/6 via-primary/3 to-transparent p-7 text-center shadow-sm">
           <div
             className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-quiz-purple to-quiz-pink shadow-lg shadow-quiz-purple/30 mb-4"
             aria-hidden="true"
@@ -418,11 +418,11 @@ function GuestHero({
       <div className="relative overflow-hidden rounded-[2.5rem] bg-[image:var(--background-image-hero-gradient)] px-6 py-14 md:px-12 md:py-20 shadow-2xl border border-border/20">
         {/* Ambient decorative blobs */}
         <div
-          className="pointer-events-none absolute -right-20 -top-20 h-80 w-80 rounded-full bg-quiz-purple/20 blur-3xl"
+          className="pointer-events-none absolute -right-20 -top-20 h-80 w-80 rounded-full bg-quiz-purple/10 blur-3xl"
           aria-hidden="true"
         />
         <div
-          className="pointer-events-none absolute -bottom-20 left-10 h-72 w-72 rounded-full bg-quiz-pink/15 blur-3xl"
+          className="pointer-events-none absolute -bottom-20 left-10 h-72 w-72 rounded-full bg-quiz-pink/8 blur-3xl"
           aria-hidden="true"
         />
 
@@ -594,9 +594,9 @@ function HowItWorks() {
 
 function JoinCTABanner({ stats }: { stats: HomeStats }) {
   return (
-    <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-quiz-purple/15 via-quiz-pink/10 to-quiz-blue/10 border border-primary/15 p-8 md:p-12 shadow-lg">
+    <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-quiz-purple/8 via-quiz-pink/5 to-quiz-blue/5 border border-primary/10 p-8 md:p-12 shadow-lg">
       <div
-        className="pointer-events-none absolute right-0 top-0 h-64 w-64 -translate-y-1/4 translate-x-1/4 rounded-full bg-quiz-purple/15 blur-3xl"
+        className="pointer-events-none absolute right-0 top-0 h-64 w-64 -translate-y-1/4 translate-x-1/4 rounded-full bg-quiz-purple/8 blur-3xl"
         aria-hidden="true"
       />
       <div className="relative flex flex-col md:flex-row items-center gap-8">

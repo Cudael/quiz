@@ -29,7 +29,7 @@ export function CategoryTile({
 }: CategoryTileProps) {
   return (
     <motion.div
-      whileHover={{ scale: 1.04, y: -4 }}
+      whileHover={{ scale: 1.02, y: -2 }}
       whileTap={{ scale: 0.97 }}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
     >
