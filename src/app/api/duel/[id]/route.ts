@@ -24,6 +24,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
           finished: true,
           joinedAt: true,
           guestKey: true,
+          user: { select: { name: true } },
         },
       },
     },
@@ -44,7 +45,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const participants = duel.participants.map((participant) => ({
     id: participant.id,
     userId: participant.userId,
-    guestName: participant.guestName,
+    name: participant.user?.name ?? participant.guestName,
     score: participant.score,
     correctCount: participant.correctCount,
     finished: participant.finished,
