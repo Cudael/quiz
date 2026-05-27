@@ -66,6 +66,20 @@ export const submitAnswersSchema = z.object({
   answers: z.array(questionAnswerSchema),
 })
 
+export const createDuelSchema = z.object({
+  categoryId: z.string().cuid().optional(),
+  questionCount: z.number().int().min(5).max(15).optional(),
+  timeLimitSec: z
+    .number()
+    .int()
+    .refine((value) => [10, 20, 30].includes(value))
+    .optional(),
+})
+
+export const joinDuelSchema = z.object({
+  code: z.string().trim().toUpperCase().min(6).max(6),
+})
+
 export const reportSchema = z.object({
   quizId: z.string().cuid(),
   reason: z.enum(['SPAM', 'INAPPROPRIATE', 'INCORRECT_ANSWERS', 'COPYRIGHT', 'OTHER']),

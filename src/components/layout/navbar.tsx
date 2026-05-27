@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, Zap } from 'lucide-react'
+import { Menu, Swords, Zap } from 'lucide-react'
 import Image from 'next/image'
 import { useState } from 'react'
 import { useSession } from 'next-auth/react'
@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils'
 
 const navLinks = [
   { href: '/categories', label: 'Categories' },
+  { href: '/duel', label: 'Duel', icon: Swords },
   { href: '/leaderboard', label: 'Leaderboard' },
   { href: '/studio', label: 'Create' },
 ]
@@ -65,6 +66,7 @@ export function Navbar() {
                 )}
                 aria-current={isActive(link.href) ? 'page' : undefined}
               >
+                {link.icon ? <link.icon className="mr-1 inline-flex h-3.5 w-3.5" /> : null}
                 {link.label}
                 {isActive(link.href) && (
                   <span className="absolute inset-x-3 bottom-0.5 h-0.5 rounded-full bg-gradient-to-r from-quiz-purple to-quiz-pink" />
@@ -119,6 +121,7 @@ export function Navbar() {
               aria-current={isActive(link.href) ? 'page' : undefined}
               onClick={() => setMobileOpen(false)}
             >
+              {link.icon ? <link.icon className="mr-2 h-4 w-4" /> : null}
               {link.label}
             </Link>
           ))}
