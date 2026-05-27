@@ -162,8 +162,8 @@ function QuizGridSection({
   excludeQuizId?: string
 }) {
   const visibleQuizzes = excludeQuizId
-    ? quizzes.filter((quiz) => quiz.id !== excludeQuizId).slice(0, 6)
-    : quizzes.slice(0, 6)
+    ? quizzes.filter((quiz) => quiz.id !== excludeQuizId).slice(0, 9)
+    : quizzes.slice(0, 9)
 
   return (
     <section>
@@ -773,10 +773,18 @@ export function HomePageClient({
   const containerVariants = withReducedMotion(staggerContainer(0.06), shouldReduce)
   const sectionVariants = withReducedMotion(fadeUp, shouldReduce)
   const featuredQuiz = popularQuizzes[0] ?? trendingQuizzes[0] ?? null
+  const geographyMatcher = /countr|geograph/i
+  const loggedInGeographyQuizzes = [...popularQuizzes, ...trendingQuizzes].filter((quiz) =>
+    geographyMatcher.test(quiz.category.name)
+  )
+  const guestQuizPool = [...popularQuizzes, ...trendingQuizzes, ...newestQuizzes]
+  const guestGeographyQuizzes = [
+    ...new Map(guestQuizPool.map((quiz) => [quiz.id, quiz])).values(),
+  ].filter((quiz) => geographyMatcher.test(quiz.category.name))
 
   return (
     <motion.div
-      className="mx-auto max-w-7xl space-y-10 px-4 py-8"
+      className="container mx-auto space-y-10 px-4 md:px-6 py-8"
       variants={containerVariants}
       initial="hidden"
       animate="show"
@@ -816,19 +824,50 @@ export function HomePageClient({
             />
           </motion.div>
 
-          {recentlyPlayed.length > 0 ? (
-            <>
-              <Divider />
-              <motion.div variants={sectionVariants}>
-                <QuizScrollerSection title="🕹️ Recently Played" quizzes={recentlyPlayed} />
-              </motion.div>
-            </>
-          ) : null}
+          <Divider />
+
+          <motion.div variants={sectionVariants}>
+            <QuizScrollerSection title="⭐ Most Popular" quizzes={popularQuizzes} />
+          </motion.div>
 
           <Divider />
 
           <motion.div variants={sectionVariants}>
+            {loggedInGeographyQuizzes.length >= 2 ? (
+              <QuizGridSection
+                title="🌍 Countries & Geography"
+                quizzes={loggedInGeographyQuizzes}
+              />
+            ) : (
+              <QuizGridSection title="✨ Freshly Added" quizzes={newestQuizzes} />
+            )}
+          </motion.div>
+
+          <Divider />
+
+          {recentlyPlayed.length > 0 ? (
+            <>
+              <motion.div variants={sectionVariants}>
+                <QuizScrollerSection title="🕹️ Recently Played" quizzes={recentlyPlayed} />
+              </motion.div>
+              <Divider />
+            </>
+          ) : null}
+
+          <motion.div variants={sectionVariants}>
             <CategoryMosaic featuredCategories={featuredCategories} />
+          </motion.div>
+
+          <Divider />
+
+          <motion.div variants={sectionVariants}>
+            <QuizScrollerSection title="✨ Freshly Added" quizzes={newestQuizzes} />
+          </motion.div>
+
+          <Divider />
+
+          <motion.div variants={sectionVariants}>
+            <LeaderboardSection topPlayers={topPlayers} stats={stats} currentUser={currentUser} />
           </motion.div>
         </>
       ) : (
@@ -868,8 +907,31 @@ export function HomePageClient({
           <Divider />
 
           <motion.div variants={sectionVariants}>
-            <QuizScrollerSection title="✨ Freshly Added" quizzes={newestQuizzes} />
+            <QuizGridSection title="⭐ Most Popular" quizzes={popularQuizzes} />
           </motion.div>
+
+          <Divider />
+
+          {guestGeographyQuizzes.length >= 2 ? (
+            <>
+              <motion.div variants={sectionVariants}>
+                <QuizScrollerSection
+                  title="🌍 Countries & Geography"
+                  quizzes={guestGeographyQuizzes}
+                />
+              </motion.div>
+
+              <Divider />
+
+              <motion.div variants={sectionVariants}>
+                <QuizScrollerSection title="✨ Freshly Added" quizzes={newestQuizzes} />
+              </motion.div>
+            </>
+          ) : (
+            <motion.div variants={sectionVariants}>
+              <QuizScrollerSection title="✨ Freshly Added" quizzes={newestQuizzes} />
+            </motion.div>
+          )}
 
           <Divider />
 

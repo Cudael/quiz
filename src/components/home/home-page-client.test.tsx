@@ -123,6 +123,7 @@ describe('HomePageClient', () => {
     ).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: "⭐ Editor's Pick" })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: '🔥 Trending Globally' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '⭐ Most Popular' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: '✨ Freshly Added' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Top Players' })).toBeInTheDocument()
     expect(screen.getByText('🧪')).toBeInTheDocument()
@@ -154,8 +155,9 @@ describe('HomePageClient', () => {
     expect(screen.getByRole('heading', { name: /welcome back, cudael! 👋/i })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: "⭐ Today's Pick" })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'For You' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '⭐ Most Popular' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Top Players' })).toBeInTheDocument()
     expect(screen.getByText(/based on your activity/i)).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: 'Top Players' })).not.toBeInTheDocument()
   })
 
   it('skips the personalized section when an authenticated user has no history yet', () => {
