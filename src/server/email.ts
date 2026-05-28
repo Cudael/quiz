@@ -7,7 +7,7 @@ function getTransporter() {
   if (!user || !pass) return null
   return nodemailer.createTransport({
     service: 'gmail',
-    auth: { type: 'login', user, pass },
+    auth: { user, pass },
   })
 }
 

@@ -70,7 +70,6 @@ describe('email helpers', () => {
     expect(createTransportMock).toHaveBeenCalledWith({
       service: 'gmail',
       auth: {
-        type: 'login',
         user: 'mailer@example.com',
         pass: 'app-password',
       },
