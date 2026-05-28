@@ -19,11 +19,10 @@ vi.mock('next/navigation', () => ({
 
 describe('SignInPage', () => {
   it('redirects authenticated users to callbackUrl (default /me)', async () => {
-    ;(auth as unknown as { mockResolvedValueOnce: (value: unknown) => void }).mockResolvedValueOnce(
-      {
-        user: { id: 'user-1' },
-      }
-    )
+    const authMock = vi.mocked(auth as unknown as () => Promise<unknown>)
+    authMock.mockResolvedValueOnce({
+      user: { id: 'user-1' },
+    })
 
     await expect(
       SignInPage({
