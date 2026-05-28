@@ -4,7 +4,13 @@ import { Navbar } from '@/components/layout/navbar'
 import { SiteFooter } from '@/components/layout/site-footer'
 import { EmailVerificationBanner } from '@/components/auth/email-verification-banner'
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({
+  children,
+  categoryBar,
+}: {
+  children: React.ReactNode
+  categoryBar?: React.ReactNode
+}) {
   return (
     <>
       <a
@@ -15,6 +21,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </a>
       <Navbar />
       <EmailVerificationBanner />
+      {categoryBar}
       <main id="main-content">{children}</main>
       <SiteFooter />
     </>
