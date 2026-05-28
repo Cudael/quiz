@@ -13,6 +13,7 @@ const getCategoryBarData = unstable_cache(
         name: true,
         icon: true,
         color: true,
+        imageUrl: true,
         quizzes: {
           where: { isPublished: true },
           select: { playCount: true },
@@ -26,6 +27,7 @@ const getCategoryBarData = unstable_cache(
         name: cat.name,
         icon: cat.icon,
         color: cat.color,
+        imageUrl: cat.imageUrl,
         totalPlayCount: cat.quizzes.reduce((sum, q) => sum + q.playCount, 0),
         quizCount: cat.quizzes.length,
       }))
@@ -35,7 +37,13 @@ const getCategoryBarData = unstable_cache(
         return b.quizCount - a.quizCount
       })
       .slice(0, 8)
-      .map(({ slug, name, icon, color }) => ({ slug, name, icon, color }))
+      .map(({ slug, name, icon, color, imageUrl }) => ({
+        slug,
+        name,
+        icon,
+        color,
+        imageUrl: imageUrl ?? undefined,
+      }))
 
     return sorted
   },

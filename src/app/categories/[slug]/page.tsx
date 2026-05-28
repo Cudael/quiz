@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
 import type React from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import * as LucideIcons from 'lucide-react'
 import { ArrowLeft, ChevronRight } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { absoluteUrl } from '@/lib/site'
+import { withAlphaColor } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/ui/page-header'
 import { QuizCard } from '@/components/ui/quiz-card'
@@ -28,6 +30,8 @@ function renderLucideIcon(name: string, className: string, color: string) {
 
   return <Icon className={className} style={{ color } as React.CSSProperties} aria-hidden />
 }
+
+const SUBCATEGORY_ICON_BG_ALPHA = 0.13
 
 export async function generateMetadata({
   params,
@@ -198,31 +202,43 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
       {subcategories.length > 0 ? (
         <section className="space-y-4">
           <h2 className="text-xl font-bold">Subcategories</h2>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="space-y-2">
             {subcategories.map((sub) => {
               return (
                 <Link
                   key={sub.slug}
                   href={`/categories/${sub.slug}`}
-                  className="group rounded-xl border border-border bg-card/70 p-4 transition hover:border-transparent hover:shadow-sm"
+                  className="group flex items-center gap-3 rounded-2xl border border-border bg-card/70 p-3 transition hover:border-transparent hover:shadow-sm"
                 >
-                  <div className="mb-2 flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-2">
+                  <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl">
+                    {sub.imageUrl ? (
+                      <Image
+                        src={sub.imageUrl}
+                        alt={sub.name}
+                        fill
+                        sizes="40px"
+                        className="object-cover"
+                      />
+                    ) : (
                       <span
-                        className="flex h-8 w-8 items-center justify-center rounded-md"
-                        style={{ backgroundColor: `${sub.color}22` }}
+                        className="flex h-10 w-10 items-center justify-center rounded-xl"
+                        style={{
+                          backgroundColor: withAlphaColor(sub.color, SUBCATEGORY_ICON_BG_ALPHA),
+                        }}
                       >
-                        {renderLucideIcon(sub.icon, 'h-4 w-4', sub.color)}
+                        {renderLucideIcon(sub.icon, 'h-5 w-5', sub.color)}
                       </span>
-                      <span className="font-semibold transition-colors group-hover:text-primary">
-                        {sub.name}
-                      </span>
-                    </div>
-                    <span className="text-xs font-medium text-muted-foreground">
+                    )}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-semibold transition-colors group-hover:text-primary">
+                      {sub.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
                       {sub.quizzes.length} {sub.quizzes.length === 1 ? 'quiz' : 'quizzes'}
-                    </span>
+                    </p>
                   </div>
-                  <p className="line-clamp-2 text-sm text-muted-foreground">{sub.description}</p>
+                  <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
                 </Link>
               )
             })}
