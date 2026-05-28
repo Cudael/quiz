@@ -209,7 +209,13 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
                 >
                   <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl">
                     {sub.imageUrl ? (
-                      <Image src={sub.imageUrl} alt={sub.name} fill className="object-cover" />
+                      <Image
+                        src={sub.imageUrl}
+                        alt={sub.name}
+                        fill
+                        sizes="40px"
+                        className="object-cover"
+                      />
                     ) : (
                       <span
                         className="flex h-10 w-10 items-center justify-center rounded-xl"

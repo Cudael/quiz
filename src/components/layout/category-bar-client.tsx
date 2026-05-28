@@ -58,6 +58,7 @@ export function CategoryBarClient({ categories }: { categories: CategoryBarItem[
                     src={category.imageUrl}
                     alt={category.name}
                     fill
+                    sizes="32px"
                     className="object-cover"
                   />
                 ) : (
