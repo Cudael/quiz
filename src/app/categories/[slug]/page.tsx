@@ -30,6 +30,26 @@ function renderLucideIcon(name: string, className: string, color: string) {
   return <Icon className={className} style={{ color } as React.CSSProperties} aria-hidden />
 }
 
+function toAlphaColor(color: string, alpha: number) {
+  const hex = color.trim()
+  const shortMatch = /^#([a-fA-F0-9]{3})$/.exec(hex)
+  const fullMatch = /^#([a-fA-F0-9]{6})$/.exec(hex)
+
+  if (!shortMatch && !fullMatch) return color
+
+  const normalized = shortMatch
+    ? shortMatch[1]
+        .split('')
+        .map((part) => part + part)
+        .join('')
+    : fullMatch![1]
+  const red = Number.parseInt(normalized.slice(0, 2), 16)
+  const green = Number.parseInt(normalized.slice(2, 4), 16)
+  const blue = Number.parseInt(normalized.slice(4, 6), 16)
+
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -219,7 +239,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
                     ) : (
                       <span
                         className="flex h-10 w-10 items-center justify-center rounded-xl"
-                        style={{ backgroundColor: `${sub.color}22` }}
+                        style={{ backgroundColor: toAlphaColor(sub.color, 0.13) }}
                       >
                         {renderLucideIcon(sub.icon, 'h-5 w-5', sub.color)}
                       </span>
