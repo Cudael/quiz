@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import * as LucideIcons from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -11,15 +12,10 @@ export interface CategoryBarItem {
   name: string
   icon: string
   color: string
+  imageUrl?: string
 }
 
-function DynamicIcon({
-  name,
-  className,
-}: {
-  name: string
-  className?: string
-}) {
+function DynamicIcon({ name, className }: { name: string; className?: string }) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const Icon = (LucideIcons as any)[name] as
     | React.ComponentType<{
@@ -39,7 +35,7 @@ export function CategoryBarClient({ categories }: { categories: CategoryBarItem[
   return (
     <nav
       aria-label="Popular categories"
-      className="sticky top-[57px] z-30 w-full bg-background/95 backdrop-blur-sm border-b border-border/30"
+      className="sticky top-[57px] z-30 w-full border-b border-border/30 bg-muted/40 shadow-[0_2px_8px_rgba(0,0,0,0.06)] backdrop-blur-sm"
     >
       <div className="flex gap-0 overflow-x-auto scrollbar-none">
         {categories.map((category) => {
@@ -49,15 +45,28 @@ export function CategoryBarClient({ categories }: { categories: CategoryBarItem[
               key={category.slug}
               href={`/categories/${category.slug}`}
               className={cn(
-                'group relative flex flex-1 flex-col items-center justify-center gap-1 px-3 py-2 text-xs font-semibold transition-colors min-w-[72px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                'group relative flex min-w-[72px] flex-1 flex-col items-center justify-center gap-1 px-3 py-3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                 isActive
                   ? 'text-primary bg-primary/8'
                   : 'text-muted-foreground hover:text-foreground hover:bg-accent/40'
               )}
               aria-current={isActive ? 'page' : undefined}
             >
-              <DynamicIcon name={category.icon} className="h-4 w-4" />
-              <span className="truncate w-full text-center">{category.name}</span>
+              <span className="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg">
+                {category.imageUrl ? (
+                  <Image src={category.imageUrl} alt="" fill className="object-cover" />
+                ) : (
+                  <span
+                    className="flex h-8 w-8 items-center justify-center rounded-lg"
+                    style={{ background: `${category.color}30` }}
+                  >
+                    <DynamicIcon name={category.icon} className="h-4 w-4" />
+                  </span>
+                )}
+              </span>
+              <span className="w-full truncate text-center text-[11px] font-semibold leading-tight">
+                {category.name}
+              </span>
               <span
                 className={cn(
                   'absolute bottom-0 inset-x-0 h-[2px] transition-opacity',

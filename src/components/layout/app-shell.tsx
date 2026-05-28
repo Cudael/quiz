@@ -21,6 +21,7 @@ export function AppShell({
       </a>
       <Navbar />
       <EmailVerificationBanner />
+      {categoryBar ? <div className="h-1" aria-hidden="true" /> : null}
       {categoryBar}
       <main id="main-content">{children}</main>
       <SiteFooter />
