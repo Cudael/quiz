@@ -6,6 +6,7 @@ import * as LucideIcons from 'lucide-react'
 import { ArrowLeft, ChevronRight } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { absoluteUrl } from '@/lib/site'
+import { withAlphaColor } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/ui/page-header'
 import { QuizCard } from '@/components/ui/quiz-card'
@@ -30,25 +31,7 @@ function renderLucideIcon(name: string, className: string, color: string) {
   return <Icon className={className} style={{ color } as React.CSSProperties} aria-hidden />
 }
 
-function toAlphaColor(color: string, alpha: number) {
-  const hex = color.trim()
-  const shortMatch = /^#([a-fA-F0-9]{3})$/.exec(hex)
-  const fullMatch = /^#([a-fA-F0-9]{6})$/.exec(hex)
-
-  if (!shortMatch && !fullMatch) return color
-
-  const normalized = shortMatch
-    ? shortMatch[1]
-        .split('')
-        .map((part) => part + part)
-        .join('')
-    : fullMatch![1]
-  const red = Number.parseInt(normalized.slice(0, 2), 16)
-  const green = Number.parseInt(normalized.slice(2, 4), 16)
-  const blue = Number.parseInt(normalized.slice(4, 6), 16)
-
-  return `rgba(${red}, ${green}, ${blue}, ${alpha})`
-}
+const SUBCATEGORY_ICON_BG_ALPHA = 0.13
 
 export async function generateMetadata({
   params,
@@ -239,7 +222,9 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
                     ) : (
                       <span
                         className="flex h-10 w-10 items-center justify-center rounded-xl"
-                        style={{ backgroundColor: toAlphaColor(sub.color, 0.13) }}
+                        style={{
+                          backgroundColor: withAlphaColor(sub.color, SUBCATEGORY_ICON_BG_ALPHA),
+                        }}
                       >
                         {renderLucideIcon(sub.icon, 'h-5 w-5', sub.color)}
                       </span>

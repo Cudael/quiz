@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import * as LucideIcons from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, withAlphaColor } from '@/lib/utils'
 
 export interface CategoryBarItem {
   slug: string
@@ -15,25 +15,7 @@ export interface CategoryBarItem {
   imageUrl?: string
 }
 
-function toAlphaColor(color: string, alpha: number) {
-  const hex = color.trim()
-  const shortMatch = /^#([a-fA-F0-9]{3})$/.exec(hex)
-  const fullMatch = /^#([a-fA-F0-9]{6})$/.exec(hex)
-
-  if (!shortMatch && !fullMatch) return color
-
-  const normalized = shortMatch
-    ? shortMatch[1]
-        .split('')
-        .map((part) => part + part)
-        .join('')
-    : fullMatch![1]
-  const red = Number.parseInt(normalized.slice(0, 2), 16)
-  const green = Number.parseInt(normalized.slice(2, 4), 16)
-  const blue = Number.parseInt(normalized.slice(4, 6), 16)
-
-  return `rgba(${red}, ${green}, ${blue}, ${alpha})`
-}
+const CATEGORY_ICON_BG_ALPHA = 0.19
 
 function DynamicIcon({ name, className }: { name: string; className?: string }) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -84,7 +66,9 @@ export function CategoryBarClient({ categories }: { categories: CategoryBarItem[
                 ) : (
                   <span
                     className="flex h-8 w-8 items-center justify-center rounded-lg"
-                    style={{ backgroundColor: toAlphaColor(category.color, 0.19) }}
+                    style={{
+                      backgroundColor: withAlphaColor(category.color, CATEGORY_ICON_BG_ALPHA),
+                    }}
                   >
                     <DynamicIcon name={category.icon} className="h-4 w-4" />
                   </span>
