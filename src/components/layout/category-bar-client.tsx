@@ -54,7 +54,12 @@ export function CategoryBarClient({ categories }: { categories: CategoryBarItem[
             >
               <span className="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg">
                 {category.imageUrl ? (
-                  <Image src={category.imageUrl} alt="" fill className="object-cover" />
+                  <Image
+                    src={category.imageUrl}
+                    alt={category.name}
+                    fill
+                    className="object-cover"
+                  />
                 ) : (
                   <span
                     className="flex h-8 w-8 items-center justify-center rounded-lg"
