@@ -29,12 +29,7 @@ export function SiteFooter() {
           {/* Brand */}
           <div className="space-y-4 md:col-span-2">
             <div className="flex items-center font-bold">
-              <Image
-                src="/logo.png"
-                alt="BusQuiz logo"
-                width={168}
-                height={40}
-              />
+              <Image src="/logo.png" alt="BusQuiz logo" width={168} height={40} />
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
               The ultimate destination for quiz lovers and knowledge seekers. Compete, create, and
@@ -93,6 +88,8 @@ export function SiteFooter() {
                 { href: '/studio', label: 'Quiz Studio' },
                 { href: '/random-quiz', label: 'Play Now' },
                 { href: '/about', label: 'About' },
+                { href: '/privacy', label: 'Privacy Policy' },
+                { href: '/contact', label: 'Contact' },
               ].map((link) => (
                 <Link
                   key={link.href}
