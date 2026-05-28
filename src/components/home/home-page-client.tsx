@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { motion, useReducedMotion } from 'framer-motion'
-import { ArrowRight, Flame, Play, Trophy, Users, Zap } from 'lucide-react'
+import { ArrowRight, Flame, Play, Swords, Trophy, Users, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { QuizCard, QuizCardFeatured, type QuizCardData } from '@/components/ui/quiz-card'
 import { fadeUp, staggerContainer, withReducedMotion } from '@/lib/motion'
@@ -55,11 +55,6 @@ interface HomePageClientProps {
 }
 
 const leaderboardRanks = ['🥇', '🥈', '🥉', '4.', '5.'] as const
-const teaserPositions = [
-  'top-0 right-0 rotate-2 z-30 shadow-xl',
-  'top-8 right-6 -rotate-1 z-20 shadow-lg',
-  'top-16 right-12 rotate-1 z-10 shadow-md',
-]
 
 function AnimatedCounter({ value, duration = 1.5 }: { value: number; duration?: number }) {
   const shouldReduce = useReducedMotion()
@@ -180,29 +175,6 @@ function QuizGridSection({
               className="w-full focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2"
             />
           ))}
-        </div>
-      ) : (
-        <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground bg-accent/20">
-          Quizzes will appear here soon.
-        </div>
-      )}
-    </section>
-  )
-}
-
-function FeaturedQuizSection({
-  title,
-  featuredQuiz,
-}: {
-  title: string
-  featuredQuiz: QuizCardData | null
-}) {
-  return (
-    <section>
-      <SectionHeader title={title} href="/categories" />
-      {featuredQuiz ? (
-        <div className="focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 rounded-3xl">
-          <QuizCardFeatured quiz={featuredQuiz} />
         </div>
       ) : (
         <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground bg-accent/20">
@@ -404,125 +376,57 @@ function LeaderboardSection({
   )
 }
 
-function GuestHero({
-  popularQuizzes,
-  stats,
-}: {
-  popularQuizzes: QuizCardData[]
-  stats: HomeStats
-}) {
-  const shouldReduce = useReducedMotion()
-
+function GuestHero({ stats }: { stats: HomeStats }) {
   return (
     <section>
-      <div className="relative overflow-hidden rounded-[2.5rem] bg-[image:var(--background-image-hero-gradient)] px-6 py-14 md:px-12 md:py-20 shadow-2xl border border-border/20">
-        {/* Ambient decorative blobs */}
+      <div className="relative overflow-hidden rounded-2xl border border-border/20 bg-[image:var(--background-image-hero-gradient)] px-5 py-5 shadow-sm">
         <div
-          className="pointer-events-none absolute -right-20 -top-20 h-80 w-80 rounded-full bg-quiz-purple/10 blur-3xl"
+          className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-quiz-purple/10 blur-3xl"
           aria-hidden="true"
         />
-        <div
-          className="pointer-events-none absolute -bottom-20 left-10 h-72 w-72 rounded-full bg-quiz-pink/8 blur-3xl"
-          aria-hidden="true"
-        />
-
-        <div className="relative grid gap-12 md:grid-cols-2 md:items-center">
-          <div className="max-w-xl">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-quiz-purple/25 bg-quiz-purple/10 px-4 py-1.5">
-              <Zap className="h-3.5 w-3.5 text-quiz-purple" />
+        <div className="relative flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div className="mb-1.5 inline-flex items-center gap-1.5 rounded-full border border-quiz-purple/25 bg-quiz-purple/10 px-3 py-1">
+              <Zap className="h-3 w-3 text-quiz-purple" />
               <span className="text-xs font-bold tracking-wide text-quiz-purple">
-                Free to play — no signup required
+                Free to play · no signup needed
               </span>
             </div>
-            <h1 className="text-4xl font-black tracking-tight md:text-5xl lg:text-6xl leading-[1.1]">
+            <h1 className="text-xl font-black tracking-tight md:text-2xl">
               Play great quizzes{' '}
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-quiz-purple to-quiz-pink">
+              <span className="bg-gradient-to-r from-quiz-purple to-quiz-pink bg-clip-text text-transparent">
                 right now.
               </span>
             </h1>
-            <p className="mt-5 text-lg text-muted-foreground leading-relaxed">
-              Hundreds of quizzes across every topic. Compete on the leaderboard or build your own
-              in minutes.
+            <p className="mt-1 text-sm text-muted-foreground">
+              <AnimatedCounter value={stats.totalQuizzes} /> quizzes ·{' '}
+              <AnimatedCounter value={stats.totalPlayers} /> players ·{' '}
+              <AnimatedCounter value={stats.totalCategories} /> topics
             </p>
-            <div className="mt-8 flex flex-wrap gap-3 items-center">
-              <Button
-                asChild
-                size="lg"
-                variant="gradient"
-                className="rounded-2xl h-12 px-7 text-base font-bold shadow-lg shadow-quiz-purple/30"
-              >
-                <Link href="/sign-up">
-                  <Zap className="h-4 w-4" />
-                  Get Started Free
-                </Link>
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                asChild
-                className="rounded-2xl h-12 px-7 text-base font-semibold bg-background/50 backdrop-blur-sm border-border/60 hover:bg-background/80"
-              >
-                <Link href="/random-quiz">
-                  <Play className="h-4 w-4" />
-                  Instant Play
-                </Link>
-              </Button>
-            </div>
-
-            {/* Animated stats */}
-            <div className="mt-10 grid grid-cols-3 gap-3">
-              {[
-                { value: stats.totalQuizzes, label: 'Quizzes', icon: '🎯' },
-                { value: stats.totalPlayers, label: 'Players', icon: '👥' },
-                { value: stats.totalCategories, label: 'Topics', icon: '📚' },
-              ].map(({ value, label, icon }) => (
-                <div
-                  key={label}
-                  className="rounded-2xl border border-border/40 bg-background/50 px-3 py-3 text-center backdrop-blur-sm"
-                >
-                  <div className="text-lg mb-0.5" aria-hidden="true">
-                    {icon}
-                  </div>
-                  <div className="text-xl font-black tabular-nums">
-                    <AnimatedCounter value={value} />
-                  </div>
-                  <div className="text-xs font-semibold text-muted-foreground">{label}</div>
-                </div>
-              ))}
-            </div>
           </div>
-
-          {/* Quiz card teasers */}
-          <div className="relative hidden h-72 md:block perspective-1000">
-            {popularQuizzes.slice(0, 3).map((quiz, index) => (
-              <motion.div
-                key={quiz.id}
-                initial={shouldReduce ? false : { opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.12, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className={cn(
-                  'absolute w-56 rounded-2xl border bg-card/80 backdrop-blur-sm p-4 shadow-xl transition-transform hover:-translate-y-2 hover:scale-105 duration-300',
-                  teaserPositions[index]
-                )}
-                style={{ borderColor: quiz.category.color, borderTopWidth: 4 }}
-              >
-                <p className="line-clamp-2 text-sm font-bold leading-tight">{quiz.title}</p>
-                <div className="mt-2 flex items-center gap-2">
-                  <span
-                    className="w-2 h-2 rounded-full shrink-0"
-                    style={{ backgroundColor: quiz.category.color }}
-                  />
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider truncate">
-                    {quiz.category.name}
-                  </p>
-                </div>
-                {quiz.playCount ? (
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    🎮 {quiz.playCount.toLocaleString()} plays
-                  </p>
-                ) : null}
-              </motion.div>
-            ))}
+          <div className="shrink-0 flex flex-wrap gap-2">
+            <Button
+              asChild
+              size="sm"
+              variant="gradient"
+              className="rounded-xl font-bold shadow shadow-quiz-purple/20"
+            >
+              <Link href="/sign-up">
+                <Zap className="h-3.5 w-3.5" />
+                Get Started Free
+              </Link>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              className="rounded-xl border-border/60 bg-background/50 font-semibold"
+            >
+              <Link href="/random-quiz">
+                <Play className="h-3.5 w-3.5" />
+                Instant Play
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
@@ -530,63 +434,35 @@ function GuestHero({
   )
 }
 
-const howItWorksColorClass: Record<string, string> = {
-  'quiz-purple': 'text-quiz-purple',
-  'quiz-pink': 'text-quiz-pink',
-  'quiz-blue': 'text-quiz-blue',
-}
-
-function HowItWorks() {
-  const steps = [
-    {
-      num: '01',
-      emoji: '🎯',
-      title: 'Pick a quiz',
-      desc: 'Browse hundreds of quizzes across science, history, pop culture, and more.',
-      colorKey: 'quiz-purple',
-    },
-    {
-      num: '02',
-      emoji: '⚡',
-      title: 'Compete and score',
-      desc: 'Race against the clock, earn XP, and climb the global leaderboard.',
-      colorKey: 'quiz-pink',
-    },
-    {
-      num: '03',
-      emoji: '✏️',
-      title: 'Create your own',
-      desc: 'Build and publish quizzes in the Studio — share them with the world.',
-      colorKey: 'quiz-blue',
-    },
-  ]
+function DuelInviteCard() {
   return (
     <section>
-      <div className="mb-8 text-center">
-        <h2 className="text-3xl font-black tracking-tight">How it works</h2>
-        <p className="mt-2 text-muted-foreground">Start competing in under 30 seconds</p>
-      </div>
-      <div className="grid gap-5 md:grid-cols-3">
-        {steps.map((step) => (
-          <div
-            key={step.title}
-            className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-7 shadow-sm transition-shadow duration-200 hover:shadow-md"
-          >
-            {/* Step number watermark */}
-            <span
-              className={cn(
-                'pointer-events-none absolute -right-2 -top-4 font-black text-[5rem] leading-none opacity-5 select-none',
-                howItWorksColorClass[step.colorKey]
-              )}
-              aria-hidden="true"
-            >
-              {step.num}
-            </span>
-            <div className="text-4xl mb-4">{step.emoji}</div>
-            <h3 className="font-black text-lg tracking-tight">{step.title}</h3>
-            <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
+      <div className="relative overflow-hidden rounded-2xl border border-quiz-purple/20 bg-gradient-to-br from-quiz-purple/8 via-quiz-pink/5 to-transparent p-6 shadow-sm">
+        <div
+          className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-quiz-purple/10 blur-2xl"
+          aria-hidden="true"
+        />
+        <div className="relative flex flex-col items-center gap-5 md:flex-row">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-quiz-purple to-quiz-pink shadow-lg shadow-quiz-purple/30">
+            <Swords className="h-6 w-6 text-primary-foreground" />
           </div>
-        ))}
+          <div className="flex-1 text-center md:text-left">
+            <h2 className="text-lg font-black tracking-tight">Challenge a friend to a duel</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Go head-to-head on the same quiz. First to finish with the highest score wins.
+            </p>
+          </div>
+          <Button
+            asChild
+            variant="gradient"
+            className="shrink-0 rounded-xl font-bold shadow shadow-quiz-purple/20"
+          >
+            <Link href="/sign-up">
+              <Swords className="h-4 w-4" />
+              Start a Duel
+            </Link>
+          </Button>
+        </div>
       </div>
     </section>
   )
@@ -666,9 +542,7 @@ function WelcomeDailyHero({ currentUser }: { currentUser: HomeCurrentUser }) {
         <div className="relative flex flex-wrap items-center justify-between gap-4 px-5 py-3.5 md:px-7">
           {/* Left: greeting + stat pills */}
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-base font-black tracking-tight">
-              Welcome back, {firstName}! 👋
-            </h1>
+            <h1 className="text-base font-black tracking-tight">Welcome back, {firstName}! 👋</h1>
             <div className="flex flex-wrap items-center gap-2">
               <div className="flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 py-1">
                 <Zap className="h-3 w-3 text-primary" />
@@ -719,7 +593,7 @@ function TodaysPickWithChallenge({
 }) {
   return (
     <section>
-      <SectionHeader title="⭐ Today's Pick" href="/categories" />
+      <SectionHeader title="Today's Pick" href="/categories" />
       <div className="grid gap-4 md:grid-cols-[2fr_1fr]">
         {/* Left: featured quiz */}
         <div>
@@ -856,7 +730,7 @@ export function HomePageClient({
 
           <motion.div variants={sectionVariants}>
             <QuizGridSection
-              title="🔥 Trending Right Now"
+              title="Trending Right Now"
               quizzes={trendingQuizzes}
               excludeQuizId={featuredQuiz?.id}
             />
@@ -865,19 +739,16 @@ export function HomePageClient({
           <Divider />
 
           <motion.div variants={sectionVariants}>
-            <QuizScrollerSection title="⭐ Most Popular" quizzes={popularQuizzes} />
+            <QuizScrollerSection title="Most Popular" quizzes={popularQuizzes} />
           </motion.div>
 
           <Divider />
 
           <motion.div variants={sectionVariants}>
             {loggedInGeographyQuizzes.length >= minGeographyQuizzesToShow ? (
-              <QuizGridSection
-                title="🌍 Countries & Geography"
-                quizzes={loggedInGeographyQuizzes}
-              />
+              <QuizGridSection title="Countries & Geography" quizzes={loggedInGeographyQuizzes} />
             ) : (
-              <QuizGridSection title="✨ Freshly Added" quizzes={newestQuizzes} />
+              <QuizGridSection title="Freshly Added" quizzes={newestQuizzes} />
             )}
           </motion.div>
 
@@ -886,7 +757,7 @@ export function HomePageClient({
           {recentlyPlayed.length > 0 ? (
             <>
               <motion.div variants={sectionVariants}>
-                <QuizScrollerSection title="🕹️ Recently Played" quizzes={recentlyPlayed} />
+                <QuizScrollerSection title="Recently Played" quizzes={recentlyPlayed} />
               </motion.div>
               <Divider />
             </>
@@ -899,7 +770,7 @@ export function HomePageClient({
           <Divider />
 
           <motion.div variants={sectionVariants}>
-            <QuizScrollerSection title="✨ Freshly Added" quizzes={newestQuizzes} />
+            <QuizScrollerSection title="Freshly Added" quizzes={newestQuizzes} />
           </motion.div>
 
           <Divider />
@@ -911,13 +782,23 @@ export function HomePageClient({
       ) : (
         <>
           <motion.div variants={sectionVariants}>
-            <GuestHero popularQuizzes={popularQuizzes} stats={stats} />
+            <GuestHero stats={stats} />
           </motion.div>
 
           <Divider />
 
           <motion.div variants={sectionVariants}>
-            <HowItWorks />
+            <QuizGridSection
+              title="Trending Globally"
+              quizzes={trendingQuizzes}
+              excludeQuizId={featuredQuiz?.id}
+            />
+          </motion.div>
+
+          <Divider />
+
+          <motion.div variants={sectionVariants}>
+            <QuizScrollerSection title="Most Popular" quizzes={popularQuizzes} />
           </motion.div>
 
           <Divider />
@@ -929,23 +810,7 @@ export function HomePageClient({
           <Divider />
 
           <motion.div variants={sectionVariants}>
-            <FeaturedQuizSection title="⭐ Editor's Pick" featuredQuiz={featuredQuiz} />
-          </motion.div>
-
-          <Divider />
-
-          <motion.div variants={sectionVariants}>
-            <QuizGridSection
-              title="🔥 Trending Globally"
-              quizzes={trendingQuizzes}
-              excludeQuizId={featuredQuiz?.id}
-            />
-          </motion.div>
-
-          <Divider />
-
-          <motion.div variants={sectionVariants}>
-            <QuizGridSection title="⭐ Most Popular" quizzes={popularQuizzes} />
+            <DuelInviteCard />
           </motion.div>
 
           <Divider />
@@ -954,7 +819,7 @@ export function HomePageClient({
             <>
               <motion.div variants={sectionVariants}>
                 <QuizScrollerSection
-                  title="🌍 Countries & Geography"
+                  title="Countries & Geography"
                   quizzes={guestGeographyQuizzes}
                 />
               </motion.div>
@@ -962,12 +827,12 @@ export function HomePageClient({
               <Divider />
 
               <motion.div variants={sectionVariants}>
-                <QuizScrollerSection title="✨ Freshly Added" quizzes={newestQuizzes} />
+                <QuizScrollerSection title="Freshly Added" quizzes={newestQuizzes} />
               </motion.div>
             </>
           ) : (
             <motion.div variants={sectionVariants}>
-              <QuizScrollerSection title="✨ Freshly Added" quizzes={newestQuizzes} />
+              <QuizScrollerSection title="Freshly Added" quizzes={newestQuizzes} />
             </motion.div>
           )}
 

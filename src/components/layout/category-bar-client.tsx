@@ -35,60 +35,53 @@ export function CategoryBarClient({ categories }: { categories: CategoryBarItem[
   if (categories.length === 0) return null
 
   return (
-    <nav
-      aria-label="Popular categories"
-      className="sticky top-[57px] z-30 w-full border-b border-border/30 bg-muted/40 shadow-[0_2px_8px_rgba(0,0,0,0.06)] backdrop-blur-sm"
-    >
-      <div className="flex gap-0 overflow-x-auto scrollbar-none">
-        {categories.map((category) => {
-          const isActive = pathname.startsWith(`/categories/${category.slug}`)
-          return (
-            <Link
-              key={category.slug}
-              href={`/categories/${category.slug}`}
-              className={cn(
-                'group relative flex min-w-[72px] flex-1 flex-col items-center justify-center gap-1 px-3 py-3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                isActive
-                  ? 'text-primary bg-primary/8'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-accent/40'
-              )}
-              aria-current={isActive ? 'page' : undefined}
-            >
-              <span className="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg">
-                {category.imageUrl ? (
-                  <Image
-                    src={category.imageUrl}
-                    alt={category.name}
-                    fill
-                    sizes="32px"
-                    className="object-cover"
-                  />
-                ) : (
-                  <span
-                    className="flex h-8 w-8 items-center justify-center rounded-lg"
-                    style={{
-                      backgroundColor: withAlphaColor(category.color, CATEGORY_ICON_BG_ALPHA),
-                    }}
-                  >
-                    <DynamicIcon name={category.icon} className="h-4 w-4" />
-                  </span>
-                )}
-              </span>
-              <span className="w-full truncate text-center text-[11px] font-semibold leading-tight">
-                {category.name}
-              </span>
-              <span
+    <div className="sticky top-[57px] z-30 w-full border-b border-border/20 bg-background/80 py-2.5 backdrop-blur-sm">
+      <div className="container mx-auto px-4 md:px-6">
+        <div
+          role="navigation"
+          aria-label="Popular categories"
+          className="flex gap-2 overflow-x-auto scrollbar-none"
+        >
+          {categories.map((category) => {
+            const isActive = pathname.startsWith(`/categories/${category.slug}`)
+            return (
+              <Link
+                key={category.slug}
+                href={`/categories/${category.slug}`}
                 className={cn(
-                  'absolute bottom-0 inset-x-0 h-[2px] transition-opacity',
-                  isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-60'
+                  'group inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                  isActive
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
                 )}
-                style={{ background: category.color }}
-                aria-hidden="true"
-              />
-            </Link>
-          )
-        })}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                <span className="relative flex h-4 w-4 shrink-0 items-center justify-center overflow-hidden rounded-sm">
+                  {category.imageUrl ? (
+                    <Image
+                      src={category.imageUrl}
+                      alt={category.name}
+                      fill
+                      sizes="16px"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <span
+                      className="flex h-4 w-4 items-center justify-center rounded-sm"
+                      style={{
+                        backgroundColor: withAlphaColor(category.color, CATEGORY_ICON_BG_ALPHA),
+                      }}
+                    >
+                      <DynamicIcon name={category.icon} className="h-3.5 w-3.5" />
+                    </span>
+                  )}
+                </span>
+                <span className="whitespace-nowrap leading-none">{category.name}</span>
+              </Link>
+            )
+          })}
+        </div>
       </div>
-    </nav>
+    </div>
   )
 }
