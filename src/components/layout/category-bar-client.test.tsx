@@ -62,16 +62,16 @@ describe('CategoryBarClient', () => {
     expect(historyLink.querySelector('svg')).toBeTruthy()
   })
 
-  it('applies sticky separation styling and active state', () => {
+  it('uses compact strip styling and active pill state', () => {
     render(<CategoryBarClient categories={categories} />)
 
-    const nav = screen.getByLabelText('Popular categories')
-    expect(nav.className).toContain('bg-muted/40')
-    expect(nav.className).toContain('shadow-[0_2px_8px_rgba(0,0,0,0.06)]')
+    const navigation = screen.getByRole('navigation', { name: 'Popular categories' })
+    expect(navigation.className).toContain('overflow-x-auto')
 
     const activeLink = screen.getByRole('link', { name: /science/i })
     const historyLink = screen.getByRole('link', { name: /history/i })
     expect(activeLink).toHaveAttribute('aria-current', 'page')
-    expect(historyLink.querySelector('span[style]')).toBeTruthy()
+    expect(activeLink.className).toContain('bg-primary/10')
+    expect(historyLink.className).toContain('hover:bg-accent/50')
   })
 })
