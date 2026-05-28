@@ -51,13 +51,15 @@ describe('CategoryBarClient', () => {
 
   it('renders compact category pills with image and icon fallback', () => {
     const { container } = render(<CategoryBarClient categories={categories} />)
+    const historyLink = screen.getByRole('link', { name: /history/i })
 
     expect(screen.getByRole('link', { name: /science/i })).toHaveAttribute(
       'href',
       '/categories/science'
     )
     expect(container.querySelector('img[src="https://cdn.example.com/science.jpg"]')).toBeTruthy()
-    expect(container.querySelectorAll('svg').length).toBeGreaterThan(0)
+    expect(historyLink.querySelector('img')).toBeNull()
+    expect(historyLink.querySelector('svg')).toBeTruthy()
   })
 
   it('applies sticky separation styling and active state', () => {
@@ -68,7 +70,8 @@ describe('CategoryBarClient', () => {
     expect(nav.className).toContain('shadow-[0_2px_8px_rgba(0,0,0,0.06)]')
 
     const activeLink = screen.getByRole('link', { name: /science/i })
+    const historyLink = screen.getByRole('link', { name: /history/i })
     expect(activeLink).toHaveAttribute('aria-current', 'page')
-    expect(screen.getByRole('link', { name: /history/i }).querySelector('svg')).toBeTruthy()
+    expect(historyLink.querySelector('span[style]')).toBeTruthy()
   })
 })
