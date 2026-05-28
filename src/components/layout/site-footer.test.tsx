@@ -29,6 +29,8 @@ describe('SiteFooter', () => {
     expect(screen.getAllByRole('link', { name: 'Discord' })).toHaveLength(2)
     expect(screen.getAllByRole('link', { name: 'Twitter / X' })).toHaveLength(2)
     expect(screen.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/about')
+    expect(screen.getByRole('link', { name: 'Privacy Policy' })).toHaveAttribute('href', '/privacy')
+    expect(screen.getByRole('link', { name: 'Contact' })).toHaveAttribute('href', '/contact')
     expect(screen.getByLabelText('Twitter / X')).toHaveAttribute('href', '#')
     expect(screen.getByLabelText('Twitter / X')).toHaveAttribute('aria-disabled', 'true')
     expect(screen.getByLabelText('Instagram')).toHaveAttribute('href', '#')
