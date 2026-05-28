@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/theme/theme-provider'
 import { ToastProvider } from '@/components/ui/toast'
 import { AuthProvider } from '@/components/auth/auth-provider'
 import { AppShell } from '@/components/layout/app-shell'
+import { CategoryBar } from '@/components/layout/category-bar'
 import { absoluteUrl, siteConfig } from '@/lib/site'
 
 export const metadata: Metadata = {
@@ -39,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <ThemeProvider defaultTheme="system">
             <ToastProvider>
-              <AppShell>{children}</AppShell>
+              <AppShell categoryBar={<CategoryBar />}>{children}</AppShell>
             </ToastProvider>
           </ThemeProvider>
         </AuthProvider>
