@@ -53,5 +53,30 @@ export const authConfig: NextAuthConfig = {
       }
       return session
     },
+    redirect({ url, baseUrl }) {
+      const base = new URL(baseUrl)
+      const destination = new URL(url, baseUrl)
+
+      if (destination.origin !== base.origin) {
+        return baseUrl
+      }
+
+      if (destination.pathname === '/sign-in' || destination.pathname === '/sign-up') {
+        const callbackUrl = destination.searchParams.get('callbackUrl')
+        if (callbackUrl) {
+          try {
+            const callbackDestination = new URL(callbackUrl, baseUrl)
+            if (callbackDestination.origin === base.origin) {
+              return callbackDestination.toString()
+            }
+          } catch {
+            // Ignore invalid callbackUrl and fall back to /me.
+          }
+        }
+        return new URL('/me', baseUrl).toString()
+      }
+
+      return destination.toString()
+    },
   },
 }

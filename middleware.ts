@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth'
 import { authConfig } from '@/server/auth.config'
+import { isGuestOnlyAuthRoute, middlewareMatcher } from '@/server/auth-routes'
 import { NextResponse } from 'next/server'
 
 const PATHNAME_HEADER = 'x-quiz-pathname'
@@ -8,9 +9,17 @@ const { auth } = NextAuth(authConfig)
 
 export default auth((req) => {
   const { pathname } = req.nextUrl
+  const isGuestOnlyAuth = isGuestOnlyAuthRoute(pathname)
   const isProtected = pathname.startsWith('/studio') || pathname.startsWith('/admin')
   const requestHeaders = new Headers(req.headers)
   requestHeaders.set(PATHNAME_HEADER, pathname)
+
+  if (isGuestOnlyAuth) {
+    if (req.auth?.user) {
+      return NextResponse.redirect(new URL('/me', req.nextUrl.origin))
+    }
+    return NextResponse.next()
+  }
 
   if (!isProtected) {
     return NextResponse.next()
@@ -37,5 +46,5 @@ export default auth((req) => {
 })
 
 export const config = {
-  matcher: ['/studio/:path*', '/admin/:path*'],
+  matcher: middlewareMatcher,
 }
