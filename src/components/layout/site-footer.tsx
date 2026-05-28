@@ -1,22 +1,11 @@
 'use client'
 
-import type React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Instagram, MessageCircle, Twitter, Zap } from 'lucide-react'
+import { Instagram, Twitter, Zap } from 'lucide-react'
 import { ThemeToggle } from '@/components/theme/theme-toggle'
 
 export function SiteFooter() {
-  const preventPlaceholderNavigation = (
-    event: React.MouseEvent<HTMLAnchorElement> | React.KeyboardEvent<HTMLAnchorElement>
-  ) => {
-    if ('key' in event && event.key !== 'Enter' && event.key !== ' ') {
-      return
-    }
-
-    event.preventDefault()
-  }
-
   return (
     <footer className="mt-24 bg-surface-1">
       {/* Gradient top border */}
@@ -42,39 +31,42 @@ export function SiteFooter() {
               <Zap className="h-3.5 w-3.5 text-quiz-purple" />
               <span className="text-xs font-semibold text-quiz-purple">Free to play, forever</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-row items-center gap-2">
               <a
-                href="#"
+                href="https://x.com/PlayBusQuiz"
                 aria-label="Twitter / X"
-                aria-disabled="true"
-                role="link"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background/50 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
-                onClick={preventPlaceholderNavigation}
-                onKeyDown={preventPlaceholderNavigation}
               >
                 <Twitter className="h-3.5 w-3.5" />
               </a>
               <a
-                href="#"
-                aria-label="Instagram"
-                aria-disabled="true"
-                role="link"
+                href="https://www.tiktok.com/@TheBusQuiz"
+                aria-label="TikTok"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background/50 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
-                onClick={preventPlaceholderNavigation}
-                onKeyDown={preventPlaceholderNavigation}
               >
-                <Instagram className="h-3.5 w-3.5" />
+                <span className="inline-block h-3.5 w-3.5">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                  >
+                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.23V2h-3.2v13.22a2.89 2.89 0 1 1-2-2.75V9.2a6.13 6.13 0 1 0 5.2 6.05V8.67a8.1 8.1 0 0 0 4.77 1.56V7.06c-.34 0-.67-.13-1-.37Z" />
+                  </svg>
+                </span>
               </a>
               <a
-                href="#"
-                aria-label="Discord"
-                aria-disabled="true"
-                role="link"
+                href="https://www.instagram.com/BusQuiz"
+                aria-label="Instagram"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background/50 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
-                onClick={preventPlaceholderNavigation}
-                onKeyDown={preventPlaceholderNavigation}
               >
-                <MessageCircle className="h-3.5 w-3.5" />
+                <Instagram className="h-3.5 w-3.5" />
               </a>
             </div>
           </div>
@@ -121,22 +113,18 @@ export function SiteFooter() {
                 Duel
               </Link>
               <a
-                href="#"
-                aria-disabled="true"
-                role="link"
+                href="https://www.tiktok.com/@TheBusQuiz"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
-                onClick={preventPlaceholderNavigation}
-                onKeyDown={preventPlaceholderNavigation}
               >
-                Discord
+                TikTok
               </a>
               <a
-                href="#"
-                aria-disabled="true"
-                role="link"
+                href="https://x.com/PlayBusQuiz"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
-                onClick={preventPlaceholderNavigation}
-                onKeyDown={preventPlaceholderNavigation}
               >
                 Twitter / X
               </a>

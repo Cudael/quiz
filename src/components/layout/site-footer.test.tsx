@@ -26,27 +26,38 @@ describe('SiteFooter', () => {
       '/leaderboard'
     )
     expect(screen.getByRole('link', { name: 'Duel' })).toHaveAttribute('href', '/duel')
-    expect(screen.getAllByRole('link', { name: 'Discord' })).toHaveLength(2)
+    expect(screen.queryByRole('link', { name: 'Discord' })).not.toBeInTheDocument()
     expect(screen.getAllByRole('link', { name: 'Twitter / X' })).toHaveLength(2)
     expect(screen.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/about')
     expect(screen.getByRole('link', { name: 'Privacy Policy' })).toHaveAttribute('href', '/privacy')
     expect(screen.getByRole('link', { name: 'Contact' })).toHaveAttribute('href', '/contact')
-    expect(screen.getByLabelText('Twitter / X')).toHaveAttribute('href', '#')
-    expect(screen.getByLabelText('Twitter / X')).toHaveAttribute('aria-disabled', 'true')
-    expect(screen.getByLabelText('Instagram')).toHaveAttribute('href', '#')
-    expect(screen.getByLabelText('Instagram')).toHaveAttribute('aria-disabled', 'true')
-    expect(screen.getByLabelText('Discord')).toHaveAttribute('href', '#')
-    expect(screen.getByLabelText('Discord')).toHaveAttribute('aria-disabled', 'true')
+
+    expect(screen.getByLabelText('Twitter / X')).toHaveAttribute(
+      'href',
+      'https://x.com/PlayBusQuiz'
+    )
+    expect(screen.getByLabelText('Twitter / X')).not.toHaveAttribute('aria-disabled')
+    expect(screen.getByLabelText('Instagram')).toHaveAttribute(
+      'href',
+      'https://www.instagram.com/BusQuiz'
+    )
+    expect(screen.getByLabelText('Instagram')).not.toHaveAttribute('aria-disabled')
+    expect(screen.getByLabelText('TikTok')).toHaveAttribute(
+      'href',
+      'https://www.tiktok.com/@TheBusQuiz'
+    )
+
     expect(
       screen
-        .getAllByRole('link', { name: 'Discord' })
-        .find((element) => element.textContent === 'Discord')
-    ).toHaveAttribute('aria-disabled', 'true')
+        .getAllByRole('link', { name: 'TikTok' })
+        .find((element) => element.textContent === 'TikTok')
+    ).toHaveAttribute('href', 'https://www.tiktok.com/@TheBusQuiz')
+
     expect(
       screen
         .getAllByRole('link', { name: 'Twitter / X' })
         .find((element) => element.textContent === 'Twitter / X')
-    ).toHaveAttribute('aria-disabled', 'true')
+    ).toHaveAttribute('href', 'https://x.com/PlayBusQuiz')
     expect(screen.getByText('Test your knowledge. Challenge your friends.')).toBeInTheDocument()
     expect(screen.getByText(/All rights reserved\./)).toBeInTheDocument()
   })
