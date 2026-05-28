@@ -1,27 +1,24 @@
 import 'server-only'
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? 'noreply@busquiz.com'
-
-function getResendClient(): Resend | null {
-  const apiKey = process.env.RESEND_API_KEY
-  if (!apiKey) return null
-  if (!process.env.RESEND_FROM_EMAIL) {
-    console.warn(
-      'RESEND_FROM_EMAIL is not set. Emails will be sent from the fallback address which may not be verified in Resend.'
-    )
-  }
-  return new Resend(apiKey)
+function getTransporter() {
+  const user = process.env.GMAIL_USER
+  const pass = process.env.GMAIL_APP_PASSWORD
+  if (!user || !pass) return null
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: { user, pass },
+  })
 }
 
 /**
  * Sends a verification email to a newly registered user.
- * No-ops (with a dev log) when `RESEND_API_KEY` is not configured.
+ * No-ops (with a dev log) when Gmail SMTP is not configured.
  */
 export async function sendVerificationEmail(to: string, verifyUrl: string): Promise<void> {
-  const resend = getResendClient()
+  const transporter = getTransporter()
 
-  if (!resend) {
+  if (!transporter) {
     if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
       console.log('Verification email placeholder generated', { to })
       console.log('Verification URL (dev/test only)', verifyUrl)
@@ -30,8 +27,8 @@ export async function sendVerificationEmail(to: string, verifyUrl: string): Prom
   }
 
   try {
-    await resend.emails.send({
-      from: FROM_EMAIL,
+    await transporter.sendMail({
+      from: process.env.GMAIL_USER,
       to,
       subject: 'Verify your BusQuiz email',
       html: buildVerificationHtml(verifyUrl),
@@ -44,12 +41,12 @@ export async function sendVerificationEmail(to: string, verifyUrl: string): Prom
 
 /**
  * Sends a password-reset email.
- * No-ops (with a dev log) when `RESEND_API_KEY` is not configured.
+ * No-ops (with a dev log) when Gmail SMTP is not configured.
  */
 export async function sendPasswordResetEmail(to: string, resetUrl: string): Promise<void> {
-  const resend = getResendClient()
+  const transporter = getTransporter()
 
-  if (!resend) {
+  if (!transporter) {
     if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
       console.log('Password reset email placeholder generated', { to })
       console.log('Reset URL (dev/test only)', resetUrl)
@@ -58,8 +55,8 @@ export async function sendPasswordResetEmail(to: string, resetUrl: string): Prom
   }
 
   try {
-    await resend.emails.send({
-      from: FROM_EMAIL,
+    await transporter.sendMail({
+      from: process.env.GMAIL_USER,
       to,
       subject: 'Reset your BusQuiz password',
       html: buildPasswordResetHtml(resetUrl),

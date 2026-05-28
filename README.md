@@ -123,14 +123,16 @@ openssl rand -base64 32
 | `GITHUB_CLIENT_SECRET`  | OAuth only  | GitHub OAuth app secret                                   |
 | `GOOGLE_CLIENT_ID`      | OAuth only  | Google OAuth app client ID                                |
 | `GOOGLE_CLIENT_SECRET`  | OAuth only  | Google OAuth app secret                                   |
-| `RESEND_API_KEY`        | Email       | Resend.com API key for transactional email                |
-| `RESEND_FROM_EMAIL`     | Email       | Sender address (default: `noreply@busquiz.com`)           |
+| `GMAIL_USER`            | Email       | Gmail address used as the authenticated SMTP sender       |
+| `GMAIL_APP_PASSWORD`    | Email       | Gmail App Password used for SMTP authentication           |
 | `CRON_SECRET`           | Cron        | Bearer token for `/api/cron/cleanup-guests`               |
 | `OPENAI_API_KEY`        | AI features | OpenAI API key (optional)                                 |
 | `BLOB_READ_WRITE_TOKEN` | Uploads     | Vercel Blob token for image uploads                       |
 | `NEXT_PUBLIC_SITE_URL`  | Optional    | Public URL override (falls back to `VERCEL_URL`)          |
 
 **Minimum required**: `DATABASE_URL` + `AUTH_SECRET`. Email/password auth works without any OAuth keys. OAuth provider buttons are hidden when their env vars are absent.
+
+**Gmail email setup:** enable 2FA on the Google account you want to send from, generate a 16-character App Password in Google Account → Security → App Passwords, then set `GMAIL_USER` and `GMAIL_APP_PASSWORD`. If these variables are omitted, verification and reset links are logged in dev/test and skipped in production.
 
 **OAuth callback URLs:**
 
