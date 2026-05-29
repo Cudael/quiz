@@ -252,9 +252,9 @@ export async function POST(req: NextRequest) {
     }
   })
 
-  revalidateTag(HOME_TRENDING_QUIZZES_TAG, 'max')
-  revalidateTag(HOME_POPULAR_QUIZZES_TAG, 'max')
-  revalidateTag(LEADERBOARD_TAG, 'max')
+  revalidateTag(HOME_TRENDING_QUIZZES_TAG)
+  revalidateTag(HOME_POPULAR_QUIZZES_TAG)
+  revalidateTag(LEADERBOARD_TAG)
 
   return NextResponse.json(result)
 }
