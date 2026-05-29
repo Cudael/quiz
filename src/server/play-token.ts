@@ -2,6 +2,10 @@ import 'server-only'
 /**
  * Play token — sign/verify HMAC tokens that bind a quizId to a play session.
  * The token is issued server-side at quiz start; the submit endpoint validates it.
+ *
+ * Each token includes a random nonce so that every issued token is unique.
+ * `verifyPlayToken` consumes the nonce on first use, preventing replay attacks
+ * (submitting the same token twice to inflate scores).
  */
 
 const DEV_SECRET = 'busquiz-dev-secret-do-not-use-in-prod'
@@ -58,20 +62,54 @@ async function verify(message: string, sigB64: string, key: CryptoKey): Promise<
 }
 
 // ---------------------------------------------------------------------------
+// Nonce tracking — prevents a token from being submitted more than once
+// ---------------------------------------------------------------------------
+
+/** Maps nonce → expiry timestamp (ms). Entries are cleaned up lazily. */
+const usedNonces = new Map<string, number>()
+
+const TOKEN_TTL_MS = 4 * 60 * 60 * 1000
+
+/**
+ * Attempts to consume `nonce`.  Returns `true` on the first call (nonce is
+ * fresh) and `false` on any subsequent call (nonce already used).
+ * Expired entries are purged lazily to keep the map bounded.
+ */
+function consumeNonce(nonce: string, expiresAt: number): boolean {
+  const now = Date.now()
+
+  // Lazy cleanup: purge expired nonces when the map grows large.
+  if (usedNonces.size >= 10_000) {
+    for (const [n, exp] of usedNonces) {
+      if (exp < now) usedNonces.delete(n)
+    }
+  }
+
+  if (usedNonces.has(nonce)) return false
+  usedNonces.set(nonce, expiresAt)
+  return true
+}
+
+// ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
 
 interface PlayTokenPayload {
   quizId: string
   issuedAt: number
+  nonce: string
 }
 
 /**
- * Sign a play token embedding quizId and issuedAt timestamp.
+ * Sign a play token embedding quizId, issuedAt timestamp, and a random nonce.
  * Returns a dot-separated string: `<payload_b64>.<sig_b64>`
  */
 export async function signPlayToken(quizId: string): Promise<string> {
-  const payload: PlayTokenPayload = { quizId, issuedAt: Date.now() }
+  const payload: PlayTokenPayload = {
+    quizId,
+    issuedAt: Date.now(),
+    nonce: crypto.randomUUID(),
+  }
   const payloadStr = JSON.stringify(payload)
   const payloadB64 = Buffer.from(payloadStr).toString('base64url')
   const key = await importKey(getSecret())
@@ -80,8 +118,8 @@ export async function signPlayToken(quizId: string): Promise<string> {
 }
 
 /**
- * Verify a play token and return the quizId if valid, or null if tampered/expired.
- * Tokens expire after 4 hours.
+ * Verify a play token and return the quizId if valid, or null if tampered/expired/replayed.
+ * Tokens expire after 4 hours and may only be verified (consumed) once.
  */
 export async function verifyPlayToken(
   token: string,
@@ -99,8 +137,12 @@ export async function verifyPlayToken(
       Buffer.from(payloadB64, 'base64url').toString('utf8')
     )
     // Expire after 4 hours
-    if (Date.now() - payload.issuedAt > 4 * 60 * 60 * 1000) return { valid: false }
+    if (Date.now() - payload.issuedAt > TOKEN_TTL_MS) return { valid: false }
     if (payload.quizId !== expectedQuizId) return { valid: false }
+    if (!payload.nonce) return { valid: false }
+
+    const expiresAt = payload.issuedAt + TOKEN_TTL_MS
+    if (!consumeNonce(payload.nonce, expiresAt)) return { valid: false }
 
     return { valid: true, quizId: payload.quizId }
   } catch {

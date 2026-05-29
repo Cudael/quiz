@@ -7,6 +7,8 @@ const {
   cookieStoreMock,
   prismaMock,
   txMock,
+  checkRateLimitMock,
+  getClientIpMock,
 } = vi.hoisted(() => {
   const txMock = {
     playSession: {
@@ -44,6 +46,8 @@ const {
       ),
     },
     txMock,
+    checkRateLimitMock: vi.fn().mockReturnValue(true),
+    getClientIpMock: vi.fn().mockReturnValue('1.2.3.4'),
   }
 })
 
@@ -51,6 +55,10 @@ vi.mock('@/server/auth', () => ({ auth: authMock }))
 vi.mock('@/server/play-token', () => ({ verifyPlayToken: verifyPlayTokenMock }))
 vi.mock('@/domain/badges', () => ({ evaluateBadgesWithClient: evaluateBadgesWithClientMock }))
 vi.mock('@/server/prisma', () => ({ prisma: prismaMock }))
+vi.mock('@/server/rate-limit', () => ({
+  checkRateLimit: checkRateLimitMock,
+  getClientIp: getClientIpMock,
+}))
 vi.mock('next/headers', () => ({ cookies: vi.fn().mockResolvedValue(cookieStoreMock) }))
 vi.mock('next/cache', () => ({
   revalidateTag: vi.fn(),
@@ -77,6 +85,8 @@ describe('POST /api/play/submit', () => {
     verifyPlayTokenMock.mockResolvedValue({ valid: true })
     evaluateBadgesWithClientMock.mockResolvedValue([])
     cookieStoreMock.get.mockReturnValue(undefined)
+    checkRateLimitMock.mockReturnValue(true)
+    getClientIpMock.mockReturnValue('1.2.3.4')
     txMock.playSession.create.mockResolvedValue({ id: 'session-1' })
     txMock.questionAnswer.createMany.mockResolvedValue({})
     txMock.playSession.aggregate.mockResolvedValue({ _avg: { score: 120 }, _count: { _all: 1 } })
@@ -207,5 +217,21 @@ describe('POST /api/play/submit', () => {
     expect(txMock.questionAnswer.createMany).toHaveBeenCalledWith({
       data: [expect.objectContaining({ questionId: 'question-1', timeTakenMs: 0 })],
     })
+  })
+
+  it('returns 429 when the IP submit rate limit is exceeded', async () => {
+    checkRateLimitMock.mockReturnValue(false)
+
+    const response = await POST(
+      createRequest({
+        playToken: 'token',
+        quizId: 'quiz-1',
+        mode: 'classic',
+        answers: [],
+      })
+    )
+
+    expect(response.status).toBe(429)
+    expect(prismaMock.quiz.findUnique).not.toHaveBeenCalled()
   })
 })
