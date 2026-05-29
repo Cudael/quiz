@@ -73,7 +73,7 @@ model User {
   passwordHash  String?
   bio           String?
   bannerImage   String?
-  preferences   String? // JSON-encoded UserPreferences (SQLite-safe)
+  preferences   Json? // UserPreferences object
   emailVerified DateTime?
   image         String?
   role          Role      @default(USER)
@@ -122,7 +122,7 @@ model Quiz {
   title       String
   description String
   coverImage  String?
-  tags        String? // JSON-encoded string[], e.g. ["history","ww2"]
+  tags        String[] // string array, e.g. ["history","ww2"]
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id])
   difficulty  Difficulty @default(MEDIUM)
@@ -234,7 +234,7 @@ model QuestionAnswer {
   session     PlaySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   questionId  String
   question    Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  chosenIds   String // JSON-encoded string[] of selected choice IDs for SQLite compatibility
+  chosenIds   String[] // array of selected choice IDs
   isCorrect   Boolean
   timeTakenMs Int
 
@@ -284,7 +284,7 @@ model Badge {
   name        String
   description String
   icon        String
-  criteria    String // JSON stored as string; e.g. { "type": "streak", "days": 7 }
+  criteria    Json // e.g. { "type": "streak", "days": 7 }
 
   awards UserBadge[]
 }
@@ -329,7 +329,7 @@ model Notification {
   title     String
   message   String
   isRead    Boolean  @default(false)
-  meta      String? // JSON for extra context (e.g. badgeId, followerId)
+  meta      Json? // extra context (e.g. badgeId, followerId)
   createdAt DateTime @default(now())
 
   @@index([userId])
@@ -374,7 +374,7 @@ model AdminAction {
   action     String
   targetType String
   targetId   String
-  meta       String // JSON stored as string for SQLite compatibility
+  meta       Json // extra context for the action
   createdAt  DateTime @default(now())
 
   @@index([actorId])

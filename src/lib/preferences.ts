@@ -1,12 +1,12 @@
+import type { Prisma } from '@prisma/client'
 import { userPreferencesSchema } from '@/schemas'
 
 export const REDUCED_MOTION_STORAGE_KEY = 'reducedMotion'
 
-export function parseUserPreferences(value: string | null | undefined) {
-  if (!value) return {}
+export function parseUserPreferences(value: Prisma.JsonValue | null | undefined) {
+  if (value == null) return {}
   try {
-    const parsed = JSON.parse(value)
-    const validated = userPreferencesSchema.safeParse(parsed)
+    const validated = userPreferencesSchema.safeParse(value)
     return validated.success ? validated.data : {}
   } catch {
     return {}

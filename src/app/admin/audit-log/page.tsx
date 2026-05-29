@@ -23,13 +23,9 @@ function actionBadgeClass(action: string) {
   return 'bg-muted text-muted-foreground'
 }
 
-function formatMeta(meta: string) {
-  try {
-    const parsed = JSON.parse(meta) as Record<string, unknown>
-    return JSON.stringify(parsed, null, 2)
-  } catch {
-    return meta || '—'
-  }
+function formatMeta(meta: Prisma.JsonValue) {
+  if (meta == null) return '—'
+  return JSON.stringify(meta, null, 2)
 }
 
 function buildAuditHref(page: number, actor: string, action: string) {

@@ -39,12 +39,9 @@ interface SessionSnapshot {
   }
 }
 
-function parseCriterion(criteria: string): BadgeCriterion | null {
-  try {
-    return JSON.parse(criteria) as BadgeCriterion
-  } catch {
-    return null
-  }
+function parseCriterion(criteria: unknown): BadgeCriterion | null {
+  if (criteria == null || typeof criteria !== 'object' || Array.isArray(criteria)) return null
+  return criteria as BadgeCriterion
 }
 
 function metPlayedBetween(hours: number[], fromHour: number, toHour: number) {

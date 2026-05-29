@@ -1,7 +1,10 @@
 import { Prisma } from '@prisma/client'
+import { unstable_cache } from 'next/cache'
 import { prisma } from '@/server/prisma'
 import type { ModeFilter, PeriodFilter, SortFilter } from '@/app/leaderboard/params'
 import { getPeriodStart } from '@/app/leaderboard/params'
+
+export const LEADERBOARD_TAG = 'leaderboard'
 
 export interface LeaderboardRow {
   key: string
@@ -60,7 +63,25 @@ function orderByClause(sort: SortFilter) {
   return Prisma.sql`SUM(ps."score") DESC, MAX(ps."score") DESC, COUNT(*) DESC`
 }
 
-export async function getLeaderboardRows({
+export function getLeaderboardRows(params: {
+  period: PeriodFilter
+  mode: ModeFilter
+  sort: SortFilter
+  categories: string[]
+  quizId?: string
+}) {
+  const { period, mode, sort, categories, quizId } = params
+  const sortedCategories = categories.slice().sort()
+  // Build a stable cache key from the query parameters.
+  const key = [period, mode, sort, sortedCategories.join(','), quizId ?? ''].join('|')
+  return unstable_cache(
+    () => fetchLeaderboardRows({ period, mode, sort, categories: sortedCategories, quizId }),
+    ['leaderboard-rows', key],
+    { revalidate: 60, tags: [LEADERBOARD_TAG] }
+  )()
+}
+
+async function fetchLeaderboardRows({
   period,
   mode,
   sort,
@@ -126,13 +147,16 @@ export async function getLeaderboardRows({
   })
 }
 
-export async function getLeaderboardTopPlayerNames() {
-  const rows = await getLeaderboardRows({
-    period: 'all',
-    mode: 'ALL',
-    sort: 'total',
-    categories: [],
-  })
-
-  return rows.slice(0, 3).map((row) => row.displayName)
+export function getLeaderboardTopPlayerNames() {
+  return unstable_cache(
+    () =>
+      fetchLeaderboardRows({
+        period: 'all',
+        mode: 'ALL',
+        sort: 'total',
+        categories: [],
+      }).then((rows) => rows.slice(0, 3).map((row) => row.displayName)),
+    ['leaderboard-top-names'],
+    { revalidate: 60, tags: [LEADERBOARD_TAG] }
+  )()
 }

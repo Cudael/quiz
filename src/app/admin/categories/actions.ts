@@ -73,12 +73,12 @@ export async function updateCategory(
         action: 'CATEGORY_UPDATE',
         targetType: 'Category',
         targetId: parsed.data.categoryId,
-        meta: JSON.stringify({
+        meta: {
           name: parsed.data.name,
           icon: parsed.data.icon,
           color: parsed.data.color,
           imageUrl: parsed.data.imageUrl ?? null,
-        }),
+        },
       },
     })
   })
@@ -118,7 +118,7 @@ export async function deleteCategory(
         action: 'CATEGORY_DELETE',
         targetType: 'Category',
         targetId: parsed.data.categoryId,
-        meta: '{}',
+        meta: {},
       },
     })
   })
@@ -182,13 +182,13 @@ export async function createCategory(
         action: 'CATEGORY_CREATE',
         targetType: 'Category',
         targetId: category.id,
-        meta: JSON.stringify({
+        meta: {
           name: parsed.data.name,
           slug,
           icon: parsed.data.icon,
           color: parsed.data.color,
           parentSlug: parsed.data.parentSlug ?? null,
-        }),
+        },
       },
     })
   })

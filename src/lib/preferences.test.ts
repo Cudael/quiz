@@ -17,37 +17,31 @@ describe('parseUserPreferences', () => {
     expect(parseUserPreferences(undefined)).toEqual({})
   })
 
-  it('returns empty object for empty string', () => {
-    expect(parseUserPreferences('')).toEqual({})
+  it('returns empty object for a non-object JsonValue (string)', () => {
+    expect(parseUserPreferences('not-an-object')).toEqual({})
   })
 
-  it('returns empty object for invalid JSON', () => {
-    expect(parseUserPreferences('not-json')).toEqual({})
-  })
-
-  it('returns empty object for JSON that fails schema validation', () => {
-    expect(parseUserPreferences('{"unknownKey": true}')).toEqual({})
+  it('returns empty object for an object that fails schema validation', () => {
+    expect(parseUserPreferences({ unknownKey: true })).toEqual({})
   })
 
   it('parses valid preferences with reducedMotion', () => {
-    const result = parseUserPreferences(JSON.stringify({ reducedMotion: true }))
+    const result = parseUserPreferences({ reducedMotion: true })
     expect(result).toEqual({ reducedMotion: true })
   })
 
   it('parses valid preferences with defaultMode', () => {
-    const result = parseUserPreferences(JSON.stringify({ defaultMode: 'CLASSIC' }))
+    const result = parseUserPreferences({ defaultMode: 'CLASSIC' })
     expect(result).toEqual({ defaultMode: 'CLASSIC' })
   })
 
   it('parses valid preferences with defaultDifficulty', () => {
-    const result = parseUserPreferences(JSON.stringify({ defaultDifficulty: 'HARD' }))
+    const result = parseUserPreferences({ defaultDifficulty: 'HARD' })
     expect(result).toEqual({ defaultDifficulty: 'HARD' })
   })
 
   it('parses multiple valid fields at once', () => {
-    const result = parseUserPreferences(
-      JSON.stringify({ defaultMode: 'TIMED', reducedMotion: false })
-    )
+    const result = parseUserPreferences({ defaultMode: 'TIMED', reducedMotion: false })
     expect(result).toEqual({ defaultMode: 'TIMED', reducedMotion: false })
   })
 })

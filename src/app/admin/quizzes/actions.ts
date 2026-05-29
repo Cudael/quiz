@@ -61,7 +61,7 @@ export async function toggleQuizPublished(
         action: isPublished ? 'QUIZ_PUBLISH' : 'QUIZ_UNPUBLISH',
         targetType: 'Quiz',
         targetId: parsed.data.quizId,
-        meta: JSON.stringify({ publish: isPublished }),
+        meta: { publish: isPublished },
       },
     })
   })
@@ -103,7 +103,7 @@ export async function deleteQuiz(formData: FormData): Promise<{ ok: boolean; mes
         action: 'QUIZ_DELETE',
         targetType: 'Quiz',
         targetId: parsed.data.quizId,
-        meta: '{}',
+        meta: {},
       },
     })
   })

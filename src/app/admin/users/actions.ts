@@ -63,7 +63,7 @@ export async function toggleUserRole(
         action: 'ROLE_CHANGE',
         targetType: 'User',
         targetId: parsed.data.userId,
-        meta: JSON.stringify({ newRole: parsed.data.newRole }),
+        meta: { newRole: parsed.data.newRole },
       },
     })
   })
@@ -103,7 +103,7 @@ export async function deleteUser(formData: FormData): Promise<{ ok: boolean; mes
         action: 'USER_DELETE',
         targetType: 'User',
         targetId: parsed.data.userId,
-        meta: '{}',
+        meta: {},
       },
     })
   })

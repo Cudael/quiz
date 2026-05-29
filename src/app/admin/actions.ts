@@ -86,7 +86,7 @@ export async function reviewCategorySuggestion(formData: FormData): Promise<Admi
         action: isApprove ? 'CATEGORY_SUGGESTION_APPROVED' : 'CATEGORY_SUGGESTION_REJECTED',
         targetType: 'CategorySuggestion',
         targetId: suggestion.id,
-        meta: JSON.stringify({ reason: parsed.data.reason ?? null }),
+        meta: { reason: parsed.data.reason ?? null },
       },
     })
   })
@@ -142,7 +142,7 @@ export async function resolveReport(formData: FormData): Promise<AdminResult> {
         action: REPORT_ACTION_MAP[parsed.data.resolution],
         targetType: 'Report',
         targetId: report.id,
-        meta: JSON.stringify({ quizId: report.quizId }),
+        meta: { quizId: report.quizId },
       },
     })
   })
