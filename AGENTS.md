@@ -17,11 +17,13 @@ src/
     auth/           Auth controls, provider, email verification banner
     notifications/  Notification bell and inbox
     theme/          Theme provider and toggle
-    home/           HomePage server component + HomePageClient
+    home/           Home server component, HomePageClient, colocated
+                      sections/, *.types.ts, and home-page-skeleton
   server/           Server-only modules:
                       auth.ts, auth.config.ts, prisma.ts, play-token.ts,
                       password.ts, daily-seed.ts, rate-limit.ts,
-                      leaderboard.ts, email.ts, home-quiz-cache.ts, token-hash.ts
+                      leaderboard.ts, email.ts, home-quiz-cache.ts,
+                      home-page-data.ts, token-hash.ts
   domain/           Pure domain logic:
                       badges.ts, leveling.ts, scoring.ts, streak.ts,
                       quiz-import.ts, quiz-constants.ts
@@ -33,6 +35,24 @@ src/
   store/            Zustand stores: play-session.ts, quiz-creator-store.ts
   test/             Global test infrastructure (setup, axe-smoke, lucide-icons, seed-data)
 ```
+
+### Module conventions
+
+Large routes/components are broken up by responsibility and colocated next to
+where they are used:
+
+- `_components/` — colocated presentational sub-components for a route
+  (e.g. `app/play/[id]/_components/`, `app/duel/[id]/_components/`,
+  `app/me/settings/_components/`, `app/leaderboard/_components/`,
+  `app/u/[username]/_components/`, `app/studio/_components/`).
+- `sections/` — larger composable UI sections (e.g. `components/home/sections/`).
+- `use-*.ts` — custom hooks holding stateful/effect logic
+  (e.g. `use-play-runner`, `use-duel-session`, `use-image-upload`, `use-question-card`).
+- `*.types.ts` — shared component/route types.
+- `*.utils.ts` — pure, framework-agnostic helpers.
+- Server actions live in `actions.ts`, or an `actions/` folder of grouped
+  modules re-exported from a barrel `index.ts` (see `app/studio/actions/`).
+- Tests are colocated as `*.test.ts(x)` next to their source.
 
 ## Key Commands
 

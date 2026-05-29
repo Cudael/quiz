@@ -1,6 +1,6 @@
 import { PageHeader } from '@/components/ui/page-header'
 import { prisma } from '@/server/prisma'
-import { CategoriesClient } from './_components/category-edit-form'
+import { CategoriesClient } from './_components/categories-client'
 
 export default async function AdminCategoriesPage() {
   const categories = await prisma.category.findMany({
