@@ -90,4 +90,42 @@ describe('axe smoke routes', () => {
       </main>
     )
   })
+
+  it('/studio', async () => {
+    await expectNoSeriousOrCritical(
+      <main>
+        <h1>Quiz Studio</h1>
+        <nav aria-label="Studio tabs">
+          <a href="/studio?tab=published" aria-current="page">
+            Published
+          </a>
+          <a href="/studio?tab=drafts">Drafts</a>
+        </nav>
+        <ul aria-label="Quiz list">
+          <li>My quiz</li>
+        </ul>
+      </main>
+    )
+  })
+
+  it('/studio/quiz/[id]', async () => {
+    await expectNoSeriousOrCritical(
+      <main>
+        <h1>Edit quiz</h1>
+        <nav aria-label="Creator steps">
+          <button type="button" aria-current="step">
+            1 Details
+          </button>
+          <button type="button">2 Questions</button>
+          <button type="button">3 Preview</button>
+          <button type="button">4 Publish</button>
+        </nav>
+        <form>
+          <label htmlFor="studio-title">Title</label>
+          <input id="studio-title" type="text" />
+          <button type="submit">Save draft</button>
+        </form>
+      </main>
+    )
+  })
 })

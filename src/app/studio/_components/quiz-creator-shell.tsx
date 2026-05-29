@@ -198,6 +198,7 @@ export function QuizCreatorShell({
                   <button
                     type="button"
                     onClick={() => setStep(step)}
+                    aria-current={isActive ? 'step' : undefined}
                     className={cn(
                       'flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium transition-colors',
                       isActive && 'bg-primary text-primary-foreground',

@@ -170,6 +170,37 @@ export function StepQuestions({ quizId }: StepQuestionsProps) {
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={reorderMode ? handleDragEnd : undefined}
+          accessibility={{
+            announcements: {
+              onDragStart({ active }) {
+                const idx = questions.findIndex((q) => q.localId === active.id)
+                return `Picked up question ${idx + 1} of ${questions.length}.`
+              },
+              onDragOver({ active, over }) {
+                if (!over) return
+                const fromIdx = questions.findIndex((q) => q.localId === active.id)
+                const toIdx = questions.findIndex((q) => q.localId === over.id)
+                if (fromIdx !== toIdx) {
+                  return `Question ${fromIdx + 1} is over position ${toIdx + 1}.`
+                }
+              },
+              onDragEnd({ active, over }) {
+                if (!over) {
+                  return `Question was dropped and returned to its original position.`
+                }
+                const fromIdx = questions.findIndex((q) => q.localId === active.id)
+                const toIdx = questions.findIndex((q) => q.localId === over.id)
+                if (fromIdx !== toIdx) {
+                  return `Question ${fromIdx + 1} was moved to position ${toIdx + 1}.`
+                }
+                return `Question ${fromIdx + 1} was dropped in place.`
+              },
+              onDragCancel({ active }) {
+                const idx = questions.findIndex((q) => q.localId === active.id)
+                return `Reordering cancelled. Question ${idx + 1} was returned to its original position.`
+              },
+            },
+          }}
         >
           <SortableContext
             items={questions.map((question) => question.localId)}

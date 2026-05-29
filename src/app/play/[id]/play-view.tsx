@@ -572,10 +572,12 @@ export function PlayView({ quizId }: PlayViewProps) {
       </div>
 
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <div className="flex-1">
-          <div className="mb-2 flex items-center gap-2">
-            <Badge variant="purple">{quiz?.title}</Badge>
+      <div className="mb-6 flex items-center justify-between gap-2 sm:gap-4">
+        <div className="min-w-0 flex-1">
+          <div className="mb-2 flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <Badge variant="purple" className="max-w-[8rem] truncate sm:max-w-none">
+              {quiz?.title}
+            </Badge>
             <Badge variant="outline">{mode.toUpperCase()}</Badge>
             {mode === 'survival' && store.streak > 0 && (
               <Badge variant="warning">🔥 ×{store.streak}</Badge>
@@ -594,7 +596,7 @@ export function PlayView({ quizId }: PlayViewProps) {
         {mode === 'timed' && store.globalTimerMs !== null && (
           <div
             className={cn(
-              'font-mono text-xl font-bold',
+              'font-mono text-lg font-bold sm:text-xl',
               store.globalTimerMs < 10_000 ? 'text-destructive' : 'text-foreground'
             )}
           >
@@ -602,13 +604,13 @@ export function PlayView({ quizId }: PlayViewProps) {
           </div>
         )}
         <div className="text-right">
-          <p className="text-lg font-bold text-quiz-purple-light">{store.score}</p>
+          <p className="text-base font-bold text-quiz-purple-light sm:text-lg">{store.score}</p>
           <p className="text-xs text-muted-foreground">pts</p>
         </div>
         <button
           type="button"
           onClick={() => setSoundEnabled((enabled) => !enabled)}
-          className="rounded-full p-2 transition-colors hover:bg-muted"
+          className="rounded-full p-1.5 transition-colors hover:bg-muted sm:p-2"
           aria-pressed={!soundEnabled}
           aria-label={soundEnabled ? 'Mute sound' : 'Unmute sound'}
           title={soundEnabled ? 'Mute sound' : 'Unmute sound'}
@@ -618,7 +620,7 @@ export function PlayView({ quizId }: PlayViewProps) {
         <button
           type="button"
           onClick={() => setShowQuitModal(true)}
-          className="rounded-full p-2 transition-colors hover:bg-muted"
+          className="rounded-full p-1.5 transition-colors hover:bg-muted sm:p-2"
           aria-label="Quit quiz"
         >
           <X className="h-5 w-5" />
