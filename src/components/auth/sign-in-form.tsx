@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
+import { Loader2 } from 'lucide-react'
 import { OauthProviderButtons } from '@/components/auth/oauth-provider-buttons'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -122,6 +123,7 @@ export function SignInForm({
               </p>
             </div>
             <Button type="submit" className="w-full" disabled={isSubmittingEmail}>
+              {isSubmittingEmail && <Loader2 className="h-4 w-4 animate-spin" />}
               {isSubmittingEmail ? 'Signing in…' : 'Sign in with email'}
             </Button>
           </form>
@@ -147,6 +149,7 @@ export function SignInForm({
                 className="w-full"
                 disabled={isSubmittingGuest}
               >
+                {isSubmittingGuest && <Loader2 className="h-4 w-4 animate-spin" />}
                 {isSubmittingGuest ? 'Continuing…' : 'Continue as guest'}
               </Button>
             </form>
