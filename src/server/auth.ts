@@ -105,8 +105,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   events: {
     async signIn({ user }) {
-      // Migrate any anonymous play sessions to the newly-signed-in user account.
-      // Running this in the signIn event means it executes once per sign-in
+      // Migrate any anonymous play sessions to the newly-authenticated user account.
+      // Running this in the signIn event means it executes once per authentication
       // rather than on every session read.
       try {
         const guestKey = (await cookies()).get('qa_guest_id')?.value

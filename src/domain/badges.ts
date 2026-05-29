@@ -40,11 +40,8 @@ interface SessionSnapshot {
 }
 
 function parseCriterion(criteria: unknown): BadgeCriterion | null {
-  try {
-    return criteria as BadgeCriterion
-  } catch {
-    return null
-  }
+  if (criteria == null || typeof criteria !== 'object' || Array.isArray(criteria)) return null
+  return criteria as BadgeCriterion
 }
 
 function metPlayedBetween(hours: number[], fromHour: number, toHour: number) {

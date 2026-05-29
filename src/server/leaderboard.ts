@@ -71,10 +71,11 @@ export function getLeaderboardRows(params: {
   quizId?: string
 }) {
   const { period, mode, sort, categories, quizId } = params
+  const sortedCategories = categories.slice().sort()
   // Build a stable cache key from the query parameters.
-  const key = [period, mode, sort, categories.slice().sort().join(','), quizId ?? ''].join('|')
+  const key = [period, mode, sort, sortedCategories.join(','), quizId ?? ''].join('|')
   return unstable_cache(
-    () => fetchLeaderboardRows({ period, mode, sort, categories, quizId }),
+    () => fetchLeaderboardRows({ period, mode, sort, categories: sortedCategories, quizId }),
     ['leaderboard-rows', key],
     { revalidate: 60, tags: [LEADERBOARD_TAG] }
   )()
