@@ -130,7 +130,7 @@ export default async function UserProfilePage({
   }
   const profileUsername = user.username
 
-  const [allBadges, badgeLeaders, isFollowing] = await Promise.all([
+  const [rawBadges, badgeLeaders, isFollowing] = await Promise.all([
     prisma.badge.findMany({
       orderBy: { name: 'asc' },
       select: { id: true, slug: true, name: true, description: true, criteria: true },
@@ -165,6 +165,11 @@ export default async function UserProfilePage({
         })
       : null,
   ])
+
+  const allBadges = rawBadges.map((badge) => ({
+    ...badge,
+    criteria: typeof badge.criteria === 'string' ? badge.criteria : JSON.stringify(badge.criteria),
+  }))
 
   const leadersByBadge = Object.fromEntries(
     badgeLeaders.map((badge) => [badge.id, badge.awards.map((award) => award.user)])
