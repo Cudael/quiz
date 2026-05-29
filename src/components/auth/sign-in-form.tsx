@@ -26,6 +26,7 @@ export function SignInForm({
   githubEnabled,
   verifiedMessage,
 }: SignInFormProps) {
+  const hasOauth = googleEnabled || githubEnabled
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -75,20 +76,30 @@ export function SignInForm({
   }
 
   return (
-    <div className="container mx-auto max-w-md px-4 py-12">
+    <div className="container mx-auto max-w-md px-4 py-14">
       <Card>
         <CardHeader>
-          <CardTitle>Sign in</CardTitle>
+          <CardTitle>Log in</CardTitle>
           <CardDescription>
             Continue your progress and save your XP, streak, and badges.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-7">
           <OauthProviderButtons
             callbackUrl={callbackUrl}
             googleEnabled={googleEnabled}
             githubEnabled={githubEnabled}
           />
+          {hasOauth ? (
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">or</span>
+              </div>
+            </div>
+          ) : null}
 
           <form className="space-y-3" onSubmit={handleEmailPasswordSignIn}>
             <div className="space-y-1">
@@ -124,7 +135,7 @@ export function SignInForm({
             </div>
             <Button type="submit" className="w-full" disabled={isSubmittingEmail}>
               {isSubmittingEmail && <Loader2 className="h-4 w-4 animate-spin" />}
-              {isSubmittingEmail ? 'Signing in…' : 'Sign in with email'}
+              {isSubmittingEmail ? 'Logging in…' : 'Log in'}
             </Button>
           </form>
 

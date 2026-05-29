@@ -17,6 +17,7 @@ interface SignUpFormProps {
 }
 
 export function SignUpForm({ callbackUrl, googleEnabled, githubEnabled }: SignUpFormProps) {
+  const hasOauth = googleEnabled || githubEnabled
   const router = useRouter()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -68,7 +69,7 @@ export function SignUpForm({ callbackUrl, googleEnabled, githubEnabled }: SignUp
     <div className="container mx-auto max-w-md px-4 py-12">
       <Card>
         <CardHeader>
-          <CardTitle>Sign up</CardTitle>
+          <CardTitle>Create account</CardTitle>
           <CardDescription>
             Create an account to save XP, levels, streaks, and badges.
           </CardDescription>
@@ -79,6 +80,16 @@ export function SignUpForm({ callbackUrl, googleEnabled, githubEnabled }: SignUp
             googleEnabled={googleEnabled}
             githubEnabled={githubEnabled}
           />
+          {hasOauth ? (
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">or</span>
+              </div>
+            </div>
+          ) : null}
 
           <form className="space-y-3" onSubmit={handleSignUp}>
             <div className="space-y-1">
