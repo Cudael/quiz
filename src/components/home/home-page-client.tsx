@@ -206,7 +206,7 @@ function CategoryMosaic({ featuredCategories }: { featuredCategories: HomeFeatur
                   style={{
                     background: `linear-gradient(135deg, ${category.color}20, ${category.color}85)`,
                   }}
-                  className="relative flex h-full min-h-[8rem] cursor-pointer flex-col justify-between overflow-hidden rounded-2xl border border-border/30 p-5 shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-lg"
+                  className="relative flex h-full min-h-[8rem] cursor-pointer flex-col justify-between overflow-hidden rounded-2xl border border-border/30 p-5 shadow-sm transition-all duration-200 group-hover:shadow-md group-hover:scale-[1.01]"
                 >
                   {/* Subtle glow on hover */}
                   <div
@@ -466,73 +466,20 @@ function JoinCTABanner({ stats }: { stats: HomeStats }) {
   )
 }
 
-function WelcomeDailyHero({ currentUser }: { currentUser: HomeCurrentUser }) {
-  const displayName = currentUser.name?.trim() || 'Quizzer'
-  const firstName = displayName.split(/\s+/)[0] || 'Quizzer'
-  const { pct: xpPct } = xpProgress(currentUser.xp)
-  const nextLevel = currentUser.level + 1
-
-  return (
-    <section>
-      <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-gradient-to-br from-card via-card to-accent/10 shadow-sm">
-        {/* Ambient glow */}
-        <div
-          className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/10 blur-3xl"
-          aria-hidden="true"
-        />
-
-        <div className="relative flex flex-wrap items-center justify-between gap-4 px-5 py-3.5 md:px-7">
-          {/* Left: greeting + stat pills */}
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-base font-black tracking-tight">Welcome back, {firstName}! 👋</h1>
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 py-1">
-                <Zap className="h-3 w-3 text-primary" />
-                <span className="text-xs font-black text-primary">Lv.{currentUser.level}</span>
-              </div>
-              <div className="flex items-center gap-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 px-3 py-1">
-                <Flame className="h-3 w-3 text-orange-500" />
-                <span className="text-xs font-black text-orange-500 dark:text-orange-400">
-                  {currentUser.streakDays}d streak
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 rounded-full bg-muted/80 border border-border px-3 py-1">
-                <Trophy className="h-3 w-3 text-muted-foreground" />
-                <span className="text-xs font-bold text-muted-foreground">
-                  {currentUser.xp.toLocaleString()} XP
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Right: XP progress bar */}
-          <div className="min-w-[160px] max-w-xs flex-1 space-y-1">
-            <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
-              <span>
-                Level {currentUser.level} → {nextLevel}
-              </span>
-              <span>{Math.round(xpPct)}%</span>
-            </div>
-            <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-quiz-purple to-quiz-pink transition-all duration-700"
-                style={{ width: `${xpPct}%` }}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function TodaysPickWithChallenge({
+/**
+ * Merged hero: featured "Today's Pick" quiz on the left, daily challenge card on the right
+ * with the user's level / streak / XP progress integrated directly — no separate welcome row.
+ */
+function HeroDailySection({
   featuredQuiz,
   currentUser,
 }: {
   featuredQuiz: QuizCardData | null
   currentUser: HomeCurrentUser
 }) {
+  const { pct: xpPct } = xpProgress(currentUser.xp)
+  const nextLevel = currentUser.level + 1
+
   return (
     <section>
       <SectionHeader title="Today's Pick" href="/categories" />
@@ -550,7 +497,7 @@ function TodaysPickWithChallenge({
           )}
         </div>
 
-        {/* Right: Daily Challenge card */}
+        {/* Right: user progress + daily challenge, unified */}
         <div className="relative flex flex-col gap-3 overflow-hidden rounded-2xl border border-orange-500/25 bg-gradient-to-br from-orange-500/15 via-amber-500/10 to-orange-500/5 p-4">
           {/* Ambient glow */}
           <div
@@ -558,6 +505,46 @@ function TodaysPickWithChallenge({
             aria-hidden="true"
           />
 
+          {/* Stat pills */}
+          <div className="relative flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 py-1">
+              <Zap className="h-3 w-3 text-primary" />
+              <span className="text-xs font-black text-primary">Lv.{currentUser.level}</span>
+            </div>
+            <div className="flex items-center gap-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 px-3 py-1">
+              <Flame className="h-3 w-3 text-orange-500" />
+              <span className="text-xs font-black text-orange-500 dark:text-orange-400">
+                {currentUser.streakDays}d streak
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 rounded-full bg-muted/80 border border-border px-3 py-1">
+              <Trophy className="h-3 w-3 text-muted-foreground" />
+              <span className="text-xs font-bold text-muted-foreground">
+                {currentUser.xp.toLocaleString()} XP
+              </span>
+            </div>
+          </div>
+
+          {/* XP progress bar */}
+          <div className="relative space-y-1">
+            <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
+              <span>
+                Level {currentUser.level} → {nextLevel}
+              </span>
+              <span>{Math.round(xpPct)}%</span>
+            </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/10 dark:bg-white/10">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-orange-500 to-amber-400 transition-all duration-700"
+                style={{ width: `${xpPct}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Separator */}
+          <div className="relative border-t border-orange-500/20" />
+
+          {/* Daily challenge header */}
           <div className="relative flex items-start gap-3">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 shadow-md shadow-orange-500/25">
               <Flame className="h-4 w-4 text-primary-foreground" />
@@ -571,13 +558,7 @@ function TodaysPickWithChallenge({
               </div>
               <p className="mt-0.5 text-xs font-medium text-muted-foreground">
                 {currentUser.streakDays > 0 ? (
-                  <>
-                    🔥{' '}
-                    <span className="font-bold text-orange-500 dark:text-orange-400">
-                      {currentUser.streakDays}-day streak
-                    </span>{' '}
-                    — keep it going!
-                  </>
+                  <>Keep your streak going!</>
                 ) : (
                   'Start your streak today!'
                 )}
@@ -646,13 +627,7 @@ export function HomePageClient({
       {currentUser ? (
         <>
           <motion.div variants={sectionVariants}>
-            <WelcomeDailyHero currentUser={currentUser} />
-          </motion.div>
-
-          <Divider />
-
-          <motion.div variants={sectionVariants}>
-            <TodaysPickWithChallenge featuredQuiz={featuredQuiz} currentUser={currentUser} />
+            <HeroDailySection featuredQuiz={featuredQuiz} currentUser={currentUser} />
           </motion.div>
 
           {personalizedQuizzes.length > 0 ? (
