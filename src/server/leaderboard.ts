@@ -150,7 +150,7 @@ async function fetchLeaderboardRows({
 export function getLeaderboardTopPlayerNames() {
   return unstable_cache(
     () =>
-      getLeaderboardRows({
+      fetchLeaderboardRows({
         period: 'all',
         mode: 'ALL',
         sort: 'total',
