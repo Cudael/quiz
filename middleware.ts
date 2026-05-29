@@ -27,7 +27,8 @@ function buildCsp(nonce: string): string {
 }
 
 export default auth((req) => {
-  const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
+  // Use 128 bits of cryptographic randomness for the nonce.
+  const nonce = Buffer.from(crypto.getRandomValues(new Uint8Array(16))).toString('base64')
   const csp = buildCsp(nonce)
 
   const { pathname } = req.nextUrl
@@ -84,11 +85,11 @@ export default auth((req) => {
 export const config = {
   matcher: [
     {
-      // Run on all routes except Next.js internals and static files.
-      source: '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-      missing: [
-        { type: 'header', key: 'next-fetch-dest', value: 'image' },
-      ],
+      // Run on all page routes; skip Next.js internals, static files, and API
+      // routes (API handlers return JSON and manage their own auth/headers).
+      source:
+        '/((?!_next/static|_next/image|favicon.ico|api/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+      missing: [{ type: 'header', key: 'next-fetch-dest', value: 'image' }],
     },
   ],
 }
