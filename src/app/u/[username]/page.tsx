@@ -1,7 +1,5 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { revalidatePath } from 'next/cache'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
 import { Avatar } from '@/components/ui/avatar'
@@ -9,44 +7,9 @@ import { LevelProgress } from '@/components/ui/level-progress'
 import { StreakFlame } from '@/components/ui/streak-flame'
 import { BadgesGrid } from '@/components/ui/badges-grid'
 import { absoluteUrl } from '@/lib/site'
-import { copy } from '@/lib/copy'
-
-async function toggleFollowAction(targetUserId: string, username: string) {
-  'use server'
-
-  const session = await auth()
-  if (!session?.user?.id || session.user.id === targetUserId) return
-
-  const existing = await prisma.follow.findUnique({
-    where: {
-      followerId_followingId: {
-        followerId: session.user.id,
-        followingId: targetUserId,
-      },
-    },
-    select: { followerId: true },
-  })
-
-  if (existing) {
-    await prisma.follow.delete({
-      where: {
-        followerId_followingId: {
-          followerId: session.user.id,
-          followingId: targetUserId,
-        },
-      },
-    })
-  } else {
-    await prisma.follow.create({
-      data: {
-        followerId: session.user.id,
-        followingId: targetUserId,
-      },
-    })
-  }
-
-  revalidatePath(`/u/${username}`)
-}
+import { toggleFollowAction } from './follow-actions'
+import { PublishedQuizzes } from './_components/published-quizzes'
+import { RecentSessions } from './_components/recent-sessions'
 
 export async function generateMetadata({
   params,
@@ -233,34 +196,7 @@ export default async function UserProfilePage({
           </div>
         </section>
 
-        <section className="rounded-xl border border-border bg-card p-6">
-          <h2 className="mb-4 text-lg font-semibold">Recent Sessions</h2>
-          <div className="space-y-3">
-            {user.sessions.map((sessionRow) => {
-              const accuracy =
-                sessionRow.totalCount > 0
-                  ? Math.round((sessionRow.correctCount / sessionRow.totalCount) * 100)
-                  : 0
-              return (
-                <div key={sessionRow.id} className="rounded-lg border border-border p-3 text-sm">
-                  <p className="font-medium">{sessionRow.quiz.title}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {sessionRow.mode} • {sessionRow.score} pts • {accuracy}% accuracy
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {new Intl.DateTimeFormat('en', {
-                      dateStyle: 'medium',
-                      timeStyle: 'short',
-                    }).format(sessionRow.createdAt)}
-                  </p>
-                </div>
-              )
-            })}
-            {user.sessions.length === 0 && (
-              <p className="text-sm text-muted-foreground">{copy.emptyStates.noSessions}</p>
-            )}
-          </div>
-        </section>
+        <RecentSessions sessions={user.sessions} />
       </div>
 
       <section className="mt-6 rounded-xl border border-border bg-card p-6">
@@ -275,26 +211,7 @@ export default async function UserProfilePage({
         />
       </section>
 
-      <section className="mt-6 rounded-xl border border-border bg-card p-6">
-        <h2 className="mb-4 text-lg font-semibold">Published Quizzes</h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {user.quizzes.map((quiz) => (
-            <Link
-              key={quiz.id}
-              href={`/quiz/${quiz.id}`}
-              className="rounded-lg border border-border p-3 transition-colors hover:bg-muted/40"
-            >
-              <p className="font-medium">{quiz.title}</p>
-              <p className="text-xs text-muted-foreground">
-                {quiz.category.name} • {quiz.difficulty}
-              </p>
-            </Link>
-          ))}
-          {user.quizzes.length === 0 && (
-            <p className="text-sm text-muted-foreground">{copy.emptyStates.noPublishedQuizzes}</p>
-          )}
-        </div>
-      </section>
+      <PublishedQuizzes quizzes={user.quizzes} />
     </div>
   )
 }
