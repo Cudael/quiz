@@ -5,9 +5,7 @@ import Image from 'next/image'
 import { ImageIcon, Loader2, Trash2, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-
-const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024
-const GENERIC_UPLOAD_ERROR = 'Unable to upload image. Please try again.'
+import { useImageUpload } from './use-image-upload'
 
 interface ImageUploadProps {
   value: string
@@ -15,31 +13,6 @@ interface ImageUploadProps {
   label?: string
   aspectRatio?: '16/9' | 'square'
   compact?: boolean
-}
-
-function getUploadErrorMessage(error: unknown) {
-  if (
-    typeof error === 'object' &&
-    error !== null &&
-    'error' in error &&
-    typeof error.error === 'string'
-  ) {
-    return error.error
-  }
-
-  return GENERIC_UPLOAD_ERROR
-}
-
-function validateFile(file: File) {
-  if (!file.type.startsWith('image/')) {
-    return 'Please choose an image file.'
-  }
-
-  if (file.size > MAX_IMAGE_SIZE_BYTES) {
-    return 'Image must be 5 MB or smaller.'
-  }
-
-  return null
 }
 
 export function ImageUpload({
@@ -50,94 +23,20 @@ export function ImageUpload({
   compact = false,
 }: ImageUploadProps) {
   const inputId = React.useId()
-  const inputRef = React.useRef<HTMLInputElement>(null)
-  const [previewErrorUrl, setPreviewErrorUrl] = React.useState('')
-  const [isDragging, setIsDragging] = React.useState(false)
-  const [isUploading, setIsUploading] = React.useState(false)
-  const [error, setError] = React.useState<string | null>(null)
+  const {
+    inputRef,
+    previewErrorUrl,
+    setPreviewErrorUrl,
+    isDragging,
+    setIsDragging,
+    isUploading,
+    error,
+    openFilePicker,
+    handleRemove,
+    handleInputChange,
+    handleDrop,
+  } = useImageUpload(onChange)
   const hasPreviewError = value !== '' && previewErrorUrl === value
-
-  const openFilePicker = () => {
-    inputRef.current?.click()
-  }
-
-  const handleRemove = () => {
-    setError(null)
-    setPreviewErrorUrl('')
-    onChange('')
-  }
-
-  const uploadFile = async (file: File) => {
-    const validationError = validateFile(file)
-    if (validationError) {
-      setError(validationError)
-      return
-    }
-
-    setError(null)
-    setPreviewErrorUrl('')
-    setIsUploading(true)
-
-    const formData = new FormData()
-    formData.set('file', file)
-
-    try {
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      })
-
-      let payload: unknown = null
-      try {
-        payload = await response.json()
-      } catch {}
-
-      if (!response.ok) {
-        setError(getUploadErrorMessage(payload))
-        return
-      }
-
-      if (
-        typeof payload !== 'object' ||
-        payload === null ||
-        !('url' in payload) ||
-        typeof payload.url !== 'string'
-      ) {
-        setError(GENERIC_UPLOAD_ERROR)
-        return
-      }
-
-      onChange(payload.url)
-    } catch {
-      setError(GENERIC_UPLOAD_ERROR)
-    } finally {
-      setIsUploading(false)
-      if (inputRef.current) {
-        inputRef.current.value = ''
-      }
-    }
-  }
-
-  const handleInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) {
-      return
-    }
-
-    await uploadFile(file)
-  }
-
-  const handleDrop = async (event: React.DragEvent<HTMLButtonElement>) => {
-    event.preventDefault()
-    setIsDragging(false)
-
-    const file = event.dataTransfer.files?.[0]
-    if (!file) {
-      return
-    }
-
-    await uploadFile(file)
-  }
 
   if (compact) {
     return (
