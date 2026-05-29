@@ -38,6 +38,16 @@ describe('POST /api/upload', () => {
     expect(putMock).not.toHaveBeenCalled()
   })
 
+  it('returns 429 when the per-user upload rate limit is exceeded', async () => {
+    authMock.mockResolvedValue({ user: { id: 'user_123' } })
+    checkRateLimitMock.mockResolvedValue(false)
+
+    const response = await POST(createRequest(new File(['img'], 'photo.png', { type: 'image/png' })))
+
+    expect(response.status).toBe(429)
+    expect(putMock).not.toHaveBeenCalled()
+  })
+
   it('returns 415 for non-image uploads', async () => {
     authMock.mockResolvedValue({ user: { id: 'user_123' } })
 
