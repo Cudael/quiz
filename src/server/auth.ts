@@ -56,7 +56,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         t.emailVerified = user.emailVerified ? new Date(user.emailVerified).toISOString() : null
         // Force an immediate DB refresh on the next jwt() call so all profile
         // fields (username, xp, etc.) are populated right after sign-in.
-        t.profileRefreshedAt = undefined
+        t.profileRefreshedAt = 0
       }
 
       const now = Date.now()

@@ -1,4 +1,4 @@
--- Migration: convert SQLite-compat string columns to native Postgres types
+-- Migration: convert legacy text-based JSON columns to native Postgres types
 -- Backfills existing rows by casting stored JSON/values to the target type.
 
 -- QuestionAnswer.chosenIds: text (JSON array string) → text[]
