@@ -7,7 +7,7 @@ const { prismaMock, verifyPasswordMock, checkRateLimitMock } = vi.hoisted(() => 
     },
   },
   verifyPasswordMock: vi.fn(),
-  checkRateLimitMock: vi.fn().mockReturnValue(true),
+  checkRateLimitMock: vi.fn().mockResolvedValue(true),
 }))
 
 vi.mock('@/server/prisma', () => ({ prisma: prismaMock }))
@@ -31,7 +31,7 @@ const validUser = {
 describe('authorizeEmailPassword', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    checkRateLimitMock.mockReturnValue(true)
+    checkRateLimitMock.mockResolvedValue(true)
   })
 
   it('returns the user on valid credentials', async () => {
@@ -66,7 +66,7 @@ describe('authorizeEmailPassword', () => {
   })
 
   it('returns null without touching the database when rate limited', async () => {
-    checkRateLimitMock.mockReturnValue(false)
+    checkRateLimitMock.mockResolvedValue(false)
 
     const result = await authorizeEmailPassword({
       email: 'ada@example.com',

@@ -27,7 +27,7 @@ function isPlayMode(value: string): value is PrismaPlayMode {
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req)
-  if (!checkRateLimit(`submit:${ip}`, SUBMIT_RATE_LIMIT)) {
+  if (!(await checkRateLimit(`submit:${ip}`, SUBMIT_RATE_LIMIT))) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
   }
 

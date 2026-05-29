@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { headers } from 'next/headers'
 import './globals.css'
 import { THEME_INIT_SCRIPT } from '@/lib/theme'
 import { ThemeProvider } from '@/components/theme/theme-provider'
@@ -28,13 +29,14 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const nonce = (await headers()).get('x-nonce') ?? undefined
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
         {/* Apply theme class before hydration to prevent flash of incorrect theme. */}
         {/* Safe: THEME_INIT_SCRIPT is a static compile-time string with no user-controlled input. */}
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body className="font-sans antialiased">
         <AuthProvider>

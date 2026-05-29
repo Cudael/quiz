@@ -13,24 +13,9 @@ const securityHeaders = [
     key: 'Strict-Transport-Security',
     value: 'max-age=63072000; includeSubDomains; preload',
   },
-  {
-    key: 'Content-Security-Policy',
-    value: [
-      "default-src 'self'",
-      // 'unsafe-eval' is only included in development (Next.js hot reload requires it).
-      // Production builds do not use eval(); only 'unsafe-inline' is needed for inline Next.js scripts.
-      // TODO: Migrate to nonce-based CSP via Next.js middleware to eliminate 'unsafe-inline' for scripts.
-      //       See: https://nextjs.org/docs/app/building-your-application/configuring/content-security-policy
-      process.env.NODE_ENV === 'production'
-        ? "script-src 'self' 'unsafe-inline'"
-        : "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https://images.unsplash.com https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://*.public.blob.vercel-storage.com",
-      "font-src 'self'",
-      "connect-src 'self' https://busquiz.com https://www.busquiz.com",
-      "frame-ancestors 'self'",
-    ].join('; '),
-  },
+  // Content-Security-Policy is set dynamically in middleware.ts using a
+  // per-request nonce, which eliminates 'unsafe-inline' for scripts in
+  // production.  See middleware.ts for the full policy.
 ]
 
 const nextConfig: NextConfig = {

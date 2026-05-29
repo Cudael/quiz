@@ -30,7 +30,7 @@ export async function authorizeEmailPassword(rawCredentials: unknown) {
   }
 
   // Throttle attempts per account to slow down online password guessing.
-  if (!checkRateLimit(`login:${parsed.data.email}`, LOGIN_RATE_LIMIT)) {
+  if (!(await checkRateLimit(`login:${parsed.data.email}`, LOGIN_RATE_LIMIT))) {
     return null
   }
 

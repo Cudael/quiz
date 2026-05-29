@@ -13,10 +13,10 @@ export async function POST(request: Request, ...args: unknown[]) {
   const { pathname } = new URL(request.url)
   if (pathname.includes('/signin/')) {
     if (
-      !checkRateLimit(`nextauth-signin:${getClientIp(request)}`, {
+      !(await checkRateLimit(`nextauth-signin:${getClientIp(request)}`, {
         limit: 10,
         windowMs: 15 * 60 * 1000,
-      })
+      }))
     ) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },

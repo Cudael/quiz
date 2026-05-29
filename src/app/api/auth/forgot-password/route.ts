@@ -14,10 +14,10 @@ const forgotPasswordSchema = z.object({
 
 export async function POST(request: Request) {
   if (
-    !checkRateLimit(`forgot-password:${getClientIp(request)}`, {
+    !(await checkRateLimit(`forgot-password:${getClientIp(request)}`, {
       limit: 5,
       windowMs: 15 * 60 * 1000,
-    })
+    }))
   ) {
     // Still return 200 to avoid leaking rate limit info to attackers
     return NextResponse.json({ ok: true })

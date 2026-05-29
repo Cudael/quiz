@@ -5,6 +5,8 @@ export const alt = 'Leaderboard card'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 export const runtime = 'nodejs'
+// Cache the OG image for 1 hour; leaderboard top names change infrequently.
+export const revalidate = 3600
 
 export function renderLeaderboardOgCard(topPlayers: string[]) {
   return (

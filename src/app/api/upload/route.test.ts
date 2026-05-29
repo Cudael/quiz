@@ -1,12 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { authMock, putMock } = vi.hoisted(() => ({
+const { authMock, putMock, checkRateLimitMock } = vi.hoisted(() => ({
   authMock: vi.fn(),
   putMock: vi.fn(),
+  checkRateLimitMock: vi.fn().mockResolvedValue(true),
 }))
 
 vi.mock('@/server/auth', () => ({ auth: authMock }))
 vi.mock('@vercel/blob', () => ({ put: putMock }))
+vi.mock('@/server/rate-limit', () => ({ checkRateLimit: checkRateLimitMock }))
 
 import { POST } from '@/app/api/upload/route'
 
@@ -24,6 +26,7 @@ function createRequest(file?: File) {
 describe('POST /api/upload', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    checkRateLimitMock.mockResolvedValue(true)
   })
 
   it('returns 401 when the user is not authenticated', async () => {

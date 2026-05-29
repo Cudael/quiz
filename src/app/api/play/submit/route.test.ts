@@ -46,7 +46,7 @@ const {
       ),
     },
     txMock,
-    checkRateLimitMock: vi.fn().mockReturnValue(true),
+    checkRateLimitMock: vi.fn().mockResolvedValue(true),
     getClientIpMock: vi.fn().mockReturnValue('1.2.3.4'),
   }
 })
@@ -85,7 +85,7 @@ describe('POST /api/play/submit', () => {
     verifyPlayTokenMock.mockResolvedValue({ valid: true })
     evaluateBadgesWithClientMock.mockResolvedValue([])
     cookieStoreMock.get.mockReturnValue(undefined)
-    checkRateLimitMock.mockReturnValue(true)
+    checkRateLimitMock.mockResolvedValue(true)
     getClientIpMock.mockReturnValue('1.2.3.4')
     txMock.playSession.create.mockResolvedValue({ id: 'session-1' })
     txMock.questionAnswer.createMany.mockResolvedValue({})
@@ -220,7 +220,7 @@ describe('POST /api/play/submit', () => {
   })
 
   it('returns 429 when the IP submit rate limit is exceeded', async () => {
-    checkRateLimitMock.mockReturnValue(false)
+    checkRateLimitMock.mockResolvedValue(false)
 
     const response = await POST(
       createRequest({

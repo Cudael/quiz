@@ -1,8 +1,12 @@
 import { put } from '@vercel/blob'
 import { NextResponse } from 'next/server'
 import { auth } from '@/server/auth'
+import { checkRateLimit } from '@/server/rate-limit'
 
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024
+
+// Allow each user to upload at most 20 images per hour.
+const UPLOAD_RATE_LIMIT = { limit: 20, windowMs: 60 * 60 * 1000 } as const
 
 function isUploadedFile(value: FormDataEntryValue | null): value is File {
   return (
@@ -42,6 +46,13 @@ export async function POST(request: Request) {
   const session = await auth()
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  if (!(await checkRateLimit(`upload:${session.user.id}`, UPLOAD_RATE_LIMIT))) {
+    return NextResponse.json(
+      { error: 'Too many uploads. Please try again later.' },
+      { status: 429 }
+    )
   }
 
   let formData: FormData

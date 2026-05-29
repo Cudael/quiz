@@ -11,7 +11,7 @@ const { prismaMock, hashPasswordMock, checkRateLimitMock } = vi.hoisted(() => ({
     },
   },
   hashPasswordMock: vi.fn(),
-  checkRateLimitMock: vi.fn().mockReturnValue(true),
+  checkRateLimitMock: vi.fn().mockResolvedValue(true),
 }))
 
 vi.mock('@/server/prisma', () => ({ prisma: prismaMock }))
@@ -38,7 +38,7 @@ const FUTURE_EXPIRY = new Date(Date.now() + 60 * 60 * 1000)
 describe('POST /api/auth/reset-password', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    checkRateLimitMock.mockReturnValue(true)
+    checkRateLimitMock.mockResolvedValue(true)
   })
 
   it('rejects a token not found in the database', async () => {
@@ -107,7 +107,7 @@ describe('POST /api/auth/reset-password', () => {
   })
 
   it('returns 429 when rate limited', async () => {
-    checkRateLimitMock.mockReturnValue(false)
+    checkRateLimitMock.mockResolvedValue(false)
     const response = await POST(
       createRequest({ token: VALID_RAW_TOKEN, newPassword: 'Password1!' })
     )

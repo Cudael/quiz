@@ -2,33 +2,33 @@ import { describe, expect, it } from 'vitest'
 import { checkRateLimit, getClientIp } from '@/server/rate-limit'
 
 describe('checkRateLimit', () => {
-  it('allows requests within the limit', () => {
+  it('allows requests within the limit', async () => {
     const key = `test-allow-${Math.random()}`
-    expect(checkRateLimit(key, { limit: 3, windowMs: 60_000 })).toBe(true)
-    expect(checkRateLimit(key, { limit: 3, windowMs: 60_000 })).toBe(true)
-    expect(checkRateLimit(key, { limit: 3, windowMs: 60_000 })).toBe(true)
+    expect(await checkRateLimit(key, { limit: 3, windowMs: 60_000 })).toBe(true)
+    expect(await checkRateLimit(key, { limit: 3, windowMs: 60_000 })).toBe(true)
+    expect(await checkRateLimit(key, { limit: 3, windowMs: 60_000 })).toBe(true)
   })
 
-  it('blocks the request that exceeds the limit', () => {
+  it('blocks the request that exceeds the limit', async () => {
     const key = `test-block-${Math.random()}`
-    checkRateLimit(key, { limit: 2, windowMs: 60_000 })
-    checkRateLimit(key, { limit: 2, windowMs: 60_000 })
-    expect(checkRateLimit(key, { limit: 2, windowMs: 60_000 })).toBe(false)
+    await checkRateLimit(key, { limit: 2, windowMs: 60_000 })
+    await checkRateLimit(key, { limit: 2, windowMs: 60_000 })
+    expect(await checkRateLimit(key, { limit: 2, windowMs: 60_000 })).toBe(false)
   })
 
-  it('resets counter after the window expires', () => {
+  it('resets counter after the window expires', async () => {
     const key = `test-reset-${Math.random()}`
-    checkRateLimit(key, { limit: 1, windowMs: 0 })
+    await checkRateLimit(key, { limit: 1, windowMs: 0 })
     // Window of 0ms has already expired — next call should start fresh
-    expect(checkRateLimit(key, { limit: 1, windowMs: 0 })).toBe(true)
+    expect(await checkRateLimit(key, { limit: 1, windowMs: 0 })).toBe(true)
   })
 
-  it('tracks different keys independently', () => {
+  it('tracks different keys independently', async () => {
     const key1 = `test-key1-${Math.random()}`
     const key2 = `test-key2-${Math.random()}`
-    checkRateLimit(key1, { limit: 1, windowMs: 60_000 })
-    expect(checkRateLimit(key1, { limit: 1, windowMs: 60_000 })).toBe(false)
-    expect(checkRateLimit(key2, { limit: 1, windowMs: 60_000 })).toBe(true)
+    await checkRateLimit(key1, { limit: 1, windowMs: 60_000 })
+    expect(await checkRateLimit(key1, { limit: 1, windowMs: 60_000 })).toBe(false)
+    expect(await checkRateLimit(key2, { limit: 1, windowMs: 60_000 })).toBe(true)
   })
 })
 

@@ -13,10 +13,10 @@ const resetPasswordSchema = z.object({
 
 export async function POST(request: Request) {
   if (
-    !checkRateLimit(`reset-password:${getClientIp(request)}`, {
+    !(await checkRateLimit(`reset-password:${getClientIp(request)}`, {
       limit: 5,
       windowMs: 15 * 60 * 1000,
-    })
+    }))
   ) {
     return NextResponse.json(
       { error: 'Too many requests. Please try again later.' },
