@@ -437,7 +437,7 @@ async function main() {
       data: {
         sessionId: sessionIdForAnswers,
         questionId: question.id,
-        chosenIds: JSON.stringify([selectedChoice.id]),
+        chosenIds: [selectedChoice.id],
         isCorrect: selectedChoice.isCorrect,
         timeTakenMs: 9000 + index * 3500,
       },
