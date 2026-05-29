@@ -12,6 +12,9 @@ import { levelForXp } from '@/domain/leveling'
 import { computeStreak } from '@/domain/streak'
 import { HOME_POPULAR_QUIZZES_TAG, HOME_TRENDING_QUIZZES_TAG } from '@/server/home-quiz-cache'
 import { submitPlaySchema } from '@/schemas'
+import { checkRateLimit, getClientIp } from '@/server/rate-limit'
+
+const SUBMIT_RATE_LIMIT = { limit: 30, windowMs: 5 * 60 * 1000 } as const
 
 function sanitizeChoiceIds(choiceIds: string[], validChoiceIds: Set<string>) {
   return Array.from(new Set(choiceIds.filter((choiceId) => validChoiceIds.has(choiceId)))).sort()
@@ -22,6 +25,11 @@ function isPlayMode(value: string): value is PrismaPlayMode {
 }
 
 export async function POST(req: NextRequest) {
+  const ip = getClientIp(req)
+  if (!checkRateLimit(`submit:${ip}`, SUBMIT_RATE_LIMIT)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
+
   const authSession = await auth()
   let rawBody: unknown
   try {

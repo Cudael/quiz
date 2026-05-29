@@ -4,15 +4,10 @@ import GitHub from 'next-auth/providers/github'
 import Google from 'next-auth/providers/google'
 import Credentials from 'next-auth/providers/credentials'
 import { cookies } from 'next/headers'
-import { z } from 'zod'
 import { prisma } from '@/server/prisma'
-import { generateUniqueUsername } from '@/lib/usernames'
 import { authorizeEmailPassword } from '@/server/authorize-email-password'
+import { authorizeGuest } from '@/server/authorize-guest'
 import { authConfig } from '@/server/auth.config'
-
-const credentialsSchema = z.object({
-  name: z.string().trim().min(1).max(80),
-})
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -48,23 +43,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       credentials: {
         name: { label: 'Name', type: 'text' },
       },
-      authorize: async (rawCredentials) => {
-        const parsed = credentialsSchema.safeParse(rawCredentials)
-        if (!parsed.success) {
-          return null
-        }
-
-        const name = parsed.data.name
-
-        return prisma.user.create({
-          data: {
-            name,
-            username: await generateUniqueUsername(name),
-            email: null,
-            role: 'USER',
-          },
-        })
-      },
+      authorize: (rawCredentials, request) => authorizeGuest(rawCredentials, request),
     }),
   ],
   secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
