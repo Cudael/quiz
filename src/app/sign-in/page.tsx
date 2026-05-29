@@ -10,7 +10,7 @@ export default async function SignInPage({
   searchParams: Promise<{ callbackUrl?: string; verified?: string }>
 }) {
   const { callbackUrl, verified } = await searchParams
-  const resolvedCallbackUrl = safeCallbackUrl(callbackUrl, '/me')
+  const resolvedCallbackUrl = safeCallbackUrl(callbackUrl, '/')
   const session = await auth()
 
   if (session?.user) {
