@@ -6,6 +6,8 @@ type JwtCallback = NonNullable<NonNullable<NextAuthConfig['callbacks']>['jwt']>
 type JwtParams = Parameters<JwtCallback>[0]
 type SessionCallback = NonNullable<NonNullable<NextAuthConfig['callbacks']>['session']>
 type SessionParams = Parameters<SessionCallback>[0]
+type RedirectCallback = NonNullable<NonNullable<NextAuthConfig['callbacks']>['redirect']>
+type RedirectParams = Parameters<RedirectCallback>[0]
 
 describe('authConfig edge callbacks', () => {
   it('stamps role onto the token on sign-in', async () => {
@@ -39,5 +41,29 @@ describe('authConfig edge callbacks', () => {
     } as unknown as SessionParams)) as { user: { role?: string } }
 
     expect(session.user.role).toBe('ADMIN')
+  })
+
+  it('resolves auth-page callbackUrl redirects to the final destination', async () => {
+    const redirectCallback = authConfig.callbacks?.redirect
+    if (!redirectCallback) throw new Error('Missing redirect callback')
+
+    const result = await redirectCallback({
+      url: 'https://quiz.example/sign-in?callbackUrl=%2Fme',
+      baseUrl: 'https://quiz.example',
+    } as RedirectParams)
+
+    expect(result).toBe('https://quiz.example/me')
+  })
+
+  it('falls back to /me for auth-page redirects without a callbackUrl', async () => {
+    const redirectCallback = authConfig.callbacks?.redirect
+    if (!redirectCallback) throw new Error('Missing redirect callback')
+
+    const result = await redirectCallback({
+      url: 'https://quiz.example/sign-in',
+      baseUrl: 'https://quiz.example',
+    } as RedirectParams)
+
+    expect(result).toBe('https://quiz.example/me')
   })
 })
