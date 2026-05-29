@@ -65,7 +65,7 @@ describe('auth signIn callback', () => {
     buildOAuthProvidersMock.mockReturnValue([])
   })
 
-  it('creates and links a database user for oauth sign-ins', async () => {
+  it('creates and links a database user for OAuth sign-ins', async () => {
     await import('@/server/auth')
     const signIn = getSignInCallback()
 
@@ -114,7 +114,7 @@ describe('auth signIn callback', () => {
     expect(user.id).toBe('db-user-1')
   })
 
-  it('marks existing oauth users as verified and links their account', async () => {
+  it('marks existing OAuth users as verified and links their account', async () => {
     await import('@/server/auth')
     const signIn = getSignInCallback()
 

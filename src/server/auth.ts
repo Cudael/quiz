@@ -65,10 +65,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       })
 
       if (!dbUser) {
-        const username = await generateUniqueUsername(user.name ?? normalizedEmail)
+        const emailLocalPart = normalizedEmail.split('@')[0] || normalizedEmail
+        const profileName = user.name?.trim() || emailLocalPart
+        const username = await generateUniqueUsername(profileName)
         dbUser = await prisma.user.create({
           data: {
-            name: user.name ?? normalizedEmail,
+            name: profileName,
             email: normalizedEmail,
             image: user.image,
             emailVerified: now,
