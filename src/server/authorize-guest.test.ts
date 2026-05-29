@@ -7,7 +7,7 @@ const { prismaMock, checkRateLimitMock, getClientIpMock, generateUniqueUsernameM
         create: vi.fn(),
       },
     },
-    checkRateLimitMock: vi.fn().mockReturnValue(true),
+    checkRateLimitMock: vi.fn().mockResolvedValue(true),
     getClientIpMock: vi.fn().mockReturnValue('1.2.3.4'),
     generateUniqueUsernameMock: vi.fn().mockResolvedValue('alice123'),
   })
@@ -32,7 +32,7 @@ function makeRequest(ip?: string): Request {
 describe('authorizeGuest', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    checkRateLimitMock.mockReturnValue(true)
+    checkRateLimitMock.mockResolvedValue(true)
     getClientIpMock.mockReturnValue('1.2.3.4')
     generateUniqueUsernameMock.mockResolvedValue('alice123')
     prismaMock.user.create.mockResolvedValue({
@@ -90,7 +90,7 @@ describe('authorizeGuest', () => {
   })
 
   it('returns null without creating a user when rate limited', async () => {
-    checkRateLimitMock.mockReturnValue(false)
+    checkRateLimitMock.mockResolvedValue(false)
 
     const result = await authorizeGuest({ name: 'Alice' }, makeRequest())
 

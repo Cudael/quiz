@@ -32,7 +32,7 @@ export async function authorizeGuest(rawCredentials: unknown, request?: Request)
   const ip = request ? getClientIp(request) : null
   const rateLimitKey = `guest:${ip && ip !== 'unknown' ? ip : `name:${name}`}`
 
-  if (!checkRateLimit(rateLimitKey, GUEST_RATE_LIMIT)) {
+  if (!(await checkRateLimit(rateLimitKey, GUEST_RATE_LIMIT))) {
     return null
   }
 

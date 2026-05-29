@@ -12,7 +12,7 @@ import { hashToken } from '@/server/token-hash'
 const VERIFICATION_TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000
 
 export async function POST(request: Request) {
-  if (!checkRateLimit(`register:${getClientIp(request)}`, { limit: 5, windowMs: 15 * 60 * 1000 })) {
+  if (!(await checkRateLimit(`register:${getClientIp(request)}`, { limit: 5, windowMs: 15 * 60 * 1000 }))) {
     return NextResponse.json(
       { error: 'Too many requests. Please try again later.' },
       { status: 429 }

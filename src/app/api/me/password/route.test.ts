@@ -11,7 +11,7 @@ const { authMock, prismaMock, verifyPasswordMock, hashPasswordMock, checkRateLim
     },
     verifyPasswordMock: vi.fn(),
     hashPasswordMock: vi.fn(),
-    checkRateLimitMock: vi.fn().mockReturnValue(true),
+    checkRateLimitMock: vi.fn().mockResolvedValue(true),
   }))
 
 vi.mock('@/server/auth', () => ({ auth: authMock }))
@@ -42,7 +42,7 @@ describe('POST /api/me/password', () => {
 
   it('returns 401 when not signed in', async () => {
     authMock.mockResolvedValue(null)
-    checkRateLimitMock.mockReturnValue(true)
+    checkRateLimitMock.mockResolvedValue(true)
     const response = await POST(createRequest({ currentPassword: 'a', newPassword: 'Password1!' }))
     expect(response.status).toBe(401)
   })
@@ -51,7 +51,7 @@ describe('POST /api/me/password', () => {
     authMock.mockResolvedValue({ user: { id: 'user_1' } })
     prismaMock.user.findUnique.mockResolvedValue({ passwordHash: 'hash' })
     verifyPasswordMock.mockResolvedValue(false)
-    checkRateLimitMock.mockReturnValue(true)
+    checkRateLimitMock.mockResolvedValue(true)
 
     const response = await POST(
       createRequest({ currentPassword: 'wrong-pass', newPassword: 'Password1!' })
@@ -68,7 +68,7 @@ describe('POST /api/me/password', () => {
     verifyPasswordMock.mockResolvedValue(true)
     hashPasswordMock.mockResolvedValue('new-hash')
     prismaMock.user.update.mockResolvedValue({})
-    checkRateLimitMock.mockReturnValue(true)
+    checkRateLimitMock.mockResolvedValue(true)
 
     const response = await POST(
       createRequest({ currentPassword: 'Password1!', newPassword: 'NewPassword1!' })

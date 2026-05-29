@@ -1,13 +1,15 @@
 /**
- * Simple in-memory sliding-window rate limiter.
+ * Rate limiter with Upstash Redis backend and in-memory fallback.
  *
- * **Serverless limitation:** On platforms like Vercel, each function instance
- * has its own isolated memory. Rate limit counters reset on cold starts and
- * are not shared across concurrent instances. This provides basic brute-force
- * protection within a single warm instance but does not enforce strict global
- * limits across all instances. For stricter global rate limiting, use an
- * external store such as Redis (e.g. Upstash).
+ * When `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` are set the
+ * limiter uses Redis so that counters are shared across all serverless
+ * instances and survive cold starts.  When those variables are absent (local
+ * dev, CI, or misconfigured environments) it falls back to a simple
+ * in-memory fixed-window implementation that gives basic per-instance
+ * protection.
  */
+
+import { Redis } from '@upstash/redis'
 
 interface RateLimitEntry {
   count: number
@@ -16,6 +18,19 @@ interface RateLimitEntry {
 }
 
 const store = new Map<string, RateLimitEntry>()
+
+// Lazily initialised so the module can be imported without env vars present.
+let redis: Redis | null = null
+
+function getRedis(): Redis | null {
+  if (redis !== null) return redis
+  const url = process.env.UPSTASH_REDIS_REST_URL
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN
+  if (url && token) {
+    redis = new Redis({ url, token })
+  }
+  return redis
+}
 
 interface RateLimitConfig {
   /** Maximum number of requests allowed within the window */
@@ -27,13 +42,35 @@ interface RateLimitConfig {
 /**
  * Returns `true` when the request should be allowed, `false` when it exceeds
  * the limit.
+ *
+ * Uses Upstash Redis for shared counters across serverless instances when the
+ * `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` env vars are set;
+ * falls back to an in-memory fixed-window counter otherwise.
  */
-export function checkRateLimit(key: string, config: RateLimitConfig): boolean {
+export async function checkRateLimit(key: string, config: RateLimitConfig): Promise<boolean> {
+  const client = getRedis()
+
+  if (client) {
+    try {
+      const redisKey = `rl:${key}`
+      const count = await client.incr(redisKey)
+      // Set TTL only when the key is first created so the window resets after
+      // windowMs regardless of how many requests arrive in the meantime.
+      if (count === 1) {
+        await client.pexpire(redisKey, config.windowMs)
+      }
+      return count <= config.limit
+    } catch {
+      // Redis unavailable — fall through to in-memory limiter so the app
+      // continues to function (with degraded cross-instance enforcement).
+    }
+  }
+
+  // In-memory fixed-window fallback.
   const now = Date.now()
   const entry = store.get(key)
 
   if (!entry || now - entry.windowStart >= config.windowMs) {
-    // No existing entry or window has expired — start a fresh window.
     store.set(key, { count: 1, windowStart: now })
     return true
   }

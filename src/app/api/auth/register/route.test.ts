@@ -19,7 +19,7 @@ const {
   hashPasswordMock: vi.fn(),
   generateUniqueUsernameMock: vi.fn(),
   sendVerificationEmailMock: vi.fn(),
-  checkRateLimitMock: vi.fn().mockReturnValue(true),
+  checkRateLimitMock: vi.fn().mockResolvedValue(true),
 }))
 
 vi.mock('@/server/prisma', () => ({ prisma: prismaMock }))
@@ -44,7 +44,7 @@ function createRequest(body: unknown) {
 describe('POST /api/auth/register', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    checkRateLimitMock.mockReturnValue(true)
+    checkRateLimitMock.mockResolvedValue(true)
   })
 
   it('creates a user and returns 201 for valid registration data', async () => {

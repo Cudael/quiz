@@ -11,7 +11,7 @@ const { prismaMock, sendPasswordResetEmailMock, checkRateLimitMock } = vi.hoiste
     },
   },
   sendPasswordResetEmailMock: vi.fn(),
-  checkRateLimitMock: vi.fn().mockReturnValue(true),
+  checkRateLimitMock: vi.fn().mockResolvedValue(true),
 }))
 
 vi.mock('@/server/prisma', () => ({ prisma: prismaMock }))
@@ -34,7 +34,7 @@ function createRequest(body: unknown) {
 describe('POST /api/auth/forgot-password', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    checkRateLimitMock.mockReturnValue(true)
+    checkRateLimitMock.mockResolvedValue(true)
   })
 
   it('always returns 200 when email does not exist (prevent enumeration)', async () => {
@@ -76,7 +76,7 @@ describe('POST /api/auth/forgot-password', () => {
   })
 
   it('returns 200 when rate limited (prevents enumeration via timing)', async () => {
-    checkRateLimitMock.mockReturnValue(false)
+    checkRateLimitMock.mockResolvedValue(false)
     const response = await POST(createRequest({ email: 'user@example.com' }))
     expect(response.status).toBe(200)
   })
