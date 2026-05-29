@@ -37,7 +37,7 @@ Browser / Client
 | `src/components/`               | Reusable React components                                            |
 | `src/components/ui/`            | Design-system primitives (Button, Card, Skeleton, Toast, …)          |
 | `src/components/layout/`        | App shell — Navbar, Footer                                           |
-| `src/components/auth/`          | Auth-aware components (GuestUpgradePrompt, AuthControls)             |
+| `src/components/auth/`          | Auth-aware components (AuthControls)             |
 | `src/components/notifications/` | Notification bell + inbox dropdown                                   |
 | `src/components/home/`          | Homepage sections (hero, quiz cards, leaderboard widget)             |
 | `src/domain/`                   | Pure business logic — badges, leveling, scoring, streak, quiz-import |
@@ -126,8 +126,6 @@ User → POST /api/auth/signin (credentials / OAuth)
      → Prisma adapter stores Session + Account
      → auth() helper available in Server Components and API routes
 ```
-
-Guest play creates a `User` row with `email: null`. Email presence distinguishes guests from registered accounts.
 
 ## Quiz play flow
 

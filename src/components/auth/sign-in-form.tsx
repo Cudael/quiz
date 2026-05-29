@@ -30,10 +30,8 @@ export function SignInForm({
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [guestName, setGuestName] = useState('')
   const [error, setError] = useState('')
   const [isSubmittingEmail, setIsSubmittingEmail] = useState(false)
-  const [isSubmittingGuest, setIsSubmittingGuest] = useState(false)
   async function handleEmailPasswordSignIn(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError('')
@@ -45,26 +43,6 @@ export function SignInForm({
       redirect: false,
     })
     setIsSubmittingEmail(false)
-
-    if (result?.error) {
-      setError(AUTH_ERROR_MESSAGE)
-      return
-    }
-
-    router.push(result?.url || callbackUrl)
-    router.refresh()
-  }
-
-  async function handleGuestContinue(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setError('')
-    setIsSubmittingGuest(true)
-    const result = await signIn('credentials', {
-      name: guestName,
-      callbackUrl,
-      redirect: false,
-    })
-    setIsSubmittingGuest(false)
 
     if (result?.error) {
       setError(AUTH_ERROR_MESSAGE)
@@ -138,33 +116,6 @@ export function SignInForm({
               {isSubmittingEmail ? 'Logging in…' : 'Log in'}
             </Button>
           </form>
-
-          <div className="border-t border-border pt-4">
-            <form className="space-y-3" onSubmit={handleGuestContinue}>
-              <div className="space-y-1">
-                <label htmlFor="guest-name" className="text-sm font-medium leading-none">
-                  Continue as guest
-                </label>
-                <Input
-                  id="guest-name"
-                  maxLength={80}
-                  required
-                  value={guestName}
-                  onChange={(event) => setGuestName(event.target.value)}
-                  placeholder="Display name"
-                />
-              </div>
-              <Button
-                type="submit"
-                variant="outline"
-                className="w-full"
-                disabled={isSubmittingGuest}
-              >
-                {isSubmittingGuest && <Loader2 className="h-4 w-4 animate-spin" />}
-                {isSubmittingGuest ? 'Continuing…' : 'Continue as guest'}
-              </Button>
-            </form>
-          </div>
 
           {error && <p className="text-sm text-destructive">{error}</p>}
           {verifiedMessage ? (

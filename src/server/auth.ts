@@ -1,10 +1,8 @@
 import 'server-only'
 import NextAuth, { type DefaultSession } from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
-import { cookies } from 'next/headers'
 import { prisma } from '@/server/prisma'
 import { authorizeEmailPassword } from '@/server/authorize-email-password'
-import { authorizeGuest } from '@/server/authorize-guest'
 import { authConfig, buildOAuthProviders } from '@/server/auth.config'
 import { generateUniqueUsername } from '@/lib/usernames'
 
@@ -36,14 +34,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: 'Password', type: 'password' },
       },
       authorize: authorizeEmailPassword,
-    }),
-    Credentials({
-      id: 'credentials',
-      name: 'Guest',
-      credentials: {
-        name: { label: 'Name', type: 'text' },
-      },
-      authorize: (rawCredentials, request) => authorizeGuest(rawCredentials, request),
     }),
   ],
   secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
@@ -169,24 +159,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.emailVerified = t.emailVerified ? new Date(t.emailVerified) : null
       }
       return session
-    },
-  },
-  events: {
-    async signIn({ user }) {
-      // Migrate any anonymous play sessions to the newly-authenticated user account.
-      // Running this in the signIn event means it executes once per authentication
-      // rather than on every session read.
-      try {
-        const guestKey = (await cookies()).get('qa_guest_id')?.value
-        if (guestKey && user.id) {
-          await prisma.playSession.updateMany({
-            where: { userId: null, guestKey },
-            data: { userId: user.id },
-          })
-        }
-      } catch (error) {
-        console.warn('Guest session migration skipped:', error)
-      }
     },
   },
 })

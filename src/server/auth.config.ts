@@ -39,7 +39,6 @@ export const authConfig: NextAuthConfig = {
     // Credentials providers are declared here for typing but
     // their `authorize` logic lives in auth.ts (Node.js runtime only).
     Credentials({ id: 'email-password', name: 'Email and Password', credentials: {} }),
-    Credentials({ id: 'credentials', name: 'Guest', credentials: {} }),
   ],
   pages: {
     signIn: '/sign-in',

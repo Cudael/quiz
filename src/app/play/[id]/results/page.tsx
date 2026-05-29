@@ -16,7 +16,6 @@ import { ResultsClient } from './results-client'
 import { LevelProgress } from '@/components/ui/level-progress'
 import { auth } from '@/server/auth'
 import { copy } from '@/lib/copy'
-import { GuestUpgradePrompt } from '@/components/auth/guest-upgrade-prompt'
 import { renderFillBlankPrompt } from '@/domain/quiz-constants'
 
 export default async function ResultsPage({
@@ -146,8 +145,6 @@ export default async function ResultsPage({
         </h1>
         <p className="text-muted-foreground">{sessionRow.quiz.title}</p>
       </div>
-
-      <GuestUpgradePrompt variant="strong" />
 
       <Card className="mb-6">
         <CardContent className="pt-6">

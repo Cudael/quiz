@@ -376,64 +376,6 @@ function LeaderboardSection({
   )
 }
 
-function GuestHero({ stats }: { stats: HomeStats }) {
-  return (
-    <section>
-      <div className="relative overflow-hidden rounded-2xl border border-border/20 bg-[image:var(--background-image-hero-gradient)] px-5 py-5 shadow-sm">
-        <div
-          className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-quiz-purple/10 blur-3xl"
-          aria-hidden="true"
-        />
-        <div className="relative flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <div className="mb-1.5 inline-flex items-center gap-1.5 rounded-full border border-quiz-purple/25 bg-quiz-purple/10 px-3 py-1">
-              <Zap className="h-3 w-3 text-quiz-purple" />
-              <span className="text-xs font-bold tracking-wide text-quiz-purple">
-                Free to play · no signup needed
-              </span>
-            </div>
-            <h1 className="text-xl font-black tracking-tight md:text-2xl">
-              Play great quizzes{' '}
-              <span className="bg-gradient-to-r from-quiz-purple to-quiz-pink bg-clip-text text-transparent">
-                right now.
-              </span>
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              <AnimatedCounter value={stats.totalQuizzes} /> quizzes ·{' '}
-              <AnimatedCounter value={stats.totalPlayers} /> players ·{' '}
-              <AnimatedCounter value={stats.totalCategories} /> topics
-            </p>
-          </div>
-          <div className="shrink-0 flex flex-wrap gap-2">
-            <Button
-              asChild
-              size="sm"
-              variant="gradient"
-              className="rounded-xl font-bold shadow shadow-quiz-purple/20"
-            >
-              <Link href="/sign-up">
-                <Zap className="h-3.5 w-3.5" />
-                Get Started Free
-              </Link>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              asChild
-              className="rounded-xl border-border/60 bg-background/50 font-semibold"
-            >
-              <Link href="/random-quiz">
-                <Play className="h-3.5 w-3.5" />
-                Instant Play
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
 function DuelInviteCard() {
   return (
     <section>
@@ -781,10 +723,6 @@ export function HomePageClient({
         </>
       ) : (
         <>
-          <motion.div variants={sectionVariants}>
-            <GuestHero stats={stats} />
-          </motion.div>
-
           <Divider />
 
           <motion.div variants={sectionVariants}>
