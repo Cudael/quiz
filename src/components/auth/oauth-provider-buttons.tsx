@@ -23,6 +23,7 @@ function GoogleIcon() {
       width="18"
       height="18"
       aria-hidden="true"
+      data-testid="google-oauth-icon"
     >
       <path
         fill="#4285F4"
@@ -65,24 +66,33 @@ export function OauthProviderButtons({
 
   return (
     <div className="space-y-2">
-      {enabled.map((provider) => (
-        <Button
-          key={provider.id}
-          type="button"
-          variant={
-            provider.id === 'google' ? 'outline' : enabled.length === 1 ? 'default' : 'outline'
-          }
-          className="w-full gap-2"
-          onClick={() => signIn(provider.id, { callbackUrl })}
-        >
-          {provider.id === 'google' ? (
-            <GoogleIcon />
-          ) : (
-            <Github className="h-4 w-4" aria-hidden="true" />
-          )}
-          {provider.label}
-        </Button>
-      ))}
+      {enabled.map((provider) => {
+        const isGoogle = provider.id === 'google'
+        let variant: 'default' | 'outline' = 'outline'
+
+        if (!isGoogle && enabled.length === 1) {
+          variant = 'default'
+        }
+
+        return (
+          <Button
+            key={provider.id}
+            type="button"
+            variant={variant}
+            className="w-full gap-2"
+            data-provider={provider.id}
+            data-variant={variant}
+            onClick={() => signIn(provider.id, { callbackUrl })}
+          >
+            {isGoogle ? (
+              <GoogleIcon />
+            ) : (
+              <Github className="h-4 w-4" aria-hidden="true" data-testid="github-oauth-icon" />
+            )}
+            {provider.label}
+          </Button>
+        )
+      })}
     </div>
   )
 }

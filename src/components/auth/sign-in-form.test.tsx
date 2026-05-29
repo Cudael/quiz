@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { pushMock, refreshMock, signInMock } = vi.hoisted(() => ({
@@ -42,7 +42,12 @@ describe('SignInForm', () => {
   })
 
   it('uses logging in loading copy on submit', async () => {
-    signInMock.mockReturnValue(new Promise(() => {}))
+    let resolveSignIn: (value: { url: string }) => void = () => undefined
+    signInMock.mockReturnValue(
+      new Promise<{ url: string }>((resolve) => {
+        resolveSignIn = resolve
+      })
+    )
     render(<SignInForm callbackUrl="/me" googleEnabled={false} githubEnabled={false} />)
 
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'player@example.com' } })
@@ -50,5 +55,9 @@ describe('SignInForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
 
     expect(await screen.findByText('Logging in…')).toBeInTheDocument()
+    resolveSignIn({ url: '/me' })
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalledWith('/me')
+    })
   })
 })
