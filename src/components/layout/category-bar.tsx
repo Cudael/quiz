@@ -37,12 +37,13 @@ const getCategoryBarData = unstable_cache(
         return b.quizCount - a.quizCount
       })
       .slice(0, 8)
-      .map(({ slug, name, icon, color, imageUrl }) => ({
+      .map(({ slug, name, icon, color, imageUrl, quizCount }) => ({
         slug,
         name,
         icon,
         color,
         imageUrl: imageUrl ?? undefined,
+        quizCount,
       }))
 
     return sorted

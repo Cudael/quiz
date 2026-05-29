@@ -35,12 +35,14 @@ const categories: CategoryBarItem[] = [
     icon: 'FlaskConical',
     color: '#8b5cf6',
     imageUrl: 'https://cdn.example.com/science.jpg',
+    quizCount: 12,
   },
   {
     slug: 'history',
     name: 'History',
     icon: 'ScrollText',
     color: '#f97316',
+    quizCount: 5,
   },
 ]
 
@@ -49,7 +51,7 @@ describe('CategoryBarClient', () => {
     mockedUsePathname.mockReturnValue('/categories/science')
   })
 
-  it('renders compact category pills with image and icon fallback', () => {
+  it('renders category cards with image and icon fallback', () => {
     const { container } = render(<CategoryBarClient categories={categories} />)
     const historyLink = screen.getByRole('link', { name: /history/i })
 
@@ -62,7 +64,14 @@ describe('CategoryBarClient', () => {
     expect(historyLink.querySelector('svg')).toBeTruthy()
   })
 
-  it('uses compact strip styling and active pill state', () => {
+  it('shows quiz count on each card', () => {
+    render(<CategoryBarClient categories={categories} />)
+
+    expect(screen.getByText('12 quizzes')).toBeTruthy()
+    expect(screen.getByText('5 quizzes')).toBeTruthy()
+  })
+
+  it('uses scrollable row and active card state', () => {
     render(<CategoryBarClient categories={categories} />)
 
     const navigation = screen.getByRole('navigation', { name: 'Popular categories' })
@@ -71,7 +80,13 @@ describe('CategoryBarClient', () => {
     const activeLink = screen.getByRole('link', { name: /science/i })
     const historyLink = screen.getByRole('link', { name: /history/i })
     expect(activeLink).toHaveAttribute('aria-current', 'page')
-    expect(activeLink.className).toContain('bg-primary/10')
+    expect(activeLink.className).toContain('border-primary/30')
     expect(historyLink.className).toContain('hover:bg-accent/50')
+  })
+
+  it('is not sticky', () => {
+    const { container } = render(<CategoryBarClient categories={categories} />)
+    const wrapper = container.firstElementChild
+    expect(wrapper?.className).not.toContain('sticky')
   })
 })
