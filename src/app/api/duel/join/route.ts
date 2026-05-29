@@ -1,7 +1,6 @@
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/server/auth'
-import { DEFAULT_GUEST_NAME } from '@/domain/quiz-constants'
 import { joinDuelSchema } from '@/schemas'
 import { prisma } from '@/server/prisma'
 
@@ -52,20 +51,11 @@ export async function POST(req: NextRequest) {
     data: {
       duelId: duel.id,
       userId: session?.user?.id ?? null,
-      guestName: session?.user?.id ? null : DEFAULT_GUEST_NAME,
+      guestName: session?.user?.id ? null : 'Guest',
       guestKey: session?.user?.id ? null : guestKey,
     },
   })
 
   const response = NextResponse.json({ duelId: duel.id, code: duel.code })
-  if (!cookieStore.get('qa_guest_id')?.value) {
-    response.cookies.set('qa_guest_id', guestKey, {
-      maxAge: 60 * 60 * 24 * 365,
-      httpOnly: true,
-      sameSite: 'lax',
-      path: '/',
-      secure: process.env.NODE_ENV === 'production',
-    })
-  }
   return response
 }

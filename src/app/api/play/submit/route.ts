@@ -6,7 +6,6 @@ import { prisma } from '@/server/prisma'
 import { verifyPlayToken } from '@/server/play-token'
 import { scoreQuestion } from '@/domain/scoring'
 import { auth } from '@/server/auth'
-import { DEFAULT_GUEST_NAME } from '@/domain/quiz-constants'
 import { evaluateBadgesWithClient } from '@/domain/badges'
 import { levelForXp } from '@/domain/leveling'
 import { computeStreak } from '@/domain/streak'
@@ -159,7 +158,7 @@ export async function POST(req: NextRequest) {
       data: {
         userId: authSession?.user?.id ?? null,
         quizId,
-        guestName: guestName?.trim() ? guestName.trim() : DEFAULT_GUEST_NAME,
+        guestName: guestName?.trim() ? guestName.trim() : 'Guest',
         guestKey,
         score,
         correctCount,
@@ -257,17 +256,5 @@ export async function POST(req: NextRequest) {
   revalidateTag(HOME_POPULAR_QUIZZES_TAG, 'max')
   revalidateTag(LEADERBOARD_TAG, 'max')
 
-  const response = NextResponse.json(result)
-
-  if (!cookieStore.get('qa_guest_id')?.value) {
-    response.cookies.set('qa_guest_id', guestKey, {
-      maxAge: 60 * 60 * 24 * 365,
-      httpOnly: true,
-      sameSite: 'lax',
-      path: '/',
-      secure: process.env.NODE_ENV === 'production',
-    })
-  }
-
-  return response
+  return NextResponse.json(result)
 }

@@ -41,9 +41,6 @@ vi.mock('@/lib/usernames', () => ({ generateUniqueUsername: generateUniqueUserna
 vi.mock('@/server/authorize-email-password', () => ({
   authorizeEmailPassword: vi.fn(),
 }))
-vi.mock('@/server/authorize-guest', () => ({
-  authorizeGuest: vi.fn(),
-}))
 vi.mock('@/server/auth.config', () => ({
   authConfig: {},
   buildOAuthProviders: buildOAuthProvidersMock,

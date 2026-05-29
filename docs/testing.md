@@ -40,7 +40,6 @@ src/
       streak-flame.tsx → streak-flame.test.tsx
       toast.tsx        → toast.test.tsx
     auth/
-      guest-upgrade-prompt.tsx → guest-upgrade-prompt.test.tsx
   domain/
     badges.ts          → badges.test.ts
     leveling.ts        → leveling.test.ts
