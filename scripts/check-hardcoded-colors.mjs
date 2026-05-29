@@ -20,6 +20,9 @@ const allowlist = new Set([
   'components/ui/modal.tsx',
   // Notification badge: text-white on bg-red-500 (unread count pill — intentional contrast)
   'components/notifications/notification-bell.tsx',
+  // Daily-challenge XP track: translucent bg-black/10 dark:bg-white/10 overlay on a
+  // branded gradient bar — intentional neutral tint that adapts to the active theme.
+  'components/home/sections/hero-daily-section.tsx',
 ])
 
 async function walk(dir) {
