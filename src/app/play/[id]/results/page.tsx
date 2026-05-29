@@ -19,15 +19,6 @@ import { copy } from '@/lib/copy'
 import { GuestUpgradePrompt } from '@/components/auth/guest-upgrade-prompt'
 import { renderFillBlankPrompt } from '@/domain/quiz-constants'
 
-function parseChosenIdsFromJson(value: string) {
-  try {
-    const parsed = JSON.parse(value)
-    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string') : []
-  } catch {
-    return []
-  }
-}
-
 export default async function ResultsPage({
   params,
   searchParams,
@@ -130,13 +121,7 @@ export default async function ResultsPage({
 
   const isPersonalBest = await personalBest
   const answersByQuestionId = new Map(
-    sessionRow.answers.map((answer) => [
-      answer.questionId,
-      {
-        ...answer,
-        chosenIds: parseChosenIdsFromJson(answer.chosenIds),
-      },
-    ])
+    sessionRow.answers.map((answer) => [answer.questionId, answer])
   )
 
   return (

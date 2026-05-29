@@ -4,11 +4,12 @@ import Google from 'next-auth/providers/google'
 import Credentials from 'next-auth/providers/credentials'
 
 /**
- * Edge-safe auth config — no Prisma, no Node.js-only imports.
- * Used by middleware and as the base for the full auth.ts config.
+ * Builds the OAuth provider list from environment variables.
+ * Edge-safe — no Prisma or Node.js-only imports.
+ * Shared by auth.config.ts (middleware/edge) and auth.ts (Node.js runtime).
  */
-export const authConfig: NextAuthConfig = {
-  providers: [
+export function buildOAuthProviders() {
+  return [
     ...(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
       ? [
           GitHub({
@@ -25,6 +26,16 @@ export const authConfig: NextAuthConfig = {
           }),
         ]
       : []),
+  ]
+}
+
+/**
+ * Edge-safe auth config — no Prisma, no Node.js-only imports.
+ * Used by middleware and as the base for the full auth.ts config.
+ */
+export const authConfig: NextAuthConfig = {
+  providers: [
+    ...buildOAuthProviders(),
     // Credentials providers are declared here for typing but
     // their `authorize` logic lives in auth.ts (Node.js runtime only).
     Credentials({ id: 'email-password', name: 'Email and Password', credentials: {} }),

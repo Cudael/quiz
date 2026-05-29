@@ -21,7 +21,7 @@ interface NotificationItem {
   title: string
   message: string
   isRead: boolean
-  meta: string | null
+  meta: Record<string, unknown> | null
   createdAt: string
 }
 
@@ -60,17 +60,8 @@ function formatRelativeTime(timestamp: string) {
   return 'just now'
 }
 
-function parseMeta(meta: string | null): Record<string, unknown> | null {
-  if (!meta) return null
-  try {
-    const parsed: unknown = JSON.parse(meta)
-    if (parsed && typeof parsed === 'object') {
-      return parsed as Record<string, unknown>
-    }
-  } catch {
-    return null
-  }
-  return null
+function parseMeta(meta: Record<string, unknown> | null): Record<string, unknown> | null {
+  return meta && typeof meta === 'object' ? meta : null
 }
 
 function getNotificationHref(notification: NotificationItem) {

@@ -39,9 +39,9 @@ interface SessionSnapshot {
   }
 }
 
-function parseCriterion(criteria: string): BadgeCriterion | null {
+function parseCriterion(criteria: unknown): BadgeCriterion | null {
   try {
-    return JSON.parse(criteria) as BadgeCriterion
+    return criteria as BadgeCriterion
   } catch {
     return null
   }

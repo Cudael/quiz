@@ -11,6 +11,7 @@ import { evaluateBadgesWithClient } from '@/domain/badges'
 import { levelForXp } from '@/domain/leveling'
 import { computeStreak } from '@/domain/streak'
 import { HOME_POPULAR_QUIZZES_TAG, HOME_TRENDING_QUIZZES_TAG } from '@/server/home-quiz-cache'
+import { LEADERBOARD_TAG } from '@/server/leaderboard'
 import { submitPlaySchema } from '@/schemas'
 import { checkRateLimit, getClientIp } from '@/server/rate-limit'
 
@@ -173,7 +174,7 @@ export async function POST(req: NextRequest) {
         data: evaluatedAnswers.map((answer) => ({
           sessionId: playSession.id,
           questionId: answer.questionId,
-          chosenIds: JSON.stringify(answer.chosenIds),
+          chosenIds: answer.chosenIds,
           isCorrect: answer.isCorrect,
           timeTakenMs: answer.timeTakenMs,
         })),
@@ -254,6 +255,7 @@ export async function POST(req: NextRequest) {
 
   revalidateTag(HOME_TRENDING_QUIZZES_TAG, 'max')
   revalidateTag(HOME_POPULAR_QUIZZES_TAG, 'max')
+  revalidateTag(LEADERBOARD_TAG)
 
   const response = NextResponse.json(result)
 

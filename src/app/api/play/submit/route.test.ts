@@ -138,7 +138,7 @@ describe('POST /api/play/submit', () => {
         {
           sessionId: 'session-1',
           questionId: 'question-1',
-          chosenIds: JSON.stringify(['choice-1']),
+          chosenIds: ['choice-1'],
           isCorrect: true,
           timeTakenMs: 2500,
         },

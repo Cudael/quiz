@@ -34,7 +34,7 @@ function makeClient({
           name: 'Test Badge',
           description: 'Test badge',
           icon: 'Star',
-          criteria: JSON.stringify(criterion),
+          criteria: criterion,
         },
       ]),
     },
