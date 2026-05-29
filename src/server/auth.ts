@@ -6,6 +6,7 @@ import { prisma } from '@/server/prisma'
 import { authorizeEmailPassword } from '@/server/authorize-email-password'
 import { authorizeGuest } from '@/server/authorize-guest'
 import { authConfig, buildOAuthProviders } from '@/server/auth.config'
+import { generateUniqueUsername } from '@/lib/usernames'
 
 /** Profile fields cached inside the JWT. */
 interface ProfileToken {
@@ -47,6 +48,71 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
   callbacks: {
+    async signIn({ user, account }) {
+      if (!account?.provider || account.provider === 'credentials') {
+        return true
+      }
+
+      const normalizedEmail = user.email?.trim().toLowerCase()
+      if (!normalizedEmail) {
+        return true
+      }
+
+      const now = new Date()
+      let dbUser = await prisma.user.findUnique({
+        where: { email: normalizedEmail },
+        select: { id: true, emailVerified: true },
+      })
+
+      if (!dbUser) {
+        const username = await generateUniqueUsername(user.name ?? normalizedEmail)
+        dbUser = await prisma.user.create({
+          data: {
+            name: user.name ?? normalizedEmail,
+            email: normalizedEmail,
+            image: user.image,
+            emailVerified: now,
+            role: 'USER',
+            username,
+          },
+          select: { id: true, emailVerified: true },
+        })
+      } else if (!dbUser.emailVerified) {
+        dbUser = await prisma.user.update({
+          where: { id: dbUser.id },
+          data: { emailVerified: now },
+          select: { id: true, emailVerified: true },
+        })
+      }
+
+      await prisma.account.upsert({
+        where: {
+          provider_providerAccountId: {
+            provider: account.provider,
+            providerAccountId: account.providerAccountId,
+          },
+        },
+        update: {
+          userId: dbUser.id,
+        },
+        create: {
+          userId: dbUser.id,
+          type: account.type,
+          provider: account.provider,
+          providerAccountId: account.providerAccountId,
+          refresh_token: account.refresh_token,
+          access_token: account.access_token,
+          expires_at: account.expires_at,
+          token_type: account.token_type,
+          scope: account.scope,
+          id_token: account.id_token,
+          session_state: account.session_state ? String(account.session_state) : null,
+        },
+      })
+
+      user.id = dbUser.id
+      return true
+    },
     async jwt({ token, user }) {
       const t = token as typeof token & ProfileToken
 
