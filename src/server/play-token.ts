@@ -65,7 +65,16 @@ async function verify(message: string, sigB64: string, key: CryptoKey): Promise<
 // Nonce tracking — prevents a token from being submitted more than once
 // ---------------------------------------------------------------------------
 
-/** Maps nonce → expiry timestamp (ms). Entries are cleaned up lazily. */
+/**
+ * Maps nonce → expiry timestamp (ms). Entries are cleaned up lazily.
+ *
+ * **Serverless limitation:** Like the in-memory rate-limiter, this map is
+ * local to each server instance. On platforms such as Vercel, isolated
+ * function instances do not share memory, so replay protection is best-effort
+ * within a single warm instance. For strict single-use enforcement across all
+ * instances, replace this with a shared atomic store (e.g. Redis / Upstash).
+ * Node.js is single-threaded, so there is no intra-process race condition.
+ */
 const usedNonces = new Map<string, number>()
 
 const TOKEN_TTL_MS = 4 * 60 * 60 * 1000
