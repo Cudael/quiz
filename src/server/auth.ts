@@ -7,16 +7,11 @@ import { cookies } from 'next/headers'
 import { z } from 'zod'
 import { prisma } from '@/server/prisma'
 import { generateUniqueUsername } from '@/lib/usernames'
-import { verifyPassword } from '@/server/password'
+import { authorizeEmailPassword } from '@/server/authorize-email-password'
 import { authConfig } from '@/server/auth.config'
 
 const credentialsSchema = z.object({
   name: z.string().trim().min(1).max(80),
-})
-
-const emailPasswordCredentialsSchema = z.object({
-  email: z.email().trim().toLowerCase(),
-  password: z.string().min(1),
 })
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -45,45 +40,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
-      authorize: async (rawCredentials) => {
-        const parsed = emailPasswordCredentialsSchema.safeParse(rawCredentials)
-        if (!parsed.success) {
-          return null
-        }
-
-        const user = await prisma.user.findUnique({
-          where: { email: parsed.data.email },
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            image: true,
-            role: true,
-            emailVerified: true,
-            passwordHash: true,
-          },
-        })
-
-        if (!user?.passwordHash) {
-          return null
-        }
-
-        const isValid = await verifyPassword(parsed.data.password, user.passwordHash)
-        if (!isValid) {
-          return null
-        }
-
-        // Allow sign-in regardless of email verification status.
-        // Email verification is only required for creating quizzes (enforced in studio actions).
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          image: user.image,
-          role: user.role,
-          emailVerified: user.emailVerified,
-        }
-      },
+      authorize: authorizeEmailPassword,
     }),
     Credentials({
       id: 'credentials',
