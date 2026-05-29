@@ -86,7 +86,9 @@ export const config = {
   matcher: [
     {
       // Run on all page routes; skip Next.js internals, static files, and API
-      // routes (API handlers return JSON and manage their own auth/headers).
+      // routes.  API handlers (including /api/auth/[...nextauth]) return JSON
+      // and do not need nonce injection or static-asset CSP headers.
+      // Rate limiting for API endpoints is handled inside each route handler.
       source:
         '/((?!_next/static|_next/image|favicon.ico|api/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
       missing: [{ type: 'header', key: 'next-fetch-dest', value: 'image' }],
