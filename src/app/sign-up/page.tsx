@@ -11,7 +11,7 @@ export default async function SignUpPage({
   return (
     <div className="flex min-h-[80vh] items-center justify-center p-4">
       <SignUpForm
-        callbackUrl={callbackUrl || '/me'}
+        callbackUrl={callbackUrl || '/'}
         googleEnabled={Boolean(process.env.GOOGLE_CLIENT_ID)}
         githubEnabled={Boolean(process.env.GITHUB_CLIENT_ID)}
       />
