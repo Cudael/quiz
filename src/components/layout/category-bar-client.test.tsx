@@ -71,11 +71,12 @@ describe('CategoryBarClient', () => {
     expect(screen.getByText('History')).toBeTruthy()
   })
 
-  it('uses scrollable row and active card state', () => {
+  it('uses grid layout and active card state', () => {
     render(<CategoryBarClient categories={categories} />)
 
     const navigation = screen.getByRole('navigation', { name: 'Popular categories' })
-    expect(navigation.className).toContain('overflow-x-auto')
+    expect(navigation.className).toContain('grid-flow-col')
+    expect(navigation.className).not.toContain('overflow-x-auto')
 
     const activeLink = screen.getByRole('link', { name: /science/i })
     const historyLink = screen.getByRole('link', { name: /history/i })
@@ -84,12 +85,19 @@ describe('CategoryBarClient', () => {
     expect(historyLink.className).toContain('hover:text-foreground')
   })
 
-  it('uses full-width flat wrapper', () => {
+  it('renders quiz counts', () => {
+    render(<CategoryBarClient categories={categories} />)
+
+    expect(screen.getByText('12 quizzes')).toBeTruthy()
+    expect(screen.getByText('5 quizzes')).toBeTruthy()
+  })
+
+  it('uses container-constrained full-width wrapper', () => {
     const { container } = render(<CategoryBarClient categories={categories} />)
     const wrapper = container.firstElementChild
     expect(wrapper?.className).toContain('w-full')
     expect(wrapper?.className).toContain('border-b')
     expect(wrapper?.className).not.toContain('sticky')
-    expect(wrapper?.querySelector('.container')).toBeNull()
+    expect(wrapper?.querySelector('.container')).toBeTruthy()
   })
 })
