@@ -49,13 +49,14 @@ export function CategoryBarClient({ categories }: { categories: CategoryBarItem[
               <Link
                 key={category.slug}
                 href={`/categories/${category.slug}`}
+                title={category.name}
                 className={cn(
                   'group flex w-24 shrink-0 flex-col items-center gap-2 pb-1 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                   isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
                 )}
                 aria-current={isActive ? 'page' : undefined}
               >
-                <div className="relative h-14 w-full overflow-hidden rounded-full">
+                <div className="relative h-14 w-14 overflow-hidden rounded-full">
                   {category.imageUrl ? (
                     <Image
                       src={category.imageUrl}
