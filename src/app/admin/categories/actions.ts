@@ -85,7 +85,7 @@ export async function updateCategory(
   })
 
   revalidatePath('/admin/categories')
-  revalidateTag(CATEGORY_BAR_TAG)
+  revalidateTag(CATEGORY_BAR_TAG, 'max')
   return { ok: true }
 }
 
@@ -126,7 +126,7 @@ export async function deleteCategory(
   })
 
   revalidatePath('/admin/categories')
-  revalidateTag(CATEGORY_BAR_TAG)
+  revalidateTag(CATEGORY_BAR_TAG, 'max')
   return { ok: true }
 }
 
@@ -197,6 +197,6 @@ export async function createCategory(
   })
 
   revalidatePath('/admin/categories')
-  revalidateTag(CATEGORY_BAR_TAG)
+  revalidateTag(CATEGORY_BAR_TAG, 'max')
   return { ok: true }
 }
