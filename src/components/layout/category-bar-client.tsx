@@ -36,12 +36,12 @@ export function CategoryBarClient({ categories }: { categories: CategoryBarItem[
   if (categories.length === 0) return null
 
   return (
-    <div className="w-full border-b border-border/30 bg-muted/20 py-3">
-      <div className="w-full px-4 md:px-6">
-        <div
+    <div className="w-full border-b border-border/20 bg-background py-4">
+      <div className="container mx-auto px-4 md:px-6">
+        <nav
           role="navigation"
           aria-label="Popular categories"
-          className="flex gap-4 overflow-x-auto scrollbar-none"
+          className="grid grid-flow-col auto-cols-fr gap-2"
         >
           {categories.map((category) => {
             const isActive = pathname.startsWith(`/categories/${category.slug}`)
@@ -51,18 +51,18 @@ export function CategoryBarClient({ categories }: { categories: CategoryBarItem[
                 href={`/categories/${category.slug}`}
                 title={category.name}
                 className={cn(
-                  'group flex w-24 shrink-0 flex-col items-center gap-2 pb-1 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                  'group flex flex-col items-center gap-1.5 py-1 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg',
                   isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
                 )}
                 aria-current={isActive ? 'page' : undefined}
               >
-                <div className="relative h-14 w-14 overflow-hidden rounded-full">
+                <div className="relative h-14 w-14 overflow-hidden rounded-xl shrink-0">
                   {category.imageUrl ? (
                     <Image
                       src={category.imageUrl}
                       alt={category.name}
                       fill
-                      sizes="96px"
+                      sizes="56px"
                       className="object-cover"
                     />
                   ) : (
@@ -79,10 +79,13 @@ export function CategoryBarClient({ categories }: { categories: CategoryBarItem[
                 <p className="w-full truncate text-xs font-semibold leading-tight">
                   {category.name}
                 </p>
+                <p className="text-[10px] text-muted-foreground leading-none">
+                  {category.quizCount} {category.quizCount === 1 ? 'quiz' : 'quizzes'}
+                </p>
               </Link>
             )
           })}
-        </div>
+        </nav>
       </div>
     </div>
   )
