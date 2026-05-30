@@ -62,6 +62,66 @@ interface QuizCardProps {
   className?: string
 }
 
+export function QuizCardHorizontal({ quiz, className }: QuizCardProps) {
+  const [imageFailed, setImageFailed] = React.useState(false)
+  const hasCoverImage = Boolean(quiz.coverImage) && !imageFailed
+
+  return (
+    <Link href={`/quiz/${quiz.id}`} className={cn('group block shrink-0 w-52', className)}>
+      <div className="overflow-hidden rounded-2xl border border-border/40 shadow-sm transition-shadow duration-200 group-hover:shadow-md">
+        <div className="relative h-36 w-full">
+          <div
+            className="absolute inset-0"
+            style={{ backgroundImage: getFallbackGradient(quiz.category.color) }}
+          />
+          {hasCoverImage ? (
+            <Image
+              src={quiz.coverImage ?? ''}
+              alt={`${quiz.title} cover image`}
+              fill
+              unoptimized
+              sizes="208px"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              onError={() => setImageFailed(true)}
+            />
+          ) : null}
+        </div>
+        <div className="flex items-start justify-between gap-2 bg-card p-3">
+          <div className="min-w-0 flex-1">
+            <h3 className="line-clamp-2 text-sm font-bold leading-tight text-foreground">
+              {quiz.title}
+            </h3>
+            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+              {quiz.playCount !== undefined ? (
+                <>
+                  <span className="text-[11px] font-medium text-muted-foreground">
+                    {formatPlayCount(quiz.playCount)} plays
+                  </span>
+                  <span className="text-[11px] text-muted-foreground">•</span>
+                </>
+              ) : null}
+              <Badge
+                variant={getDifficultyVariant(quiz.difficulty)}
+                className="h-4 px-1.5 py-0 text-[10px]"
+              >
+                {quiz.difficulty}
+              </Badge>
+            </div>
+          </div>
+          <div className="shrink-0">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary shadow-sm shadow-primary/30 transition-transform duration-200 group-hover:scale-110">
+              <Play
+                className="h-3.5 w-3.5 translate-x-0.5 text-primary-foreground"
+                fill="currentColor"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </Link>
+  )
+}
+
 export function QuizCard({ quiz, className }: QuizCardProps) {
   const shouldReduceMotion = useReducedMotion()
   const [imageFailed, setImageFailed] = React.useState(false)
