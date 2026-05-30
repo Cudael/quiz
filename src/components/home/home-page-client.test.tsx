@@ -118,9 +118,6 @@ describe('HomePageClient', () => {
       />
     )
 
-    expect(
-      screen.getByRole('heading', { name: /play great quizzes right now/i })
-    ).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Trending Globally' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Most Popular' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Freshly Added' })).toBeInTheDocument()
@@ -128,11 +125,15 @@ describe('HomePageClient', () => {
       screen.getByRole('heading', { name: 'Challenge a friend to a duel' })
     ).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Top Players' })).toBeInTheDocument()
+    expect(screen.getByText('Ada Lovelace')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /view full leaderboard/i })).toBeInTheDocument()
     expect(screen.getByText('🧪')).toBeInTheDocument()
     expect(screen.getByText('Experiments and facts')).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'For You' })).not.toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: /editor's pick/i })).not.toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: /how it works/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Your Progress' })).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Scroll Most Popular right')).toBeInTheDocument()
 
     const exploreByTopic = screen.getByRole('heading', { name: 'Explore by topic' })
     const trendingGlobally = screen.getByRole('heading', { name: 'Trending Globally' })
@@ -156,10 +157,10 @@ describe('HomePageClient', () => {
       />
     )
 
-    expect(screen.getByRole('heading', { name: /welcome back, cudael! 👋/i })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: "Today's Pick" })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'For You' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Most Popular' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Your Progress' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Top Players' })).toBeInTheDocument()
     expect(screen.getByText(/based on your activity/i)).toBeInTheDocument()
   })
@@ -179,7 +180,6 @@ describe('HomePageClient', () => {
       />
     )
 
-    expect(screen.getByRole('heading', { name: /welcome back, cudael! 👋/i })).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'For You' })).not.toBeInTheDocument()
   })
 })

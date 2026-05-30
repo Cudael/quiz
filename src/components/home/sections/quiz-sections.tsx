@@ -1,7 +1,11 @@
-import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
-import { QuizCard, type QuizCardData } from '@/components/ui/quiz-card'
+'use client'
+
+import * as React from 'react'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { QuizCard, QuizCardHorizontal, type QuizCardData } from '@/components/ui/quiz-card'
 import { SectionHeader } from './section-primitives'
+
+const SCROLL_DISTANCE = 600
 
 export function QuizScrollerSection({
   title,
@@ -12,34 +16,51 @@ export function QuizScrollerSection({
   quizzes: QuizCardData[]
   subtitle?: string
 }) {
+  const scrollRef = React.useRef<HTMLDivElement>(null)
+
+  function scroll(dir: 'left' | 'right') {
+    if (!scrollRef.current) return
+    scrollRef.current.scrollBy({
+      left: dir === 'right' ? SCROLL_DISTANCE : -SCROLL_DISTANCE,
+      behavior: 'smooth',
+    })
+  }
+
   return (
     <section>
-      {subtitle ? (
-        <div className="mb-3 flex items-end justify-between">
-          <div>
-            <h2 className="text-2xl font-black tracking-tight">{title}</h2>
-            <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
-          </div>
-          <Link
-            href="/categories"
-            className="flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md px-1 transition-colors"
-          >
-            See all <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
+      <div className="mb-3 flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-black tracking-tight">{title}</h2>
+          {subtitle ? <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p> : null}
         </div>
-      ) : (
-        <SectionHeader title={title} href="/categories" />
-      )}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => scroll('left')}
+            aria-label={`Scroll ${title} left`}
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background shadow-sm transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => scroll('right')}
+            aria-label={`Scroll ${title} right`}
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background shadow-sm transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
       {quizzes.length > 0 ? (
         <div
-          className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 [scrollbar-width:thin] scrollbar-thumb-muted scrollbar-track-transparent"
+          ref={scrollRef}
+          className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           aria-label={`${title} quizzes`}
         >
           {quizzes.map((quiz) => (
-            <QuizCard
+            <QuizCardHorizontal
               key={quiz.id}
               quiz={quiz}
-              className="w-64 shrink-0 snap-start focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2"
+              className="snap-start focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2"
             />
           ))}
         </div>
