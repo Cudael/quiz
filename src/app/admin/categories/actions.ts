@@ -1,10 +1,11 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
 import { slugify } from '@/lib/slugify'
+import { CATEGORY_BAR_TAG } from '@/components/layout/category-bar'
 
 type AdminActionResult = { ok: true } | { ok: false; message: string }
 
@@ -84,6 +85,7 @@ export async function updateCategory(
   })
 
   revalidatePath('/admin/categories')
+  revalidateTag(CATEGORY_BAR_TAG)
   return { ok: true }
 }
 
@@ -124,6 +126,7 @@ export async function deleteCategory(
   })
 
   revalidatePath('/admin/categories')
+  revalidateTag(CATEGORY_BAR_TAG)
   return { ok: true }
 }
 
@@ -194,5 +197,6 @@ export async function createCategory(
   })
 
   revalidatePath('/admin/categories')
+  revalidateTag(CATEGORY_BAR_TAG)
   return { ok: true }
 }
