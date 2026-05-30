@@ -12,6 +12,13 @@ import { HeroDailySection } from './sections/hero-daily-section'
 import { QuizGridSection, QuizScrollerSection } from './sections/quiz-sections'
 import { Divider } from './sections/section-primitives'
 
+const SIDEBAR_TOP_PLAYERS_LIMIT = 3
+const SIDEBAR_MEDALS = [
+  { icon: '🥇', label: '1st place' },
+  { icon: '🥈', label: '2nd place' },
+  { icon: '🥉', label: '3rd place' },
+]
+
 export type {
   HomeCurrentUser,
   HomeFeaturedCategory,
@@ -221,12 +228,18 @@ export function HomePageClient({
               <Trophy className="h-4 w-4 text-quiz-yellow" /> Top Players
             </h3>
             {topPlayers.length > 0 ? (
-              topPlayers.slice(0, 3).map((player, i) => (
+              topPlayers.slice(0, SIDEBAR_TOP_PLAYERS_LIMIT).map((player, i) => (
                 <div
                   key={player.userId}
                   className="flex items-center gap-2 border-b border-border/20 py-2 last:border-0"
                 >
-                  <span className="w-5 text-xs font-black">{['🥇', '🥈', '🥉'][i]}</span>
+                  <span
+                    className="w-5 text-xs font-black"
+                    role="img"
+                    aria-label={SIDEBAR_MEDALS[i]?.label}
+                  >
+                    {SIDEBAR_MEDALS[i]?.icon}
+                  </span>
                   <span className="flex-1 truncate text-sm font-semibold">{player.name}</span>
                   <span className="text-xs font-bold text-muted-foreground">
                     {player.totalScore.toLocaleString()} XP

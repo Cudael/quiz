@@ -5,6 +5,8 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { QuizCard, QuizCardHorizontal, type QuizCardData } from '@/components/ui/quiz-card'
 import { SectionHeader } from './section-primitives'
 
+const SCROLL_DISTANCE = 600
+
 export function QuizScrollerSection({
   title,
   quizzes,
@@ -18,7 +20,10 @@ export function QuizScrollerSection({
 
   function scroll(dir: 'left' | 'right') {
     if (!scrollRef.current) return
-    scrollRef.current.scrollBy({ left: dir === 'right' ? 600 : -600, behavior: 'smooth' })
+    scrollRef.current.scrollBy({
+      left: dir === 'right' ? SCROLL_DISTANCE : -SCROLL_DISTANCE,
+      behavior: 'smooth',
+    })
   }
 
   return (
