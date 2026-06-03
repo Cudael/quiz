@@ -118,16 +118,15 @@ describe('HomePageClient', () => {
       />
     )
 
-    expect(screen.getByRole('heading', { name: 'Trending Globally' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Trending Right Now' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Most Popular' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Freshly Added' })).toBeInTheDocument()
-    expect(
-      screen.getByRole('heading', { name: 'Challenge a friend to a duel' })
-    ).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /duel mode/i })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /start a duel/i })).toHaveAttribute('href', '/sign-up')
     expect(screen.getByRole('heading', { name: 'Top Players' })).toBeInTheDocument()
     expect(screen.getByText('Ada Lovelace')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /view full leaderboard/i })).toBeInTheDocument()
-    expect(screen.getByText('🧪')).toBeInTheDocument()
+    expect(screen.getAllByText('🧪').length).toBeGreaterThan(0)
     expect(screen.getByText('Experiments and facts')).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'For You' })).not.toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: /editor's pick/i })).not.toBeInTheDocument()
@@ -140,8 +139,8 @@ describe('HomePageClient', () => {
     expect(screen.getByRole('link', { name: /sign up free/i })).toBeInTheDocument()
 
     const exploreByTopic = screen.getByRole('heading', { name: 'Explore by topic' })
-    const trendingGlobally = screen.getByRole('heading', { name: 'Trending Globally' })
-    expect(trendingGlobally.compareDocumentPosition(exploreByTopic)).toBe(
+    const trendingRightNow = screen.getByRole('heading', { name: 'Trending Right Now' })
+    expect(trendingRightNow.compareDocumentPosition(exploreByTopic)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING
     )
   })
@@ -162,6 +161,8 @@ describe('HomePageClient', () => {
     )
 
     expect(screen.getByRole('heading', { name: "Today's Pick" })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /duel mode/i })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /start a duel/i })).toHaveAttribute('href', '/duel')
     expect(screen.getByRole('heading', { name: 'For You' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Most Popular' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Your Progress' })).toBeInTheDocument()
@@ -169,7 +170,7 @@ describe('HomePageClient', () => {
     expect(screen.getByText(/based on your activity/i)).toBeInTheDocument()
   })
 
-  it('skips the personalized section when an authenticated user has no history yet', () => {
+  it('falls back to popular quizzes when an authenticated user has no history yet', () => {
     render(
       <HomePageClient
         featuredCategories={featuredCategories}
@@ -184,6 +185,8 @@ describe('HomePageClient', () => {
       />
     )
 
-    expect(screen.queryByRole('heading', { name: 'For You' })).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'For You' })).toBeInTheDocument()
+    expect(screen.getByText('Most popular quizzes')).toBeInTheDocument()
+    expect(screen.getAllByText('World capitals challenge').length).toBeGreaterThan(0)
   })
 })

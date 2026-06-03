@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from 'framer-motion'
 import { fadeUp, staggerContainer, withReducedMotion } from '@/lib/motion'
 import type { HomePageClientProps } from './home-page-client.types'
 import { CategoryMosaic } from './sections/category-mosaic'
-import { DuelInviteCard, JoinCTABanner } from './sections/cta-cards'
+import { DuelBannerSection, JoinCTABanner } from './sections/cta-cards'
 import { GuestHeroSection } from './sections/guest-hero-section'
 import { HeroDailySection } from './sections/hero-daily-section'
 import { LeaderboardSection } from './sections/leaderboard-section'
@@ -32,7 +32,7 @@ export function HomePageClient({
   const shouldReduce = useReducedMotion()
   const containerVariants = withReducedMotion(staggerContainer(0.06), shouldReduce)
   const sectionVariants = withReducedMotion(fadeUp, shouldReduce)
-  const featuredQuiz = popularQuizzes[0] ?? trendingQuizzes[0] ?? null
+  const todaysPicks = popularQuizzes.slice(0, 3)
   const minGeographyQuizzesToShow = 2
   const geographyMatcher = /countr|geograph/i
   const loggedInGeographyQuizzes = [...popularQuizzes, ...trendingQuizzes].filter((quiz) =>
@@ -53,30 +53,31 @@ export function HomePageClient({
       {currentUser ? (
         <>
           <motion.div variants={sectionVariants}>
-            <HeroDailySection featuredQuiz={featuredQuiz} currentUser={currentUser} />
+            <DuelBannerSection />
           </motion.div>
-
-          {personalizedQuizzes.length > 0 ? (
-            <>
-              <Divider />
-              <motion.div variants={sectionVariants}>
-                <QuizScrollerSection
-                  title="For You"
-                  quizzes={personalizedQuizzes}
-                  subtitle="Based on your activity"
-                />
-              </motion.div>
-            </>
-          ) : null}
 
           <Divider />
 
           <motion.div variants={sectionVariants}>
-            <QuizGridSection
-              title="Trending Right Now"
-              quizzes={trendingQuizzes}
-              excludeQuizId={featuredQuiz?.id}
+            <HeroDailySection todaysPicks={todaysPicks} currentUser={currentUser} />
+          </motion.div>
+
+          <Divider />
+
+          <motion.div variants={sectionVariants}>
+            <QuizScrollerSection
+              title="For You"
+              quizzes={personalizedQuizzes.length > 0 ? personalizedQuizzes : popularQuizzes}
+              subtitle={
+                personalizedQuizzes.length > 0 ? 'Based on your activity' : 'Most popular quizzes'
+              }
             />
+          </motion.div>
+
+          <Divider />
+
+          <motion.div variants={sectionVariants}>
+            <QuizScrollerSection title="Trending Right Now" quizzes={trendingQuizzes} />
           </motion.div>
 
           <Divider />
@@ -89,10 +90,7 @@ export function HomePageClient({
 
           <motion.div variants={sectionVariants}>
             {loggedInGeographyQuizzes.length >= minGeographyQuizzesToShow ? (
-              <QuizGridSection
-                title="Countries & Geography"
-                quizzes={loggedInGeographyQuizzes}
-              />
+              <QuizGridSection title="Countries & Geography" quizzes={loggedInGeographyQuizzes} />
             ) : (
               <QuizGridSection title="Freshly Added" quizzes={newestQuizzes} />
             )}
@@ -122,27 +120,22 @@ export function HomePageClient({
           <Divider />
 
           <motion.div variants={sectionVariants}>
-            <LeaderboardSection
-              topPlayers={topPlayers}
-              stats={stats}
-              currentUser={currentUser}
-            />
+            <LeaderboardSection topPlayers={topPlayers} stats={stats} currentUser={currentUser} />
           </motion.div>
         </>
       ) : (
         <>
           <motion.div variants={sectionVariants}>
-            <GuestHeroSection stats={stats} />
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <GuestHeroSection stats={stats} showStats={false} />
+              <DuelBannerSection isGuest className="h-full" />
+            </div>
           </motion.div>
 
           <Divider />
 
           <motion.div variants={sectionVariants}>
-            <QuizGridSection
-              title="Trending Globally"
-              quizzes={trendingQuizzes}
-              excludeQuizId={featuredQuiz?.id}
-            />
+            <QuizScrollerSection title="Trending Right Now" quizzes={trendingQuizzes} />
           </motion.div>
 
           <Divider />
@@ -154,13 +147,7 @@ export function HomePageClient({
           <Divider />
 
           <motion.div variants={sectionVariants}>
-            <CategoryMosaic featuredCategories={featuredCategories} />
-          </motion.div>
-
-          <Divider />
-
-          <motion.div variants={sectionVariants}>
-            <DuelInviteCard />
+            <QuizScrollerSection title="Freshly Added" quizzes={newestQuizzes} />
           </motion.div>
 
           <Divider />
@@ -175,16 +162,12 @@ export function HomePageClient({
               </motion.div>
 
               <Divider />
-
-              <motion.div variants={sectionVariants}>
-                <QuizScrollerSection title="Freshly Added" quizzes={newestQuizzes} />
-              </motion.div>
             </>
-          ) : (
-            <motion.div variants={sectionVariants}>
-              <QuizScrollerSection title="Freshly Added" quizzes={newestQuizzes} />
-            </motion.div>
-          )}
+          ) : null}
+
+          <motion.div variants={sectionVariants}>
+            <CategoryMosaic featuredCategories={featuredCategories} />
+          </motion.div>
 
           <Divider />
 

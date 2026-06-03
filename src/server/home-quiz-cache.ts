@@ -30,7 +30,7 @@ const getPopularQuizzesCached = unstable_cache(
     prisma.quiz.findMany({
       where: { isPublished: true },
       orderBy: [{ playCount: 'desc' }, { createdAt: 'desc' }],
-      take: 8,
+      take: 12,
       select: HOME_QUIZ_SELECT,
     }),
   ['home-popular-quizzes'],
@@ -58,7 +58,7 @@ const getTrendingQuizzesCached = unstable_cache(
           },
         },
       ],
-      take: 8,
+      take: 12,
     })
 
     if (quizGroups.length === 0) {
@@ -77,7 +77,7 @@ const getTrendingQuizzesCached = unstable_cache(
     return quizGroups
       .map((group) => quizzesById.get(group.quizId))
       .filter((quiz): quiz is HomeQuizRecord => !!quiz)
-      .slice(0, 8)
+      .slice(0, 12)
   },
   ['home-trending-quizzes'],
   {

@@ -223,7 +223,7 @@ export async function getHomePageData(): Promise<HomePageData> {
               ...(playedQuizIds.length > 0 ? { id: { notIn: playedQuizIds } } : {}),
             },
             orderBy: [{ playCount: 'desc' }, { createdAt: 'desc' }],
-            take: 8,
+            take: 12,
             select: {
               id: true,
               title: true,
@@ -246,7 +246,7 @@ export async function getHomePageData(): Promise<HomePageData> {
         where: { userId: session.user.id },
         orderBy: { createdAt: 'desc' },
         distinct: ['quizId'],
-        take: 6,
+        take: 10,
         select: {
           quiz: {
             select: {

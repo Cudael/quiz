@@ -3,22 +3,35 @@ import { Play, Swords, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { HomeStats } from '../home-page-client.types'
 
-export function DuelInviteCard() {
+export function DuelBannerSection({
+  isGuest = false,
+  className,
+}: {
+  isGuest?: boolean
+  className?: string
+}) {
   return (
-    <section>
-      <div className="relative overflow-hidden rounded-2xl border border-quiz-purple/20 bg-gradient-to-br from-quiz-purple/8 via-quiz-pink/5 to-transparent p-6 shadow-sm">
+    <section className={className}>
+      <div className="relative h-full overflow-hidden rounded-3xl border border-quiz-purple/30 bg-gradient-to-br from-quiz-purple/12 via-quiz-pink/8 to-quiz-blue/5 p-6 shadow-lg shadow-quiz-purple/15 ring-2 ring-quiz-purple/40">
         <div
-          className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-quiz-purple/10 blur-2xl"
+          className="pointer-events-none absolute -right-8 -top-8 h-44 w-44 rounded-full bg-quiz-purple/15 blur-2xl"
           aria-hidden="true"
         />
-        <div className="relative flex flex-col items-center gap-5 md:flex-row">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-quiz-purple to-quiz-pink shadow-lg shadow-quiz-purple/30">
-            <Swords className="h-6 w-6 text-primary-foreground" />
+        <div
+          className="pointer-events-none absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-quiz-pink/12 blur-2xl"
+          aria-hidden="true"
+        />
+        <div className="relative flex h-full flex-col justify-between gap-5 md:flex-row md:items-center">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-quiz-purple to-quiz-pink shadow-lg shadow-quiz-purple/30">
+            <Swords className="h-7 w-7 text-primary-foreground" />
           </div>
-          <div className="flex-1 text-center md:text-left">
-            <h2 className="text-lg font-black tracking-tight">Challenge a friend to a duel</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Go head-to-head on the same quiz. First to finish with the highest score wins.
+          <div className="flex-1">
+            <h2 className="text-2xl font-black tracking-tight">
+              <span>⚔️ </span>
+              <span>Duel Mode</span>
+            </h2>
+            <p className="mt-1 text-sm font-medium text-muted-foreground">
+              Challenge a friend — real-time head-to-head on any quiz.
             </p>
           </div>
           <Button
@@ -26,15 +39,20 @@ export function DuelInviteCard() {
             variant="gradient"
             className="shrink-0 rounded-xl font-bold shadow shadow-quiz-purple/20"
           >
-            <Link href="/sign-up">
+            <Link href={isGuest ? '/sign-up' : '/duel'}>
               <Swords className="h-4 w-4" />
-              Start a Duel
+              <span>Start a Duel</span>
+              <span aria-hidden="true">→</span>
             </Link>
           </Button>
         </div>
       </div>
     </section>
   )
+}
+
+export function DuelInviteCard() {
+  return <DuelBannerSection isGuest />
 }
 
 export function JoinCTABanner({ stats }: { stats: HomeStats }) {
