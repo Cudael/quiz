@@ -33,6 +33,13 @@ export interface SubcategoryData {
   color: string
   quizCount: number
   totalPlays: number
+  popularQuizzes: {
+    id: string
+    title: string
+    coverImage: string | null
+    difficulty: 'EASY' | 'MEDIUM' | 'HARD'
+    playCount: number
+  }[]
 }
 
 export interface ParentCategoryData {
@@ -44,6 +51,13 @@ export interface ParentCategoryData {
   quizCount: number
   totalPlays: number
   subcategories: SubcategoryData[]
+  popularQuizzes: {
+    id: string
+    title: string
+    coverImage: string | null
+    difficulty: 'EASY' | 'MEDIUM' | 'HARD'
+    playCount: number
+  }[]
 }
 
 export default async function CategoriesPage() {
@@ -78,6 +92,19 @@ export default async function CategoriesPage() {
           color: child.color,
           quizCount: child.quizzes.length,
           totalPlays: child.quizzes.reduce((s, q) => s + q.playCount, 0),
+          popularQuizzes: child.quizzes
+            .sort((a, b) => b.playCount - a.playCount)
+            .slice(0, 8)
+            .map((q) => ({
+              id: q.id,
+              title: q.title,
+              coverImage: q.coverImage ?? null,
+              difficulty:
+                q.difficulty === 'EASY' || q.difficulty === 'MEDIUM' || q.difficulty === 'HARD'
+                  ? q.difficulty
+                  : ('MEDIUM' as const),
+              playCount: q.playCount,
+            })),
         }))
         .sort((a, b) => b.quizCount - a.quizCount)
 
@@ -95,6 +122,19 @@ export default async function CategoriesPage() {
         quizCount: ownQuizCount + childQuizCount,
         totalPlays: ownPlays + childPlays,
         subcategories: childSubcategories,
+        popularQuizzes: parent.quizzes
+          .sort((a, b) => b.playCount - a.playCount)
+          .slice(0, 8)
+          .map((q) => ({
+            id: q.id,
+            title: q.title,
+            coverImage: q.coverImage ?? null,
+            difficulty:
+              q.difficulty === 'EASY' || q.difficulty === 'MEDIUM' || q.difficulty === 'HARD'
+                ? q.difficulty
+                : ('MEDIUM' as const),
+            playCount: q.playCount,
+          })),
       }
     })
     .sort((a, b) => b.quizCount - a.quizCount)
