@@ -4,7 +4,6 @@ import * as React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, useReducedMotion } from 'framer-motion'
-import { Play } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
@@ -57,6 +56,43 @@ function formatPlayCount(count: number): string {
   return count.toString()
 }
 
+/** Arcade-style play button used across all card sizes */
+function ArcadePlayButton({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
+  const sizes = {
+    sm: 'h-8 w-8',
+    md: 'h-10 w-10',
+    lg: 'h-12 w-12',
+  }
+  const iconSizes = {
+    sm: 'h-3 w-3',
+    md: 'h-4 w-4',
+    lg: 'h-5 w-5',
+  }
+  return (
+    <div
+      className={cn(
+        sizes[size],
+        'flex items-center justify-center rounded-full',
+        'bg-primary',
+        'shadow-[0_4px_0_0_hsl(var(--primary)/0.5),0_0_0_3px_hsl(var(--primary)/0.2)]',
+        'transition-all duration-150',
+        'group-hover:shadow-[0_2px_0_0_hsl(var(--primary)/0.5),0_0_0_3px_hsl(var(--primary)/0.3)] group-hover:translate-y-[2px]',
+      )}
+      aria-hidden="true"
+    >
+      {/* Triangle play icon — pure CSS for perfect centering */}
+      <span
+        className={cn(
+          'block translate-x-[1px]',
+          size === 'sm' && 'border-y-[5px] border-l-[9px] border-y-transparent border-l-white',
+          size === 'md' && 'border-y-[6px] border-l-[11px] border-y-transparent border-l-white',
+          size === 'lg' && 'border-y-[7px] border-l-[13px] border-y-transparent border-l-white',
+        )}
+      />
+    </div>
+  )
+}
+
 interface QuizCardProps {
   quiz: QuizCardData
   className?: string
@@ -69,7 +105,8 @@ export function QuizCardHorizontal({ quiz, className }: QuizCardProps) {
   return (
     <Link href={`/quiz/${quiz.id}`} className={cn('group block shrink-0 w-52', className)}>
       <div className="overflow-hidden rounded-2xl border border-border/40 shadow-sm transition-shadow duration-200 group-hover:shadow-md">
-        <div className="relative h-36 w-full">
+        {/* Image area — fixed height */}
+        <div className="relative h-28 w-full">
           <div
             className="absolute inset-0"
             style={{ backgroundImage: getFallbackGradient(quiz.category.color) }}
@@ -85,37 +122,46 @@ export function QuizCardHorizontal({ quiz, className }: QuizCardProps) {
               onError={() => setImageFailed(true)}
             />
           ) : null}
+          {/* Category pill over image */}
+          <div className="absolute left-2 top-2">
+            <span
+              className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider backdrop-blur-md"
+              style={{
+                backgroundColor: `${quiz.category.color}44`,
+                color: '#fff',
+                border: `1px solid ${quiz.category.color}66`,
+              }}
+            >
+              {quiz.category.name}
+            </span>
+          </div>
         </div>
-        <div className="flex items-start justify-between gap-2 bg-card p-3">
-          <div className="min-w-0 flex-1">
-            <h3 className="line-clamp-2 text-sm font-bold leading-tight text-foreground">
+
+        {/* White info bar — fixed height so long titles don't push the card */}
+        <div className="flex h-16 items-center justify-between gap-2 bg-card px-3">
+          <div className="min-w-0 flex-1 overflow-hidden">
+            <h3 className="line-clamp-2 text-xs font-bold leading-tight text-foreground">
               {quiz.title}
             </h3>
-            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-              {quiz.playCount !== undefined ? (
-                <>
-                  <span className="text-[11px] font-medium text-muted-foreground">
-                    {formatPlayCount(quiz.playCount)} plays
-                  </span>
-                  <span className="text-[11px] text-muted-foreground">•</span>
-                </>
-              ) : null}
-              <Badge
-                variant={getDifficultyVariant(quiz.difficulty)}
-                className="h-4 px-1.5 py-0 text-[10px]"
-              >
-                {quiz.difficulty}
-              </Badge>
-            </div>
+            {quiz.playCount !== undefined ? (
+              <p className="mt-0.5 truncate text-[10px] font-medium text-muted-foreground">
+                {formatPlayCount(quiz.playCount)} plays
+              </p>
+            ) : null}
           </div>
           <div className="shrink-0">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary shadow-sm shadow-primary/30 transition-transform duration-200 group-hover:scale-110">
-              <Play
-                className="h-3.5 w-3.5 translate-x-0.5 text-primary-foreground"
-                fill="currentColor"
-              />
-            </div>
+            <ArcadePlayButton size="sm" />
           </div>
+        </div>
+
+        {/* Difficulty strip */}
+        <div className="border-t border-border/30 bg-card px-3 pb-2 pt-1">
+          <Badge
+            variant={getDifficultyVariant(quiz.difficulty)}
+            className="h-4 px-1.5 py-0 text-[9px]"
+          >
+            {quiz.difficulty}
+          </Badge>
         </div>
       </div>
     </Link>
@@ -143,14 +189,14 @@ export function QuizCard({ quiz, className }: QuizCardProps) {
       <motion.div
         whileHover={shouldReduceMotion ? undefined : { y: -3, scale: 1.01 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="relative h-60 rounded-2xl border border-border/50 shadow-md transition-shadow duration-300 group-hover:shadow-xl group-hover:shadow-quiz-purple/10"
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
+        className="overflow-hidden rounded-2xl border border-border/50 shadow-md transition-shadow duration-300 group-hover:shadow-xl group-hover:shadow-quiz-purple/10"
       >
-        {/* Inner clip wrapper — kept separate from the transform element so
-            border-radius clipping never breaks during the scale animation */}
-        <div className="absolute inset-0 overflow-hidden rounded-2xl">
-          {/* Background */}
+        {/* Image area — fixed height, no text overlay */}
+        <div
+          className="relative h-40 w-full"
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+        >
           <div
             className="absolute inset-0"
             style={{ backgroundImage: getFallbackGradient(quiz.category.color) }}
@@ -167,59 +213,61 @@ export function QuizCard({ quiz, className }: QuizCardProps) {
             />
           ) : null}
 
-          {/* Dark gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-
           {/* Spotlight hover */}
           {spotlight.visible && (
             <div
               className="pointer-events-none absolute inset-0 transition-opacity duration-200"
               style={{
-                background: `radial-gradient(circle 180px at ${spotlight.x}px ${spotlight.y}px, rgba(255,255,255,0.08), transparent 80%)`,
+                background: `radial-gradient(circle 180px at ${spotlight.x}px ${spotlight.y}px, rgba(255,255,255,0.1), transparent 80%)`,
               }}
             />
           )}
-        </div>
 
-        {/* Category pill */}
-        <div className="absolute left-3 top-3">
-          <span
-            className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md"
-            style={{
-              backgroundColor: `${quiz.category.color}33`,
-              color: quiz.category.color,
-              border: `1px solid ${quiz.category.color}55`,
-            }}
-          >
-            {quiz.category.name}
-          </span>
-        </div>
-
-        {/* Play button on hover */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-foreground/90 shadow-lg backdrop-blur-sm">
-            <Play className="h-5 w-5 translate-x-0.5 text-quiz-purple" fill="currentColor" />
-          </div>
-        </div>
-
-        {/* Bottom info */}
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-          <h3 className="line-clamp-2 text-base font-black leading-tight text-primary-foreground">
-            {quiz.title}
-          </h3>
-          <div className="mt-2 flex items-center gap-2">
-            {quiz.playCount !== undefined ? (
-              <span className="text-xs font-semibold text-primary-foreground/70">
-                🎮 {formatPlayCount(quiz.playCount)}
-              </span>
-            ) : null}
-            <Badge
-              variant={getDifficultyVariant(quiz.difficulty)}
-              className="ml-auto text-[10px] py-0.5"
+          {/* Category pill */}
+          <div className="absolute left-3 top-3">
+            <span
+              className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md"
+              style={{
+                backgroundColor: `${quiz.category.color}44`,
+                color: '#fff',
+                border: `1px solid ${quiz.category.color}66`,
+              }}
             >
-              {quiz.difficulty}
-            </Badge>
+              {quiz.category.name}
+            </span>
           </div>
+
+          {/* Arcade play button — centered, appears on hover */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+            <ArcadePlayButton size="lg" />
+          </div>
+        </div>
+
+        {/* White info bar — fixed height to prevent title-length layout shifts */}
+        <div className="flex h-[72px] items-center justify-between gap-2 bg-card px-3">
+          <div className="min-w-0 flex-1 overflow-hidden">
+            <h3 className="line-clamp-2 text-sm font-black leading-tight text-foreground">
+              {quiz.title}
+            </h3>
+            {quiz.playCount !== undefined ? (
+              <p className="mt-0.5 truncate text-[11px] font-medium text-muted-foreground">
+                🎮 {formatPlayCount(quiz.playCount)} plays
+              </p>
+            ) : null}
+          </div>
+          <div className="shrink-0">
+            <ArcadePlayButton size="md" />
+          </div>
+        </div>
+
+        {/* Difficulty strip */}
+        <div className="border-t border-border/30 bg-card px-3 pb-2.5 pt-1.5">
+          <Badge
+            variant={getDifficultyVariant(quiz.difficulty)}
+            className="h-4 px-1.5 py-0 text-[10px]"
+          >
+            {quiz.difficulty}
+          </Badge>
         </div>
       </motion.div>
     </Link>
@@ -243,17 +291,18 @@ export function QuizCardFeatured({ quiz, className }: QuizCardProps) {
   }
 
   return (
-    <Link href={`/quiz/${quiz.id}`} className={cn('group block h-64 w-full md:h-72', className)}>
+    <Link href={`/quiz/${quiz.id}`} className={cn('group block w-full', className)}>
       <motion.div
         whileHover={shouldReduceMotion ? undefined : { y: -3, scale: 1.005 }}
         transition={{ duration: 0.25, ease: 'easeOut' }}
-        className="relative h-full rounded-3xl border border-border/50 shadow-xl transition-shadow duration-300 group-hover:shadow-2xl group-hover:shadow-quiz-purple/20"
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
+        className="overflow-hidden rounded-3xl border border-border/50 shadow-xl transition-shadow duration-300 group-hover:shadow-2xl group-hover:shadow-quiz-purple/20"
       >
-        {/* Inner clip wrapper — kept separate from the transform element */}
-        <div className="absolute inset-0 overflow-hidden rounded-3xl">
-          {/* Background */}
+        {/* Image area */}
+        <div
+          className="relative h-52 w-full md:h-60"
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+        >
           <div
             className="absolute inset-0"
             style={{ backgroundImage: getFallbackGradient(quiz.category.color) }}
@@ -269,7 +318,6 @@ export function QuizCardFeatured({ quiz, className }: QuizCardProps) {
               onError={() => setImageFailed(true)}
             />
           ) : null}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/5" />
 
           {/* Spotlight */}
           {spotlight.visible && (
@@ -280,45 +328,59 @@ export function QuizCardFeatured({ quiz, className }: QuizCardProps) {
               }}
             />
           )}
+
+          {/* Featured badge */}
+          <div className="absolute left-5 top-5">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500 px-3 py-1.5 text-xs font-black uppercase tracking-wider text-amber-950 shadow-lg shadow-amber-500/30">
+              ★ Featured
+            </span>
+          </div>
+
+          {/* Category pill */}
+          <div className="absolute right-5 top-5">
+            <span
+              className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold backdrop-blur-md"
+              style={{
+                backgroundColor: `${quiz.category.color}44`,
+                color: '#fff',
+                border: `1px solid ${quiz.category.color}66`,
+              }}
+            >
+              {quiz.category.name}
+            </span>
+          </div>
+
+          {/* Centered arcade play button on hover */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+            <ArcadePlayButton size="lg" />
+          </div>
         </div>
 
-        {/* Featured badge */}
-        <div className="absolute left-5 top-5">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500 px-3 py-1.5 text-xs font-black uppercase tracking-wider text-amber-950 shadow-lg shadow-amber-500/30">
-            ★ Featured
-          </span>
-        </div>
-
-        {/* Category pill */}
-        <div className="absolute right-5 top-5">
-          <span
-            className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold backdrop-blur-md"
-            style={{
-              backgroundColor: `${quiz.category.color}33`,
-              color: quiz.category.color,
-              border: `1px solid ${quiz.category.color}55`,
-            }}
-          >
-            {quiz.category.name}
-          </span>
-        </div>
-
-        {/* Bottom content */}
-        <div className="absolute bottom-0 left-0 right-0 p-6">
-          <h3 className="line-clamp-2 text-2xl font-black leading-tight text-primary-foreground md:text-3xl">
-            {quiz.title}
-          </h3>
-          <div className="mt-4 flex items-center gap-3">
-            <div className="flex h-10 items-center gap-2 rounded-full bg-primary px-5 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/40 transition-all duration-200 group-hover:bg-primary/90 group-hover:shadow-xl group-hover:shadow-primary/50">
-              <Play className="h-4 w-4 translate-x-0.5" fill="currentColor" />
-              Play Now
-            </div>
+        {/* White info bar — fixed height */}
+        <div className="flex h-20 items-center justify-between gap-3 bg-card px-5">
+          <div className="min-w-0 flex-1 overflow-hidden">
+            <h3 className="line-clamp-2 text-base font-black leading-tight text-foreground md:text-lg">
+              {quiz.title}
+            </h3>
             {quiz.playCount !== undefined ? (
-              <span className="text-sm font-semibold text-primary-foreground/70">
+              <p className="mt-0.5 truncate text-xs font-semibold text-muted-foreground">
                 🎮 {formatPlayCount(quiz.playCount)} plays
-              </span>
+              </p>
             ) : null}
           </div>
+          <div className="shrink-0">
+            <ArcadePlayButton size="lg" />
+          </div>
+        </div>
+
+        {/* Difficulty strip */}
+        <div className="border-t border-border/30 bg-card px-5 pb-3 pt-2">
+          <Badge
+            variant={getDifficultyVariant(quiz.difficulty)}
+            className="h-4 px-1.5 py-0 text-[10px]"
+          >
+            {quiz.difficulty}
+          </Badge>
         </div>
       </motion.div>
     </Link>
