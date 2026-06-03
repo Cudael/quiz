@@ -4,7 +4,6 @@ import * as React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, useReducedMotion } from 'framer-motion'
-import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
 export interface QuizCardData {
@@ -20,10 +19,28 @@ export interface QuizCardData {
   avgScore?: number
 }
 
-function getDifficultyVariant(difficulty: QuizCardData['difficulty']) {
-  if (difficulty === 'EASY') return 'success'
-  if (difficulty === 'MEDIUM') return 'warning'
-  return 'destructive'
+function getDifficultyPillStyle(difficulty: QuizCardData['difficulty']) {
+  if (difficulty === 'EASY') {
+    return {
+      backgroundColor: '#22c55e44',
+      border: '1px solid #22c55e66',
+      color: '#fff',
+    }
+  }
+
+  if (difficulty === 'MEDIUM') {
+    return {
+      backgroundColor: '#f59e0b44',
+      border: '1px solid #f59e0b66',
+      color: '#fff',
+    }
+  }
+
+  return {
+    backgroundColor: '#ef444444',
+    border: '1px solid #ef444466',
+    color: '#fff',
+  }
 }
 
 function getFallbackGradient(color: string) {
@@ -63,11 +80,6 @@ function ArcadePlayButton({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
     md: 'h-10 w-10',
     lg: 'h-12 w-12',
   }
-  const iconSizes = {
-    sm: 'h-3 w-3',
-    md: 'h-4 w-4',
-    lg: 'h-5 w-5',
-  }
   return (
     <div
       className={cn(
@@ -76,7 +88,7 @@ function ArcadePlayButton({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
         'bg-primary',
         'shadow-[0_4px_0_0_hsl(var(--primary)/0.5),0_0_0_3px_hsl(var(--primary)/0.2)]',
         'transition-all duration-150',
-        'group-hover:shadow-[0_2px_0_0_hsl(var(--primary)/0.5),0_0_0_3px_hsl(var(--primary)/0.3)] group-hover:translate-y-[2px]',
+        'group-hover:shadow-[0_2px_0_0_hsl(var(--primary)/0.5),0_0_0_3px_hsl(var(--primary)/0.3)] group-hover:translate-y-[2px]'
       )}
       aria-hidden="true"
     >
@@ -86,7 +98,7 @@ function ArcadePlayButton({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
           'block translate-x-[1px]',
           size === 'sm' && 'border-y-[5px] border-l-[9px] border-y-transparent border-l-white',
           size === 'md' && 'border-y-[6px] border-l-[11px] border-y-transparent border-l-white',
-          size === 'lg' && 'border-y-[7px] border-l-[13px] border-y-transparent border-l-white',
+          size === 'lg' && 'border-y-[7px] border-l-[13px] border-y-transparent border-l-white'
         )}
       />
     </div>
@@ -96,6 +108,26 @@ function ArcadePlayButton({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
 interface QuizCardProps {
   quiz: QuizCardData
   className?: string
+}
+
+function DifficultyPill({
+  difficulty,
+  className,
+}: {
+  difficulty: QuizCardData['difficulty']
+  className?: string
+}) {
+  return (
+    <span
+      className={cn(
+        'absolute inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md',
+        className
+      )}
+      style={getDifficultyPillStyle(difficulty)}
+    >
+      {difficulty}
+    </span>
+  )
 }
 
 export function QuizCardHorizontal({ quiz, className }: QuizCardProps) {
@@ -135,6 +167,8 @@ export function QuizCardHorizontal({ quiz, className }: QuizCardProps) {
               {quiz.category.name}
             </span>
           </div>
+
+          <DifficultyPill difficulty={quiz.difficulty} className="bottom-2 right-2 text-[9px]" />
         </div>
 
         {/* White info bar — fixed height so long titles don't push the card */}
@@ -152,16 +186,6 @@ export function QuizCardHorizontal({ quiz, className }: QuizCardProps) {
           <div className="shrink-0">
             <ArcadePlayButton size="sm" />
           </div>
-        </div>
-
-        {/* Difficulty strip */}
-        <div className="border-t border-border/30 bg-card px-3 pb-2 pt-1">
-          <Badge
-            variant={getDifficultyVariant(quiz.difficulty)}
-            className="h-4 px-1.5 py-0 text-[9px]"
-          >
-            {quiz.difficulty}
-          </Badge>
         </div>
       </div>
     </Link>
@@ -189,11 +213,11 @@ export function QuizCard({ quiz, className }: QuizCardProps) {
       <motion.div
         whileHover={shouldReduceMotion ? undefined : { y: -3, scale: 1.01 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="overflow-hidden rounded-2xl border border-border/50 shadow-md transition-shadow duration-300 group-hover:shadow-xl group-hover:shadow-quiz-purple/10"
+        className="rounded-2xl border border-border/50 shadow-md transition-shadow duration-300 group-hover:shadow-xl group-hover:shadow-quiz-purple/10"
       >
         {/* Image area — fixed height, no text overlay */}
         <div
-          className="relative h-40 w-full"
+          className="relative h-32 w-full overflow-hidden rounded-t-2xl"
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
@@ -237,6 +261,8 @@ export function QuizCard({ quiz, className }: QuizCardProps) {
             </span>
           </div>
 
+          <DifficultyPill difficulty={quiz.difficulty} className="bottom-3 right-3" />
+
           {/* Arcade play button — centered, appears on hover */}
           <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100">
             <ArcadePlayButton size="lg" />
@@ -244,7 +270,7 @@ export function QuizCard({ quiz, className }: QuizCardProps) {
         </div>
 
         {/* White info bar — fixed height to prevent title-length layout shifts */}
-        <div className="flex min-h-[56px] items-start justify-between gap-2 bg-card px-3 py-3">
+        <div className="flex min-h-[56px] items-start justify-between gap-2 rounded-b-2xl bg-card px-3 py-3">
           <div className="min-w-0 flex-1 overflow-hidden">
             <h3 className="line-clamp-2 text-sm font-black leading-tight text-foreground">
               {quiz.title}
@@ -258,16 +284,6 @@ export function QuizCard({ quiz, className }: QuizCardProps) {
           <div className="shrink-0">
             <ArcadePlayButton size="md" />
           </div>
-        </div>
-
-        {/* Difficulty strip */}
-        <div className="border-t border-border/30 bg-card px-3 pb-2.5 pt-1.5">
-          <Badge
-            variant={getDifficultyVariant(quiz.difficulty)}
-            className="h-4 px-1.5 py-0 text-[10px]"
-          >
-            {quiz.difficulty}
-          </Badge>
         </div>
       </motion.div>
     </Link>
@@ -295,11 +311,11 @@ export function QuizCardFeatured({ quiz, className }: QuizCardProps) {
       <motion.div
         whileHover={shouldReduceMotion ? undefined : { y: -3, scale: 1.005 }}
         transition={{ duration: 0.25, ease: 'easeOut' }}
-        className="overflow-hidden rounded-3xl border border-border/50 shadow-xl transition-shadow duration-300 group-hover:shadow-2xl group-hover:shadow-quiz-purple/20"
+        className="rounded-3xl border border-border/50 shadow-xl transition-shadow duration-300 group-hover:shadow-2xl group-hover:shadow-quiz-purple/20"
       >
         {/* Image area */}
         <div
-          className="relative h-52 w-full md:h-60"
+          className="relative h-44 w-full overflow-hidden rounded-t-3xl md:h-48"
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
@@ -350,6 +366,8 @@ export function QuizCardFeatured({ quiz, className }: QuizCardProps) {
             </span>
           </div>
 
+          <DifficultyPill difficulty={quiz.difficulty} className="bottom-3 right-3 text-xs" />
+
           {/* Centered arcade play button on hover */}
           <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100">
             <ArcadePlayButton size="lg" />
@@ -357,7 +375,7 @@ export function QuizCardFeatured({ quiz, className }: QuizCardProps) {
         </div>
 
         {/* White info bar — fixed height */}
-        <div className="flex min-h-[60px] items-start justify-between gap-3 bg-card px-5 py-4">
+        <div className="flex min-h-[60px] items-start justify-between gap-3 rounded-b-3xl bg-card px-5 py-4">
           <div className="min-w-0 flex-1 overflow-hidden">
             <h3 className="line-clamp-2 text-base font-black leading-tight text-foreground md:text-lg">
               {quiz.title}
@@ -371,16 +389,6 @@ export function QuizCardFeatured({ quiz, className }: QuizCardProps) {
           <div className="shrink-0">
             <ArcadePlayButton size="lg" />
           </div>
-        </div>
-
-        {/* Difficulty strip */}
-        <div className="border-t border-border/30 bg-card px-5 pb-3 pt-2">
-          <Badge
-            variant={getDifficultyVariant(quiz.difficulty)}
-            className="h-4 px-1.5 py-0 text-[10px]"
-          >
-            {quiz.difficulty}
-          </Badge>
         </div>
       </motion.div>
     </Link>
