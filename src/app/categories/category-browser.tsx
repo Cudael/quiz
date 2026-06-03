@@ -7,9 +7,7 @@ import { ArrowRight, Search } from 'lucide-react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { EmptyState } from '@/components/ui/empty-state'
-import { QuizCardHorizontal } from '@/components/ui/quiz-card'
-import type { QuizCardData } from '@/components/ui/quiz-card'
-import type { ParentCategoryData } from './page'
+import type { ParentCategoryData, SubcategoryData } from './page'
 
 interface CategoryBrowserProps {
   parentCategories: ParentCategoryData[]
@@ -38,12 +36,40 @@ function DynamicIcon({
   return <Icon className={className} style={style} aria-hidden="true" />
 }
 
+function SubcategoryCard({ sub }: { sub: SubcategoryData }) {
+  return (
+    <Link
+      href={`/categories/${sub.slug}`}
+      className="group flex items-start gap-3 rounded-lg border border-border/80 bg-card/70 p-3 transition-all duration-200 hover:border-transparent hover:bg-card hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <span
+        className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md"
+        style={{ backgroundColor: sub.color + '22' }}
+      >
+        <DynamicIcon
+          name={sub.icon}
+          className="h-4 w-4"
+          style={{ color: sub.color } as React.CSSProperties}
+        />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
+          {sub.name}
+        </p>
+        <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{sub.description}</p>
+        <p className="mt-1 text-xs font-medium text-muted-foreground">
+          {sub.quizCount} {sub.quizCount === 1 ? 'quiz' : 'quizzes'}
+        </p>
+      </div>
+    </Link>
+  )
+}
+
 function ParentSection({ parent }: { parent: ParentCategoryData }) {
   return (
     <section aria-labelledby={`cat-${parent.slug}`}>
       <div className="rounded-2xl border border-border/70 bg-card/60 p-5">
-        {/* Parent header */}
-        <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
           <div className="flex min-w-0 items-start gap-3">
             <span
               className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
@@ -70,6 +96,7 @@ function ParentSection({ parent }: { parent: ParentCategoryData }) {
               <p className="mt-1 text-sm text-muted-foreground">{parent.description}</p>
             </div>
           </div>
+
           <div className="flex items-center gap-3">
             <span className="rounded-full border border-border bg-background px-3 py-1 text-xs font-semibold text-muted-foreground">
               {parent.quizCount} {parent.quizCount === 1 ? 'quiz' : 'quizzes'}
@@ -84,99 +111,11 @@ function ParentSection({ parent }: { parent: ParentCategoryData }) {
           </div>
         </div>
 
-        {/* Popular quizzes for this parent category (if any direct quizzes) */}
-        {parent.popularQuizzes.length > 0 ? (
-          <div className="mb-5">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Popular in {parent.name}
-            </p>
-            <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {parent.popularQuizzes.map((quiz) => {
-                const quizCard: QuizCardData = {
-                  id: quiz.id,
-                  title: quiz.title,
-                  coverImage: quiz.coverImage,
-                  difficulty: quiz.difficulty,
-                  category: { name: parent.name, color: parent.color },
-                  playCount: quiz.playCount,
-                }
-                return (
-                  <QuizCardHorizontal
-                    key={quiz.id}
-                    quiz={quizCard}
-                    className="w-48 shrink-0"
-                  />
-                )
-              })}
-            </div>
-          </div>
-        ) : null}
-
-        {/* Subcategories */}
         {parent.subcategories.length > 0 ? (
-          <div className="space-y-6 border-t border-border/40 pt-5">
-            {parent.subcategories.map((sub) => {
-              const subQuizCards: QuizCardData[] = sub.popularQuizzes.map((quiz) => ({
-                id: quiz.id,
-                title: quiz.title,
-                coverImage: quiz.coverImage,
-                difficulty: quiz.difficulty,
-                category: { name: sub.name, color: sub.color },
-                playCount: quiz.playCount,
-              }))
-
-              return (
-                <div key={sub.slug}>
-                  {/* Subcategory header */}
-                  <div className="mb-2 flex items-center gap-3">
-                    <span
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-                      style={{ backgroundColor: sub.color + '22' }}
-                    >
-                      <DynamicIcon
-                        name={sub.icon}
-                        className="h-4 w-4"
-                        style={{ color: sub.color } as React.CSSProperties}
-                      />
-                    </span>
-                    <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
-                      <div>
-                        <Link
-                          href={`/categories/${sub.slug}`}
-                          className="text-sm font-bold text-foreground transition-colors hover:text-primary"
-                        >
-                          {sub.name}
-                        </Link>
-                        <p className="text-[11px] text-muted-foreground">
-                          {sub.quizCount} {sub.quizCount === 1 ? 'quiz' : 'quizzes'}
-                        </p>
-                      </div>
-                      <Link
-                        href={`/categories/${sub.slug}`}
-                        className="shrink-0 text-xs font-semibold text-primary transition-colors hover:text-primary/80"
-                      >
-                        See all →
-                      </Link>
-                    </div>
-                  </div>
-
-                  {/* Subcategory quiz scroller */}
-                  {subQuizCards.length > 0 ? (
-                    <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                      {subQuizCards.map((quiz) => (
-                        <QuizCardHorizontal
-                          key={quiz.id}
-                          quiz={quiz}
-                          className="w-48 shrink-0"
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-xs italic text-muted-foreground">No quizzes yet.</p>
-                  )}
-                </div>
-              )
-            })}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {parent.subcategories.map((sub) => (
+              <SubcategoryCard key={sub.slug} sub={sub} />
+            ))}
           </div>
         ) : (
           <p className="rounded-xl border border-dashed border-border px-4 py-5 text-center text-sm text-muted-foreground">
