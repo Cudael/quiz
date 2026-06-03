@@ -118,29 +118,26 @@ describe('HomePageClient', () => {
       />
     )
 
-    expect(screen.getByRole('heading', { name: 'Trending Right Now' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Most Popular' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Freshly Added' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: /duel mode/i })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /start a duel/i })).toHaveAttribute('href', '/sign-up')
+    expect(screen.getByRole('heading', { name: 'Popular Right Now' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Trending' })).toBeInTheDocument()
+    expect(screen.getAllByRole('heading', { name: 'Freshly Added' }).length).toBeGreaterThan(0)
+    expect(screen.getByRole('link', { name: /duel mode/i })).toHaveAttribute('href', '/sign-up')
+    expect(screen.getAllByRole('link', { name: /sign up free/i }).length).toBeGreaterThan(0)
     expect(screen.getByRole('heading', { name: 'Top Players' })).toBeInTheDocument()
     expect(screen.getByText('Ada Lovelace')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /view full leaderboard/i })).toBeInTheDocument()
     expect(screen.getAllByText('🧪').length).toBeGreaterThan(0)
-    expect(screen.getByText('Experiments and facts')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Browse by Category' })).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'For You' })).not.toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: /editor's pick/i })).not.toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: /how it works/i })).not.toBeInTheDocument()
     // Guest flow shows the leaderboard section's "Think you can top this?" CTA, not "Your Progress"
     expect(screen.queryByRole('heading', { name: 'Your Progress' })).not.toBeInTheDocument()
-    expect(screen.getByLabelText('Scroll Most Popular right')).toBeInTheDocument()
-    // Hero section CTAs are present
-    expect(screen.getByRole('link', { name: /browse quizzes/i })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /sign up free/i })).toBeInTheDocument()
+    expect(screen.getByLabelText('Scroll Trending right')).toBeInTheDocument()
 
-    const exploreByTopic = screen.getByRole('heading', { name: 'Explore by topic' })
-    const trendingRightNow = screen.getByRole('heading', { name: 'Trending Right Now' })
-    expect(trendingRightNow.compareDocumentPosition(exploreByTopic)).toBe(
+    const browseByCategory = screen.getByRole('heading', { name: 'Browse by Category' })
+    const trending = screen.getByRole('heading', { name: 'Trending' })
+    expect(trending.compareDocumentPosition(browseByCategory)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING
     )
   })
@@ -161,13 +158,12 @@ describe('HomePageClient', () => {
     )
 
     expect(screen.getByRole('heading', { name: "Today's Pick" })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: /duel mode/i })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /start a duel/i })).toHaveAttribute('href', '/duel')
+    expect(screen.getByRole('link', { name: /duel mode/i })).toHaveAttribute('href', '/duel')
     expect(screen.getByRole('heading', { name: 'For You' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Most Popular' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Your Progress' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Top Players' })).toBeInTheDocument()
-    expect(screen.getByText(/based on your activity/i)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Browse by Category' })).toBeInTheDocument()
   })
 
   it('falls back to popular quizzes when an authenticated user has no history yet', () => {
@@ -186,7 +182,6 @@ describe('HomePageClient', () => {
     )
 
     expect(screen.getByRole('heading', { name: 'For You' })).toBeInTheDocument()
-    expect(screen.getByText('Most popular quizzes')).toBeInTheDocument()
     expect(screen.getAllByText('World capitals challenge').length).toBeGreaterThan(0)
   })
 })

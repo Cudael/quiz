@@ -53,12 +53,14 @@ describe('Navbar', () => {
     usePathnameMock.mockReturnValue('/')
   })
 
-  it('removes the desktop quick play CTA and highlights the inactive duel link', () => {
+  it('renders desktop and mobile search controls with duel link styling', () => {
     render(<Navbar />)
 
     expect(screen.queryByRole('link', { name: 'Play' })).not.toBeInTheDocument()
 
     const duelLink = screen.getByRole('link', { name: /Duel/ })
     expect(duelLink).toHaveClass('text-quiz-pink', 'font-bold')
+    expect(screen.getAllByRole('searchbox', { name: /search quizzes/i }).length).toBe(2)
+    expect(screen.getByRole('button', { name: /open search/i })).toBeInTheDocument()
   })
 })
