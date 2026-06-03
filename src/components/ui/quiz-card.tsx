@@ -140,7 +140,7 @@ export function QuizCardHorizontal({ quiz, className }: QuizCardProps) {
         {/* White info bar — fixed height so long titles don't push the card */}
         <div className="flex h-16 items-center justify-between gap-2 bg-card px-3">
           <div className="min-w-0 flex-1 overflow-hidden">
-            <h3 className="line-clamp-2 text-xs font-bold leading-tight text-foreground">
+            <h3 className="line-clamp-2 text-sm font-bold leading-tight text-foreground">
               {quiz.title}
             </h3>
             {quiz.playCount !== undefined ? (
@@ -244,7 +244,7 @@ export function QuizCard({ quiz, className }: QuizCardProps) {
         </div>
 
         {/* White info bar — fixed height to prevent title-length layout shifts */}
-        <div className="flex h-[72px] items-center justify-between gap-2 bg-card px-3">
+        <div className="flex min-h-[56px] items-start justify-between gap-2 bg-card px-3 py-3">
           <div className="min-w-0 flex-1 overflow-hidden">
             <h3 className="line-clamp-2 text-sm font-black leading-tight text-foreground">
               {quiz.title}
@@ -357,7 +357,7 @@ export function QuizCardFeatured({ quiz, className }: QuizCardProps) {
         </div>
 
         {/* White info bar — fixed height */}
-        <div className="flex h-20 items-center justify-between gap-3 bg-card px-5">
+        <div className="flex min-h-[60px] items-start justify-between gap-3 bg-card px-5 py-4">
           <div className="min-w-0 flex-1 overflow-hidden">
             <h3 className="line-clamp-2 text-base font-black leading-tight text-foreground md:text-lg">
               {quiz.title}
