@@ -1,7 +1,113 @@
 import Link from 'next/link'
-import { Play, Swords, Zap } from 'lucide-react'
+import { ChevronRight, Flame, LayoutGrid, Play, Swords, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { HomeStats } from '../home-page-client.types'
+
+type ActionBox = {
+  title: string
+  subtitle: string
+  href: string
+  icon: typeof Swords
+  tileClassName: string
+  iconClassName: string
+}
+
+const guestActionBoxes: ActionBox[] = [
+  {
+    title: 'Sign Up Free',
+    subtitle: 'Track progress',
+    href: '/sign-up',
+    icon: Zap,
+    tileClassName: 'border-quiz-purple/25 bg-quiz-purple/5',
+    iconClassName: 'text-quiz-purple',
+  },
+  {
+    title: 'Play Random',
+    subtitle: 'No account needed',
+    href: '/random-quiz',
+    icon: Play,
+    tileClassName: 'border-quiz-blue/25 bg-quiz-blue/5',
+    iconClassName: 'text-quiz-blue',
+  },
+  {
+    title: 'Duel Mode',
+    subtitle: 'Head-to-head',
+    href: '/sign-up',
+    icon: Swords,
+    tileClassName: 'border-quiz-pink/25 bg-quiz-pink/5',
+    iconClassName: 'text-quiz-pink',
+  },
+  {
+    title: 'Browse All',
+    subtitle: 'Pick a category',
+    href: '/categories',
+    icon: LayoutGrid,
+    tileClassName: 'border-quiz-green/25 bg-quiz-green/5',
+    iconClassName: 'text-quiz-green',
+  },
+]
+
+const userActionBoxes: ActionBox[] = [
+  {
+    title: 'Duel Mode',
+    subtitle: 'Challenge a friend',
+    href: '/duel',
+    icon: Swords,
+    tileClassName: 'border-quiz-purple/25 bg-quiz-purple/5',
+    iconClassName: 'text-quiz-purple',
+  },
+  {
+    title: 'Daily Challenge',
+    subtitle: 'Keep your streak',
+    href: '/random-quiz',
+    icon: Flame,
+    tileClassName: 'border-orange-500/25 bg-orange-500/5',
+    iconClassName: 'text-orange-500',
+  },
+  {
+    title: 'Quick Play',
+    subtitle: 'Random quiz now',
+    href: '/random-quiz',
+    icon: Zap,
+    tileClassName: 'border-quiz-blue/25 bg-quiz-blue/5',
+    iconClassName: 'text-quiz-blue',
+  },
+  {
+    title: 'Browse All',
+    subtitle: 'All categories',
+    href: '/categories',
+    icon: LayoutGrid,
+    tileClassName: 'border-quiz-green/25 bg-quiz-green/5',
+    iconClassName: 'text-quiz-green',
+  },
+]
+
+export function ActionBoxesRow({ isGuest = false }: { isGuest?: boolean }) {
+  const items = isGuest ? guestActionBoxes : userActionBoxes
+
+  return (
+    <section>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {items.map((item) => (
+          <Link
+            key={item.title}
+            href={item.href}
+            className={`flex items-center gap-3 rounded-2xl border p-4 transition-colors hover:bg-accent/40 ${item.tileClassName}`}
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-background/80">
+              <item.icon className={`h-5 w-5 ${item.iconClassName}`} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-bold">{item.title}</p>
+              <p className="truncate text-xs text-muted-foreground">{item.subtitle}</p>
+            </div>
+            <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+          </Link>
+        ))}
+      </div>
+    </section>
+  )
+}
 
 export function DuelBannerSection({
   isGuest = false,

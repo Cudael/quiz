@@ -61,7 +61,7 @@ describe('CategoryBarClient', () => {
     )
     expect(container.querySelector('img[src="https://cdn.example.com/science.jpg"]')).toBeTruthy()
     expect(historyLink.querySelector('img')).toBeNull()
-    expect(historyLink.querySelector('svg')).toBeTruthy()
+    expect(historyLink.querySelector('.rounded-full')).toBeTruthy()
   })
 
   it('shows category labels', () => {
@@ -71,25 +71,25 @@ describe('CategoryBarClient', () => {
     expect(screen.getByText('History')).toBeTruthy()
   })
 
-  it('uses grid layout and active card state', () => {
+  it('uses compact pill layout and active card state', () => {
     render(<CategoryBarClient categories={categories} />)
 
     const navigation = screen.getByRole('navigation', { name: 'Popular categories' })
-    expect(navigation.className).toContain('grid-flow-col')
-    expect(navigation.className).not.toContain('overflow-x-auto')
+    expect(navigation.className).toContain('min-w-max')
+    expect(navigation.className).toContain('gap-2')
 
     const activeLink = screen.getByRole('link', { name: /science/i })
     const historyLink = screen.getByRole('link', { name: /history/i })
     expect(activeLink).toHaveAttribute('aria-current', 'page')
-    expect(activeLink.className).toContain('text-foreground')
+    expect(activeLink.className).toContain('bg-primary/15')
     expect(historyLink.className).toContain('hover:text-foreground')
   })
 
   it('renders quiz counts', () => {
     render(<CategoryBarClient categories={categories} />)
 
-    expect(screen.getByText('12 quizzes')).toBeTruthy()
-    expect(screen.getByText('5 quizzes')).toBeTruthy()
+    expect(screen.getByText('12')).toBeTruthy()
+    expect(screen.getByText('5')).toBeTruthy()
   })
 
   it('uses container-constrained full-width wrapper', () => {
@@ -98,6 +98,6 @@ describe('CategoryBarClient', () => {
     expect(wrapper?.className).toContain('w-full')
     expect(wrapper?.className).toContain('border-b')
     expect(wrapper?.className).not.toContain('sticky')
-    expect(wrapper?.querySelector('.container')).toBeTruthy()
+    expect(wrapper?.className).toContain('bg-surface-1/50')
   })
 })

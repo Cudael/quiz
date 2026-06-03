@@ -1,6 +1,14 @@
 import Link from 'next/link'
+import type { CSSProperties } from 'react'
 import type { HomeFeaturedCategory } from '../home-page-client.types'
 import { SectionHeader } from './section-primitives'
+import { withAlphaColor } from '@/lib/utils'
+
+const DEFAULT_CATEGORY_COLOR = '#7c3aed'
+
+function getCategoryColor(color: string) {
+  return /^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$/.test(color) ? color : DEFAULT_CATEGORY_COLOR
+}
 
 export function CategoryMosaic({
   featuredCategories,
@@ -9,57 +17,35 @@ export function CategoryMosaic({
 }) {
   return (
     <section>
-      <SectionHeader title="Explore by topic" href="/categories" />
+      <SectionHeader title="Browse by Category" href="/categories" />
       {featuredCategories.length > 0 ? (
-        <div className="space-y-4 rounded-2xl border border-border/50 bg-card p-4 sm:p-5">
-          <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {featuredCategories.map((category) => (
-              <Link
-                key={`pill-${category.slug}`}
-                href={`/categories/${category.slug}`}
-                className="flex items-center gap-2 whitespace-nowrap rounded-full border border-border bg-card px-4 py-2.5 text-sm font-bold transition-colors hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-              >
-                <span aria-hidden="true">{category.icon}</span>
-                <span>{category.name}</span>
-                <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
-                  {category.quizCount}
-                </span>
-              </Link>
-            ))}
-          </div>
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
+          {featuredCategories.map((category) => {
+            const categoryColor = getCategoryColor(category.color)
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {featuredCategories.slice(0, 6).map((category) => (
+            return (
               <Link
                 key={category.slug}
                 href={`/categories/${category.slug}`}
-                className="group relative rounded-2xl border border-border/50 p-5 transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                className="flex cursor-pointer flex-col items-center gap-1.5 rounded-xl p-3 text-center transition-all hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 hover:[background-color:var(--tile-hover-bg)]"
+                style={
+                  {
+                    '--tile-hover-bg': withAlphaColor(categoryColor, 0.25),
+                    backgroundColor: withAlphaColor(categoryColor, 0.15),
+                    border: `1px solid ${withAlphaColor(categoryColor, 0.25)}`,
+                  } as CSSProperties
+                }
               >
-                <div
-                  style={{
-                    background: `linear-gradient(135deg, ${category.color}24, ${category.color}88)`,
-                  }}
-                  className="absolute inset-0 rounded-2xl opacity-90"
-                ></div>
-                <div className="relative">
-                  <div className="text-3xl leading-none" aria-hidden="true">
-                    {category.icon}
-                  </div>
-                  <div className="mt-4">
-                    <div className="text-lg font-black tracking-tight">{category.name}</div>
-                    <div className="mt-1.5 text-xs font-semibold opacity-80">
-                      {category.quizCount} {category.quizCount === 1 ? 'quiz' : 'quizzes'}
-                    </div>
-                    {category.description ? (
-                      <div className="mt-2 line-clamp-2 text-sm font-medium opacity-85">
-                        {category.description}
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
+                <span className="text-2xl leading-none" aria-hidden="true">
+                  {category.icon}
+                </span>
+                <span className="max-w-full truncate text-xs font-bold">{category.name}</span>
+                <span className="text-[10px] text-muted-foreground">
+                  {category.quizCount} {category.quizCount === 1 ? 'quiz' : 'quizzes'}
+                </span>
               </Link>
-            ))}
-          </div>
+            )
+          })}
         </div>
       ) : (
         <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground bg-accent/20">
