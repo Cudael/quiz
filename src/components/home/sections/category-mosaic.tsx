@@ -7,86 +7,65 @@ export function CategoryMosaic({
 }: {
   featuredCategories: HomeFeaturedCategory[]
 }) {
-  if (featuredCategories.length === 0) {
-    return (
-      <section>
-        <SectionHeader title="Explore by topic" href="/categories" />
-        <div className="rounded-xl border border-border/30 bg-muted/20 p-8 text-center">
-          <p className="text-sm text-muted-foreground">Categories will appear here soon.</p>
-        </div>
-      </section>
-    )
-  }
-
   return (
     <section>
-      <SectionHeader title="Browse topics" href="/categories" />
-      
-      <div className="space-y-5">
-        {/* Quick filter pills - minimal horizontal scroll */}
-        <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {featuredCategories.map((category) => (
-            <Link
-              key={`pill-${category.slug}`}
-              href={`/categories/${category.slug}`}
-              className="flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border/60 bg-card px-3.5 py-1.5 text-xs font-medium transition-all hover:border-primary/40 hover:bg-accent/50 hover:shadow-sm"
-            >
-              <span className="text-base">{category.icon}</span>
-              <span>{category.name}</span>
-              <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
-                {category.quizCount}
-              </span>
-            </Link>
-          ))}
-        </div>
+      <SectionHeader title="Explore by topic" href="/categories" />
+      {featuredCategories.length > 0 ? (
+        <div className="space-y-4 rounded-2xl border border-border/50 bg-card p-4 sm:p-5">
+          <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {featuredCategories.map((category) => (
+              <Link
+                key={`pill-${category.slug}`}
+                href={`/categories/${category.slug}`}
+                className="flex items-center gap-2 whitespace-nowrap rounded-full border border-border bg-card px-4 py-2.5 text-sm font-bold transition-colors hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              >
+                <span aria-hidden="true">{category.icon}</span>
+                <span>{category.name}</span>
+                <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
+                  {category.quizCount}
+                </span>
+              </Link>
+            ))}
+          </div>
 
-        {/* Category cards - clean grid */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {featuredCategories.slice(0, 6).map((category) => (
-            <Link
-              key={category.slug}
-              href={`/categories/${category.slug}`}
-              className="group flex items-center gap-3 rounded-xl border border-border/40 bg-card p-3 transition-all hover:border-primary/30 hover:bg-accent/30 hover:shadow-sm"
-            >
-              {/* Icon */}
-              <div 
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-xl transition-all group-hover:scale-105"
-                style={{ backgroundColor: `${category.color}15` }}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {featuredCategories.slice(0, 6).map((category) => (
+              <Link
+                key={category.slug}
+                href={`/categories/${category.slug}`}
+                className="group relative rounded-2xl border border-border/50 p-5 transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
-                {category.icon}
-              </div>
-              
-              {/* Text content */}
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-2">
-                  <h3 className="truncate text-sm font-semibold group-hover:text-primary">
-                    {category.name}
-                  </h3>
-                  <span className="shrink-0 text-[10px] font-medium text-muted-foreground">
-                    {category.quizCount}
-                  </span>
+                <div
+                  style={{
+                    background: `linear-gradient(135deg, ${category.color}24, ${category.color}88)`,
+                  }}
+                  className="absolute inset-0 rounded-2xl opacity-90"
+                ></div>
+                <div className="relative">
+                  <div className="text-3xl leading-none" aria-hidden="true">
+                    {category.icon}
+                  </div>
+                  <div className="mt-4">
+                    <div className="text-lg font-black tracking-tight">{category.name}</div>
+                    <div className="mt-1.5 text-xs font-semibold opacity-80">
+                      {category.quizCount} {category.quizCount === 1 ? 'quiz' : 'quizzes'}
+                    </div>
+                    {category.description ? (
+                      <div className="mt-2 line-clamp-2 text-sm font-medium opacity-85">
+                        {category.description}
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
-                {category.description && (
-                  <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                    {category.description}
-                  </p>
-                )}
-              </div>
-              
-              {/* Chevron indicator */}
-              <svg
-                className="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-100"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          ))}
+              </Link>
+            ))}
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground bg-accent/20">
+          Categories will appear here soon.
+        </div>
+      )}
     </section>
   )
 }
