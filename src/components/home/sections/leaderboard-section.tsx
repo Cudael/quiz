@@ -71,7 +71,7 @@ export function LeaderboardSection({
         <div className="rounded-3xl border border-primary/15 bg-gradient-to-b from-primary/6 via-primary/3 to-transparent p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
             <Users className="h-5 w-5 text-primary" />
-            <h3 className="font-black text-lg">Your Stats</h3>
+            <h3 className="font-black text-lg">Your Progress</h3>
           </div>
           <div className="space-y-3 text-sm">
             {[
