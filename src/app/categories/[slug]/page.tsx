@@ -1,15 +1,14 @@
 import type { Metadata } from 'next'
 import type React from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import * as LucideIcons from 'lucide-react'
-import { ArrowLeft, ChevronRight } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ChevronRight } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { absoluteUrl } from '@/lib/site'
 import { withAlphaColor } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/ui/page-header'
-import { QuizCard } from '@/components/ui/quiz-card'
+import { QuizCard, QuizCardHorizontal } from '@/components/ui/quiz-card'
 import type { QuizCardData } from '@/components/ui/quiz-card'
 import { prisma } from '@/server/prisma'
 
@@ -30,8 +29,6 @@ function renderLucideIcon(name: string, className: string, color: string) {
 
   return <Icon className={className} style={{ color } as React.CSSProperties} aria-hidden />
 }
-
-const SUBCATEGORY_ICON_BG_ALPHA = 0.13
 
 export async function generateMetadata({
   params,
@@ -95,7 +92,15 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
       include: {
         quizzes: {
           where: { isPublished: true },
-          select: { id: true },
+          orderBy: { playCount: 'desc' },
+          take: 10,
+          select: {
+            id: true,
+            title: true,
+            coverImage: true,
+            difficulty: true,
+            playCount: true,
+          },
         },
       },
       orderBy: { name: 'asc' },
@@ -200,50 +205,78 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
       </section>
 
       {subcategories.length > 0 ? (
-        <section className="space-y-4">
-          <h2 className="text-xl font-bold">Subcategories</h2>
-          <div className="space-y-2">
-            {subcategories.map((sub) => {
-              return (
-                <Link
-                  key={sub.slug}
-                  href={`/categories/${sub.slug}`}
-                  className="group flex items-center gap-3 rounded-2xl border border-border bg-card/70 p-3 transition hover:border-transparent hover:shadow-sm"
-                >
-                  <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl">
-                    {sub.imageUrl ? (
-                      <Image
-                        src={sub.imageUrl}
-                        alt={sub.name}
-                        fill
-                        sizes="40px"
-                        className="object-cover"
-                      />
-                    ) : (
-                      <span
-                        className="flex h-10 w-10 items-center justify-center rounded-xl"
-                        style={{
-                          backgroundColor: withAlphaColor(sub.color, SUBCATEGORY_ICON_BG_ALPHA),
-                        }}
-                      >
-                        {renderLucideIcon(sub.icon, 'h-5 w-5', sub.color)}
-                      </span>
-                    )}
+        <div className="space-y-8">
+          {subcategories.map((sub) => {
+            const subQuizCards: QuizCardData[] = sub.quizzes.map((quiz) => ({
+              id: quiz.id,
+              title: quiz.title,
+              coverImage: quiz.coverImage ?? null,
+              difficulty:
+                quiz.difficulty === 'EASY' ||
+                quiz.difficulty === 'MEDIUM' ||
+                quiz.difficulty === 'HARD'
+                  ? quiz.difficulty
+                  : 'MEDIUM',
+              category: { name: sub.name, color: sub.color },
+              playCount: quiz.playCount,
+            }))
+
+            return (
+              <section key={sub.slug} aria-labelledby={`subcat-${sub.slug}`}>
+                {/* Subcategory header */}
+                <div className="mb-3 flex items-center gap-3">
+                  <span
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+                    style={{ backgroundColor: withAlphaColor(sub.color, 0.15) }}
+                  >
+                    {renderLucideIcon(sub.icon, 'h-4.5 w-4.5', sub.color)}
                   </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-semibold transition-colors group-hover:text-primary">
-                      {sub.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {sub.quizzes.length} {sub.quizzes.length === 1 ? 'quiz' : 'quizzes'}
-                    </p>
+                  <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
+                    <div>
+                      <h2
+                        id={`subcat-${sub.slug}`}
+                        className="text-lg font-bold leading-tight"
+                      >
+                        <Link
+                          href={`/categories/${sub.slug}`}
+                          className="transition-colors hover:text-primary"
+                        >
+                          {sub.name}
+                        </Link>
+                      </h2>
+                      <p className="text-xs text-muted-foreground">
+                        {sub.quizzes.length} {sub.quizzes.length === 1 ? 'quiz' : 'quizzes'}
+                      </p>
+                    </div>
+                    <Link
+                      href={`/categories/${sub.slug}`}
+                      className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-primary transition-colors hover:text-primary/80"
+                    >
+                      Browse all <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                    </Link>
                   </div>
-                  <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
-                </Link>
-              )
-            })}
-          </div>
-        </section>
+                </div>
+
+                {/* Horizontal quiz scroller */}
+                {subQuizCards.length > 0 ? (
+                  <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                    {subQuizCards.map((quiz) => (
+                      <QuizCardHorizontal
+                        key={quiz.id}
+                        quiz={quiz}
+                        className="w-48 shrink-0"
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="rounded-xl border border-dashed border-border px-4 py-3 text-sm text-muted-foreground">
+                    No quizzes yet in this subcategory.
+                  </p>
+                )}
+              </section>
+            )
+          })}
+        </div>
       ) : null}
 
       {quizCards.length > 0 ? (
