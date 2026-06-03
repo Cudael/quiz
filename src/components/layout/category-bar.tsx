@@ -21,7 +21,8 @@ const getCategoryBarData = unstable_cache(
       },
     })
 
-    const sorted = categories
+    // Calculate total play count and sort by popularity
+    const categoriesWithStats = categories
       .map((cat) => ({
         slug: cat.slug,
         name: cat.name,
@@ -32,21 +33,23 @@ const getCategoryBarData = unstable_cache(
         quizCount: cat.quizzes.length,
       }))
       .sort((a, b) => {
-        const byPlay = b.totalPlayCount - a.totalPlayCount
-        if (byPlay !== 0) return byPlay
+        // Sort by total plays first (popularity), then by quiz count
+        if (a.totalPlayCount !== b.totalPlayCount) {
+          return b.totalPlayCount - a.totalPlayCount
+        }
         return b.quizCount - a.quizCount
       })
-      .slice(0, 8)
-      .map(({ slug, name, icon, color, imageUrl, quizCount }) => ({
-        slug,
-        name,
-        icon,
-        color,
-        imageUrl: imageUrl ?? undefined,
-        quizCount,
-      }))
 
-    return sorted
+    // Return ALL categories (no slice)
+    return categoriesWithStats.map(({ slug, name, icon, color, imageUrl, quizCount, totalPlayCount }) => ({
+      slug,
+      name,
+      icon,
+      color,
+      imageUrl: imageUrl ?? undefined,
+      quizCount,
+      totalPlayCount,
+    }))
   },
   ['category-bar'],
   {
