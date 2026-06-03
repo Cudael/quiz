@@ -14,7 +14,6 @@ export interface CategoryBarItem {
   color: string
   imageUrl?: string
   quizCount: number
-  totalPlayCount: number // Added for sorting weight
 }
 
 const CATEGORY_ICON_BG_ALPHA = 0.15
@@ -82,6 +81,14 @@ export function CategoryBarClient({ categories }: { categories: CategoryBarItem[
 
   if (categories.length === 0) return null
 
+  // Calculate popularity for visual indicators (based on order, not play counts)
+  // This avoids needing totalPlayCount in the interface
+  const getPopularityRank = (index: number) => {
+    if (index === 0) return '🔥' // Most popular
+    if (index === 1) return '⭐' // Second most popular
+    return null
+  }
+
   return (
     <div 
       className="relative w-full border-b border-border/20 bg-background/95 backdrop-blur-sm"
@@ -131,31 +138,30 @@ export function CategoryBarClient({ categories }: { categories: CategoryBarItem[
           aria-label="Categories"
           className="flex gap-3 min-w-max"
         >
-          {categories.map((category) => {
+          {categories.map((category, index) => {
             const isActive = pathname.startsWith(`/categories/${category.slug}`)
-            const popularityScore = category.totalPlayCount
-            const isPopular = popularityScore > 1000 // Adjust threshold as needed
+            const popularityBadge = getPopularityRank(index)
 
             return (
               <Link
                 key={category.slug}
                 href={`/categories/${category.slug}`}
-                title={`${category.name} - ${category.quizCount} quizzes, ${category.totalPlayCount} total plays`}
+                title={`${category.name} - ${category.quizCount} quizzes`}
                 className={cn(
                   'group relative flex flex-col items-center gap-2 px-3 py-2 transition-all duration-200 rounded-2xl',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                   isActive
                     ? 'bg-primary/10 text-primary shadow-sm'
                     : 'hover:bg-accent/50 text-muted-foreground hover:text-foreground',
-                  isPopular && !isActive && 'hover:scale-105'
+                  'hover:scale-105'
                 )}
                 aria-current={isActive ? 'page' : undefined}
               >
-                {/* Popular badge */}
-                {isPopular && !isActive && (
+                {/* Popular badge for top categories */}
+                {popularityBadge && !isActive && (
                   <div className="absolute -top-1 -right-1 z-10">
                     <div className="flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-[8px] font-bold text-white shadow-sm">
-                      🔥
+                      {popularityBadge}
                     </div>
                   </div>
                 )}
