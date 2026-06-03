@@ -11,7 +11,21 @@ const STAT_ITEMS = [
   { key: 'categories' as const, label: 'categories to explore' },
 ]
 
-export function GuestHeroSection({ stats }: { stats: HomeStats }) {
+export function GuestHeroSection({
+  stats,
+  showStats = true,
+}: {
+  stats: HomeStats
+  showStats?: boolean
+}) {
+  const baseSectionClasses =
+    'relative overflow-hidden rounded-3xl border border-border/40 bg-gradient-to-br from-primary/8 via-background to-quiz-purple/5 shadow-sm'
+  const sectionClasses = showStats
+    ? `${baseSectionClasses} px-6 py-10 md:px-12 md:py-14`
+    : `${baseSectionClasses} h-full p-8`
+  const headingClasses = `text-4xl font-black tracking-tight${showStats ? ' md:text-5xl' : ''}`
+  const subtitleClasses = `mt-4 text-base font-medium leading-relaxed text-muted-foreground${showStats ? ' md:text-lg' : ''}`
+
   const statValues: Record<(typeof STAT_ITEMS)[number]['key'], number> = {
     players: stats.totalPlayers,
     quizzes: stats.totalQuizzes,
@@ -20,10 +34,7 @@ export function GuestHeroSection({ stats }: { stats: HomeStats }) {
   }
 
   return (
-    <section
-      className="relative overflow-hidden rounded-3xl border border-border/40 bg-gradient-to-br from-primary/8 via-background to-quiz-purple/5 px-6 py-10 shadow-sm md:px-12 md:py-14"
-      aria-label="Welcome to BusQuiz"
-    >
+    <section className={sectionClasses} aria-label="Welcome to BusQuiz">
       {/* Ambient blobs */}
       <div
         className="pointer-events-none absolute -left-16 -top-16 h-56 w-56 rounded-full bg-primary/10 blur-3xl"
@@ -40,14 +51,14 @@ export function GuestHeroSection({ stats }: { stats: HomeStats }) {
           Free to play
         </div>
 
-        <h1 className="text-4xl font-black tracking-tight md:text-5xl">
+        <h1 className={headingClasses}>
           Test Your Knowledge.{' '}
           <span className="bg-gradient-to-r from-primary via-quiz-purple to-quiz-pink bg-clip-text text-transparent">
             Challenge the World.
           </span>
         </h1>
 
-        <p className="mt-4 text-base font-medium leading-relaxed text-muted-foreground md:text-lg">
+        <p className={subtitleClasses}>
           Play hundreds of quizzes across every topic, compete on global leaderboards, and earn
           badges as you level up.
         </p>
@@ -74,8 +85,7 @@ export function GuestHeroSection({ stats }: { stats: HomeStats }) {
         </div>
       </div>
 
-      {/* Stats strip */}
-      {stats.totalQuizzes > 0 ? (
+      {showStats && stats.totalQuizzes > 0 ? (
         <dl className="relative mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {STAT_ITEMS.map(({ key, label }) => (
             <div
