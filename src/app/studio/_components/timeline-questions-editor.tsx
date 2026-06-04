@@ -59,14 +59,12 @@ export function TimelineQuestionsEditor({ quizId }: TimelineQuestionsEditorProps
 
   if (timelineQuestions.length === 0) {
     return (
-      <div className="space-y-4">
-        <Button type="button" onClick={handleAddRound}>
-          <PlusCircle className="h-4 w-4" />
-          Add round
+      <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed py-14 text-center">
+        <Button type="button" size="lg" onClick={handleAddRound}>
+          <PlusCircle className="h-5 w-5" />
+          Add your first round
         </Button>
-        <div className="rounded-xl border border-dashed py-12 text-center text-sm text-muted-foreground">
-          No timeline rounds yet.
-        </div>
+        <p className="text-sm text-muted-foreground">No timeline rounds yet.</p>
       </div>
     )
   }

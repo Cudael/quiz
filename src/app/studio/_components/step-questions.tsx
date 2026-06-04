@@ -142,51 +142,74 @@ function ClassicQuestionsEditor({ quizId }: StepQuestionsProps) {
 
   return (
     <div className="space-y-4">
-      {/* Toolbar */}
-      <div className="flex items-center gap-3">
-        <div className="relative" ref={dropdownRef}>
-          <Button type="button" size="sm" onClick={() => setShowDropdown((v) => !v)}>
-            <PlusCircle className="h-4 w-4" />
-            Add question
+      {/* Toolbar — only shown when questions exist */}
+      {questions.length > 0 && (
+        <div className="flex items-center gap-3">
+          <div className="relative" ref={dropdownRef}>
+            <Button type="button" onClick={() => setShowDropdown((v) => !v)}>
+              <PlusCircle className="h-4 w-4" />
+              Add question
+            </Button>
+            {showDropdown && (
+              <div className="absolute left-0 top-full z-10 mt-1 w-52 rounded-lg border bg-card p-1 shadow-md">
+                {QUESTION_TYPES.map(({ type, label }) => (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => handleAddQuestion(type)}
+                    className="w-full rounded px-3 py-2 text-left text-sm hover:bg-accent"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <Badge variant="secondary">
+            {questions.length} question{questions.length !== 1 ? 's' : ''}
+          </Badge>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="ml-auto"
+            onClick={() => setReorderMode((v) => !v)}
+          >
+            {reorderPending ? 'Saving order…' : reorderMode ? 'Done reordering' : 'Reorder'}
           </Button>
-          {showDropdown && (
-            <div className="absolute left-0 top-full z-10 mt-1 w-52 rounded-lg border bg-card p-1 shadow-md">
-              {QUESTION_TYPES.map(({ type, label }) => (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => handleAddQuestion(type)}
-                  className="w-full rounded px-3 py-2 text-left text-sm hover:bg-accent"
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
-
-        <Badge variant="secondary">
-          {questions.length} question{questions.length !== 1 ? 's' : ''}
-        </Badge>
-
-        <Button
-          type="button"
-          variant={reorderMode ? 'default' : 'outline'}
-          size="sm"
-          className="ml-auto"
-          onClick={() => setReorderMode((v) => !v)}
-        >
-          {reorderPending ? 'Saving order…' : reorderMode ? 'Done reordering' : 'Reorder'}
-        </Button>
-      </div>
+      )}
 
       {/* Question list */}
       {questions.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed py-12 text-center">
-          <PlusCircle className="h-10 w-10 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">
-            No questions yet. Add your first question above.
-          </p>
+        <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed py-14 text-center">
+          <div className="relative" ref={dropdownRef}>
+            <Button
+              type="button"
+              size="lg"
+              onClick={() => setShowDropdown((v) => !v)}
+            >
+              <PlusCircle className="h-5 w-5" />
+              Add your first question
+            </Button>
+            {showDropdown && (
+              <div className="absolute left-1/2 top-full z-10 mt-1 w-52 -translate-x-1/2 rounded-lg border bg-card p-1 shadow-md">
+                {QUESTION_TYPES.map(({ type, label }) => (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => handleAddQuestion(type)}
+                    className="w-full rounded px-3 py-2 text-left text-sm hover:bg-accent"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <p className="text-sm text-muted-foreground">No questions yet.</p>
         </div>
       ) : (
         <DndContext

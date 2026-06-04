@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 import { slugify } from '@/lib/slugify'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import { ImageUpload } from './image-upload'
-import { TemplatePicker, QUIZ_TEMPLATES } from './template-picker'
+import { TemplatePicker } from './template-picker'
 import type { QuizTemplate } from './template-picker'
 import type { DraftQuestion, DraftChoice } from '@/store/quiz-creator-store'
 
@@ -230,169 +230,162 @@ export function StepMeta({ categories }: StepMetaProps) {
     imageUrl,
     defaultTimeLimitSec,
     selectedTemplateId,
-    quizFormat,
     setMeta,
     applyTemplate,
   } = useQuizCreatorStore()
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-2">
-        <h2 className="text-lg font-semibold">Choose a format</h2>
-        <p className="text-sm text-muted-foreground">You can change this later.</p>
-        <TemplatePicker
-          selectedId={selectedTemplateId}
-          onSelect={(template) => {
-            const questions = buildTemplateQuestions(template)
-            applyTemplate(template.id, template.format, questions)
-          }}
-        />
-      </div>
-
-      <div className="grid gap-8 lg:grid-cols-2">
-        {/* Left column */}
-        <div className="space-y-5">
-          {/* Title */}
-          <div className="space-y-1">
-            <div className="flex items-center justify-between">
-              <label htmlFor="quiz-title" className="text-sm font-medium">
-                Title
-              </label>
-              <span className="text-xs text-muted-foreground">{title.length}/120</span>
-            </div>
-            <input
-              id="quiz-title"
-              type="text"
-              value={title}
-              onChange={(e) => setMeta({ title: e.target.value })}
-              maxLength={120}
-              className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-            />
-          </div>
-
-          {/* Description */}
-          <div className="space-y-1">
-            <div className="flex items-center justify-between">
-              <label htmlFor="quiz-description" className="text-sm font-medium">
-                Description
-              </label>
-              <span className="text-xs text-muted-foreground">{description.length}/500</span>
-            </div>
-            <textarea
-              id="quiz-description"
-              value={description}
-              onChange={(e) => setMeta({ description: e.target.value })}
-              maxLength={500}
-              rows={4}
-              className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-            />
-          </div>
-
-          {/* Category */}
-          <div className="space-y-1">
-            <label htmlFor="quiz-category" className="block text-sm font-medium">
-              Category
+    <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
+      {/* Left column — details form */}
+      <div className="space-y-5">
+        {/* Title */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <label htmlFor="quiz-title" className="text-sm font-medium">
+              Title
             </label>
-            <select
-              id="quiz-category"
-              value={categoryId}
-              onChange={(e) => setMeta({ categoryId: e.target.value })}
-              className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-            >
-              <option value="">Select a category…</option>
-              {(() => {
-                const parents = categories.filter((c) => c.parentSlug === null)
-                const children = categories.filter((c) => c.parentSlug !== null)
-                return parents.map((parent) => {
-                  const subs = children.filter((c) => c.parentSlug === slugify(parent.name))
-                  if (subs.length > 0) {
-                    return (
-                      <optgroup key={parent.id} label={parent.name}>
-                        {subs.map((sub) => (
-                          <option key={sub.id} value={sub.id}>
-                            {sub.name}
-                          </option>
-                        ))}
-                      </optgroup>
-                    )
-                  }
-                  return (
-                    <option key={parent.id} value={parent.id}>
-                      {parent.name}
-                    </option>
-                  )
-                })
-              })()}
-            </select>
+            <span className="text-xs text-muted-foreground">{title.length}/120</span>
           </div>
-
-          {/* Difficulty */}
-          <div className="space-y-1">
-            <p className="block text-sm font-medium">Difficulty</p>
-            <div className="flex gap-2">
-              {DIFFICULTY_CONFIG.map(({ value, label, activeClass }) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setMeta({ difficulty: value })}
-                  className={cn(
-                    'rounded-full border px-4 py-1.5 text-sm font-medium transition-colors',
-                    difficulty === value
-                      ? activeClass
-                      : 'border-border text-muted-foreground hover:border-primary/50'
-                  )}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Cover image */}
-          <ImageUpload
-            value={imageUrl}
-            onChange={(v) => setMeta({ imageUrl: v })}
-            label="Cover image (optional)"
-            aspectRatio="16/9"
+          <input
+            id="quiz-title"
+            type="text"
+            value={title}
+            onChange={(e) => setMeta({ title: e.target.value })}
+            maxLength={120}
+            className="w-full rounded-md border bg-background px-3 py-2 text-sm"
           />
+        </div>
 
-          <div className="space-y-1">
-            <p className="block text-sm font-medium">Quiz time limit</p>
-            <div className="flex flex-wrap gap-2">
-              {[
-                { label: '1 min', value: 60 },
-                { label: '2 min', value: 120 },
-                { label: '3 min', value: 180 },
-                { label: '5 min', value: 300 },
-                { label: '10 min', value: 600 },
-                { label: 'No limit', value: null },
-              ].map(({ label, value }) => (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={() => setMeta({ defaultTimeLimitSec: value })}
-                  className={cn(
-                    'rounded-full border px-4 py-1.5 text-sm font-medium transition-colors',
-                    defaultTimeLimitSec === value
-                      ? 'border-primary bg-primary text-primary-foreground'
-                      : 'border-border text-muted-foreground hover:border-primary/50'
-                  )}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+        {/* Description */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <label htmlFor="quiz-description" className="text-sm font-medium">
+              Description
+            </label>
+            <span className="text-xs text-muted-foreground">{description.length}/500</span>
+          </div>
+          <textarea
+            id="quiz-description"
+            value={description}
+            onChange={(e) => setMeta({ description: e.target.value })}
+            maxLength={500}
+            rows={4}
+            className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+          />
+        </div>
+
+        {/* Category */}
+        <div className="space-y-1">
+          <label htmlFor="quiz-category" className="block text-sm font-medium">
+            Category
+          </label>
+          <select
+            id="quiz-category"
+            value={categoryId}
+            onChange={(e) => setMeta({ categoryId: e.target.value })}
+            className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+          >
+            <option value="">Select a category…</option>
+            {(() => {
+              const parents = categories.filter((c) => c.parentSlug === null)
+              const children = categories.filter((c) => c.parentSlug !== null)
+              return parents.map((parent) => {
+                const subs = children.filter((c) => c.parentSlug === slugify(parent.name))
+                if (subs.length > 0) {
+                  return (
+                    <optgroup key={parent.id} label={parent.name}>
+                      {subs.map((sub) => (
+                        <option key={sub.id} value={sub.id}>
+                          {sub.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )
+                }
+                return (
+                  <option key={parent.id} value={parent.id}>
+                    {parent.name}
+                  </option>
+                )
+              })
+            })()}
+          </select>
+        </div>
+
+        {/* Difficulty */}
+        <div className="space-y-1">
+          <p className="block text-sm font-medium">Difficulty</p>
+          <div className="flex gap-2">
+            {DIFFICULTY_CONFIG.map(({ value, label, activeClass }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setMeta({ difficulty: value })}
+                className={cn(
+                  'rounded-full border px-4 py-1.5 text-sm font-medium transition-colors',
+                  difficulty === value
+                    ? activeClass
+                    : 'border-border text-muted-foreground hover:border-primary/50'
+                )}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
-        {/* Right column */}
-        <div className="space-y-5">
-          <div className="rounded-xl border bg-card p-4">
-            <p className="text-sm font-medium">Current format</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {QUIZ_TEMPLATES.find((template) => template.format === quizFormat)?.name ??
-                'Classic Quiz'}
-            </p>
+
+        {/* Cover image */}
+        <ImageUpload
+          value={imageUrl}
+          onChange={(v) => setMeta({ imageUrl: v })}
+          label="Cover image (optional)"
+          aspectRatio="16/9"
+        />
+
+        <div className="space-y-1">
+          <p className="block text-sm font-medium">Quiz time limit</p>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { label: '1 min', value: 60 },
+              { label: '2 min', value: 120 },
+              { label: '3 min', value: 180 },
+              { label: '5 min', value: 300 },
+              { label: '10 min', value: 600 },
+              { label: 'No limit', value: null },
+            ].map(({ label, value }) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => setMeta({ defaultTimeLimitSec: value })}
+                className={cn(
+                  'rounded-full border px-4 py-1.5 text-sm font-medium transition-colors',
+                  defaultTimeLimitSec === value
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'border-border text-muted-foreground hover:border-primary/50'
+                )}
+              >
+                {label}
+              </button>
+            ))}
           </div>
+        </div>
+      </div>
+
+      {/* Right column — format picker (sticky on desktop, below form on mobile) */}
+      <div className="lg:self-start lg:sticky lg:top-6">
+        <div className="space-y-2">
+          <div>
+            <h2 className="text-sm font-semibold">Format</h2>
+            <p className="text-xs text-muted-foreground">Choose a quiz type</p>
+          </div>
+          <TemplatePicker
+            selectedId={selectedTemplateId}
+            onSelect={(template) => {
+              const questions = buildTemplateQuestions(template)
+              applyTemplate(template.id, template.format, questions)
+            }}
+          />
+          <p className="text-xs text-muted-foreground">You can change this later.</p>
         </div>
       </div>
     </div>
