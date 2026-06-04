@@ -372,7 +372,7 @@ export function StepMeta({ categories }: StepMetaProps) {
       </div>
 
       {/* Right column — format picker (sticky on desktop, below form on mobile) */}
-      <div className="order-first lg:order-last lg:self-start lg:sticky lg:top-6">
+      <div className="lg:self-start lg:sticky lg:top-6">
         <div className="space-y-2">
           <div>
             <h2 className="text-sm font-semibold">Format</h2>
