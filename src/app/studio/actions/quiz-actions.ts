@@ -80,6 +80,7 @@ export async function createQuiz(formData: FormData): Promise<ActionResult> {
     coverImage: formData.get('coverImage') || undefined,
     categoryId: formData.get('categoryId'),
     difficulty: formData.get('difficulty'),
+    format: formData.get('format') || 'CLASSIC',
     defaultTimeLimitSec: formData.get('defaultTimeLimitSec')
       ? Number(formData.get('defaultTimeLimitSec'))
       : undefined,
@@ -122,6 +123,7 @@ export async function updateQuiz(formData: FormData): Promise<ActionResult> {
     coverImage: formData.get('coverImage') || undefined,
     categoryId: formData.get('categoryId'),
     difficulty: formData.get('difficulty'),
+    format: formData.get('format') || 'CLASSIC',
     defaultTimeLimitSec: formData.get('defaultTimeLimitSec')
       ? Number(formData.get('defaultTimeLimitSec'))
       : undefined,
@@ -182,6 +184,7 @@ export async function saveDraft(formData: FormData): Promise<ActionResult> {
     coverImage: formData.get('coverImage') || undefined,
     categoryId: formData.get('categoryId'),
     difficulty: formData.get('difficulty'),
+    format: formData.get('format') || 'CLASSIC',
     defaultTimeLimitSec: formData.get('defaultTimeLimitSec')
       ? Number(formData.get('defaultTimeLimitSec'))
       : undefined,

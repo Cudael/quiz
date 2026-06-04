@@ -19,6 +19,7 @@ export default async function EditQuizPage({ params }: { params: Promise<{ id: s
       coverImage: true,
       categoryId: true,
       difficulty: true,
+      format: true,
       defaultTimeLimitSec: true,
       isPublished: true,
       authorId: true,

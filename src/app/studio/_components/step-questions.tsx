@@ -26,6 +26,10 @@ import { DEFAULT_TIME_LIMIT_SEC } from '@/domain/quiz-constants'
 import { QuestionCard, makeDefaultChoices } from './question-card'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import type { QuestionType } from '@/store/quiz-creator-store'
+import { TimelineQuestionsEditor } from './timeline-questions-editor'
+import { MatchingQuestionsEditor } from './matching-questions-editor'
+import { CategorizeQuestionsEditor } from './categorize-questions-editor'
+import { LabelDiagramQuestionsEditor } from './label-diagram-questions-editor'
 
 interface StepQuestionsProps {
   quizId: string
@@ -39,6 +43,25 @@ const QUESTION_TYPES: Array<{ type: QuestionType; label: string }> = [
 ]
 
 export function StepQuestions({ quizId }: StepQuestionsProps) {
+  const quizFormat = useQuizCreatorStore((state) => state.quizFormat)
+
+  if (quizFormat === 'TIMELINE') {
+    return <TimelineQuestionsEditor quizId={quizId} />
+  }
+  if (quizFormat === 'MATCHING') {
+    return <MatchingQuestionsEditor quizId={quizId} />
+  }
+  if (quizFormat === 'CATEGORIZE') {
+    return <CategorizeQuestionsEditor quizId={quizId} />
+  }
+  if (quizFormat === 'LABEL_DIAGRAM') {
+    return <LabelDiagramQuestionsEditor quizId={quizId} />
+  }
+
+  return <ClassicQuestionsEditor quizId={quizId} />
+}
+
+function ClassicQuestionsEditor({ quizId }: StepQuestionsProps) {
   const { questions, addQuestion, updateQuestion, removeQuestion, setQuestions } =
     useQuizCreatorStore()
   const defaultTimeLimitSec = useQuizCreatorStore((state) => state.defaultTimeLimitSec)

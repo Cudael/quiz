@@ -8,9 +8,19 @@ export interface DraftChoice {
   localId: string
   text: string
   isCorrect: boolean
+  meta?: Record<string, unknown>
 }
 
-export type QuestionType = 'SINGLE' | 'MULTIPLE' | 'TRUEFALSE' | 'FILL_BLANK'
+export type QuestionType =
+  | 'SINGLE'
+  | 'MULTIPLE'
+  | 'TRUEFALSE'
+  | 'FILL_BLANK'
+  | 'ORDERING'
+  | 'MATCHING'
+  | 'CATEGORIZE'
+  | 'LABEL'
+export type QuizFormat = 'CLASSIC' | 'TIMELINE' | 'MATCHING' | 'CATEGORIZE' | 'LABEL_DIAGRAM'
 export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD'
 
 export interface DraftQuestion {
@@ -36,6 +46,7 @@ export interface QuizCreatorState {
   questions: DraftQuestion[]
   currentStep: 1 | 2 | 3 | 4
   selectedTemplateId: string | null
+  quizFormat: QuizFormat
   saving: boolean
   lastSavedAt: Date | null
 }
@@ -52,6 +63,7 @@ export interface QuizCreatorActions {
         | 'imageUrl'
         | 'defaultTimeLimitSec'
         | 'isPublished'
+        | 'quizFormat'
       >
     >
   ) => void
@@ -62,7 +74,8 @@ export interface QuizCreatorActions {
   removeQuestion: (localId: string) => void
   reorderQuestions: (from: number, to: number) => void
   setStep: (step: 1 | 2 | 3 | 4) => void
-  applyTemplate: (id: string, questions: DraftQuestion[]) => void
+  setQuizFormat: (format: QuizFormat) => void
+  applyTemplate: (id: string, format: QuizFormat, questions: DraftQuestion[]) => void
   setSaving: (saving: boolean) => void
   setLastSaved: (at: Date) => void
   reset: () => void
@@ -84,6 +97,7 @@ const initialState: QuizCreatorState = {
   questions: [],
   currentStep: 1,
   selectedTemplateId: null,
+  quizFormat: 'CLASSIC',
   saving: false,
   lastSavedAt: null,
 }
@@ -123,7 +137,10 @@ export const useQuizCreatorStore = create<QuizCreatorState & QuizCreatorActions>
 
   setStep: (step) => set({ currentStep: step }),
 
-  applyTemplate: (id, questions) => set({ selectedTemplateId: id, questions }),
+  setQuizFormat: (format) => set({ quizFormat: format }),
+
+  applyTemplate: (id, format, questions) =>
+    set({ selectedTemplateId: id, quizFormat: format, questions }),
 
   setSaving: (saving) => set({ saving }),
 

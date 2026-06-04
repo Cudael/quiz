@@ -25,6 +25,7 @@ beforeEach(() => {
     difficulty: 'MEDIUM',
     imageUrl: '',
     defaultTimeLimitSec: null,
+    quizFormat: 'CLASSIC',
     isPublished: false,
   })
   store.setQuestions([])
@@ -40,6 +41,7 @@ describe('initial state', () => {
     expect(state.currentStep).toBe(1)
     expect(state.saving).toBe(false)
     expect(state.quizId).toBeNull()
+    expect(state.quizFormat).toBe('CLASSIC')
   })
 })
 
@@ -118,12 +120,20 @@ describe('setStep', () => {
   })
 })
 
+describe('setQuizFormat', () => {
+  it('updates quiz format', () => {
+    useQuizCreatorStore.getState().setQuizFormat('MATCHING')
+    expect(useQuizCreatorStore.getState().quizFormat).toBe('MATCHING')
+  })
+})
+
 describe('applyTemplate', () => {
-  it('sets selectedTemplateId and replaces questions', () => {
+  it('sets selectedTemplateId, format, and replaces questions', () => {
     const questions = [makeQuestion('t1'), makeQuestion('t2')]
-    useQuizCreatorStore.getState().applyTemplate('tmpl-1', questions)
+    useQuizCreatorStore.getState().applyTemplate('tmpl-1', 'TIMELINE', questions)
     const state = useQuizCreatorStore.getState()
     expect(state.selectedTemplateId).toBe('tmpl-1')
+    expect(state.quizFormat).toBe('TIMELINE')
     expect(state.questions).toHaveLength(2)
     expect(state.questions[0].localId).toBe('t1')
   })

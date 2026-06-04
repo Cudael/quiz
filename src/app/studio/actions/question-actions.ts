@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import type { Prisma } from '@prisma/client'
 import { z } from 'zod'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
@@ -98,7 +99,11 @@ export async function addQuestion(formData: FormData): Promise<QuestionActionRes
         timeLimitSec: parsedQuestion.data.timeLimitSec,
         order: parsedMeta.data.order,
         choices: {
-          create: parsedQuestion.data.choices,
+          create: parsedQuestion.data.choices.map((choice) => ({
+            text: choice.text,
+            isCorrect: choice.isCorrect,
+            ...(choice.meta ? { meta: choice.meta as Prisma.InputJsonValue } : {}),
+          })),
         },
       },
       select: { id: true },
@@ -157,7 +162,11 @@ export async function updateQuestion(formData: FormData): Promise<QuestionAction
         explanation: parsedQuestion.data.explanation || null,
         timeLimitSec: parsedQuestion.data.timeLimitSec,
         choices: {
-          create: parsedQuestion.data.choices,
+          create: parsedQuestion.data.choices.map((choice) => ({
+            text: choice.text,
+            isCorrect: choice.isCorrect,
+            ...(choice.meta ? { meta: choice.meta as Prisma.InputJsonValue } : {}),
+          })),
         },
       },
     }),
