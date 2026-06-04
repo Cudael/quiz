@@ -212,6 +212,11 @@ function TimelineRoundCard({
           placeholder="Round title / instruction"
         />
 
+        <p className="border-l-2 border-muted-foreground/40 pl-3 text-sm text-muted-foreground">
+          The order shown below is the correct answer. Drag items to arrange them in the right
+          sequence.
+        </p>
+
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext
             items={question.choices.map((choice) => choice.localId)}
@@ -284,7 +289,7 @@ function TimelineChoiceRow({
       <button type="button" {...listeners} className="cursor-grab text-muted-foreground">
         <GripVertical className="h-4 w-4" />
       </button>
-      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-muted text-xs font-semibold">
+      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-quiz-green/20 text-xs font-semibold text-quiz-green">
         {index + 1}
       </span>
       <input

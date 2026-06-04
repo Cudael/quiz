@@ -187,6 +187,11 @@ function LabelRoundCard({
           onChange={(value) => onUpdate({ imageUrl: value })}
         />
 
+        <p className="border-l-2 border-muted-foreground/40 pl-3 text-sm text-muted-foreground">
+          The label text at each position is the correct answer. Players will need to identify and
+          type each label.
+        </p>
+
         <div className="space-y-2">
           {question.choices.map((choice, choiceIndex) => {
             const x = Number(choice.meta?.x ?? 0.5)
@@ -208,7 +213,7 @@ function LabelRoundCard({
                     })
                   }
                   className="rounded-md border bg-background px-2 py-1 text-sm"
-                  placeholder={`Label ${choiceIndex + 1}`}
+                  placeholder={`Correct label ${choiceIndex + 1}`}
                 />
                 <input
                   type="number"
