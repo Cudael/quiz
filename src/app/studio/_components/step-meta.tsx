@@ -371,8 +371,8 @@ export function StepMeta({ categories }: StepMetaProps) {
         </div>
       </div>
 
-      {/* Right column — format picker */}
-      <div className="lg:sticky lg:top-6 lg:self-start">
+      {/* Right column — format picker (static, does not follow scroll) */}
+      <div className="lg:self-start">
         <div className="space-y-2">
           <div>
             <p className="text-sm font-semibold">Format</p>
