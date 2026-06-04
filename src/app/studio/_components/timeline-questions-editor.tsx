@@ -157,7 +157,6 @@ function TimelineRoundCard({
       }
       setSaveState('saved')
       setTimeout(() => setSaveState('idle'), 1500)
-      onUpdate({ choices: normalizedChoices })
       return
     }
 

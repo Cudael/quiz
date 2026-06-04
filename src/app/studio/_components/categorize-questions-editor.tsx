@@ -37,6 +37,8 @@ function makeCategorizeQuestion(timeLimitSec: number): DraftQuestion {
       },
       { localId: crypto.randomUUID(), text: 'Item 1', isCorrect: false, meta: { category: 'A' } },
       { localId: crypto.randomUUID(), text: 'Item 2', isCorrect: false, meta: { category: 'B' } },
+      { localId: crypto.randomUUID(), text: 'Item 3', isCorrect: false, meta: { category: 'A' } },
+      { localId: crypto.randomUUID(), text: 'Item 4', isCorrect: false, meta: { category: 'B' } },
     ],
   }
 }

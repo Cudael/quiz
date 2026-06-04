@@ -84,12 +84,12 @@ interface TemplatePickerProps {
 }
 
 export function TemplatePicker({ selectedId, onSelect }: TemplatePickerProps) {
-  const formatBadgeByTemplateId: Record<string, string> = {
-    classic: 'CLASSIC',
-    timeline: 'ORDERING',
-    matching: 'MATCHING',
-    categorize: 'CATEGORIZE',
-    'label-diagram': 'LABEL',
+  const formatBadge: Record<QuizFormat, string> = {
+    CLASSIC: 'CLASSIC',
+    TIMELINE: 'ORDERING',
+    MATCHING: 'MATCHING',
+    CATEGORIZE: 'CATEGORIZE',
+    LABEL_DIAGRAM: 'LABEL',
   }
   const selectedBorderByTemplateId: Record<string, string> = {
     classic: 'border-primary ring-primary',
@@ -125,7 +125,7 @@ export function TemplatePicker({ selectedId, onSelect }: TemplatePickerProps) {
                 {template.emoji}
               </span>
               <span className="rounded-full border px-2 py-0.5 text-xs text-muted-foreground">
-                {formatBadgeByTemplateId[template.id]}
+                {formatBadge[template.format]}
               </span>
             </div>
             <p className="text-base font-semibold">{template.name}</p>

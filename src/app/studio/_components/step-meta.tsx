@@ -232,7 +232,6 @@ export function StepMeta({ categories }: StepMetaProps) {
     selectedTemplateId,
     quizFormat,
     setMeta,
-    setQuizFormat,
     applyTemplate,
   } = useQuizCreatorStore()
 
@@ -245,7 +244,6 @@ export function StepMeta({ categories }: StepMetaProps) {
           selectedId={selectedTemplateId}
           onSelect={(template) => {
             const questions = buildTemplateQuestions(template)
-            setQuizFormat(template.format)
             applyTemplate(template.id, template.format, questions)
           }}
         />

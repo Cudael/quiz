@@ -13,6 +13,7 @@ import { StepQuestions } from './step-questions'
 import { StepPreview } from './step-preview'
 import { StepPublish } from './step-publish'
 import type { DraftChoice, DraftQuestion } from '@/store/quiz-creator-store'
+import type { QuizFormat } from '@/store/quiz-creator-store'
 
 interface Category {
   id: string
@@ -76,6 +77,7 @@ export function QuizCreatorShell({
 
     if (mode === 'edit' && initialData) {
       const alreadyHasThisQuiz = store.quizId === initialData.quiz.id
+      const quizFormat = initialData.quiz.format as QuizFormat
 
       store.setQuizId(initialData.quiz.id)
       store.setMeta({
@@ -83,24 +85,11 @@ export function QuizCreatorShell({
         description: initialData.quiz.description,
         categoryId: initialData.quiz.categoryId,
         difficulty: initialData.quiz.difficulty as 'EASY' | 'MEDIUM' | 'HARD',
-        quizFormat: initialData.quiz.format as
-          | 'CLASSIC'
-          | 'TIMELINE'
-          | 'MATCHING'
-          | 'CATEGORIZE'
-          | 'LABEL_DIAGRAM',
         isPublished: initialData.quiz.isPublished,
         imageUrl: initialData.quiz.coverImage ?? '',
         defaultTimeLimitSec: initialData.quiz.defaultTimeLimitSec,
       })
-      store.setQuizFormat(
-        initialData.quiz.format as
-          | 'CLASSIC'
-          | 'TIMELINE'
-          | 'MATCHING'
-          | 'CATEGORIZE'
-          | 'LABEL_DIAGRAM'
-      )
+      store.setQuizFormat(quizFormat)
 
       // When redirected from new→edit after choosing a template, the server
       // has no questions yet but the store already holds the template questions.
