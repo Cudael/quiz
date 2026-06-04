@@ -52,19 +52,25 @@ export function CategorizeQuestionsEditor({ quizId }: CategorizeQuestionsEditorP
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <Button type="button" onClick={addRound}>
-          <PlusCircle className="h-4 w-4" />
-          Add round
-        </Button>
-        <Badge variant="secondary">
-          {categorizeQuestions.length} round{categorizeQuestions.length !== 1 ? 's' : ''}
-        </Badge>
-      </div>
+      {categorizeQuestions.length > 0 && (
+        <div className="flex items-center gap-3">
+          <Button type="button" onClick={addRound}>
+            <PlusCircle className="h-4 w-4" />
+            Add round
+          </Button>
+          <Badge variant="secondary">
+            {categorizeQuestions.length} round{categorizeQuestions.length !== 1 ? 's' : ''}
+          </Badge>
+        </div>
+      )}
 
       {categorizeQuestions.length === 0 ? (
-        <div className="rounded-xl border border-dashed py-12 text-center text-sm text-muted-foreground">
-          No sort rounds yet.
+        <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed py-14 text-center">
+          <Button type="button" size="lg" onClick={addRound}>
+            <PlusCircle className="h-5 w-5" />
+            Add your first round
+          </Button>
+          <p className="text-sm text-muted-foreground">No sort rounds yet.</p>
         </div>
       ) : (
         <div className="space-y-3">
