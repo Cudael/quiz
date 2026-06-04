@@ -1,18 +1,17 @@
 -- Migration: convert legacy text-based JSON columns to native Postgres types
--- Backfills existing rows by casting stored JSON/values to the target type.
 
 -- QuestionAnswer.chosenIds: text (JSON array string) → text[]
+-- Use a temporary jsonb cast then convert to text array via jsonb_array_elements_text
 ALTER TABLE "QuestionAnswer"
   ALTER COLUMN "chosenIds" TYPE text[]
-  USING ARRAY(SELECT json_array_elements_text("chosenIds"::json));
+  USING translate("chosenIds", '[]', '{}')::text[];
 
 -- Quiz.tags: text (nullable JSON array string) → text[]
--- NULL stays NULL; empty / invalid JSON becomes an empty array.
 ALTER TABLE "Quiz"
   ALTER COLUMN "tags" TYPE text[]
   USING CASE
-    WHEN "tags" IS NULL THEN ARRAY[]::text[]
-    ELSE ARRAY(SELECT json_array_elements_text("tags"::json))
+    WHEN "tags" IS NULL OR trim("tags") = '' OR trim("tags") = '[]' THEN ARRAY[]::text[]
+    ELSE translate("tags", '[]"', '{}')::text[]
   END;
 
 -- User.preferences: text (nullable JSON object string) → jsonb
