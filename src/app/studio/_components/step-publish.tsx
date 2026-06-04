@@ -16,6 +16,19 @@ interface CheckItem {
   ok: boolean
 }
 
+// These question types encode their correct answer in choice.meta rather than
+// choice.isCorrect, so we must not require isCorrect === true for them.
+const META_ANSWER_TYPES = new Set(['ORDERING', 'MATCHING', 'CATEGORIZE', 'LABEL'])
+
+function questionIsSaved(q: { dbId: string | null; type: string; choices: { isCorrect: boolean; meta?: unknown }[] }) {
+  if (q.dbId === null) return false
+  if (META_ANSWER_TYPES.has(q.type)) {
+    // For meta-based types, just require it's been saved (dbId set) and has at least one choice
+    return q.choices.length > 0
+  }
+  return q.choices.some((c) => c.isCorrect)
+}
+
 export function StepPublish({ quizId }: StepPublishProps) {
   const {
     title,
@@ -39,10 +52,8 @@ export function StepPublish({ quizId }: StepPublishProps) {
     { label: 'Description is set', ok: description.trim().length > 0 },
     { label: `At least ${MIN_QUESTIONS} questions`, ok: questions.length >= MIN_QUESTIONS },
     {
-      label: 'All questions saved with a correct answer',
-      ok:
-        questions.length > 0 &&
-        questions.every((q) => q.dbId !== null && q.choices.some((c) => c.isCorrect)),
+      label: 'All questions saved',
+      ok: questions.length > 0 && questions.every((q) => questionIsSaved(q)),
     },
   ]
 
@@ -83,7 +94,7 @@ export function StepPublish({ quizId }: StepPublishProps) {
   }
 
   return (
-    <div className="space-y-6 max-w-xl">
+    <div className="max-w-xl space-y-6">
       <ImageUpload
         value={imageUrl}
         onChange={(v) => setMeta({ imageUrl: v })}
