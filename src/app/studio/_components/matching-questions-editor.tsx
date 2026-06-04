@@ -177,6 +177,11 @@ function MatchingRoundCard({
           placeholder="Round title / instruction"
         />
 
+        <p className="border-l-2 border-muted-foreground/40 pl-3 text-sm text-muted-foreground">
+          Each left item will be matched to the right item in the same row. Edit both sides to set
+          the correct pairs.
+        </p>
+
         <div className="rounded-lg border">
           <div className="grid grid-cols-[1fr_auto_1fr_auto] gap-2 border-b px-3 py-2 text-xs font-semibold text-muted-foreground">
             <span>Left column</span>
@@ -197,7 +202,7 @@ function MatchingRoundCard({
                   className="rounded-md border bg-background px-2 py-1 text-sm"
                   placeholder={`Left ${pairIndex + 1}`}
                 />
-                <span className="text-muted-foreground">↔</span>
+                <span className="font-semibold text-primary">↔</span>
                 <input
                   type="text"
                   value={pair.right?.text ?? ''}

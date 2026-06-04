@@ -196,8 +196,14 @@ function CategorizeRoundCard({
           placeholder="Round title / instruction"
         />
 
+        <p className="border-l-2 border-muted-foreground/40 pl-3 text-sm text-muted-foreground">
+          Items placed in each column are the correct assignments. Players will need to sort them
+          into the right category.
+        </p>
+
         <div className="grid gap-3 md:grid-cols-2">
           <div className="space-y-2 rounded-lg border p-3">
+            <p className="text-xs font-semibold text-quiz-green">✓ Correct bin</p>
             <input
               type="text"
               value={categoryAHeader?.text ?? ''}
@@ -238,6 +244,7 @@ function CategorizeRoundCard({
           </div>
 
           <div className="space-y-2 rounded-lg border p-3">
+            <p className="text-xs font-semibold text-quiz-green">✓ Correct bin</p>
             <input
               type="text"
               value={categoryBHeader?.text ?? ''}
