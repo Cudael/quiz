@@ -235,7 +235,7 @@ export function StepMeta({ categories }: StepMetaProps) {
   } = useQuizCreatorStore()
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
+    <div className="grid gap-8 lg:grid-cols-[1fr_280px]">
       {/* Left column — details form */}
       <div className="space-y-5">
         {/* Title */}
@@ -371,11 +371,11 @@ export function StepMeta({ categories }: StepMetaProps) {
         </div>
       </div>
 
-      {/* Right column — format picker (sticky on desktop, below form on mobile) */}
-      <div className="lg:self-start lg:sticky lg:top-6">
+      {/* Right column — format picker */}
+      <div className="lg:sticky lg:top-6 lg:self-start">
         <div className="space-y-2">
           <div>
-            <h2 className="text-sm font-semibold">Format</h2>
+            <p className="text-sm font-semibold">Format</p>
             <p className="text-xs text-muted-foreground">Choose a quiz type</p>
           </div>
           <TemplatePicker
