@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum Role {
@@ -130,27 +131,27 @@ model Category {
 }
 
 model Quiz {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  coverImage  String?
-  tags        String[] // string array, e.g. ["history","ww2"]
-  categoryId  String
-  category    Category @relation(fields: [categoryId], references: [id])
-  difficulty  Difficulty @default(MEDIUM)
-  authorId    String
-  author      User     @relation("AuthoredQuizzes", fields: [authorId], references: [id])
-  isPublished Boolean  @default(true)
-  playCount   Int      @default(0)
-  avgScore    Float    @default(0)
+  id                  String     @id @default(cuid())
+  title               String
+  description         String
+  coverImage          String?
+  tags                String[] // string array, e.g. ["history","ww2"]
+  categoryId          String
+  category            Category   @relation(fields: [categoryId], references: [id])
+  difficulty          Difficulty @default(MEDIUM)
+  authorId            String
+  author              User       @relation("AuthoredQuizzes", fields: [authorId], references: [id])
+  isPublished         Boolean    @default(true)
+  playCount           Int        @default(0)
+  avgScore            Float      @default(0)
   defaultTimeLimitSec Int?
-  format      QuizFormat @default(CLASSIC)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  format              QuizFormat @default(CLASSIC)
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
 
-  questions Question[]
-  sessions  PlaySession[]
-  reports   Report[]
+  questions   Question[]
+  sessions    PlaySession[]
+  reports     Report[]
   favoritedBy FavoriteQuiz[] @relation("FavoritedBy")
 
   @@index([categoryId])
@@ -158,15 +159,15 @@ model Quiz {
 }
 
 model Question {
-  id           String  @id @default(cuid())
+  id           String       @id @default(cuid())
   quizId       String
-  quiz         Quiz    @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  quiz         Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
   type         QuestionType @default(SINGLE)
   prompt       String
   imageUrl     String?
   explanation  String?
-  timeLimitSec Int     @default(20)
-  points       Int     @default(1)
+  timeLimitSec Int          @default(20)
+  points       Int          @default(1)
   order        Int
 
   choices Choice[]
@@ -225,18 +226,18 @@ model Duel {
 }
 
 model DuelParticipant {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   duelId       String
-  duel         Duel     @relation(fields: [duelId], references: [id], onDelete: Cascade)
+  duel         Duel      @relation(fields: [duelId], references: [id], onDelete: Cascade)
   userId       String?
-  user         User?    @relation("DuelParticipations", fields: [userId], references: [id])
+  user         User?     @relation("DuelParticipations", fields: [userId], references: [id])
   guestName    String?
   guestKey     String?
-  score        Int      @default(0)
-  correctCount Int      @default(0)
-  finished     Boolean  @default(false)
+  score        Int       @default(0)
+  correctCount Int       @default(0)
+  finished     Boolean   @default(false)
   finishedAt   DateTime?
-  joinedAt     DateTime @default(now())
+  joinedAt     DateTime  @default(now())
 
   @@index([duelId])
   @@index([userId])
@@ -336,47 +337,47 @@ model FavoriteQuiz {
 }
 
 model Notification {
-  id        String   @id @default(cuid())
+  id        String           @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   type      NotificationType
   title     String
   message   String
-  isRead    Boolean  @default(false)
+  isRead    Boolean          @default(false)
   meta      Json? // extra context (e.g. badgeId, followerId)
-  createdAt DateTime @default(now())
+  createdAt DateTime         @default(now())
 
   @@index([userId])
   @@index([userId, isRead])
 }
 
 model Report {
-  id           String   @id @default(cuid())
-  quizId        String
-  quiz          Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  reporterId    String?
-  reporter      User?    @relation("ReportedBy", fields: [reporterId], references: [id])
-  reason        ReportReason
-  details       String?
-  status        ReportStatus @default(PENDING)
-  createdAt     DateTime @default(now())
-  resolvedAt    DateTime?
-  resolvedById  String?
+  id           String       @id @default(cuid())
+  quizId       String
+  quiz         Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  reporterId   String?
+  reporter     User?        @relation("ReportedBy", fields: [reporterId], references: [id])
+  reason       ReportReason
+  details      String?
+  status       ReportStatus @default(PENDING)
+  createdAt    DateTime     @default(now())
+  resolvedAt   DateTime?
+  resolvedById String?
 
   @@index([quizId])
   @@index([status])
 }
 
 model CategorySuggestion {
-  id            String   @id @default(cuid())
+  id            String           @id @default(cuid())
   name          String
   description   String
   icon          String
   color         String
   suggestedById String
-  suggestedBy   User     @relation("SuggestedBy", fields: [suggestedById], references: [id])
+  suggestedBy   User             @relation("SuggestedBy", fields: [suggestedById], references: [id])
   status        SuggestionStatus @default(PENDING)
-  createdAt     DateTime @default(now())
+  createdAt     DateTime         @default(now())
   reviewedAt    DateTime?
   reviewedById  String?
 }
