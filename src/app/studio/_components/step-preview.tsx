@@ -66,6 +66,9 @@ export function StepPreview({ categories }: StepPreviewProps) {
       {/* Questions preview */}
       <div className="space-y-3">
         {questions.map((question, index) => {
+          const usesClassicCorrectness = ['SINGLE', 'MULTIPLE', 'TRUEFALSE', 'FILL_BLANK'].includes(
+            question.type
+          )
           const hasCorrect = question.choices.some((c) => c.isCorrect)
           return (
             <div key={question.localId} className="rounded-xl border bg-card p-4">
@@ -77,7 +80,7 @@ export function StepPreview({ categories }: StepPreviewProps) {
                   <p className="font-medium">{question.prompt || 'Untitled question'}</p>
                   <div className="mt-1 flex items-center gap-2">
                     <QuestionTypeIcon type={question.type} showLabel />
-                    {!hasCorrect && (
+                    {usesClassicCorrectness && !hasCorrect && (
                       <Badge variant="destructive" className="text-xs">
                         No correct answer
                       </Badge>
@@ -105,7 +108,7 @@ export function StepPreview({ categories }: StepPreviewProps) {
                     <div
                       key={choice.localId}
                       className={`rounded-lg border px-3 py-2 text-sm ${
-                        choice.isCorrect
+                        usesClassicCorrectness && choice.isCorrect
                           ? 'border-quiz-green/50 bg-quiz-green/10 text-quiz-green'
                           : 'border-border'
                       }`}

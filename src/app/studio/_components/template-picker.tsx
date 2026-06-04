@@ -1,150 +1,82 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import type { QuestionType } from '@/store/quiz-creator-store'
+import type { QuizFormat } from '@/store/quiz-creator-store'
 
 export interface QuizTemplate {
   id: string
+  format: QuizFormat
   emoji: string
   name: string
+  tagline: string
   description: string
-  type: QuestionType
+  color: string
   timeLimitSec: number
   questionCount: number
-  defaultPrompt: string
 }
 
 export const QUIZ_TEMPLATES: QuizTemplate[] = [
   {
-    id: 'classic-trivia',
+    id: 'classic',
+    format: 'CLASSIC',
     emoji: '🎯',
-    name: 'Classic Trivia',
-    description: 'Standard multiple-choice questions with a single correct answer.',
-    type: 'SINGLE',
+    name: 'Classic Quiz',
+    tagline: 'Multiple choice & more',
+    description:
+      'Standard questions with single-choice, multi-select, true/false, and fill-in-the-blank variants.',
+    color: 'text-primary',
     timeLimitSec: 20,
     questionCount: 5,
-    defaultPrompt: '',
   },
   {
-    id: 'true-false',
-    emoji: '⚖️',
-    name: 'True or False',
-    description: 'Quick true/false questions for fast-paced rounds.',
-    type: 'TRUEFALSE',
-    timeLimitSec: 15,
-    questionCount: 5,
-    defaultPrompt: '',
-  },
-  {
-    id: 'multi-select',
-    emoji: '✅',
-    name: 'Multi-Select',
-    description: 'Pick all that apply — multiple correct answers per question.',
-    type: 'MULTIPLE',
+    id: 'timeline',
+    format: 'TIMELINE',
+    emoji: '📅',
+    name: 'Timeline',
+    tagline: 'Put events in order',
+    description:
+      'Players drag historical events, steps, or milestones into the correct chronological sequence.',
+    color: 'text-blue-500',
     timeLimitSec: 30,
-    questionCount: 4,
-    defaultPrompt: '',
+    questionCount: 3,
   },
   {
-    id: 'fill-blank',
-    emoji: '✏️',
-    name: 'Fill in the Blank',
-    description: 'Complete the sentence — great for vocabulary and definitions.',
-    type: 'FILL_BLANK',
+    id: 'matching',
+    format: 'MATCHING',
+    emoji: '🧩',
+    name: 'Match the Pairs',
+    tagline: 'Connect related items',
+    description:
+      'Match celebrities to quotes, countries to dishes, movies to years — connect left-column items to their right-column counterparts.',
+    color: 'text-purple-500',
+    timeLimitSec: 40,
+    questionCount: 3,
+  },
+  {
+    id: 'categorize',
+    format: 'CATEGORIZE',
+    emoji: '🪣',
+    name: 'Sort It Out',
+    tagline: 'This or That?',
+    description:
+      'Players sort cards into two labeled bins — Real vs Mythical, Fact vs Fiction, Science vs Art.',
+    color: 'text-orange-500',
     timeLimitSec: 25,
-    questionCount: 5,
-    defaultPrompt: 'Question {{blank}} here',
+    questionCount: 3,
   },
   {
-    id: 'image-quiz',
-    emoji: '🖼️',
-    name: 'Image Quiz',
-    description: 'Visual questions — paste image URLs to challenge players.',
-    type: 'SINGLE',
-    timeLimitSec: 30,
-    questionCount: 5,
-    defaultPrompt: 'What is shown?',
+    id: 'label-diagram',
+    format: 'LABEL_DIAGRAM',
+    emoji: '🌿',
+    name: 'Label the Diagram',
+    tagline: 'Spot & identify',
+    description:
+      'Upload an image and place labeled hotspots — World Map landmarks, famous paintings, constellation maps.',
+    color: 'text-green-500',
+    timeLimitSec: 45,
+    questionCount: 3,
   },
 ]
-
-function TemplatePreview({ id }: { id: string }) {
-  if (id === 'blank') {
-    return (
-      <div className="flex flex-col gap-1.5 py-1">
-        <div className="h-2 w-3/4 rounded bg-muted" />
-        <div className="h-2 w-1/2 rounded bg-muted" />
-        <div className="h-2 w-2/3 rounded bg-muted" />
-      </div>
-    )
-  }
-
-  if (id === 'classic-trivia') {
-    return (
-      <div className="flex flex-col gap-1.5 py-1">
-        <div className="h-2 w-full rounded bg-muted" />
-        <div className="grid grid-cols-2 gap-1">
-          <div className="h-5 rounded bg-muted" />
-          <div className="h-5 rounded bg-muted" />
-          <div className="h-5 rounded bg-muted" />
-          <div className="h-5 rounded bg-muted" />
-        </div>
-      </div>
-    )
-  }
-
-  if (id === 'true-false') {
-    return (
-      <div className="flex flex-col gap-1.5 py-1">
-        <div className="h-2 w-full rounded bg-muted" />
-        <div className="h-5 w-full rounded bg-muted" />
-        <div className="h-5 w-full rounded bg-muted" />
-      </div>
-    )
-  }
-
-  if (id === 'multi-select') {
-    return (
-      <div className="flex flex-col gap-1.5 py-1">
-        <div className="h-2 w-full rounded bg-muted" />
-        {[0, 1, 2].map((i) => (
-          <div key={i} className="flex items-center gap-1.5">
-            <div className="h-3 w-3 flex-shrink-0 rounded-sm bg-muted" />
-            <div className="h-2 w-2/3 rounded bg-muted" />
-          </div>
-        ))}
-      </div>
-    )
-  }
-
-  if (id === 'fill-blank') {
-    return (
-      <div className="flex flex-col gap-1.5 py-1">
-        <div className="flex items-center gap-1">
-          <div className="h-2 w-1/3 rounded bg-muted" />
-          <div className="h-2 w-1/4 rounded border border-dashed border-muted-foreground/40 bg-muted/30" />
-          <div className="h-2 w-1/3 rounded bg-muted" />
-        </div>
-        <div className="h-6 w-full rounded border border-muted-foreground/20 bg-muted" />
-      </div>
-    )
-  }
-
-  if (id === 'image-quiz') {
-    return (
-      <div className="flex flex-col gap-1.5 py-1">
-        <div className="h-8 w-full rounded bg-muted" />
-        <div className="grid grid-cols-2 gap-1">
-          <div className="h-4 rounded bg-muted" />
-          <div className="h-4 rounded bg-muted" />
-          <div className="h-4 rounded bg-muted" />
-          <div className="h-4 rounded bg-muted" />
-        </div>
-      </div>
-    )
-  }
-
-  return null
-}
 
 interface TemplatePickerProps {
   selectedId: string | null
@@ -152,50 +84,56 @@ interface TemplatePickerProps {
 }
 
 export function TemplatePicker({ selectedId, onSelect }: TemplatePickerProps) {
-  return (
-    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        {/* Blank option */}
-        <button
-          type="button"
-          title="Start fresh with no template."
-          onClick={() =>
-            onSelect({
-              id: 'blank',
-              emoji: '📄',
-              name: 'Blank',
-              description: 'Start fresh with no template.',
-              type: 'SINGLE',
-              timeLimitSec: 20,
-              questionCount: 0,
-              defaultPrompt: '',
-            })
-          }
-          className={cn(
-            'flex flex-col gap-1 rounded-lg border p-3 text-left transition-all hover:border-primary/50',
-            selectedId === 'blank' && 'ring-2 ring-primary border-primary'
-          )}
-        >
-          <TemplatePreview id="blank" />
-          <span className="text-sm font-semibold">📄 Blank</span>
-        </button>
+  const formatBadge: Record<QuizFormat, string> = {
+    CLASSIC: 'CLASSIC',
+    TIMELINE: 'ORDERING',
+    MATCHING: 'MATCHING',
+    CATEGORIZE: 'CATEGORIZE',
+    LABEL_DIAGRAM: 'LABEL',
+  }
+  const selectedBorderByTemplateId: Record<string, string> = {
+    classic: 'border-primary ring-primary',
+    timeline: 'border-blue-500 ring-blue-500',
+    matching: 'border-purple-500 ring-purple-500',
+    categorize: 'border-orange-500 ring-orange-500',
+    'label-diagram': 'border-green-500 ring-green-500',
+  }
 
-        {QUIZ_TEMPLATES.map((template) => (
+  return (
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {QUIZ_TEMPLATES.map((template) => {
+        const isSelected = selectedId === template.id
+        return (
           <button
             key={template.id}
             type="button"
             title={template.description}
             onClick={() => onSelect(template)}
             className={cn(
-              'flex flex-col gap-1 rounded-lg border p-3 text-left transition-all hover:border-primary/50',
-              selectedId === template.id && 'ring-2 ring-primary border-primary'
+              'rounded-xl border p-4 text-left transition-all hover:border-primary/50',
+              isSelected && 'ring-2',
+              isSelected && selectedBorderByTemplateId[template.id]
             )}
           >
-            <TemplatePreview id={template.id} />
-            <span className="text-sm font-semibold">
-              {template.emoji} {template.name}
-            </span>
+            <div className="mb-3 flex items-start justify-between gap-3">
+              <span
+                className={cn(
+                  'inline-flex h-10 w-10 items-center justify-center rounded-full bg-muted text-xl',
+                  template.color
+                )}
+              >
+                {template.emoji}
+              </span>
+              <span className="rounded-full border px-2 py-0.5 text-xs text-muted-foreground">
+                {formatBadge[template.format]}
+              </span>
+            </div>
+            <p className="text-base font-semibold">{template.name}</p>
+            <p className={cn('text-sm font-medium', template.color)}>{template.tagline}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{template.description}</p>
           </button>
-        ))}
+        )
+      })}
     </div>
   )
 }

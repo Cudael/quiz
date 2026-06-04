@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import type { Prisma } from '@prisma/client'
 import { z } from 'zod'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
@@ -43,6 +44,14 @@ const questionMetaSchema = z.object({
   imageUrl: z.string().trim().url().optional(),
   order: z.coerce.number().int().min(0),
 })
+
+function mapChoicesForCreate(choices: z.infer<typeof questionSchema>['choices']) {
+  return choices.map((choice) => ({
+    text: choice.text,
+    isCorrect: choice.isCorrect,
+    ...(choice.meta ? { meta: choice.meta as Prisma.InputJsonValue } : {}),
+  }))
+}
 
 export async function addQuestion(formData: FormData): Promise<QuestionActionResult> {
   const session = await auth()
@@ -98,7 +107,7 @@ export async function addQuestion(formData: FormData): Promise<QuestionActionRes
         timeLimitSec: parsedQuestion.data.timeLimitSec,
         order: parsedMeta.data.order,
         choices: {
-          create: parsedQuestion.data.choices,
+          create: mapChoicesForCreate(parsedQuestion.data.choices),
         },
       },
       select: { id: true },
@@ -157,7 +166,7 @@ export async function updateQuestion(formData: FormData): Promise<QuestionAction
         explanation: parsedQuestion.data.explanation || null,
         timeLimitSec: parsedQuestion.data.timeLimitSec,
         choices: {
-          create: parsedQuestion.data.choices,
+          create: mapChoicesForCreate(parsedQuestion.data.choices),
         },
       },
     }),

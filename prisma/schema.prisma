@@ -23,6 +23,18 @@ enum QuestionType {
   MULTIPLE
   TRUEFALSE
   FILL_BLANK
+  ORDERING
+  MATCHING
+  CATEGORIZE
+  LABEL
+}
+
+enum QuizFormat {
+  CLASSIC
+  TIMELINE
+  MATCHING
+  CATEGORIZE
+  LABEL_DIAGRAM
 }
 
 enum PlayMode {
@@ -132,6 +144,7 @@ model Quiz {
   playCount   Int      @default(0)
   avgScore    Float    @default(0)
   defaultTimeLimitSec Int?
+  format      QuizFormat @default(CLASSIC)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -168,6 +181,7 @@ model Choice {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   text       String
   isCorrect  Boolean  @default(false)
+  meta       Json?
 
   @@index([questionId])
 }

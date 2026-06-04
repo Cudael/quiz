@@ -21,7 +21,8 @@ describe('quizSchema', () => {
         coverImage: 'https://example.com/cover.png',
         categoryId: 'ckq6xdr2w0000u3z5f6l6x4t5',
         difficulty: 'MEDIUM',
-        defaultTimeLimitSec: 30,
+        format: 'CLASSIC',
+        defaultTimeLimitSec: 60,
         isPublished: true,
       }).success
     ).toBe(true)
@@ -35,6 +36,7 @@ describe('quizSchema', () => {
         coverImage: 'not-a-url',
         categoryId: 'ckq6xdr2w0000u3z5f6l6x4t5',
         difficulty: 'MEDIUM',
+        format: 'CLASSIC',
         isPublished: true,
       }).success
     ).toBe(false)
@@ -47,6 +49,7 @@ describe('quizSchema', () => {
         description: 'A valid description',
         categoryId: 'ckq6xdr2w0000u3z5f6l6x4t5',
         difficulty: 'MEDIUM',
+        format: 'CLASSIC',
         defaultTimeLimitSec: 4,
         isPublished: true,
       }).success
@@ -76,6 +79,19 @@ describe('questionSchema', () => {
       choices: [{ text: 'Paris', isCorrect: true }],
     })
     expect(result.success).toBe(false)
+  })
+
+  it('allows non-classic types without correct-choice rules', () => {
+    const result = questionSchema.safeParse({
+      type: 'MATCHING',
+      prompt: 'Match each item',
+      timeLimitSec: 20,
+      choices: [
+        { text: 'A', isCorrect: false, meta: { pairKey: 'one', side: 'left' } },
+        { text: '1', isCorrect: false, meta: { pairKey: 'one', side: 'right' } },
+      ],
+    })
+    expect(result.success).toBe(true)
   })
 })
 

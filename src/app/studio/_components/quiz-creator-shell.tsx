@@ -13,6 +13,7 @@ import { StepQuestions } from './step-questions'
 import { StepPreview } from './step-preview'
 import { StepPublish } from './step-publish'
 import type { DraftChoice, DraftQuestion } from '@/store/quiz-creator-store'
+import type { QuizFormat } from '@/store/quiz-creator-store'
 
 interface Category {
   id: string
@@ -28,6 +29,7 @@ interface InitialQuiz {
   coverImage: string | null
   categoryId: string
   difficulty: string
+  format: string
   defaultTimeLimitSec: number | null
   isPublished: boolean
 }
@@ -40,7 +42,7 @@ interface InitialQuizQuestion {
   explanation: string | null
   timeLimitSec: number
   order: number
-  choices: Array<{ id: string; text: string; isCorrect: boolean }>
+  choices: Array<{ id: string; text: string; isCorrect: boolean; meta?: unknown }>
 }
 
 interface InitialData {
@@ -75,6 +77,7 @@ export function QuizCreatorShell({
 
     if (mode === 'edit' && initialData) {
       const alreadyHasThisQuiz = store.quizId === initialData.quiz.id
+      const quizFormat = initialData.quiz.format as QuizFormat
 
       store.setQuizId(initialData.quiz.id)
       store.setMeta({
@@ -86,6 +89,7 @@ export function QuizCreatorShell({
         imageUrl: initialData.quiz.coverImage ?? '',
         defaultTimeLimitSec: initialData.quiz.defaultTimeLimitSec,
       })
+      store.setQuizFormat(quizFormat)
 
       // When redirected from new→edit after choosing a template, the server
       // has no questions yet but the store already holds the template questions.
@@ -104,6 +108,10 @@ export function QuizCreatorShell({
               localId: crypto.randomUUID(),
               text: c.text,
               isCorrect: c.isCorrect,
+              meta:
+                typeof c.meta === 'object' && c.meta !== null
+                  ? (c.meta as Record<string, unknown>)
+                  : undefined,
             })
           ),
         }))
@@ -125,6 +133,7 @@ export function QuizCreatorShell({
     imageUrl,
     categoryId,
     difficulty,
+    quizFormat,
     defaultTimeLimitSec,
     lastSavedAt,
     setStep,
@@ -144,6 +153,7 @@ export function QuizCreatorShell({
       fd.set('coverImage', imageUrl.trim())
       fd.set('categoryId', safeCategoryId)
       fd.set('difficulty', difficulty)
+      fd.set('format', quizFormat)
       if (defaultTimeLimitSec !== null) {
         fd.set('defaultTimeLimitSec', String(defaultTimeLimitSec))
       }
@@ -161,6 +171,7 @@ export function QuizCreatorShell({
       fd.set('coverImage', imageUrl.trim())
       fd.set('categoryId', safeCategoryId)
       fd.set('difficulty', difficulty)
+      fd.set('format', quizFormat)
       if (defaultTimeLimitSec !== null) {
         fd.set('defaultTimeLimitSec', String(defaultTimeLimitSec))
       }
