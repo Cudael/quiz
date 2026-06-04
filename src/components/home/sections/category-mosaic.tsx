@@ -36,10 +36,12 @@ export function CategoryMosaic({
                   } as CSSProperties
                 }
               >
-                <span className="text-2xl leading-none" aria-hidden="true">
-                  {category.icon}
-                </span>
-                <span className="max-w-full truncate text-xs font-bold">{category.name}</span>
+                <span
+                  className="h-3 w-3 rounded-full"
+                  style={{ backgroundColor: categoryColor }}
+                  aria-hidden="true"
+                />
+                <span className="max-w-full truncate text-sm font-semibold">{category.name}</span>
                 <span className="text-[10px] text-muted-foreground">
                   {category.quizCount} {category.quizCount === 1 ? 'quiz' : 'quizzes'}
                 </span>

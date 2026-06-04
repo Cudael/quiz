@@ -20,7 +20,6 @@ interface CategoryTileProps {
 export function CategoryTile({
   slug,
   name,
-  icon,
   color,
   imageUrl,
   quizCount,
@@ -54,9 +53,6 @@ export function CategoryTile({
           </div>
         ) : null}
         <div className="p-5" style={{ background: color }}>
-          <div className="text-4xl mb-3" aria-hidden="true">
-            {icon}
-          </div>
           <h3 className="text-lg font-bold mb-1">{name}</h3>
           {description && <p className="text-sm text-white/80 mb-2 line-clamp-2">{description}</p>}
           {quizCount !== undefined && <p className="text-xs text-white/70">{quizCount} quizzes</p>}
