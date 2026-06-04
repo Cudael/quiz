@@ -21,6 +21,7 @@ const parentCategories: ParentCategoryData[] = [
     color: '#f59e0b',
     quizCount: 3,
     totalPlays: 42,
+    popularQuizzes: [],
     subcategories: [
       {
         slug: 'world-history',
@@ -30,6 +31,7 @@ const parentCategories: ParentCategoryData[] = [
         color: '#0ea5e9',
         quizCount: 2,
         totalPlays: 30,
+        popularQuizzes: [],
       },
       {
         slug: 'mythology',
@@ -39,6 +41,7 @@ const parentCategories: ParentCategoryData[] = [
         color: '#f97316',
         quizCount: 1,
         totalPlays: 12,
+        popularQuizzes: [],
       },
     ],
   },

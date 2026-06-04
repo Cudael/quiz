@@ -170,6 +170,7 @@ export function useDuelSession(duelId: string) {
   }, [timeRemainingMs, state, currentQuestion, hasAnsweredCurrent, submitted])
 
   // For single-choice questions, show the selected answer briefly before advancing.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (
       !hasAnsweredCurrent ||
