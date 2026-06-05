@@ -169,12 +169,8 @@ function CategorizeRoundCard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [question.prompt, question.timeLimitSec, question.choices, quizId])
 
-  const handleUpdate = (updates: Partial<DraftQuestion>) => {
-    onUpdate(updates)
-  }
-
   const updateChoice = (localId: string, updates: Partial<DraftChoice>) => {
-    handleUpdate({
+    onUpdate({
       choices: question.choices.map((choice) =>
         choice.localId === localId ? { ...choice, ...updates } : choice
       ),
@@ -182,7 +178,7 @@ function CategorizeRoundCard({
   }
 
   const addItem = (category: 'A' | 'B') => {
-    handleUpdate({
+    onUpdate({
       choices: [
         ...question.choices,
         { localId: crypto.randomUUID(), text: '', isCorrect: false, meta: { category } },
@@ -191,11 +187,11 @@ function CategorizeRoundCard({
   }
 
   const removeItem = (localId: string) => {
-    handleUpdate({ choices: question.choices.filter((choice) => choice.localId !== localId) })
+    onUpdate({ choices: question.choices.filter((choice) => choice.localId !== localId) })
   }
 
   const moveItem = (localId: string, nextCategory: 'A' | 'B') => {
-    handleUpdate({
+    onUpdate({
       choices: question.choices.map((choice) =>
         choice.localId === localId
           ? { ...choice, meta: { ...(choice.meta ?? {}), category: nextCategory } }
@@ -232,7 +228,7 @@ function CategorizeRoundCard({
         <input
           type="text"
           value={question.prompt}
-          onChange={(event) => handleUpdate({ prompt: event.target.value })}
+          onChange={(event) => onUpdate({ prompt: event.target.value })}
           className="w-full rounded-md border bg-background px-3 py-2 text-sm"
           placeholder="Round title / instruction"
         />
@@ -333,7 +329,7 @@ function CategorizeRoundCard({
             min={5}
             max={120}
             value={question.timeLimitSec}
-            onChange={(event) => handleUpdate({ timeLimitSec: Number(event.target.value) || 5 })}
+            onChange={(event) => onUpdate({ timeLimitSec: Number(event.target.value) || 5 })}
             className="w-24 rounded-md border bg-background px-2 py-1 text-sm"
           />
         </div>

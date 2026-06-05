@@ -163,12 +163,8 @@ function MatchingRoundCard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [question.prompt, question.timeLimitSec, question.choices, quizId])
 
-  const handleUpdate = (updates: Partial<DraftQuestion>) => {
-    onUpdate(updates)
-  }
-
   const updatePair = (pairKey: string, side: 'left' | 'right', text: string) => {
-    handleUpdate({
+    onUpdate({
       choices: question.choices.map((choice) =>
         choice.meta?.pairKey === pairKey && choice.meta?.side === side
           ? { ...choice, text }
@@ -178,11 +174,11 @@ function MatchingRoundCard({
   }
 
   const addPair = () => {
-    handleUpdate({ choices: [...question.choices, ...makePair(pairs.length)] })
+    onUpdate({ choices: [...question.choices, ...makePair(pairs.length)] })
   }
 
   const removePair = (pairKey: string) => {
-    handleUpdate({ choices: question.choices.filter((choice) => choice.meta?.pairKey !== pairKey) })
+    onUpdate({ choices: question.choices.filter((choice) => choice.meta?.pairKey !== pairKey) })
   }
 
   return (
@@ -213,7 +209,7 @@ function MatchingRoundCard({
         <input
           type="text"
           value={question.prompt}
-          onChange={(event) => handleUpdate({ prompt: event.target.value })}
+          onChange={(event) => onUpdate({ prompt: event.target.value })}
           className="w-full rounded-md border bg-background px-3 py-2 text-sm"
           placeholder="Round title / instruction"
         />
@@ -274,7 +270,7 @@ function MatchingRoundCard({
             min={5}
             max={120}
             value={question.timeLimitSec}
-            onChange={(event) => handleUpdate({ timeLimitSec: Number(event.target.value) || 5 })}
+            onChange={(event) => onUpdate({ timeLimitSec: Number(event.target.value) || 5 })}
             className="w-24 rounded-md border bg-background px-2 py-1 text-sm"
           />
         </div>

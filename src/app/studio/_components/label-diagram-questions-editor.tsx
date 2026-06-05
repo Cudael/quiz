@@ -164,12 +164,8 @@ function LabelRoundCard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [question.prompt, question.timeLimitSec, question.imageUrl, question.choices, quizId])
 
-  const handleUpdate = (updates: Partial<DraftQuestion>) => {
-    onUpdate(updates)
-  }
-
   const updateChoice = (localId: string, updates: Partial<DraftChoice>) => {
-    handleUpdate({
+    onUpdate({
       choices: question.choices.map((choice) =>
         choice.localId === localId ? { ...choice, ...updates } : choice
       ),
@@ -177,7 +173,7 @@ function LabelRoundCard({
   }
 
   const addLabel = () => {
-    handleUpdate({
+    onUpdate({
       choices: [
         ...question.choices,
         {
@@ -218,14 +214,14 @@ function LabelRoundCard({
         <input
           type="text"
           value={question.prompt}
-          onChange={(event) => handleUpdate({ prompt: event.target.value })}
+          onChange={(event) => onUpdate({ prompt: event.target.value })}
           className="w-full rounded-md border bg-background px-3 py-2 text-sm"
           placeholder="Round title / instruction"
         />
 
         <ImageUpload
           value={question.imageUrl}
-          onChange={(value) => handleUpdate({ imageUrl: value })}
+          onChange={(value) => onUpdate({ imageUrl: value })}
         />
 
         <p className="border-l-2 border-muted-foreground/40 pl-3 text-sm text-muted-foreground">
@@ -336,7 +332,7 @@ function LabelRoundCard({
             min={5}
             max={120}
             value={question.timeLimitSec}
-            onChange={(event) => handleUpdate({ timeLimitSec: Number(event.target.value) || 5 })}
+            onChange={(event) => onUpdate({ timeLimitSec: Number(event.target.value) || 5 })}
             className="w-24 rounded-md border bg-background px-2 py-1 text-sm"
           />
         </div>
