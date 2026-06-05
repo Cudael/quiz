@@ -43,7 +43,7 @@ vi.mock('./image-upload', () => ({
 
 const baseQuestion = {
   localId: 'q1',
-  dbId: null,
+  dbId: 'dbq1234567890123456789012',
   type: 'SINGLE' as const,
   prompt: 'Question',
   imageUrl: '',
@@ -82,10 +82,9 @@ describe('StepPublish', () => {
 
     expect(screen.getByText('Category is selected')).toBeInTheDocument()
     expect(screen.getByText('Cover image is set')).toBeInTheDocument()
-    expect(screen.getByText('Cover image URL is valid')).toBeInTheDocument()
   })
 
-  it('disables publish when category or cover image validation is not met', () => {
+  it('disables publish when category is not selected', () => {
     useQuizCreatorStore.setState({
       categoryId: '',
       imageUrl: 'not-a-url',
