@@ -1,14 +1,16 @@
 'use client'
 
 import * as React from 'react'
+import { useRouter } from 'next/navigation'
 import { Check, Copy, Loader2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ImageUpload } from './image-upload'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import { updateQuiz } from '@/app/studio/actions'
+import { createQuizAndReturnId } from '@/app/studio/actions/quiz-meta-actions'
 
 interface StepPublishProps {
-  quizId: string
+  quizId: string | null
 }
 
 interface CheckItem {
@@ -16,20 +18,8 @@ interface CheckItem {
   ok: boolean
 }
 
-// These question types encode their correct answer in choice.meta rather than
-// choice.isCorrect, so we must not require isCorrect === true for them.
-const META_ANSWER_TYPES = new Set(['ORDERING', 'MATCHING', 'CATEGORIZE', 'LABEL'])
-
-function questionIsSaved(q: { dbId: string | null; type: string; choices: { isCorrect: boolean; meta?: unknown }[] }) {
-  if (q.dbId === null) return false
-  if (META_ANSWER_TYPES.has(q.type)) {
-    // For meta-based types, just require it's been saved (dbId set) and has at least one choice
-    return q.choices.length > 0
-  }
-  return q.choices.some((c) => c.isCorrect)
-}
-
 export function StepPublish({ quizId }: StepPublishProps) {
+  const router = useRouter()
   const {
     title,
     description,
@@ -38,9 +28,12 @@ export function StepPublish({ quizId }: StepPublishProps) {
     imageUrl,
     isPublished,
     questions,
+    quizFormat,
+    defaultTimeLimitSec,
     setMeta,
     setSaving,
     setLastSaved,
+    setQuizId,
   } = useQuizCreatorStore()
 
   const [saving, setSavingLocal] = React.useState(false)
@@ -51,10 +44,6 @@ export function StepPublish({ quizId }: StepPublishProps) {
     { label: 'Title is set', ok: title.trim().length > 0 },
     { label: 'Description is set', ok: description.trim().length > 0 },
     { label: `At least ${MIN_QUESTIONS} questions`, ok: questions.length >= MIN_QUESTIONS },
-    {
-      label: 'All questions saved',
-      ok: questions.length > 0 && questions.every((q) => questionIsSaved(q)),
-    },
   ]
 
   const canPublish = checks.every((c) => c.ok)
@@ -62,6 +51,31 @@ export function StepPublish({ quizId }: StepPublishProps) {
   const handleTogglePublish = async () => {
     setSavingLocal(true)
     setSaving(true)
+
+    if (!quizId) {
+      // Quiz hasn't been saved yet – create and publish in one step
+      const fd = new FormData()
+      fd.set('title', title.trim())
+      fd.set('description', description.trim())
+      fd.set('coverImage', imageUrl.trim())
+      fd.set('categoryId', categoryId)
+      fd.set('difficulty', difficulty)
+      fd.set('format', quizFormat)
+      if (defaultTimeLimitSec !== null) {
+        fd.set('defaultTimeLimitSec', String(defaultTimeLimitSec))
+      }
+      fd.set('isPublished', 'on')
+      const result = await createQuizAndReturnId(fd)
+      if (result.ok) {
+        setQuizId(result.quizId)
+        setMeta({ isPublished: true })
+        setLastSaved(new Date())
+        router.push(`/studio/quiz/${result.quizId}/edit`)
+      }
+      setSavingLocal(false)
+      setSaving(false)
+      return
+    }
 
     const fd = new FormData()
     fd.set('quizId', quizId)
@@ -83,6 +97,7 @@ export function StepPublish({ quizId }: StepPublishProps) {
   }
 
   const getShareUrl = () => {
+    if (!quizId) return ''
     if (typeof window === 'undefined') return `/quiz/${quizId}`
     return `${window.location.origin}/quiz/${quizId}`
   }
