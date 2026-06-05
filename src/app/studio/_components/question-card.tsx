@@ -136,14 +136,37 @@ export function QuestionCard({
 
           {/* Choices */}
           <div className="space-y-2">
-            <p className="block text-sm font-medium">
-              {question.type === 'FILL_BLANK' ? 'Correct answer' : 'Choices'}
-            </p>
+            <div>
+              <p className="block text-sm font-medium">
+                {question.type === 'FILL_BLANK' ? 'Correct answer' : 'Choices'}
+              </p>
+              {question.type === 'SINGLE' && (
+                <p className="text-xs text-muted-foreground">
+                  Fill in all the choices, then select the radio button next to the correct one.
+                </p>
+              )}
+              {question.type === 'MULTIPLE' && (
+                <p className="text-xs text-muted-foreground">
+                  Fill in all the choices, then check every box that is a correct answer.
+                </p>
+              )}
+            </div>
 
             {question.type === 'TRUEFALSE' ? (
               <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">
+                  Select the radio button next to the correct answer.
+                </p>
                 {question.choices.map((choice) => (
-                  <div key={choice.localId} className="flex items-center gap-2">
+                  <div
+                    key={choice.localId}
+                    className={cn(
+                      'flex items-center gap-2 rounded-md border px-3 py-2 transition-colors',
+                      choice.isCorrect
+                        ? 'border-quiz-green/40 bg-quiz-green/10'
+                        : 'border-transparent'
+                    )}
+                  >
                     <input
                       type="radio"
                       name={`correct-${question.localId}`}
@@ -151,6 +174,9 @@ export function QuestionCard({
                       onChange={() => setCorrect(choice.localId, true)}
                     />
                     <span className="text-sm">{choice.text}</span>
+                    {choice.isCorrect && (
+                      <span className="ml-auto text-xs font-medium text-quiz-green">✓ Correct</span>
+                    )}
                   </div>
                 ))}
               </div>
@@ -170,19 +196,27 @@ export function QuestionCard({
             ) : (
               <div className="space-y-2">
                 {question.choices.map((choice, i) => (
-                  <div key={choice.localId} className="flex items-center gap-2">
+                  <div
+                    key={choice.localId}
+                    className={cn(
+                      'flex items-center gap-2 rounded-md border px-2 py-1 transition-colors',
+                      choice.isCorrect ? 'border-quiz-green/40 bg-quiz-green/10' : 'border-transparent'
+                    )}
+                  >
                     {question.type === 'SINGLE' ? (
                       <input
                         type="radio"
                         name={`correct-${question.localId}`}
                         checked={choice.isCorrect}
                         onChange={() => setCorrect(choice.localId, true)}
+                        title="Mark as correct answer"
                       />
                     ) : (
                       <input
                         type="checkbox"
                         checked={choice.isCorrect}
                         onChange={(e) => setCorrect(choice.localId, e.target.checked)}
+                        title="Mark as correct answer"
                       />
                     )}
                     <input
@@ -192,6 +226,9 @@ export function QuestionCard({
                       placeholder={`Choice ${i + 1}`}
                       className="min-w-0 flex-1 rounded-md border bg-background px-3 py-1.5 text-sm"
                     />
+                    {choice.isCorrect && (
+                      <span className="shrink-0 text-xs font-medium text-quiz-green">✓</span>
+                    )}
                     {question.choices.length > 2 && (
                       <button
                         type="button"

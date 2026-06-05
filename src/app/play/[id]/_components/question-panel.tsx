@@ -78,6 +78,8 @@ export function QuestionPanel({
           </div>
         </div>
 
+        <QuestionTypeHint type={currentQuestion.type} isAnswered={isAnswered} />
+
         {currentQuestion.type === 'FILL_BLANK' ? (
           <div className="space-y-3">
             <label htmlFor={`fill-blank-${currentQuestion.id}`} className="text-sm font-medium">
@@ -169,5 +171,24 @@ export function QuestionPanel({
         </AnimatePresence>
       </motion.div>
     </AnimatePresence>
+  )
+}
+
+const TYPE_HINTS: Record<string, string> = {
+  SINGLE: 'Choose one answer.',
+  MULTIPLE: 'Select all answers that apply, then submit.',
+  TRUEFALSE: 'Choose True or False.',
+  FILL_BLANK: 'Type the missing word or phrase.',
+  ORDERING: 'Click the choices in the correct order from first to last.',
+  MATCHING: 'Select a left-hand item then select its matching right-hand item to pair them.',
+  CATEGORIZE: 'Select each item and assign it to the correct category.',
+  LABEL: 'Type the correct label for each marked position on the diagram.',
+}
+
+function QuestionTypeHint({ type, isAnswered }: { type: string; isAnswered: boolean }) {
+  const hint = TYPE_HINTS[type]
+  if (!hint || isAnswered) return null
+  return (
+    <p className="mb-4 text-sm text-muted-foreground">{hint}</p>
   )
 }
