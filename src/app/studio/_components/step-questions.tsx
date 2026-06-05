@@ -46,19 +46,68 @@ export function StepQuestions({ quizId }: StepQuestionsProps) {
   const quizFormat = useQuizCreatorStore((state) => state.quizFormat)
 
   if (quizFormat === 'TIMELINE') {
-    return <TimelineQuestionsEditor quizId={quizId} />
+    return (
+      <div className="space-y-6">
+        <FormatBanner
+          title="Timeline Quiz"
+          description="Add rounds where players put events in chronological order. For each round, enter the events and arrange them in the correct sequence by dragging. Players must place them in the same order to score points."
+        />
+        <TimelineQuestionsEditor quizId={quizId} />
+      </div>
+    )
   }
   if (quizFormat === 'MATCHING') {
-    return <MatchingQuestionsEditor quizId={quizId} />
+    return (
+      <div className="space-y-6">
+        <FormatBanner
+          title="Match the Pairs Quiz"
+          description="Add rounds where players connect items from the left column to their matching item on the right. Fill in both sides of each pair — the left item and its correct match on the right."
+        />
+        <MatchingQuestionsEditor quizId={quizId} />
+      </div>
+    )
   }
   if (quizFormat === 'CATEGORIZE') {
-    return <CategorizeQuestionsEditor quizId={quizId} />
+    return (
+      <div className="space-y-6">
+        <FormatBanner
+          title="Sort It Out Quiz"
+          description="Add rounds where players sort items into the correct category. Name your categories and place each item in the right bucket. Players must assign every item to its correct category."
+        />
+        <CategorizeQuestionsEditor quizId={quizId} />
+      </div>
+    )
   }
   if (quizFormat === 'LABEL_DIAGRAM') {
-    return <LabelDiagramQuestionsEditor quizId={quizId} />
+    return (
+      <div className="space-y-6">
+        <FormatBanner
+          title="Label the Diagram Quiz"
+          description="Add rounds where players identify and type labels on a diagram. Upload an image, then add label points by entering the correct label text and its X/Y position (as a percentage of the image size). Players must type the correct label for each marked spot."
+        />
+        <LabelDiagramQuestionsEditor quizId={quizId} />
+      </div>
+    )
   }
 
-  return <ClassicQuestionsEditor quizId={quizId} />
+  return (
+    <div className="space-y-6">
+      <FormatBanner
+        title="Classic Quiz"
+        description="Add multiple-choice, true/false, or fill-in-the-blank questions. For each question, write the question text, fill in all the answer choices, and mark the correct answer using the radio button or checkbox next to it."
+      />
+      <ClassicQuestionsEditor quizId={quizId} />
+    </div>
+  )
+}
+
+function FormatBanner({ title, description }: { title: string; description: string }) {
+  return (
+    <div className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
+      <p className="text-sm font-semibold text-primary">{title}</p>
+      <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
+    </div>
+  )
 }
 
 function ClassicQuestionsEditor({ quizId }: StepQuestionsProps) {

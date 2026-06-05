@@ -103,7 +103,8 @@ function LabelRoundCard({
 }) {
   const [saveState, setSaveState] = React.useState<'idle' | 'saving' | 'saved'>('idle')
 
-  const saveRound = async () => {
+  const saveRound = React.useCallback(async () => {
+    if (!quizId) return
     setSaveState('saving')
     const formData = new FormData()
     formData.set('quizId', quizId)
@@ -136,10 +137,39 @@ function LabelRoundCard({
     } else {
       setSaveState('idle')
     }
+  }, [quizId, question, index, onUpdate])
+
+  // Auto-save with debounce whenever round data changes
+  const saveRoundRef = React.useRef(saveRound)
+  React.useEffect(() => {
+    saveRoundRef.current = saveRound
+  }, [saveRound])
+
+  const autoSaveTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isFirstRenderRef = React.useRef(true)
+
+  React.useEffect(() => {
+    if (isFirstRenderRef.current) {
+      isFirstRenderRef.current = false
+      return
+    }
+    if (!quizId) return
+    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current)
+    autoSaveTimerRef.current = setTimeout(() => {
+      saveRoundRef.current()
+    }, 1500)
+    return () => {
+      if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [question.prompt, question.timeLimitSec, question.imageUrl, question.choices, quizId])
+
+  const handleUpdate = (updates: Partial<DraftQuestion>) => {
+    onUpdate(updates)
   }
 
   const updateChoice = (localId: string, updates: Partial<DraftChoice>) => {
-    onUpdate({
+    handleUpdate({
       choices: question.choices.map((choice) =>
         choice.localId === localId ? { ...choice, ...updates } : choice
       ),
@@ -147,7 +177,7 @@ function LabelRoundCard({
   }
 
   const addLabel = () => {
-    onUpdate({
+    handleUpdate({
       choices: [
         ...question.choices,
         {
@@ -164,27 +194,38 @@ function LabelRoundCard({
     <div className="rounded-xl border bg-card p-4">
       <div className="mb-3 flex items-center justify-between">
         <p className="font-medium">Label Round {index + 1}</p>
-        <button
-          type="button"
-          className="text-sm text-muted-foreground hover:text-destructive"
-          onClick={onRemove}
-        >
-          Remove
-        </button>
+        <div className="flex items-center gap-3">
+          {saveState === 'saving' && (
+            <span className="text-xs text-muted-foreground">
+              <Loader2 className="mr-1 inline h-3 w-3 animate-spin" />
+              Saving…
+            </span>
+          )}
+          {saveState === 'saved' && (
+            <span className="text-xs text-quiz-green">Saved</span>
+          )}
+          <button
+            type="button"
+            className="text-sm text-muted-foreground hover:text-destructive"
+            onClick={onRemove}
+          >
+            Remove
+          </button>
+        </div>
       </div>
 
       <div className="space-y-3">
         <input
           type="text"
           value={question.prompt}
-          onChange={(event) => onUpdate({ prompt: event.target.value })}
+          onChange={(event) => handleUpdate({ prompt: event.target.value })}
           className="w-full rounded-md border bg-background px-3 py-2 text-sm"
           placeholder="Round title / instruction"
         />
 
         <ImageUpload
           value={question.imageUrl}
-          onChange={(value) => onUpdate({ imageUrl: value })}
+          onChange={(value) => handleUpdate({ imageUrl: value })}
         />
 
         <p className="border-l-2 border-muted-foreground/40 pl-3 text-sm text-muted-foreground">
@@ -295,15 +336,10 @@ function LabelRoundCard({
             min={5}
             max={120}
             value={question.timeLimitSec}
-            onChange={(event) => onUpdate({ timeLimitSec: Number(event.target.value) || 5 })}
+            onChange={(event) => handleUpdate({ timeLimitSec: Number(event.target.value) || 5 })}
             className="w-24 rounded-md border bg-background px-2 py-1 text-sm"
           />
         </div>
-
-        <Button type="button" size="sm" onClick={saveRound} disabled={saveState === 'saving'}>
-          {saveState === 'saving' && <Loader2 className="h-4 w-4 animate-spin" />}
-          {saveState === 'saved' ? 'Saved' : 'Save round'}
-        </Button>
       </div>
     </div>
   )
