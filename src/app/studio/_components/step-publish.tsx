@@ -65,7 +65,7 @@ export function StepPublish({ quizId }: StepPublishProps) {
     { label: 'Description is set', ok: trimmedDescription.length > 0 },
     { label: 'Category is selected', ok: isCategorySelected },
     { label: 'Cover image is set', ok: hasCoverImage },
-    { label: 'Cover image URL is valid', ok: hasValidCoverImageUrl },
+    { label: 'Cover image URL is valid', ok: !hasCoverImage || hasValidCoverImageUrl },
     { label: `At least ${MIN_QUESTIONS} questions`, ok: questions.length >= MIN_QUESTIONS },
   ]
 
@@ -103,8 +103,8 @@ export function StepPublish({ quizId }: StepPublishProps) {
 
       const fd = new FormData()
       fd.set('quizId', quizId)
-      fd.set('title', title)
-      fd.set('description', description)
+      fd.set('title', trimmedTitle)
+      fd.set('description', trimmedDescription)
       fd.set('coverImage', trimmedCoverImage)
       fd.set('categoryId', categoryId)
       fd.set('difficulty', difficulty)
