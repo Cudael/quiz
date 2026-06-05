@@ -50,7 +50,7 @@ export function StepPublish({ quizId }: StepPublishProps) {
   const trimmedCoverImage = imageUrl.trim()
   const isCategorySelected = categoryIdSchema.safeParse(categoryId.trim()).success
   const hasCoverImage = trimmedCoverImage.length > 0
-  const savedQuestionsCount = quizId
+  const publishableQuestionsCount = quizId
     ? questions.filter((q) => q.dbId !== null).length
     : questions.length
   const checks: CheckItem[] = [
@@ -58,7 +58,10 @@ export function StepPublish({ quizId }: StepPublishProps) {
     { label: 'Description is set', ok: trimmedDescription.length > 0 },
     { label: 'Category is selected', ok: isCategorySelected },
     { label: 'Cover image is set', ok: hasCoverImage },
-    { label: `At least ${MIN_QUESTIONS} questions`, ok: savedQuestionsCount >= MIN_QUESTIONS },
+    {
+      label: `At least ${MIN_QUESTIONS} questions`,
+      ok: publishableQuestionsCount >= MIN_QUESTIONS,
+    },
   ]
 
   const canPublish = checks.every((c) => c.ok)
