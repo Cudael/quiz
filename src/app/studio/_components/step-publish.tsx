@@ -22,15 +22,6 @@ interface CheckItem {
 
 const categoryIdSchema = z.string().cuid()
 
-function isValidUrl(value: string) {
-  try {
-    new URL(value)
-    return true
-  } catch {
-    return false
-  }
-}
-
 export function StepPublish({ quizId }: StepPublishProps) {
   const router = useRouter()
   const { addToast } = useToast()
@@ -59,14 +50,18 @@ export function StepPublish({ quizId }: StepPublishProps) {
   const trimmedCoverImage = imageUrl.trim()
   const isCategorySelected = categoryIdSchema.safeParse(categoryId.trim()).success
   const hasCoverImage = trimmedCoverImage.length > 0
-  const hasValidCoverImageUrl = hasCoverImage && isValidUrl(trimmedCoverImage)
+  const publishableQuestionsCount = quizId
+    ? questions.filter((q) => q.dbId !== null).length
+    : questions.length
   const checks: CheckItem[] = [
     { label: 'Title is set', ok: trimmedTitle.length > 0 },
     { label: 'Description is set', ok: trimmedDescription.length > 0 },
     { label: 'Category is selected', ok: isCategorySelected },
     { label: 'Cover image is set', ok: hasCoverImage },
-    { label: 'Cover image URL is valid', ok: !hasCoverImage || hasValidCoverImageUrl },
-    { label: `At least ${MIN_QUESTIONS} questions`, ok: questions.length >= MIN_QUESTIONS },
+    {
+      label: `At least ${MIN_QUESTIONS} questions`,
+      ok: publishableQuestionsCount >= MIN_QUESTIONS,
+    },
   ]
 
   const canPublish = checks.every((c) => c.ok)
