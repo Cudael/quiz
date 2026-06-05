@@ -245,10 +245,7 @@ export function QuizCreatorShell({
           {currentStep === 1 && <StepMeta categories={categories} />}
           {currentStep === 2 && <StepQuestions quizId={effectiveQuizId} />}
           {currentStep === 3 && <StepPreview quizId={effectiveQuizId} categories={categories} />}
-          {currentStep === 4 && effectiveQuizId && <StepPublish quizId={effectiveQuizId} />}
-          {currentStep === 4 && !effectiveQuizId && (
-            <p className="text-muted-foreground">Save a draft first to unlock publishing.</p>
-          )}
+          {currentStep === 4 && <StepPublish quizId={quizId ?? initialQuizId ?? null} />}
         </div>
       </div>
 
