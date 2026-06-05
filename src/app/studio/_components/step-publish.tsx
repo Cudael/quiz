@@ -3,7 +3,9 @@
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
 import { Check, Copy, Loader2, X } from 'lucide-react'
+import { z } from 'zod'
 import { Button } from '@/components/ui/button'
+import { useToast } from '@/components/ui/toast'
 import { ImageUpload } from './image-upload'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import { updateQuiz } from '@/app/studio/actions'
@@ -18,8 +20,20 @@ interface CheckItem {
   ok: boolean
 }
 
+const categoryIdSchema = z.string().cuid()
+
+function isValidUrl(value: string) {
+  try {
+    new URL(value)
+    return true
+  } catch {
+    return false
+  }
+}
+
 export function StepPublish({ quizId }: StepPublishProps) {
   const router = useRouter()
+  const { addToast } = useToast()
   const {
     title,
     description,
@@ -40,9 +54,18 @@ export function StepPublish({ quizId }: StepPublishProps) {
   const [copied, setCopied] = React.useState(false)
 
   const MIN_QUESTIONS = 5
+  const trimmedTitle = title.trim()
+  const trimmedDescription = description.trim()
+  const trimmedCoverImage = imageUrl.trim()
+  const isCategorySelected = categoryIdSchema.safeParse(categoryId.trim()).success
+  const hasCoverImage = trimmedCoverImage.length > 0
+  const hasValidCoverImageUrl = hasCoverImage && isValidUrl(trimmedCoverImage)
   const checks: CheckItem[] = [
-    { label: 'Title is set', ok: title.trim().length > 0 },
-    { label: 'Description is set', ok: description.trim().length > 0 },
+    { label: 'Title is set', ok: trimmedTitle.length > 0 },
+    { label: 'Description is set', ok: trimmedDescription.length > 0 },
+    { label: 'Category is selected', ok: isCategorySelected },
+    { label: 'Cover image is set', ok: hasCoverImage },
+    { label: 'Cover image URL is valid', ok: hasValidCoverImageUrl },
     { label: `At least ${MIN_QUESTIONS} questions`, ok: questions.length >= MIN_QUESTIONS },
   ]
 
@@ -52,48 +75,55 @@ export function StepPublish({ quizId }: StepPublishProps) {
     setSavingLocal(true)
     setSaving(true)
 
-    if (!quizId) {
-      // Quiz hasn't been saved yet – create and publish in one step
-      const fd = new FormData()
-      fd.set('title', title.trim())
-      fd.set('description', description.trim())
-      fd.set('coverImage', imageUrl.trim())
-      fd.set('categoryId', categoryId)
-      fd.set('difficulty', difficulty)
-      fd.set('format', quizFormat)
-      if (defaultTimeLimitSec !== null) {
-        fd.set('defaultTimeLimitSec', String(defaultTimeLimitSec))
-      }
-      fd.set('isPublished', 'on')
-      const result = await createQuizAndReturnId(fd)
-      if (result.ok) {
+    try {
+      if (!quizId) {
+        // Quiz hasn't been saved yet – create and publish in one step
+        const fd = new FormData()
+        fd.set('title', trimmedTitle)
+        fd.set('description', trimmedDescription)
+        fd.set('coverImage', trimmedCoverImage)
+        fd.set('categoryId', categoryId)
+        fd.set('difficulty', difficulty)
+        fd.set('format', quizFormat)
+        if (defaultTimeLimitSec !== null) {
+          fd.set('defaultTimeLimitSec', String(defaultTimeLimitSec))
+        }
+        fd.set('isPublished', 'on')
+        const result = await createQuizAndReturnId(fd)
+        if (!result.ok) {
+          addToast(result.message || 'Could not publish quiz.', 'error')
+          return
+        }
         setQuizId(result.quizId)
         setMeta({ isPublished: true })
         setLastSaved(new Date())
         router.push(`/studio/quiz/${result.quizId}/edit`)
+        return
       }
-      setSavingLocal(false)
-      setSaving(false)
-      return
-    }
 
-    const fd = new FormData()
-    fd.set('quizId', quizId)
-    fd.set('title', title)
-    fd.set('description', description)
-    fd.set('coverImage', imageUrl.trim())
-    fd.set('categoryId', categoryId)
-    fd.set('difficulty', difficulty)
-    if (!isPublished) fd.set('isPublished', 'on')
+      const fd = new FormData()
+      fd.set('quizId', quizId)
+      fd.set('title', title)
+      fd.set('description', description)
+      fd.set('coverImage', trimmedCoverImage)
+      fd.set('categoryId', categoryId)
+      fd.set('difficulty', difficulty)
+      if (!isPublished) fd.set('isPublished', 'on')
 
-    const result = await updateQuiz(fd)
-    if (result.ok) {
+      const result = await updateQuiz(fd)
+      if (!result.ok) {
+        addToast(result.message || 'Could not update quiz publishing status.', 'error')
+        return
+      }
       setMeta({ isPublished: !isPublished })
       setLastSaved(new Date())
+    } catch (error) {
+      console.error(error)
+      addToast('Could not update quiz publishing status.', 'error')
+    } finally {
+      setSavingLocal(false)
+      setSaving(false)
     }
-
-    setSavingLocal(false)
-    setSaving(false)
   }
 
   const getShareUrl = () => {
@@ -113,7 +143,7 @@ export function StepPublish({ quizId }: StepPublishProps) {
       <ImageUpload
         value={imageUrl}
         onChange={(v) => setMeta({ imageUrl: v })}
-        label="Cover image (optional)"
+        label="Cover image"
         aspectRatio="16/9"
       />
 
