@@ -29,6 +29,7 @@ export function PlayView({ quizId }: PlayViewProps) {
     setShowQuitModal,
     timerAnnouncement,
     handleChoiceSelect,
+    handleLabelChange,
     handleSubmitSelection,
     handleFiftyFifty,
     handleSkip,
@@ -61,10 +62,29 @@ export function PlayView({ quizId }: PlayViewProps) {
     currentQuestion.type === 'FILL_BLANK'
       ? renderFillBlankPrompt(currentQuestion.prompt)
       : currentQuestion.prompt
-  const canSubmitCurrentAnswer =
-    currentQuestion.type === 'FILL_BLANK'
-      ? fillBlankValue.trim().length > 0
-      : questionUI.selectedChoiceIds.length > 0
+  const canSubmitCurrentAnswer = (() => {
+    if (currentQuestion.type === 'FILL_BLANK') return fillBlankValue.trim().length > 0
+    if (currentQuestion.type === 'ORDERING') {
+      return questionUI.selectedChoiceIds.length === currentQuestion.choices.length
+    }
+    if (currentQuestion.type === 'MATCHING') {
+      return (questionUI.matchedPairs?.length ?? 0) * 2 === currentQuestion.choices.length
+    }
+    if (currentQuestion.type === 'CATEGORIZE') {
+      const items = currentQuestion.choices.filter(
+        (c) => !(c.meta as { isHeader?: boolean } | null | undefined)?.isHeader
+      )
+      return (questionUI.assignments?.length ?? 0) === items.length
+    }
+    if (currentQuestion.type === 'LABEL') {
+      const labelAnswers = questionUI.labelAnswers ?? {}
+      return (
+        currentQuestion.choices.length > 0 &&
+        currentQuestion.choices.every((c) => (labelAnswers[c.id] ?? '').trim().length > 0)
+      )
+    }
+    return questionUI.selectedChoiceIds.length > 0
+  })()
   const isLastQuestion = store.currentQuestionIndex >= questions.length - 1
 
   return (
@@ -102,8 +122,14 @@ export function PlayView({ quizId }: PlayViewProps) {
         canSubmit={canSubmitCurrentAnswer}
         isLastQuestion={isLastQuestion}
         onChoiceSelect={handleChoiceSelect}
+        onLabelChange={handleLabelChange}
         onSubmit={handleSubmitSelection}
         onNext={goNext}
+        pendingMatchId={questionUI.pendingMatchId}
+        matchedPairs={questionUI.matchedPairs}
+        pendingItemId={questionUI.pendingItemId}
+        assignments={questionUI.assignments}
+        labelAnswers={questionUI.labelAnswers}
       />
 
       {mode === 'survival' && (

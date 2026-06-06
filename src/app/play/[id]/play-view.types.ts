@@ -1,6 +1,7 @@
 export interface Choice {
   id: string
   text: string
+  meta?: Record<string, unknown> | null
 }
 
 export interface Question {
