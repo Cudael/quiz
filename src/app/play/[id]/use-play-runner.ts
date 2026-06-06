@@ -41,6 +41,16 @@ export function usePlayRunner(quizId: string) {
   const [questionUI, setQuestionUI] = useState<{
     selectedChoiceIds: string[]
     hiddenChoiceIds: string[]
+    // MATCHING: the choice ID of the first item selected (waiting for a matching pair)
+    pendingMatchId?: string
+    // MATCHING: confirmed pairs [{ left: choiceId, right: choiceId }]
+    matchedPairs?: Array<{ left: string; right: string }>
+    // CATEGORIZE: the item choice ID currently selected, waiting for a category pick
+    pendingItemId?: string
+    // CATEGORIZE: confirmed assignments [{ itemId, categoryId }]
+    assignments?: Array<{ itemId: string; categoryId: string }>
+    // LABEL: positionChoiceId → user-typed label
+    labelAnswers?: Record<string, string>
   }>({ selectedChoiceIds: [], hiddenChoiceIds: [] })
   const [fillBlankValue, setFillBlankValue] = useState('')
   const [soundEnabled, setSoundEnabled] = useState(getSoundPreference)
@@ -212,10 +222,106 @@ export function usePlayRunner(quizId: string) {
           return { ...prev, selectedChoiceIds }
         }
 
+        if (currentQuestion.type === 'ORDERING') {
+          const selectedChoiceIds = prev.selectedChoiceIds.includes(choiceId)
+            ? prev.selectedChoiceIds.filter((id) => id !== choiceId)
+            : [...prev.selectedChoiceIds, choiceId]
+          return { ...prev, selectedChoiceIds }
+        }
+
+        if (currentQuestion.type === 'MATCHING') {
+          const choice = currentQuestion.choices.find((c) => c.id === choiceId)
+          const side = (choice?.meta as { side?: string } | null | undefined)?.side
+          const existingPairs = prev.matchedPairs ?? []
+
+          // Clicking an already-paired item unmatches that pair
+          const alreadyPaired = existingPairs.find(
+            (p) => p.left === choiceId || p.right === choiceId
+          )
+          if (alreadyPaired) {
+            const newPairs = existingPairs.filter((p) => p !== alreadyPaired)
+            const allPairedIds = newPairs.flatMap((p) => [p.left, p.right])
+            return {
+              ...prev,
+              pendingMatchId: undefined,
+              matchedPairs: newPairs,
+              selectedChoiceIds: allPairedIds,
+            }
+          }
+
+          // Clicking the same pending item deselects it
+          if (prev.pendingMatchId === choiceId) {
+            return { ...prev, pendingMatchId: undefined }
+          }
+
+          if (!prev.pendingMatchId) {
+            // First click: select the item as pending
+            return { ...prev, pendingMatchId: choiceId }
+          }
+
+          // Second click: attempt to form a pair
+          const pendingChoice = currentQuestion.choices.find((c) => c.id === prev.pendingMatchId)
+          const pendingSide = (pendingChoice?.meta as { side?: string } | null | undefined)?.side
+          if (pendingSide && side && pendingSide !== side) {
+            // Different sides — form a pair
+            const newPair =
+              pendingSide === 'left'
+                ? { left: prev.pendingMatchId, right: choiceId }
+                : { left: choiceId, right: prev.pendingMatchId }
+            const newPairs = [...existingPairs, newPair]
+            const allPairedIds = newPairs.flatMap((p) => [p.left, p.right])
+            return {
+              ...prev,
+              pendingMatchId: undefined,
+              matchedPairs: newPairs,
+              selectedChoiceIds: allPairedIds,
+            }
+          }
+          // Same side — swap pending selection to the new item
+          return { ...prev, pendingMatchId: choiceId }
+        }
+
+        if (currentQuestion.type === 'CATEGORIZE') {
+          const choice = currentQuestion.choices.find((c) => c.id === choiceId)
+          const isHeader = (choice?.meta as { isHeader?: boolean } | null | undefined)?.isHeader
+          const existingAssignments = prev.assignments ?? []
+
+          if (isHeader) {
+            // A category was clicked — assign the pending item to this category if one is pending
+            if (prev.pendingItemId) {
+              const categoryId =
+                (choice?.meta as { category?: string } | null | undefined)?.category ?? ''
+              const newAssignments = [
+                ...existingAssignments.filter((a) => a.itemId !== prev.pendingItemId),
+                { itemId: prev.pendingItemId, categoryId },
+              ]
+              return { ...prev, pendingItemId: undefined, assignments: newAssignments }
+            }
+            return prev
+          } else {
+            // An item was clicked — set it as pending (or deselect if already pending)
+            if (prev.pendingItemId === choiceId) {
+              return { ...prev, pendingItemId: undefined }
+            }
+            return { ...prev, pendingItemId: choiceId }
+          }
+        }
+
         return { ...prev, selectedChoiceIds: [choiceId] }
       })
     },
     [currentQuestion, isAnswered]
+  )
+
+  const handleLabelChange = useCallback(
+    (positionId: string, value: string) => {
+      if (isAnswered) return
+      setQuestionUI((prev) => ({
+        ...prev,
+        labelAnswers: { ...(prev.labelAnswers ?? {}), [positionId]: value },
+      }))
+    },
+    [isAnswered]
   )
 
   const handleSubmitSelection = useCallback(() => {
@@ -223,6 +329,40 @@ export function usePlayRunner(quizId: string) {
 
     if (currentQuestion.type === 'FILL_BLANK') {
       handleAnswer(getFillBlankChoiceIds(fillBlankValue), false, fillBlankValue)
+      return
+    }
+
+    if (currentQuestion.type === 'ORDERING') {
+      if (questionUI.selectedChoiceIds.length !== currentQuestion.choices.length) return
+      handleAnswer(questionUI.selectedChoiceIds)
+      return
+    }
+
+    if (currentQuestion.type === 'MATCHING') {
+      const pairs = questionUI.matchedPairs ?? []
+      if (pairs.length * 2 !== currentQuestion.choices.length) return
+      handleAnswer(questionUI.selectedChoiceIds)
+      return
+    }
+
+    if (currentQuestion.type === 'CATEGORIZE') {
+      const assignments = questionUI.assignments ?? []
+      const items = currentQuestion.choices.filter(
+        (c) => !(c.meta as { isHeader?: boolean } | null | undefined)?.isHeader
+      )
+      if (assignments.length !== items.length) return
+      const assignmentMap = Object.fromEntries(assignments.map((a) => [a.itemId, a.categoryId]))
+      handleAnswer([], false, JSON.stringify(assignmentMap))
+      return
+    }
+
+    if (currentQuestion.type === 'LABEL') {
+      const labelAnswers = questionUI.labelAnswers ?? {}
+      const allFilled = currentQuestion.choices.every(
+        (c) => (labelAnswers[c.id] ?? '').trim().length > 0
+      )
+      if (!allFilled) return
+      handleAnswer([], false, JSON.stringify(labelAnswers))
       return
     }
 
@@ -234,6 +374,9 @@ export function usePlayRunner(quizId: string) {
     getFillBlankChoiceIds,
     handleAnswer,
     isAnswered,
+    questionUI.assignments,
+    questionUI.labelAnswers,
+    questionUI.matchedPairs,
     questionUI.selectedChoiceIds,
   ])
 
@@ -364,7 +507,11 @@ export function usePlayRunner(quizId: string) {
       }
 
       if (isEditableTarget) {
-        if (currentQuestion?.type === 'FILL_BLANK' && event.key === 'Enter' && !isAnswered) {
+        if (
+          (currentQuestion?.type === 'FILL_BLANK' || currentQuestion?.type === 'LABEL') &&
+          event.key === 'Enter' &&
+          !isAnswered
+        ) {
           event.preventDefault()
           handleSubmitSelection()
         }
@@ -384,6 +531,10 @@ export function usePlayRunner(quizId: string) {
       )
 
       const normalizedKey = event.key.toLowerCase()
+      // Only apply 1-4 / a-d shortcuts for classic question types
+      const useShortcuts = !['ORDERING', 'MATCHING', 'CATEGORIZE', 'LABEL'].includes(
+        currentQuestion?.type ?? ''
+      )
       const shortcutMap: Record<string, number> = {
         '1': 0,
         a: 0,
@@ -395,7 +546,7 @@ export function usePlayRunner(quizId: string) {
         d: 3,
       }
       const shortcutIndex = shortcutMap[normalizedKey]
-      if (visibleChoices && shortcutIndex !== undefined) {
+      if (useShortcuts && visibleChoices && shortcutIndex !== undefined) {
         const choice = visibleChoices[shortcutIndex]
         if (choice) {
           event.preventDefault()
@@ -451,6 +602,7 @@ export function usePlayRunner(quizId: string) {
     setShowQuitModal,
     timerAnnouncement,
     handleChoiceSelect,
+    handleLabelChange,
     handleSubmitSelection,
     handleFiftyFifty,
     handleSkip,

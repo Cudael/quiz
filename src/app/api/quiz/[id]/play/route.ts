@@ -14,7 +14,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
         orderBy: { order: 'asc' },
         include: {
           choices: {
-            select: { id: true, text: true },
+            select: { id: true, text: true, meta: true },
             // isCorrect is intentionally omitted from select
           },
         },
