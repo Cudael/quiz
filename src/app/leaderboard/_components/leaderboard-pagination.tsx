@@ -1,16 +1,10 @@
 import Link from 'next/link'
-import {
-  buildLeaderboardQuery,
-  type ModeFilter,
-  type PeriodFilter,
-  type SortFilter,
-} from '../params'
+import { buildLeaderboardQuery, type PeriodFilter, type SortFilter } from '../params'
 
 interface LeaderboardPaginationProps {
   page: number
   totalPages: number
   period: PeriodFilter
-  mode: ModeFilter
   sort: SortFilter
   categoryParams: string[]
   quizId?: string
@@ -20,7 +14,6 @@ export function LeaderboardPagination({
   page,
   totalPages,
   period,
-  mode,
   sort,
   categoryParams,
   quizId,
@@ -35,7 +28,6 @@ export function LeaderboardPagination({
           <Link
             href={`/leaderboard?${buildLeaderboardQuery({
               period,
-              mode,
               sort,
               page: page - 1,
               categories: categoryParams,
@@ -52,7 +44,6 @@ export function LeaderboardPagination({
           <Link
             href={`/leaderboard?${buildLeaderboardQuery({
               period,
-              mode,
               sort,
               page: page + 1,
               categories: categoryParams,

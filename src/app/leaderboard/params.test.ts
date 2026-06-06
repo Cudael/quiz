@@ -11,7 +11,6 @@ describe('leaderboard params', () => {
     expect(
       parseLeaderboardSearchParams({
         range: 'week',
-        mode: 'timed',
         sort: 'best',
         page: '3',
         category: ['science', 'science', 'history'],
@@ -19,7 +18,6 @@ describe('leaderboard params', () => {
       })
     ).toEqual({
       period: 'week',
-      mode: 'ALL',
       sort: 'best',
       page: 3,
       categories: ['science', 'history'],
@@ -31,7 +29,6 @@ describe('leaderboard params', () => {
     expect(
       buildLeaderboardQuery({
         period: 'today',
-        mode: 'ALL',
         sort: 'accuracy',
         page: 2,
         categories: ['science'],

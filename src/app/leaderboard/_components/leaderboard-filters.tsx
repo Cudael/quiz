@@ -36,7 +36,6 @@ export function LeaderboardFilters({
             key={value}
             href={`/leaderboard?${buildLeaderboardQuery({
               period: value,
-              mode: 'ALL',
               sort,
               categories: categoryParams,
               quizId,
@@ -55,7 +54,6 @@ export function LeaderboardFilters({
           <Link
             href={`/leaderboard?${buildLeaderboardQuery({
               period,
-              mode: 'ALL',
               sort,
               categories: categoryParams,
             })}`}
@@ -72,7 +70,6 @@ export function LeaderboardFilters({
             key={option.value}
             href={`/leaderboard?${buildLeaderboardQuery({
               period,
-              mode: 'ALL',
               sort: option.value,
               categories: categoryParams,
               quizId,
@@ -102,7 +99,6 @@ export function LeaderboardFilters({
               key={category.slug}
               href={`/leaderboard?${buildLeaderboardQuery({
                 period,
-                mode: 'ALL',
                 sort,
                 categories: toggleCategory(categoryParams, category.slug),
                 quizId,
