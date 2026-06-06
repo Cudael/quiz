@@ -3,7 +3,6 @@ import type { userPreferencesSchema } from '@/schemas'
 
 export type UserPreferences = z.infer<typeof userPreferencesSchema>
 
-export type DefaultMode = NonNullable<UserPreferences['defaultMode']>
 export type DefaultDifficulty = NonNullable<UserPreferences['defaultDifficulty']>
 
 export interface SettingsProfile {

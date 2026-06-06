@@ -188,11 +188,6 @@ Badges are stored in the database with a JSON `criteria` field. The engine evalu
 | `speed-demon`             | `avgAnswerMs`     | < 5000 ms average answer time |
 | `night-owl`               | `playedBetween`   | 00:00–05:00 UTC               |
 | `centurion`               | `playsCount`      | 100 sessions                  |
-| `daily-devotee`           | `dailyChallenges` | 14 daily sessions             |
-
-### Daily mode (`src/server/daily-seed.ts`)
-
-`dailySeed(date, quizId)` produces a deterministic `uint32` seed via djb2 variant. A mulberry32 PRNG then shuffles questions in a reproducible order for a given (date, quiz) pair. One attempt per player per day is enforced server-side.
 
 ### Play token (`src/server/play-token.ts`)
 
@@ -200,18 +195,7 @@ HMAC-SHA256 tokens bind a `quizId` and `issuedAt` timestamp. Tokens expire after
 
 ### Leaderboard query strategy (`src/server/leaderboard.ts`)
 
-Raw SQL `GROUP BY` over `PlaySession` with optional filters for period (`all` / `week` / `today`), mode (`CLASSIC` / `TIMED` / `SURVIVAL` / `DAILY` / `ALL`), category slugs, and quiz ID. Sort options: `total`, `best`, `plays`, `accuracy`.
-
-## 🎮 Quiz Modes
-
-| Mode     | Description                                                       |
-| -------- | ----------------------------------------------------------------- |
-| CLASSIC  | Per-question timer, full question set                             |
-| TIMED    | 60-second global countdown — speed maximises score                |
-| SURVIVAL | 3 one-use lifelines (50/50, Skip, +10 s); streak score multiplier |
-| DAILY    | Deterministic daily shuffle; one attempt per player per day       |
-
-**Lifelines (Survival only):** **50/50** removes two wrong choices; **Skip** skips the question without penalty; **Extra Time** adds 10 s to the current question timer.
+Raw SQL `GROUP BY` over `PlaySession` with optional filters for period (`all` / `week` / `today`), category slugs, and quiz ID. Sort options: `total`, `best`, `plays`, `accuracy`.
 
 ## 🏗 Studio (Quiz Creation)
 

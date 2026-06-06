@@ -12,7 +12,6 @@
 // ---------------------------------------------------------------------------
 export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD'
 export type QuestionType = 'SINGLE' | 'MULTIPLE' | 'TRUEFALSE' | 'FILL_BLANK'
-export type PlayMode = 'CLASSIC' | 'TIMED' | 'SURVIVAL' | 'DAILY'
 export type Role = 'USER' | 'ADMIN'
 
 // ---------------------------------------------------------------------------
@@ -558,13 +557,6 @@ export const badges: BadgeData[] = [
     description: 'Complete 100 quizzes',
     icon: 'Shield',
     criteria: { type: 'playsCount', count: 100 },
-  },
-  {
-    slug: 'daily-devotee',
-    name: 'Daily Devotee',
-    description: 'Complete 14 daily challenges',
-    icon: 'CalendarCheck',
-    criteria: { type: 'dailyChallenges', count: 14 },
   },
 ]
 

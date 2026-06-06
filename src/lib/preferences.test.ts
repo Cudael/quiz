@@ -30,18 +30,13 @@ describe('parseUserPreferences', () => {
     expect(result).toEqual({ reducedMotion: true })
   })
 
-  it('parses valid preferences with defaultMode', () => {
-    const result = parseUserPreferences({ defaultMode: 'CLASSIC' })
-    expect(result).toEqual({ defaultMode: 'CLASSIC' })
-  })
-
   it('parses valid preferences with defaultDifficulty', () => {
     const result = parseUserPreferences({ defaultDifficulty: 'HARD' })
     expect(result).toEqual({ defaultDifficulty: 'HARD' })
   })
 
   it('parses multiple valid fields at once', () => {
-    const result = parseUserPreferences({ defaultMode: 'TIMED', reducedMotion: false })
-    expect(result).toEqual({ defaultMode: 'TIMED', reducedMotion: false })
+    const result = parseUserPreferences({ defaultDifficulty: 'EASY', reducedMotion: false })
+    expect(result).toEqual({ defaultDifficulty: 'EASY', reducedMotion: false })
   })
 })

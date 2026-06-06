@@ -1,7 +1,6 @@
 import { revalidateTag } from 'next/cache'
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { PlayMode as PrismaPlayMode } from '@prisma/client'
 import { prisma } from '@/server/prisma'
 import { verifyPlayToken } from '@/server/play-token'
 import { scoreQuestion } from '@/domain/scoring'
@@ -18,10 +17,6 @@ const SUBMIT_RATE_LIMIT = { limit: 30, windowMs: 5 * 60 * 1000 } as const
 
 function sanitizeChoiceIds(choiceIds: string[], validChoiceIds: Set<string>) {
   return Array.from(new Set(choiceIds.filter((choiceId) => validChoiceIds.has(choiceId)))).sort()
-}
-
-function isPlayMode(value: string): value is PrismaPlayMode {
-  return value in PrismaPlayMode
 }
 
 export async function POST(req: NextRequest) {
@@ -43,7 +38,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 
-  const { playToken, quizId, mode, answers, guestName } = parsed.data
+  const { playToken, quizId, answers, guestName } = parsed.data
 
   const tokenResult = await verifyPlayToken(playToken, quizId)
   if (!tokenResult.valid) {
@@ -69,31 +64,8 @@ export async function POST(req: NextRequest) {
     guestKey = crypto.randomUUID()
   }
 
-  const normalizedMode = mode.toUpperCase()
-  if (!isPlayMode(normalizedMode)) {
-    return NextResponse.json({ error: 'Invalid play mode' }, { status: 400 })
-  }
-  if (normalizedMode === 'DAILY') {
-    const todayStart = new Date()
-    todayStart.setUTCHours(0, 0, 0, 0)
-    const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000)
-
-    const existing = await prisma.playSession.findFirst({
-      where: {
-        quizId,
-        ...(authSession?.user?.id ? { userId: authSession.user.id } : { guestKey }),
-        mode: 'DAILY',
-        createdAt: { gte: todayStart, lt: todayEnd },
-      },
-    })
-    if (existing) {
-      return NextResponse.json({ error: 'Already played this daily quiz today' }, { status: 409 })
-    }
-  }
-
   let score = 0
   let correctCount = 0
-  let streak = 0
   const totalCount = quiz.questions.length
   const evaluatedAnswers: Array<{
     questionId: string
@@ -207,16 +179,13 @@ export async function POST(req: NextRequest) {
 
     if (isCorrect) {
       correctCount++
-      streak++
       const timeRemainingMs = timeLimitMs - timeTakenMs
       score += scoreQuestion({
         correct: true,
         timeRemainingMs,
         timeLimitMs,
-        streak: normalizedMode === 'SURVIVAL' ? streak : 0,
+        streak: 0,
       })
-    } else {
-      streak = 0
     }
   }
 
@@ -238,7 +207,6 @@ export async function POST(req: NextRequest) {
         correctCount,
         totalCount,
         timeTakenMs: totalTimeTakenMs,
-        mode: normalizedMode,
       },
     })
 

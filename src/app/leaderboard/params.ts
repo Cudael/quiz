@@ -1,7 +1,7 @@
 import { WEEK_IN_MS } from '@/lib/time'
 
 export type PeriodFilter = 'all' | 'week' | 'today'
-export type ModeFilter = 'ALL' | 'CLASSIC' | 'TIMED' | 'SURVIVAL' | 'DAILY'
+export type ModeFilter = 'ALL'
 export type SortFilter = 'best' | 'total' | 'plays' | 'accuracy'
 
 export interface LeaderboardSearchParams {
@@ -30,10 +30,7 @@ export function parseLeaderboardSearchParams(
   const period: PeriodFilter =
     requestedPeriod === 'today' || requestedPeriod === 'week' ? requestedPeriod : 'all'
 
-  const mode =
-    params.mode && ['CLASSIC', 'TIMED', 'SURVIVAL', 'DAILY'].includes(params.mode.toUpperCase())
-      ? (params.mode.toUpperCase() as ModeFilter)
-      : 'ALL'
+  const mode: ModeFilter = 'ALL'
 
   const sort =
     params.sort && ['best', 'total', 'plays', 'accuracy'].includes(params.sort)

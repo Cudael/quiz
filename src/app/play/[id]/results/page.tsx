@@ -118,7 +118,6 @@ export default async function ResultsPage({
         accuracy={accuracy}
         sessionId={sessionId}
         quizId={id}
-        mode={sessionRow.mode}
         unlockedBadges={newBadgeNames}
         leveledUp={leveledUp}
         personalBest={isPersonalBest}
@@ -182,7 +181,7 @@ export default async function ResultsPage({
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <Button variant="gradient" size="lg" asChild className="flex-1">
-          <Link href={`/play/${id}?mode=${sessionRow.mode.toLowerCase()}`}>
+          <Link href={`/play/${id}`}>
             <RotateCcw className="h-4 w-4" />
             Play Again
           </Link>

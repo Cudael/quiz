@@ -2,7 +2,6 @@ import Link from 'next/link'
 import {
   buildLeaderboardQuery,
   toggleCategory,
-  type ModeFilter,
   type PeriodFilter,
   type SortFilter,
 } from '../params'
@@ -16,7 +15,6 @@ const sortOptions: Array<{ value: SortFilter; label: string }> = [
 
 interface LeaderboardFiltersProps {
   period: PeriodFilter
-  mode: ModeFilter
   sort: SortFilter
   categoryParams: string[]
   quizId?: string
@@ -25,7 +23,6 @@ interface LeaderboardFiltersProps {
 
 export function LeaderboardFilters({
   period,
-  mode,
   sort,
   categoryParams,
   quizId,
@@ -39,7 +36,7 @@ export function LeaderboardFilters({
             key={value}
             href={`/leaderboard?${buildLeaderboardQuery({
               period: value,
-              mode,
+              mode: 'ALL',
               sort,
               categories: categoryParams,
               quizId,
@@ -58,7 +55,7 @@ export function LeaderboardFilters({
           <Link
             href={`/leaderboard?${buildLeaderboardQuery({
               period,
-              mode,
+              mode: 'ALL',
               sort,
               categories: categoryParams,
             })}`}
@@ -70,34 +67,12 @@ export function LeaderboardFilters({
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        {(['ALL', 'CLASSIC', 'TIMED', 'SURVIVAL', 'DAILY'] as ModeFilter[]).map((value) => (
-          <Link
-            key={value}
-            href={`/leaderboard?${buildLeaderboardQuery({
-              period,
-              mode: value,
-              sort,
-              categories: categoryParams,
-              quizId,
-            })}`}
-            className={`rounded-full px-3 py-1.5 text-sm ${
-              mode === value
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground'
-            }`}
-          >
-            {value === 'ALL' ? 'All modes' : value}
-          </Link>
-        ))}
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2">
         {sortOptions.map((option) => (
           <Link
             key={option.value}
             href={`/leaderboard?${buildLeaderboardQuery({
               period,
-              mode,
+              mode: 'ALL',
               sort: option.value,
               categories: categoryParams,
               quizId,
@@ -127,7 +102,7 @@ export function LeaderboardFilters({
               key={category.slug}
               href={`/leaderboard?${buildLeaderboardQuery({
                 period,
-                mode,
+                mode: 'ALL',
                 sort,
                 categories: toggleCategory(categoryParams, category.slug),
                 quizId,

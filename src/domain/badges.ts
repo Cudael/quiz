@@ -12,7 +12,6 @@ export type BadgeCriterion =
   | { type: 'avgAnswerMs'; lt: number }
   | { type: 'playedBetween'; fromHour: number; toHour: number }
   | { type: 'playsCount'; count: number }
-  | { type: 'dailyChallenges'; count: number }
 
 interface BadgeStats {
   wins: number
@@ -20,7 +19,6 @@ interface BadgeStats {
   streakDays: number
   quizzesAuthored: number
   playsCount: number
-  dailyChallenges: number
   avgAnswerMs: number
   playedHours: number[]
   categoryCompletions: Record<string, number>
@@ -30,7 +28,6 @@ interface SessionSnapshot {
   correctCount: number
   totalCount: number
   timeTakenMs: number
-  mode: string
   createdAt: Date
   quiz: {
     category: {
@@ -74,8 +71,6 @@ function meetsCriterion(criterion: BadgeCriterion, stats: BadgeStats) {
       return metPlayedBetween(stats.playedHours, criterion.fromHour, criterion.toHour)
     case 'playsCount':
       return stats.playsCount >= criterion.count
-    case 'dailyChallenges':
-      return stats.dailyChallenges >= criterion.count
     default:
       return false
   }
@@ -94,7 +89,6 @@ async function collectStats(client: PrismaLike, userId: string): Promise<BadgeSt
         correctCount: true,
         totalCount: true,
         timeTakenMs: true,
-        mode: true,
         createdAt: true,
         quiz: {
           select: {
@@ -115,7 +109,6 @@ async function collectStats(client: PrismaLike, userId: string): Promise<BadgeSt
   const hasPerfectScore = snapshots.some(
     (session) => session.totalCount > 0 && session.correctCount === session.totalCount
   )
-  const dailyChallenges = snapshots.filter((session) => session.mode === 'DAILY').length
 
   const totalAnswerMs = snapshots.reduce((sum, session) => {
     if (session.totalCount <= 0) return sum
@@ -138,7 +131,6 @@ async function collectStats(client: PrismaLike, userId: string): Promise<BadgeSt
     streakDays: user?.streakDays ?? 0,
     quizzesAuthored,
     playsCount,
-    dailyChallenges,
     avgAnswerMs,
     playedHours,
     categoryCompletions,

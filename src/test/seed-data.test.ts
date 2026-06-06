@@ -25,8 +25,8 @@ describe('seed-data shapes', () => {
   })
 
   describe('badges', () => {
-    it('has at least 10 badges', () => {
-      expect(badges.length).toBeGreaterThanOrEqual(10)
+    it('has at least 9 badges', () => {
+      expect(badges.length).toBeGreaterThanOrEqual(9)
     })
 
     it('every badge has required fields', () => {
@@ -79,7 +79,7 @@ describe('seed-data shapes', () => {
       for (const quiz of quizDefs) {
         expect(
           categorySlugs.has(quiz.categorySlug),
-          `Quiz "${quiz.title}" has unknown category "${quiz.categorySlug}"`,
+          `Quiz "${quiz.title}" has unknown category "${quiz.categorySlug}"`
         ).toBe(true)
       }
     })
@@ -89,7 +89,7 @@ describe('seed-data shapes', () => {
       for (const quiz of quizDefs) {
         expect(
           validDifficulties,
-          `Quiz "${quiz.title}" has invalid difficulty "${quiz.difficulty}"`,
+          `Quiz "${quiz.title}" has invalid difficulty "${quiz.difficulty}"`
         ).toContain(quiz.difficulty)
       }
     })
@@ -106,7 +106,7 @@ describe('seed-data shapes', () => {
         for (const q of questions) {
           expect(
             q.choices.length,
-            `Question "${q.prompt}" in quiz "${quizTitle}" has fewer than 2 choices`,
+            `Question "${q.prompt}" in quiz "${quizTitle}" has fewer than 2 choices`
           ).toBeGreaterThanOrEqual(2)
         }
       }
@@ -118,7 +118,7 @@ describe('seed-data shapes', () => {
           const correctChoices = q.choices.filter((c) => c.isCorrect)
           expect(
             correctChoices.length,
-            `Question "${q.prompt}" in quiz "${quizTitle}" has no correct choice`,
+            `Question "${q.prompt}" in quiz "${quizTitle}" has no correct choice`
           ).toBeGreaterThanOrEqual(1)
         }
       }

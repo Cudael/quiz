@@ -72,7 +72,6 @@ export default async function LeaderboardPage({
       : null,
     getLeaderboardRows({
       period,
-      mode,
       sort,
       categories: categoryParams,
       quizId,
@@ -113,7 +112,6 @@ export default async function LeaderboardPage({
 
       <LeaderboardFilters
         period={period}
-        mode={mode}
         sort={sort}
         categoryParams={categoryParams}
         quizId={quizId}

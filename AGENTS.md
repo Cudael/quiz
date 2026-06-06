@@ -21,7 +21,7 @@ src/
                       sections/, *.types.ts, and home-page-skeleton
   server/           Server-only modules:
                       auth.ts, auth.config.ts, prisma.ts, play-token.ts,
-                      password.ts, daily-seed.ts, rate-limit.ts,
+                      password.ts, rate-limit.ts,
                       leaderboard.ts, email.ts, home-quiz-cache.ts,
                       home-page-data.ts, token-hash.ts
   domain/           Pure domain logic:

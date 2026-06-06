@@ -37,7 +37,7 @@ Browser / Client
 | `src/components/`               | Reusable React components                                            |
 | `src/components/ui/`            | Design-system primitives (Button, Card, Skeleton, Toast, …)          |
 | `src/components/layout/`        | App shell — Navbar, Footer                                           |
-| `src/components/auth/`          | Auth-aware components (AuthControls)             |
+| `src/components/auth/`          | Auth-aware components (AuthControls)                                 |
 | `src/components/notifications/` | Notification bell + inbox dropdown                                   |
 | `src/components/home/`          | Homepage sections (hero, quiz cards, leaderboard widget)             |
 | `src/domain/`                   | Pure business logic — badges, leveling, scoring, streak, quiz-import |
@@ -66,7 +66,6 @@ REST-style route handlers. Key endpoints:
 | Route                                  | Purpose                                             |
 | -------------------------------------- | --------------------------------------------------- |
 | `POST /api/play/submit`                | Score a completed quiz session, award XP and badges |
-| `GET /api/survival/next`               | Fetch next question for survival mode               |
 | `GET /api/notifications`               | Fetch recent notifications for the signed-in user   |
 | `PATCH /api/notifications/read`        | Mark notifications as read                          |
 | `GET/POST /api/studio/quizzes`         | Studio quiz CRUD                                    |
@@ -100,7 +99,6 @@ All domain modules are fully unit-tested (`src/domain/*.test.ts`).
 | `play-token.ts`      | Short-lived HMAC play tokens (prevent replay attacks on `/api/play/submit`) |
 | `password.ts`        | bcrypt password hashing helpers                                             |
 | `rate-limit.ts`      | In-memory sliding-window rate limiter                                       |
-| `daily-seed.ts`      | Deterministic daily quiz selection (seeded by date)                         |
 | `leaderboard.ts`     | Leaderboard query helpers                                                   |
 | `email.ts`           | Transactional email helpers                                                 |
 | `home-quiz-cache.ts` | Short-lived in-process cache for homepage quiz data                         |

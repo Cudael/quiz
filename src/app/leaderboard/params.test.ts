@@ -19,7 +19,7 @@ describe('leaderboard params', () => {
       })
     ).toEqual({
       period: 'week',
-      mode: 'TIMED',
+      mode: 'ALL',
       sort: 'best',
       page: 3,
       categories: ['science', 'history'],
@@ -31,13 +31,13 @@ describe('leaderboard params', () => {
     expect(
       buildLeaderboardQuery({
         period: 'today',
-        mode: 'SURVIVAL',
+        mode: 'ALL',
         sort: 'accuracy',
         page: 2,
         categories: ['science'],
         quizId: 'quiz-123',
       })
-    ).toBe('period=today&mode=SURVIVAL&sort=accuracy&page=2&quizId=quiz-123&category=science')
+    ).toBe('period=today&sort=accuracy&page=2&quizId=quiz-123&category=science')
   })
 
   it('toggles category filters and computes supported periods', () => {

@@ -22,7 +22,6 @@ export function SettingsClient({
 }: SettingsClientProps) {
   const { addToast } = useToast()
   const [profile, setProfile] = useState(initialProfile)
-  const [defaultMode, setDefaultMode] = useState(preferences.defaultMode ?? 'CLASSIC')
   const [defaultDifficulty, setDefaultDifficulty] = useState(preferences.defaultDifficulty ?? 'ANY')
   const [reducedMotion, setReducedMotion] = useState(() => {
     if (typeof window === 'undefined') return preferences.reducedMotion ?? false
@@ -38,7 +37,6 @@ export function SettingsClient({
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
         preferences: {
-          defaultMode,
           defaultDifficulty,
           reducedMotion,
         },
@@ -70,8 +68,6 @@ export function SettingsClient({
       <AppearanceSection reducedMotion={reducedMotion} setReducedMotion={setReducedMotion} />
 
       <GameplaySection
-        defaultMode={defaultMode}
-        setDefaultMode={setDefaultMode}
         defaultDifficulty={defaultDifficulty}
         setDefaultDifficulty={setDefaultDifficulty}
         onSave={() => void savePreferences()}

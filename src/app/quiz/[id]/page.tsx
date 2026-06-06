@@ -2,14 +2,13 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Clock, BarChart3, Users, Trophy, BookOpen } from 'lucide-react'
+import { ArrowLeft, Clock, BarChart3, Users, Trophy, BookOpen, Play } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar } from '@/components/ui/avatar'
 import { serializeJsonLd } from '@/lib/seo'
 import { prisma } from '@/server/prisma'
-import { ModeSelector } from './mode-selector'
 import { ReportQuizForm } from '../report-quiz-form'
 import { absoluteUrl } from '@/lib/site'
 
@@ -82,7 +81,6 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
           score: true,
           guestName: true,
           timeTakenMs: true,
-          mode: true,
           createdAt: true,
           user: { select: { name: true, image: true } },
         },
@@ -194,8 +192,13 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
             <p className="mb-8 text-muted-foreground leading-relaxed">{quiz.description}</p>
           )}
 
-          {/* Mode selector + CTA */}
-          <ModeSelector quizId={quiz.id} />
+          {/* CTA */}
+          <Button asChild size="lg" className="w-full sm:w-auto">
+            <Link href={`/play/${quiz.id}`}>
+              <Play className="mr-2 h-4 w-4" />
+              Start Quiz
+            </Link>
+          </Button>
           <div className="mt-4">
             <ReportQuizForm quizId={quiz.id} />
           </div>
@@ -237,7 +240,7 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium truncate">{name}</p>
                           <p className="text-xs text-muted-foreground">
-                            {mins}:{String(secs).padStart(2, '0')} · {session.mode}
+                            {mins}:{String(secs).padStart(2, '0')}
                           </p>
                         </div>
                         <span className="text-sm font-bold text-quiz-purple-light">
