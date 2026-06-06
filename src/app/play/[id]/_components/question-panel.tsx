@@ -308,12 +308,12 @@ interface MatchingChoicesProps {
 }
 
 const PAIR_COLORS = [
-  'border-blue-500 bg-blue-500/10 text-blue-700 dark:text-blue-300',
-  'border-purple-500 bg-purple-500/10 text-purple-700 dark:text-purple-300',
-  'border-green-500 bg-green-500/10 text-green-700 dark:text-green-300',
-  'border-orange-500 bg-orange-500/10 text-orange-700 dark:text-orange-300',
-  'border-pink-500 bg-pink-500/10 text-pink-700 dark:text-pink-300',
-  'border-teal-500 bg-teal-500/10 text-teal-700 dark:text-teal-300',
+  'border-quiz-blue bg-quiz-blue/10 text-quiz-blue',
+  'border-quiz-purple bg-quiz-purple/10 text-quiz-purple',
+  'border-quiz-green bg-quiz-green/10 text-quiz-green',
+  'border-quiz-orange bg-quiz-orange/10 text-quiz-orange',
+  'border-quiz-pink bg-quiz-pink/10 text-quiz-pink',
+  'border-quiz-yellow bg-quiz-yellow/10 text-quiz-yellow',
 ]
 
 function MatchingChoices({

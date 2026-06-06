@@ -156,7 +156,8 @@ export async function POST(req: NextRequest) {
       let assignments: Record<string, string> = {}
       try {
         assignments = JSON.parse(answer.textAnswer ?? '{}') as Record<string, string>
-      } catch {
+      } catch (err) {
+        console.error('CATEGORIZE: failed to parse textAnswer', err)
         assignments = {}
       }
       const items = question.choices.filter(
@@ -174,7 +175,8 @@ export async function POST(req: NextRequest) {
       let labelAnswers: Record<string, string> = {}
       try {
         labelAnswers = JSON.parse(answer.textAnswer ?? '{}') as Record<string, string>
-      } catch {
+      } catch (err) {
+        console.error('LABEL: failed to parse textAnswer', err)
         labelAnswers = {}
       }
       isCorrect =
