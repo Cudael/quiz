@@ -535,7 +535,7 @@ function LabelChoices({
             sizes="(max-width: 768px) 100vw, 768px"
             className="h-auto max-h-[320px] w-full object-contain"
           />
-          {choices.map((choice) => {
+          {choices.map((choice, idx) => {
             const x = (choice.meta as { x?: number } | null | undefined)?.x ?? 50
             const y = (choice.meta as { y?: number } | null | undefined)?.y ?? 50
             return (
@@ -545,7 +545,7 @@ function LabelChoices({
                 style={{ left: `${x}%`, top: `${y}%` }}
                 aria-hidden="true"
               >
-                ●
+                {idx + 1}
               </span>
             )
           })}
