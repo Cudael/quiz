@@ -46,7 +46,13 @@ export function useQuestionCard({
     formData.set('order', String(index))
     formData.set(
       'choices',
-      JSON.stringify(question.choices.map((c) => ({ text: c.text, isCorrect: c.isCorrect })))
+      JSON.stringify(
+        question.choices.map((c) => ({
+          text: c.text,
+          isCorrect: c.isCorrect,
+          ...(c.meta ? { meta: c.meta } : {}),
+        }))
+      )
     )
 
     let result

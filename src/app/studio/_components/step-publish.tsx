@@ -50,9 +50,14 @@ export function StepPublish({ quizId }: StepPublishProps) {
   const trimmedCoverImage = imageUrl.trim()
   const isCategorySelected = categoryIdSchema.safeParse(categoryId.trim()).success
   const hasCoverImage = trimmedCoverImage.length > 0
-  const publishableQuestionsCount = quizId
-    ? questions.filter((q) => q.dbId !== null).length
-    : questions.length
+  // In edit mode, only count questions already persisted to the DB (dbId !== null).
+  // Fall back to questions.length if no questions have been persisted yet (e.g. during
+  // the brief transition after a new quiz is first created) so the checklist does not
+  // flash a false failure while the page is navigating away.
+  const publishableQuestionsCount =
+    quizId && questions.some((q) => q.dbId !== null)
+      ? questions.filter((q) => q.dbId !== null).length
+      : questions.length
   const checks: CheckItem[] = [
     { label: 'Title is set', ok: trimmedTitle.length > 0 },
     { label: 'Description is set', ok: trimmedDescription.length > 0 },
