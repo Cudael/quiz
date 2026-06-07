@@ -118,28 +118,25 @@ describe('HomePageClient', () => {
       />
     )
 
-    expect(screen.getByRole('heading', { name: 'Popular Right Now' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Trending' })).toBeInTheDocument()
-    expect(screen.getAllByRole('heading', { name: 'Freshly Added' }).length).toBeGreaterThan(0)
+    expect(screen.getByRole('heading', { name: 'Most Popular' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Trending Right Now' })).toBeInTheDocument()
+    expect(screen.getAllByRole('heading', { name: 'Freshly Added' }).length).toBe(1)
     expect(screen.getByRole('link', { name: /duel mode/i })).toHaveAttribute('href', '/sign-up')
     expect(screen.getAllByRole('link', { name: /sign up free/i }).length).toBeGreaterThan(0)
     expect(screen.getByRole('heading', { name: 'Top Players' })).toBeInTheDocument()
     expect(screen.getByText('Ada Lovelace')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /view full leaderboard/i })).toBeInTheDocument()
-    expect(screen.getAllByText('Science').length).toBeGreaterThan(0)
-    expect(screen.getByRole('heading', { name: 'Browse by Category' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Browse by Category' })).not.toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'For You' })).not.toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: /editor's pick/i })).not.toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: /how it works/i })).not.toBeInTheDocument()
     // Guest flow shows the leaderboard section's "Think you can top this?" CTA, not "Your Progress"
     expect(screen.queryByRole('heading', { name: 'Your Progress' })).not.toBeInTheDocument()
-    expect(screen.getByLabelText('Scroll Trending right')).toBeInTheDocument()
+    expect(screen.getByLabelText('Scroll Trending Right Now right')).toBeInTheDocument()
 
-    const browseByCategory = screen.getByRole('heading', { name: 'Browse by Category' })
-    const trending = screen.getByRole('heading', { name: 'Trending' })
-    expect(trending.compareDocumentPosition(browseByCategory)).toBe(
-      Node.DOCUMENT_POSITION_FOLLOWING
-    )
+    const mostPopular = screen.getByRole('heading', { name: 'Most Popular' })
+    const trending = screen.getByRole('heading', { name: 'Trending Right Now' })
+    expect(mostPopular.compareDocumentPosition(trending)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
   })
 
   it('renders the authenticated dashboard and personalized section', () => {
@@ -163,7 +160,6 @@ describe('HomePageClient', () => {
     expect(screen.getByRole('heading', { name: 'Most Popular' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Your Progress' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Top Players' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Browse by Category' })).toBeInTheDocument()
   })
 
   it('falls back to popular quizzes when an authenticated user has no history yet', () => {

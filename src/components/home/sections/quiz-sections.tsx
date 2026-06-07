@@ -36,7 +36,7 @@ export function QuizScrollerSection({
           <h2 className="text-2xl font-black tracking-tight">{title}</h2>
           {subtitle ? <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p> : null}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="hidden items-center gap-2 sm:flex">
           <button
             onClick={() => scroll('left')}
             aria-label={`Scroll ${title} left`}

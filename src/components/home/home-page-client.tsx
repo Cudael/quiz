@@ -3,7 +3,6 @@
 import { motion, useReducedMotion } from 'framer-motion'
 import { fadeUp, staggerContainer, withReducedMotion } from '@/lib/motion'
 import type { HomePageClientProps } from './home-page-client.types'
-import { CategoryMosaic } from './sections/category-mosaic'
 import { ActionBoxesRow, JoinCTABanner } from './sections/cta-cards'
 import { GuestHeroSection } from './sections/guest-hero-section'
 import { HeroDailySection } from './sections/hero-daily-section'
@@ -19,7 +18,6 @@ export type {
 } from './home-page-client.types'
 
 export function HomePageClient({
-  featuredCategories,
   topPlayers,
   stats,
   popularQuizzes,
@@ -76,16 +74,9 @@ export function HomePageClient({
           <Divider />
 
           <motion.div variants={sectionVariants}>
-            <CategoryMosaic featuredCategories={featuredCategories} />
-          </motion.div>
-
-          <Divider />
-
-          <motion.div variants={sectionVariants}>
             <QuizScrollerSection title="Freshly Added" quizzes={newestQuizzes} />
           </motion.div>
 
-          {recentlyPlayed.length > 0 ? <Divider /> : null}
           {recentlyPlayed.length > 0 ? (
             <motion.div variants={sectionVariants}>
               <QuizScrollerSection title="Recently Played" quizzes={recentlyPlayed} />
@@ -112,7 +103,7 @@ export function HomePageClient({
 
           <motion.div variants={sectionVariants}>
             <QuizDenseGridSection
-              title="Popular Right Now"
+              title="Most Popular"
               quizzes={popularQuizzes}
               maxItems={12}
               href="/categories"
@@ -122,25 +113,11 @@ export function HomePageClient({
           <Divider />
 
           <motion.div variants={sectionVariants}>
-            <QuizScrollerSection title="Trending" quizzes={trendingQuizzes} />
+            <QuizScrollerSection title="Trending Right Now" quizzes={trendingQuizzes} />
           </motion.div>
-
-          <Divider />
 
           <motion.div variants={sectionVariants}>
             <QuizScrollerSection title="Freshly Added" quizzes={newestQuizzes} />
-          </motion.div>
-
-          <Divider />
-
-          <motion.div variants={sectionVariants}>
-            <CategoryMosaic featuredCategories={featuredCategories} />
-          </motion.div>
-
-          <Divider />
-
-          <motion.div variants={sectionVariants}>
-            <QuizDenseGridSection title="Freshly Added" quizzes={newestQuizzes} maxItems={8} />
           </motion.div>
 
           <Divider />
