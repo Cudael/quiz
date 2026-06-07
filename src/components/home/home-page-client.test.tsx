@@ -154,12 +154,12 @@ describe('HomePageClient', () => {
       />
     )
 
-    expect(screen.getByRole('heading', { name: "Today's Pick" })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /duel mode/i })).toHaveAttribute('href', '/duel')
+    expect(screen.getByRole('heading', { name: 'Daily Challenge' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'For You' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Most Popular' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Your Progress' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Top Players' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Categories' })).toBeInTheDocument()
   })
 
   it('falls back to popular quizzes when an authenticated user has no history yet', () => {

@@ -5,9 +5,10 @@ import { fadeUp, staggerContainer, withReducedMotion } from '@/lib/motion'
 import type { HomePageClientProps } from './home-page-client.types'
 import { ActionBoxesRow, JoinCTABanner } from './sections/cta-cards'
 import { GuestHeroSection } from './sections/guest-hero-section'
-import { HeroDailySection } from './sections/hero-daily-section'
-import { LeaderboardSection } from './sections/leaderboard-section'
 import { QuizDenseGridSection, QuizScrollerSection } from './sections/quiz-sections'
+import { DailyDashboard } from './sections/daily-dashboard'
+import { CategoryTiles } from './sections/category-tiles'
+import { LeaderboardSection } from './sections/leaderboard-section'
 import { Divider } from './sections/section-primitives'
 
 export type {
@@ -18,6 +19,7 @@ export type {
 } from './home-page-client.types'
 
 export function HomePageClient({
+  featuredCategories,
   topPlayers,
   stats,
   popularQuizzes,
@@ -30,7 +32,6 @@ export function HomePageClient({
   const shouldReduce = useReducedMotion()
   const containerVariants = withReducedMotion(staggerContainer(0.06), shouldReduce)
   const sectionVariants = withReducedMotion(fadeUp, shouldReduce)
-  const todaysPicks = popularQuizzes.slice(0, 3)
 
   return (
     <motion.div
@@ -42,11 +43,11 @@ export function HomePageClient({
       {currentUser ? (
         <>
           <motion.div variants={sectionVariants}>
-            <ActionBoxesRow />
+            <DailyDashboard currentUser={currentUser} topPlayers={topPlayers} />
           </motion.div>
 
           <motion.div variants={sectionVariants}>
-            <HeroDailySection todaysPicks={todaysPicks} currentUser={currentUser} />
+            <CategoryTiles categories={featuredCategories} />
           </motion.div>
 
           <Divider />
@@ -65,14 +66,6 @@ export function HomePageClient({
             <QuizScrollerSection title="Trending Right Now" quizzes={trendingQuizzes} />
           </motion.div>
 
-          <Divider />
-
-          <motion.div variants={sectionVariants}>
-            <QuizDenseGridSection title="Most Popular" quizzes={popularQuizzes} maxItems={12} />
-          </motion.div>
-
-          <Divider />
-
           <motion.div variants={sectionVariants}>
             <QuizScrollerSection title="Freshly Added" quizzes={newestQuizzes} />
           </motion.div>
@@ -86,7 +79,7 @@ export function HomePageClient({
           <Divider />
 
           <motion.div variants={sectionVariants}>
-            <LeaderboardSection topPlayers={topPlayers} stats={stats} currentUser={currentUser} />
+            <QuizDenseGridSection title="Most Popular" quizzes={popularQuizzes} maxItems={12} />
           </motion.div>
         </>
       ) : (
