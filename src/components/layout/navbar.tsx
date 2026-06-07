@@ -12,10 +12,18 @@ import { AuthControls } from '@/components/auth/auth-controls'
 import { NotificationBell } from '@/components/notifications/notification-bell'
 import { cn } from '@/lib/utils'
 
-const navLinks = [
+type NavLink = {
+  href: string
+  label: string
+  icon?: typeof Swords
+  highlighted?: boolean
+  prefetch?: boolean
+}
+
+const navLinks: NavLink[] = [
   { href: '/categories', label: 'Categories' },
   { href: '/duel', label: 'Duel', icon: Swords, highlighted: true },
-  { href: '/leaderboard', label: 'Leaderboard' },
+  { href: '/leaderboard', label: 'Leaderboard', prefetch: false },
   { href: '/studio', label: 'Create' },
 ]
 
@@ -52,6 +60,7 @@ export function Navbar() {
                   <Link
                     key={link.href}
                     href={link.href}
+                    prefetch={link.prefetch}
                     className={cn(
                       'relative rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
                       active
@@ -138,6 +147,7 @@ export function Navbar() {
             <Link
               key={link.href}
               href={link.href}
+              prefetch={link.prefetch}
               className={cn(
                 'flex items-center rounded-xl px-4 py-3 text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
                 isActive(link.href)

@@ -2,6 +2,29 @@ import type React from 'react'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
+const { linkMock } = vi.hoisted(() => ({
+  linkMock: vi.fn(
+    ({
+      href,
+      children,
+      prefetch,
+      ...props
+    }: React.ComponentProps<'a'> & { href: string; prefetch?: boolean }) => (
+      <a
+        href={href}
+        data-prefetch={prefetch === undefined ? undefined : String(prefetch)}
+        {...props}
+      >
+        {children}
+      </a>
+    )
+  ),
+}))
+
+vi.mock('next/link', () => ({
+  default: linkMock,
+}))
+
 vi.mock('next/image', () => ({
   default: ({ priority, ...props }: React.ComponentProps<'img'> & { priority?: boolean }) => {
     void priority
@@ -29,8 +52,16 @@ describe('SiteFooter', () => {
     expect(screen.queryByRole('link', { name: 'Discord' })).not.toBeInTheDocument()
     expect(screen.getAllByRole('link', { name: 'Twitter / X' })).toHaveLength(2)
     expect(screen.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/about')
+    expect(screen.getByRole('link', { name: 'About' })).toHaveAttribute('data-prefetch', 'false')
+    expect(screen.getByRole('link', { name: 'Leaderboard' })).toHaveAttribute(
+      'data-prefetch',
+      'false'
+    )
     expect(screen.getByRole('link', { name: 'Privacy Policy' })).toHaveAttribute('href', '/privacy')
     expect(screen.getByRole('link', { name: 'Contact' })).toHaveAttribute('href', '/contact')
+    expect(screen.getByRole('link', { name: 'Browse Categories' })).not.toHaveAttribute(
+      'data-prefetch'
+    )
 
     expect(screen.getByLabelText('Twitter / X')).toHaveAttribute(
       'href',

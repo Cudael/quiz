@@ -86,6 +86,7 @@ export function SiteFooter() {
                 <Link
                   key={link.href}
                   href={link.href}
+                  prefetch={link.href === '/about' ? false : undefined}
                   className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
                 >
                   {link.label}
@@ -102,6 +103,7 @@ export function SiteFooter() {
             <div className="flex flex-col gap-2.5">
               <Link
                 href="/leaderboard"
+                prefetch={false}
                 className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
               >
                 Leaderboard
