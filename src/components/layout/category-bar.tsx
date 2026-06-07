@@ -6,7 +6,7 @@ export const CATEGORY_BAR_TAG = 'category-bar'
 
 const getCategoryBarData = unstable_cache(
   async () => {
-    const categories = await prisma.category.findMany({
+    const parentCategories = await prisma.category.findMany({
       where: { parentSlug: null },
       select: {
         slug: true,
@@ -14,28 +14,37 @@ const getCategoryBarData = unstable_cache(
         icon: true,
         color: true,
         imageUrl: true,
-        quizzes: {
-          where: { isPublished: true },
-          select: { playCount: true },
-        },
+        _count: { select: { quizzes: { where: { isPublished: true } } } },
       },
     })
 
-    const sorted = categories
+    const parentSlugs = parentCategories.map((c) => c.slug)
+
+    // Count published quizzes in subcategories under each parent
+    const subcategories = await prisma.category.findMany({
+      where: { parentSlug: { in: parentSlugs } },
+      select: {
+        parentSlug: true,
+        _count: { select: { quizzes: { where: { isPublished: true } } } },
+      },
+    })
+
+    const childCountsByParent = new Map<string, number>()
+    for (const sub of subcategories) {
+      const parent = sub.parentSlug!
+      childCountsByParent.set(parent, (childCountsByParent.get(parent) ?? 0) + sub._count.quizzes)
+    }
+
+    const sorted = parentCategories
       .map((cat) => ({
         slug: cat.slug,
         name: cat.name,
         icon: cat.icon,
         color: cat.color,
         imageUrl: cat.imageUrl,
-        totalPlayCount: cat.quizzes.reduce((sum, q) => sum + q.playCount, 0),
-        quizCount: cat.quizzes.length,
+        quizCount: cat._count.quizzes + (childCountsByParent.get(cat.slug) ?? 0),
       }))
-      .sort((a, b) => {
-        const byPlay = b.totalPlayCount - a.totalPlayCount
-        if (byPlay !== 0) return byPlay
-        return b.quizCount - a.quizCount
-      })
+      .sort((a, b) => b.quizCount - a.quizCount)
       // Show ALL categories (no slice)
       .map(({ slug, name, icon, color, imageUrl, quizCount }) => ({
         slug,
