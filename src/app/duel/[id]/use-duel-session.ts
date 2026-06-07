@@ -170,7 +170,6 @@ export function useDuelSession(duelId: string) {
   }, [timeRemainingMs, state, currentQuestion, hasAnsweredCurrent, submitted])
 
   // For single-choice questions, show the selected answer briefly before advancing.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (
       !hasAnsweredCurrent ||
@@ -184,6 +183,7 @@ export function useDuelSession(duelId: string) {
       setCurrentQuestionIndex((index) => index + 1)
     }, 400)
     return () => clearTimeout(advanceTimer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasAnsweredCurrent, currentQuestion?.id, currentQuestion?.type, submitted])
 
   const startDuel = useCallback(async () => {

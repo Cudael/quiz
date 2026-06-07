@@ -126,7 +126,7 @@ describe('HomePageClient', () => {
     expect(screen.getByRole('heading', { name: 'Top Players' })).toBeInTheDocument()
     expect(screen.getByText('Ada Lovelace')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /view full leaderboard/i })).toBeInTheDocument()
-    expect(screen.getAllByText('🧪').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Science').length).toBeGreaterThan(0)
     expect(screen.getByRole('heading', { name: 'Browse by Category' })).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'For You' })).not.toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: /editor's pick/i })).not.toBeInTheDocument()

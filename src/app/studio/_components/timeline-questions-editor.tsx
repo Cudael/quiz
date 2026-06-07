@@ -186,7 +186,6 @@ function TimelineRoundCard({
     return () => {
       if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [question.prompt, question.timeLimitSec, question.choices, quizId])
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
@@ -227,9 +226,7 @@ function TimelineRoundCard({
               Saving…
             </span>
           )}
-          {saveState === 'saved' && (
-            <span className="text-xs text-quiz-green">Saved</span>
-          )}
+          {saveState === 'saved' && <span className="text-xs text-quiz-green">Saved</span>}
           <button
             type="button"
             className="text-sm text-muted-foreground hover:text-destructive"
