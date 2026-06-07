@@ -2,9 +2,29 @@ import type React from 'react'
 import { render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { usePathnameMock, useSessionMock } = vi.hoisted(() => ({
+const { linkMock, usePathnameMock, useSessionMock } = vi.hoisted(() => ({
+  linkMock: vi.fn(
+    ({
+      href,
+      children,
+      prefetch,
+      ...props
+    }: React.ComponentProps<'a'> & { href: string; prefetch?: boolean }) => (
+      <a
+        href={href}
+        data-prefetch={prefetch === undefined ? undefined : String(prefetch)}
+        {...props}
+      >
+        {children}
+      </a>
+    )
+  ),
   usePathnameMock: vi.fn(),
   useSessionMock: vi.fn(),
+}))
+
+vi.mock('next/link', () => ({
+  default: linkMock,
 }))
 
 vi.mock('next/navigation', () => ({
@@ -53,13 +73,18 @@ describe('Navbar', () => {
     usePathnameMock.mockReturnValue('/')
   })
 
-  it('renders desktop and mobile search controls with duel link styling', () => {
+  it('renders desktop and mobile search controls with duel link styling and disables leaderboard prefetch', () => {
     render(<Navbar />)
 
     expect(screen.queryByRole('link', { name: 'Play' })).not.toBeInTheDocument()
 
     const duelLink = screen.getByRole('link', { name: /Duel/ })
+    const leaderboardLink = screen.getByRole('link', { name: 'Leaderboard' })
+    const categoriesLink = screen.getByRole('link', { name: 'Categories' })
+
     expect(duelLink).toHaveClass('text-quiz-pink', 'font-bold')
+    expect(leaderboardLink).toHaveAttribute('data-prefetch', 'false')
+    expect(categoriesLink).not.toHaveAttribute('data-prefetch')
     expect(screen.getAllByRole('searchbox', { name: /search quizzes/i }).length).toBe(2)
     expect(screen.getByRole('button', { name: /open search/i })).toBeInTheDocument()
   })
