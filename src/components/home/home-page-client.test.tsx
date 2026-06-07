@@ -103,7 +103,7 @@ const currentUser: HomeCurrentUser = {
 }
 
 describe('HomePageClient', () => {
-  it('renders the guest product view with quiz sections and top players', () => {
+  it('renders the guest view with Duel and Daily Challenge CTAs', () => {
     render(
       <HomePageClient
         featuredCategories={featuredCategories}
@@ -118,28 +118,23 @@ describe('HomePageClient', () => {
       />
     )
 
+    expect(screen.getByRole('heading', { name: 'Duel Mode' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Daily Challenge' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /sign up to duel/i })).toHaveAttribute(
+      'href',
+      '/sign-up'
+    )
+    expect(screen.getByRole('link', { name: /sign up to play/i })).toHaveAttribute(
+      'href',
+      '/sign-up'
+    )
     expect(screen.getByRole('heading', { name: 'Most Popular' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Trending Right Now' })).toBeInTheDocument()
     expect(screen.getAllByRole('heading', { name: 'Freshly Added' }).length).toBe(1)
-    expect(screen.getByRole('link', { name: /duel mode/i })).toHaveAttribute('href', '/sign-up')
-    expect(screen.getAllByRole('link', { name: /sign up free/i }).length).toBeGreaterThan(0)
-    expect(screen.getByRole('heading', { name: 'Top Players' })).toBeInTheDocument()
-    expect(screen.getByText('Ada Lovelace')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /view full leaderboard/i })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: 'Browse by Category' })).not.toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'For You' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: /editor's pick/i })).not.toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: /how it works/i })).not.toBeInTheDocument()
-    // Guest flow shows the leaderboard section's "Think you can top this?" CTA, not "Your Progress"
-    expect(screen.queryByRole('heading', { name: 'Your Progress' })).not.toBeInTheDocument()
-    expect(screen.getByLabelText('Scroll Trending Right Now right')).toBeInTheDocument()
-
-    const mostPopular = screen.getByRole('heading', { name: 'Most Popular' })
-    const trending = screen.getByRole('heading', { name: 'Trending Right Now' })
-    expect(mostPopular.compareDocumentPosition(trending)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
   })
 
-  it('renders the authenticated dashboard and personalized section', () => {
+  it('renders the authenticated view with Duel and Daily Challenge', () => {
     render(
       <HomePageClient
         featuredCategories={featuredCategories}
@@ -154,12 +149,15 @@ describe('HomePageClient', () => {
       />
     )
 
+    expect(screen.getByRole('heading', { name: 'Duel Mode' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Daily Challenge' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /start a duel/i })).toHaveAttribute('href', '/duel')
+    expect(screen.getByRole('link', { name: /play challenge/i })).toHaveAttribute(
+      'href',
+      '/random-quiz'
+    )
     expect(screen.getByRole('heading', { name: 'For You' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Most Popular' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Your Progress' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Top Players' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Categories' })).toBeInTheDocument()
   })
 
   it('falls back to popular quizzes when an authenticated user has no history yet', () => {
