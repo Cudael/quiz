@@ -1,16 +1,11 @@
 import { Volume2, VolumeX, X } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
-import type { PlayMode } from '@/store/play-session'
 
 interface PlayHeaderProps {
   quizTitle?: string
-  mode: PlayMode
-  streak: number
   progress: number
   currentIndex: number
   total: number
-  globalTimerMs: number | null
   score: number
   soundEnabled: boolean
   onToggleSound: () => void
@@ -19,12 +14,9 @@ interface PlayHeaderProps {
 
 export function PlayHeader({
   quizTitle,
-  mode,
-  streak,
   progress,
   currentIndex,
   total,
-  globalTimerMs,
   score,
   soundEnabled,
   onToggleSound,
@@ -37,8 +29,6 @@ export function PlayHeader({
           <Badge variant="purple" className="max-w-[8rem] truncate sm:max-w-none">
             {quizTitle}
           </Badge>
-          <Badge variant="outline">{mode.toUpperCase()}</Badge>
-          {mode === 'survival' && streak > 0 && <Badge variant="warning">🔥 ×{streak}</Badge>}
         </div>
         <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
           <div
@@ -50,16 +40,6 @@ export function PlayHeader({
           {currentIndex + 1} / {total}
         </p>
       </div>
-      {mode === 'timed' && globalTimerMs !== null && (
-        <div
-          className={cn(
-            'font-mono text-lg font-bold sm:text-xl',
-            globalTimerMs < 10_000 ? 'text-destructive' : 'text-foreground'
-          )}
-        >
-          {Math.ceil(globalTimerMs / 1000)}s
-        </div>
-      )}
       <div className="text-right">
         <p className="text-base font-bold text-quiz-purple-light sm:text-lg">{score}</p>
         <p className="text-xs text-muted-foreground">pts</p>

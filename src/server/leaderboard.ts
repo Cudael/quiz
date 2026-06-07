@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client'
 import { unstable_cache } from 'next/cache'
 import { prisma } from '@/server/prisma'
-import type { ModeFilter, PeriodFilter, SortFilter } from '@/app/leaderboard/params'
+import type { PeriodFilter, SortFilter } from '@/app/leaderboard/params'
 import { getPeriodStart } from '@/app/leaderboard/params'
 
 export const LEADERBOARD_TAG = 'leaderboard'
@@ -65,17 +65,16 @@ function orderByClause(sort: SortFilter) {
 
 export function getLeaderboardRows(params: {
   period: PeriodFilter
-  mode: ModeFilter
   sort: SortFilter
   categories: string[]
   quizId?: string
 }) {
-  const { period, mode, sort, categories, quizId } = params
+  const { period, sort, categories, quizId } = params
   const sortedCategories = categories.slice().sort()
   // Build a stable cache key from the query parameters.
-  const key = [period, mode, sort, sortedCategories.join(','), quizId ?? ''].join('|')
+  const key = [period, sort, sortedCategories.join(','), quizId ?? ''].join('|')
   return unstable_cache(
-    () => fetchLeaderboardRows({ period, mode, sort, categories: sortedCategories, quizId }),
+    () => fetchLeaderboardRows({ period, sort, categories: sortedCategories, quizId }),
     ['leaderboard-rows', key],
     { revalidate: 60, tags: [LEADERBOARD_TAG] }
   )()
@@ -83,13 +82,11 @@ export function getLeaderboardRows(params: {
 
 async function fetchLeaderboardRows({
   period,
-  mode,
   sort,
   categories,
   quizId,
 }: {
   period: PeriodFilter
-  mode: ModeFilter
   sort: SortFilter
   categories: string[]
   quizId?: string
@@ -117,7 +114,6 @@ async function fetchLeaderboardRows({
     LEFT JOIN "Category" c ON c."id" = q."categoryId"
     WHERE 1 = 1
       ${periodStart ? Prisma.sql`AND ps."createdAt" >= ${periodStart}` : Prisma.empty}
-      ${mode !== 'ALL' ? Prisma.sql`AND ps."mode" = ${mode}` : Prisma.empty}
       ${quizId ? Prisma.sql`AND ps."quizId" = ${quizId}` : Prisma.empty}
       ${categories.length ? Prisma.sql`AND c."slug" IN (${Prisma.join(categories)})` : Prisma.empty}
     GROUP BY ps."userId", ps."guestName", u."username", u."image", u."name"
@@ -152,7 +148,6 @@ export function getLeaderboardTopPlayerNames() {
     () =>
       fetchLeaderboardRows({
         period: 'all',
-        mode: 'ALL',
         sort: 'total',
         categories: [],
       }).then((rows) => rows.slice(0, 3).map((row) => row.displayName)),

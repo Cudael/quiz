@@ -11,7 +11,6 @@
  */
 
 import { PrismaClient } from '@prisma/client'
-import type { PlayMode } from '@prisma/client'
 import { categories, badges, users, quizDefs, questionsByQuiz } from './seed-data'
 
 const prisma = new PrismaClient()
@@ -194,7 +193,6 @@ async function main() {
     correctCount: number
     totalCount: number
     timeTakenMs: number
-    mode: PlayMode
     daysAgo: number
     hourUtc?: number
   }
@@ -208,7 +206,6 @@ async function main() {
       correctCount: 8,
       totalCount: 8,
       timeTakenMs: 98000,
-      mode: 'CLASSIC',
       daysAgo: 0,
     },
     {
@@ -219,7 +216,6 @@ async function main() {
       correctCount: 7,
       totalCount: 9,
       timeTakenMs: 140000,
-      mode: 'TIMED',
       daysAgo: 1,
     },
     {
@@ -230,7 +226,6 @@ async function main() {
       correctCount: 6,
       totalCount: 8,
       timeTakenMs: 120000,
-      mode: 'CLASSIC',
       daysAgo: 2,
     },
     {
@@ -241,7 +236,6 @@ async function main() {
       correctCount: 7,
       totalCount: 8,
       timeTakenMs: 85000,
-      mode: 'DAILY',
       daysAgo: 0,
     },
     {
@@ -252,7 +246,6 @@ async function main() {
       correctCount: 8,
       totalCount: 8,
       timeTakenMs: 62000,
-      mode: 'TIMED',
       daysAgo: 3,
     },
     {
@@ -263,7 +256,6 @@ async function main() {
       correctCount: 6,
       totalCount: 8,
       timeTakenMs: 135000,
-      mode: 'CLASSIC',
       daysAgo: 8,
     },
     {
@@ -274,7 +266,6 @@ async function main() {
       correctCount: 7,
       totalCount: 8,
       timeTakenMs: 110000,
-      mode: 'CLASSIC',
       daysAgo: 15,
       hourUtc: 1,
     },
@@ -286,7 +277,6 @@ async function main() {
       correctCount: 6,
       totalCount: 9,
       timeTakenMs: 152000,
-      mode: 'SURVIVAL',
       daysAgo: 4,
     },
     {
@@ -297,7 +287,6 @@ async function main() {
       correctCount: 8,
       totalCount: 8,
       timeTakenMs: 95000,
-      mode: 'CLASSIC',
       daysAgo: 5,
     },
     {
@@ -308,7 +297,6 @@ async function main() {
       correctCount: 6,
       totalCount: 8,
       timeTakenMs: 118000,
-      mode: 'DAILY',
       daysAgo: 1,
     },
     {
@@ -319,7 +307,6 @@ async function main() {
       correctCount: 8,
       totalCount: 8,
       timeTakenMs: 88000,
-      mode: 'TIMED',
       daysAgo: 9,
     },
     {
@@ -330,7 +317,6 @@ async function main() {
       correctCount: 8,
       totalCount: 8,
       timeTakenMs: 55000,
-      mode: 'TIMED',
       daysAgo: 20,
       hourUtc: 2,
     },
@@ -351,7 +337,6 @@ async function main() {
       correctCount: 5 + (index % 4),
       totalCount: 8,
       timeTakenMs: 70000 + ((index * 1900) % 80000),
-      mode: index % 5 === 0 ? 'DAILY' : index % 2 === 0 ? 'TIMED' : 'CLASSIC',
       daysAgo: index % 30,
       hourUtc: index % 7 === 0 ? 2 : 14,
     }
@@ -376,7 +361,6 @@ async function main() {
         correctCount: s.correctCount,
         totalCount: s.totalCount,
         timeTakenMs: s.timeTakenMs,
-        mode: s.mode,
         createdAt: new Date(
           Date.UTC(
             now.getUTCFullYear(),

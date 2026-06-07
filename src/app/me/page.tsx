@@ -7,7 +7,6 @@ import { Avatar } from '@/components/ui/avatar'
 import { LevelProgress } from '@/components/ui/level-progress'
 import { StreakFlame } from '@/components/ui/streak-flame'
 import { Button } from '@/components/ui/button'
-import { parseUserPreferences } from '@/lib/preferences'
 
 export default async function MePage() {
   const session = await auth()
@@ -43,8 +42,6 @@ export default async function MePage() {
     _avg: { score: true },
     _sum: { correctCount: true },
   })
-
-  const preferences = parseUserPreferences(user.preferences)
 
   return (
     <div className="container mx-auto space-y-6 px-4 py-8">
@@ -98,16 +95,13 @@ export default async function MePage() {
       <section className="rounded-xl border border-border bg-card p-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Recent activity</h2>
-          <p className="text-xs text-muted-foreground">
-            Default mode: {preferences.defaultMode ?? 'CLASSIC'}
-          </p>
         </div>
         <div className="space-y-2">
           {user.sessions.map((sessionRow) => (
             <div key={sessionRow.id} className="rounded-lg border border-border p-3 text-sm">
               <p className="font-medium">{sessionRow.quiz.title}</p>
               <p className="text-xs text-muted-foreground">
-                {sessionRow.mode} • {sessionRow.score} pts •{' '}
+                {sessionRow.score} pts •{' '}
                 {new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short' }).format(
                   sessionRow.createdAt
                 )}

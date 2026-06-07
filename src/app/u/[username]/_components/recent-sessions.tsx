@@ -2,7 +2,6 @@ import { copy } from '@/lib/copy'
 
 interface RecentSession {
   id: string
-  mode: string
   score: number
   correctCount: number
   totalCount: number
@@ -28,7 +27,7 @@ export function RecentSessions({ sessions }: RecentSessionsProps) {
             <div key={sessionRow.id} className="rounded-lg border border-border p-3 text-sm">
               <p className="font-medium">{sessionRow.quiz.title}</p>
               <p className="text-xs text-muted-foreground">
-                {sessionRow.mode} • {sessionRow.score} pts • {accuracy}% accuracy
+                {sessionRow.score} pts • {accuracy}% accuracy
               </p>
               <p className="text-xs text-muted-foreground">
                 {new Intl.DateTimeFormat('en', {

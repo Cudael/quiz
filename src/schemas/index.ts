@@ -72,7 +72,6 @@ export const submitAnswerInputSchema = z.object({
 export const submitPlaySchema = z.object({
   playToken: z.string().min(1),
   quizId: z.string().min(1).max(100),
-  mode: z.string().min(1).max(20),
   answers: z.array(submitAnswerInputSchema).max(200),
   guestName: z.string().max(60).optional(),
 })
@@ -149,7 +148,6 @@ export const meProfileSchema = z.object({
 
 export const userPreferencesSchema = z
   .object({
-    defaultMode: z.enum(['CLASSIC', 'TIMED', 'SURVIVAL', 'DAILY']).optional(),
     defaultDifficulty: z.enum(['EASY', 'MEDIUM', 'HARD', 'ANY']).optional(),
     reducedMotion: z.boolean().optional(),
   })

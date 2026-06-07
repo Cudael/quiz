@@ -43,7 +43,7 @@ describe('PATCH /api/me/preferences', () => {
   it('merges and persists preferences', async () => {
     authMock.mockResolvedValue({ user: { id: 'user_1' } })
     prismaMock.user.findUnique.mockResolvedValue({
-      preferences: { defaultMode: 'CLASSIC', reducedMotion: false },
+      preferences: { reducedMotion: false },
     })
     prismaMock.user.update.mockResolvedValue({})
 
@@ -54,7 +54,6 @@ describe('PATCH /api/me/preferences', () => {
       where: { id: 'user_1' },
       data: {
         preferences: {
-          defaultMode: 'CLASSIC',
           reducedMotion: false,
           defaultDifficulty: 'HARD',
         },

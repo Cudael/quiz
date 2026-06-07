@@ -1,13 +1,11 @@
 import { WEEK_IN_MS } from '@/lib/time'
 
 export type PeriodFilter = 'all' | 'week' | 'today'
-export type ModeFilter = 'ALL' | 'CLASSIC' | 'TIMED' | 'SURVIVAL' | 'DAILY'
 export type SortFilter = 'best' | 'total' | 'plays' | 'accuracy'
 
 export interface LeaderboardSearchParams {
   period?: string
   range?: string
-  mode?: string
   sort?: string
   page?: string
   category?: string | string[]
@@ -16,7 +14,6 @@ export interface LeaderboardSearchParams {
 
 export interface ParsedLeaderboardSearchParams {
   period: PeriodFilter
-  mode: ModeFilter
   sort: SortFilter
   page: number
   categories: string[]
@@ -29,11 +26,6 @@ export function parseLeaderboardSearchParams(
   const requestedPeriod = params.period ?? params.range
   const period: PeriodFilter =
     requestedPeriod === 'today' || requestedPeriod === 'week' ? requestedPeriod : 'all'
-
-  const mode =
-    params.mode && ['CLASSIC', 'TIMED', 'SURVIVAL', 'DAILY'].includes(params.mode.toUpperCase())
-      ? (params.mode.toUpperCase() as ModeFilter)
-      : 'ALL'
 
   const sort =
     params.sort && ['best', 'total', 'plays', 'accuracy'].includes(params.sort)
@@ -52,7 +44,6 @@ export function parseLeaderboardSearchParams(
 
   return {
     period,
-    mode,
     sort,
     page,
     categories,
@@ -62,14 +53,12 @@ export function parseLeaderboardSearchParams(
 
 export function buildLeaderboardQuery({
   period,
-  mode,
   sort,
   page,
   categories,
   quizId,
 }: {
   period: PeriodFilter
-  mode: ModeFilter
   sort: SortFilter
   page?: number
   categories: string[]
@@ -77,7 +66,6 @@ export function buildLeaderboardQuery({
 }) {
   const query = new URLSearchParams()
   query.set('period', period)
-  if (mode !== 'ALL') query.set('mode', mode)
   if (sort !== 'total') query.set('sort', sort)
   if (page && page > 1) query.set('page', String(page))
   if (quizId) query.set('quizId', quizId)

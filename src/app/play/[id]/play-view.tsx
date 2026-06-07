@@ -2,7 +2,6 @@
 
 import { useReducedMotion } from 'framer-motion'
 import { renderFillBlankPrompt } from '@/domain/quiz-constants'
-import { LifelineBar } from './_components/lifeline-bar'
 import { PlayHeader } from './_components/play-header'
 import { QuestionPanel } from './_components/question-panel'
 import { QuitModal } from './_components/quit-modal'
@@ -12,7 +11,6 @@ import { usePlayRunner } from './use-play-runner'
 export function PlayView({ quizId }: PlayViewProps) {
   const reduceMotion = useReducedMotion()
   const {
-    mode,
     store,
     quiz,
     questions,
@@ -31,9 +29,6 @@ export function PlayView({ quizId }: PlayViewProps) {
     handleChoiceSelect,
     handleLabelChange,
     handleSubmitSelection,
-    handleFiftyFifty,
-    handleSkip,
-    handleExtraTime,
     goNext,
     quitToQuiz,
   } = usePlayRunner(quizId)
@@ -98,12 +93,9 @@ export function PlayView({ quizId }: PlayViewProps) {
 
       <PlayHeader
         quizTitle={quiz?.title}
-        mode={mode}
-        streak={store.streak}
         progress={progress}
         currentIndex={store.currentQuestionIndex}
         total={questions.length}
-        globalTimerMs={store.globalTimerMs}
         score={store.score}
         soundEnabled={soundEnabled}
         onToggleSound={() => setSoundEnabled((enabled) => !enabled)}
@@ -131,16 +123,6 @@ export function PlayView({ quizId }: PlayViewProps) {
         assignments={questionUI.assignments}
         labelAnswers={questionUI.labelAnswers}
       />
-
-      {mode === 'survival' && (
-        <LifelineBar
-          lifelinesUsed={store.lifelinesUsed}
-          isAnswered={isAnswered}
-          onFiftyFifty={handleFiftyFifty}
-          onSkip={handleSkip}
-          onExtraTime={handleExtraTime}
-        />
-      )}
 
       <QuitModal open={showQuitModal} onClose={() => setShowQuitModal(false)} onQuit={quitToQuiz} />
     </div>

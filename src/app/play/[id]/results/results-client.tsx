@@ -11,7 +11,6 @@ interface ResultsClientProps {
   accuracy: number
   sessionId: string
   quizId: string
-  mode: string
   unlockedBadges?: string[]
   leveledUp?: boolean
   personalBest?: boolean

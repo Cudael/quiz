@@ -38,13 +38,6 @@ enum QuizFormat {
   LABEL_DIAGRAM
 }
 
-enum PlayMode {
-  CLASSIC
-  TIMED
-  SURVIVAL
-  DAILY
-  DUEL
-}
 
 enum DuelStatus {
   WAITING
@@ -199,7 +192,6 @@ model PlaySession {
   correctCount Int
   totalCount   Int
   timeTakenMs  Int
-  mode         PlayMode @default(CLASSIC)
   createdAt    DateTime @default(now())
   answers      QuestionAnswer[]
 
@@ -207,7 +199,6 @@ model PlaySession {
   @@index([userId])
   @@index([guestKey])
   @@index([createdAt])
-  @@index([createdAt, mode, quizId])
 }
 
 model Duel {

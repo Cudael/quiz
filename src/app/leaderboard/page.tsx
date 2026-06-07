@@ -57,7 +57,7 @@ export default async function LeaderboardPage({
 }) {
   const params = parseLeaderboardSearchParams(await searchParams)
   const session = await auth()
-  const { categories: categoryParams, mode, page, period, quizId, sort } = params
+  const { categories: categoryParams, page, period, quizId, sort } = params
 
   const [categories, quiz, rankedRows] = await Promise.all([
     prisma.category.findMany({
@@ -72,7 +72,6 @@ export default async function LeaderboardPage({
       : null,
     getLeaderboardRows({
       period,
-      mode,
       sort,
       categories: categoryParams,
       quizId,
@@ -113,7 +112,6 @@ export default async function LeaderboardPage({
 
       <LeaderboardFilters
         period={period}
-        mode={mode}
         sort={sort}
         categoryParams={categoryParams}
         quizId={quizId}
@@ -134,7 +132,6 @@ export default async function LeaderboardPage({
         page={page}
         totalPages={totalPages}
         period={period}
-        mode={mode}
         sort={sort}
         categoryParams={categoryParams}
         quizId={quizId}

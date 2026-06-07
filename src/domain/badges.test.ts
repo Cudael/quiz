@@ -5,7 +5,6 @@ interface SessionSeed {
   correctCount: number
   totalCount: number
   timeTakenMs: number
-  mode: string
   createdAt: Date
   categorySlug: string
 }
@@ -67,7 +66,6 @@ const winSession: SessionSeed = {
   correctCount: 7,
   totalCount: 10,
   timeTakenMs: 30000,
-  mode: 'CLASSIC',
   createdAt: new Date('2026-05-21T02:00:00Z'),
   categorySlug: 'science',
 }
@@ -141,18 +139,6 @@ describe('badge evaluators', () => {
       createdAt: new Date(`2026-05-2${index}T10:00:00Z`),
     }))
     const client = makeClient({ criterion: { type: 'playsCount', count: 3 }, sessions })
-    const badges = await evaluateBadgesWithClient(client as never, 'user-1', 'session-1')
-    expect(badges).toHaveLength(1)
-  })
-
-  it('daily challenges badge', async () => {
-    const client = makeClient({
-      criterion: { type: 'dailyChallenges', count: 2 },
-      sessions: [
-        { ...winSession, mode: 'DAILY' },
-        { ...winSession, mode: 'DAILY', createdAt: new Date('2026-05-20T03:00:00Z') },
-      ],
-    })
     const badges = await evaluateBadgesWithClient(client as never, 'user-1', 'session-1')
     expect(badges).toHaveLength(1)
   })

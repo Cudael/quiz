@@ -1,10 +1,9 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useToast } from '@/components/ui/toast'
 import { usePlaySessionStore } from '@/store/play-session'
-import type { PlayMode } from '@/store/play-session'
 import { copy } from '@/lib/copy'
 import type { Question, QuizData } from './play-view.types'
 import {
@@ -13,22 +12,14 @@ import {
   SOUND_PREFERENCE_STORAGE_KEY,
 } from './play-view.utils'
 
-const PLAY_MODES = ['classic', 'timed', 'survival', 'daily'] as const
-
 /**
  * Owns all stateful logic for the quiz runner: data fetching, timers,
- * keyboard shortcuts, lifelines, answer handling and submission. The
+ * keyboard shortcuts, answer handling and submission. The
  * presentational `PlayView` component consumes the returned state/handlers.
  */
 export function usePlayRunner(quizId: string) {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const { addToast } = useToast()
-
-  const rawMode = searchParams.get('mode') ?? 'classic'
-  const mode: PlayMode = PLAY_MODES.includes(rawMode as PlayMode)
-    ? (rawMode as PlayMode)
-    : 'classic'
 
   const store = usePlaySessionStore()
   const [quiz, setQuiz] = useState<QuizData | null>(null)
@@ -57,7 +48,6 @@ export function usePlayRunner(quizId: string) {
   const [showQuitModal, setShowQuitModal] = useState(false)
   // Ref avoids render loops here; we only need to track previous question id without re-rendering.
   const prevQuestionIdRef = useRef<string | null>(null)
-  const globalTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   // Stable refs for callbacks used inside effects
   const onFinishRef = useRef<(() => void) | null>(null)
@@ -77,7 +67,6 @@ export function usePlayRunner(quizId: string) {
   // handleFinish — defined first
   const handleFinish = useCallback(async () => {
     clearTimer()
-    if (globalTimerRef.current) clearInterval(globalTimerRef.current)
     store.setStatus('submitting')
     const answers = Object.entries(store.answers).map(([questionId, ans]) => ({
       questionId,
@@ -89,15 +78,10 @@ export function usePlayRunner(quizId: string) {
       const res = await fetch('/api/play/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ playToken: playTokenRef.current, quizId, mode, answers }),
+        body: JSON.stringify({ playToken: playTokenRef.current, quizId, answers }),
       })
       if (!res.ok) {
         const err = await res.json()
-        if (res.status === 409) {
-          addToast('You already played the daily quiz today!', 'warning')
-          router.push(`/quiz/${quizId}`)
-          return
-        }
         throw new Error(err.error ?? 'Submit failed')
       }
       const result = await res.json()
@@ -119,7 +103,7 @@ export function usePlayRunner(quizId: string) {
       addToast(msg, 'error')
       store.setStatus('playing')
     }
-  }, [store, quizId, mode, router, addToast, clearTimer])
+  }, [store, quizId, router, addToast, clearTimer])
 
   useEffect(() => {
     onFinishRef.current = handleFinish
@@ -128,13 +112,13 @@ export function usePlayRunner(quizId: string) {
   // handleNext — needs handleFinish
   const handleNext = useCallback(
     (totalQ: number) => {
-      if (store.currentQuestionIndex >= totalQ - 1 || mode === 'survival') {
+      if (store.currentQuestionIndex >= totalQ - 1) {
         onFinishRef.current?.()
       } else {
         store.nextQuestion()
       }
     },
-    [store, mode]
+    [store]
   )
 
   useEffect(() => {
@@ -173,8 +157,7 @@ export function usePlayRunner(quizId: string) {
   const startQuestionTimer = useCallback(
     (timeLimitSec: number) => {
       clearTimer()
-      const extraMs = store.extraTimeSec * 1000
-      const limit = timeLimitSec * 1000 + extraMs
+      const limit = timeLimitSec * 1000
       setTimeRemainingMs(limit)
       questionStartRef.current = Date.now()
       timerRef.current = setInterval(() => {
@@ -187,7 +170,7 @@ export function usePlayRunner(quizId: string) {
         })
       }, 200)
     },
-    [clearTimer, store.extraTimeSec]
+    [clearTimer]
   )
 
   // Auto-submit on timeout
@@ -404,26 +387,6 @@ export function usePlayRunner(quizId: string) {
     clearTimer,
   ])
 
-  // Global timed mode timer
-  useEffect(() => {
-    if (mode !== 'timed' || store.status !== 'playing') return
-    globalTimerRef.current = setInterval(() => {
-      store.tickGlobalTimer(500)
-    }, 500)
-    return () => {
-      if (globalTimerRef.current) clearInterval(globalTimerRef.current)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, store.status])
-
-  useEffect(() => {
-    if (mode === 'timed' && store.globalTimerMs === 0 && store.status === 'playing') {
-      onFinishRef.current?.()
-    }
-    // mode and store.status are stable during an active game session
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [store.globalTimerMs])
-
   // Fetch quiz data
   useEffect(() => {
     let cancelled = false
@@ -435,17 +398,8 @@ export function usePlayRunner(quizId: string) {
         if (!cancelled) {
           setQuiz(data.quiz)
           playTokenRef.current = data.playToken
-          let qs: Question[] = data.questions
-          if (mode === 'daily') {
-            const dailyRes = await fetch(`/api/daily/${quizId}`)
-            if (dailyRes.ok) {
-              const { questionIds } = await dailyRes.json()
-              const qMap = Object.fromEntries(qs.map((q: Question) => [q.id, q]))
-              qs = (questionIds as string[]).map((id: string) => qMap[id]).filter(Boolean)
-            }
-          }
-          setQuestions(qs)
-          store.start(quizId, mode)
+          setQuestions(data.questions)
+          store.start(quizId)
           setLoading(false)
         }
       } catch {
@@ -460,29 +414,7 @@ export function usePlayRunner(quizId: string) {
       cancelled = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quizId, mode])
-
-  // Lifelines
-  const handleFiftyFifty = useCallback(() => {
-    if (store.lifelinesUsed.fiftyFifty || !currentQuestion || isAnswered) return
-    store.useLifeline('fiftyFifty')
-    const toHide = currentQuestion.choices.slice(-2).map((c) => c.id)
-    setQuestionUI((prev) => ({ ...prev, hiddenChoiceIds: toHide }))
-  }, [store, currentQuestion, isAnswered])
-
-  const handleSkip = useCallback(() => {
-    if (store.lifelinesUsed.skip || !currentQuestion || isAnswered) return
-    store.useLifeline('skip')
-    store.answer(currentQuestion.id, [], 0)
-    store.nextQuestion()
-  }, [store, currentQuestion, isAnswered])
-
-  const handleExtraTime = useCallback(() => {
-    if (store.lifelinesUsed.extraTime || !currentQuestion || isAnswered) return
-    store.useLifeline('extraTime')
-    store.addExtraTime(10)
-    setTimeRemainingMs((prev) => prev + 10_000)
-  }, [store, currentQuestion, isAnswered])
+  }, [quizId])
 
   useEffect(() => {
     if (store.status !== 'playing') return
@@ -585,7 +517,6 @@ export function usePlayRunner(quizId: string) {
   }, [store, router, quizId])
 
   return {
-    mode,
     store,
     quiz,
     questions,
@@ -604,9 +535,6 @@ export function usePlayRunner(quizId: string) {
     handleChoiceSelect,
     handleLabelChange,
     handleSubmitSelection,
-    handleFiftyFifty,
-    handleSkip,
-    handleExtraTime,
     goNext,
     quitToQuiz,
   }
