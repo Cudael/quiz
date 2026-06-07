@@ -44,29 +44,31 @@ export function CategoryTiles({ categories }: { categories: HomeFeaturedCategory
           See all →
         </Link>
       </div>
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
-        {categories.map((category) => (
-          <Link
-            key={category.slug}
-            href={`/categories/${category.slug}`}
-            className="flex flex-col items-center gap-1.5 rounded-xl border border-border/40 bg-card p-3 text-center transition-all hover:border-primary/30 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          >
-            <div
-              className="flex h-10 w-10 items-center justify-center rounded-xl"
-              style={{ backgroundColor: `${category.color}18` }}
+      <div className="-mx-4 overflow-x-auto px-4 md:-mx-6 md:px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex min-w-max gap-2 pb-2">
+          {categories.map((category) => (
+            <Link
+              key={category.slug}
+              href={`/categories/${category.slug}`}
+              className="flex w-28 shrink-0 flex-col items-center gap-1.5 rounded-xl border border-border/40 bg-card p-3 text-center transition-all hover:border-primary/30 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
-              <CategoryIcon
-                name={category.icon}
-                className="h-5 w-5"
-                style={{ color: category.color }}
-              />
-            </div>
-            <span className="max-w-full truncate text-xs font-semibold">{category.name}</span>
-            <span className="text-[10px] text-muted-foreground tabular-nums">
-              {category.quizCount} {category.quizCount === 1 ? 'quiz' : 'quizzes'}
-            </span>
-          </Link>
-        ))}
+              <div
+                className="flex h-10 w-10 items-center justify-center rounded-xl"
+                style={{ backgroundColor: `${category.color}18` }}
+              >
+                <CategoryIcon
+                  name={category.icon}
+                  className="h-5 w-5"
+                  style={{ color: category.color }}
+                />
+              </div>
+              <span className="max-w-full truncate text-xs font-semibold">{category.name}</span>
+              <span className="text-[10px] text-muted-foreground tabular-nums">
+                {category.quizCount} {category.quizCount === 1 ? 'quiz' : 'quizzes'}
+              </span>
+            </Link>
+          ))}
+        </div>
       </div>
     </section>
   )
