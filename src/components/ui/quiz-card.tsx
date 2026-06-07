@@ -135,10 +135,10 @@ export function QuizCardHorizontal({ quiz, className }: QuizCardProps) {
   const hasCoverImage = Boolean(quiz.coverImage) && !imageFailed
 
   return (
-    <Link href={`/quiz/${quiz.id}`} className={cn('group block shrink-0 w-52', className)}>
+    <Link href={`/quiz/${quiz.id}`} className={cn('group block shrink-0 w-44', className)}>
       <div className="overflow-hidden rounded-2xl border border-border/40 shadow-sm transition-shadow duration-200 group-hover:shadow-md">
-        {/* Image area — fixed height */}
-        <div className="relative h-28 w-full">
+        {/* Square image area */}
+        <div className="relative aspect-square w-full">
           <div
             className="absolute inset-0"
             style={{ backgroundImage: getFallbackGradient(quiz.category.color) }}
@@ -149,7 +149,7 @@ export function QuizCardHorizontal({ quiz, className }: QuizCardProps) {
               alt={`${quiz.title} cover image`}
               fill
               unoptimized
-              sizes="208px"
+              sizes="176px"
               className="object-cover transition-transform duration-500 group-hover:scale-105"
               onError={() => setImageFailed(true)}
             />
@@ -171,21 +171,24 @@ export function QuizCardHorizontal({ quiz, className }: QuizCardProps) {
           <DifficultyPill difficulty={quiz.difficulty} className="bottom-2 right-2 text-[9px]" />
         </div>
 
-        {/* White info bar — fixed height so long titles don't push the card */}
-        <div className="flex h-16 items-center justify-between gap-2 bg-card px-3">
-          <div className="min-w-0 flex-1 overflow-hidden">
-            <h3 className="line-clamp-2 text-sm font-bold leading-tight text-foreground">
+        {/* Info bar — taller with more content */}
+        <div className="flex flex-col gap-1.5 bg-card px-3 py-3">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="line-clamp-2 flex-1 text-sm font-bold leading-tight text-foreground">
               {quiz.title}
             </h3>
-            {quiz.playCount !== undefined ? (
-              <p className="mt-0.5 truncate text-[10px] font-medium text-muted-foreground">
-                {formatPlayCount(quiz.playCount)} plays
-              </p>
-            ) : null}
+            <div className="shrink-0">
+              <ArcadePlayButton size="sm" />
+            </div>
           </div>
-          <div className="shrink-0">
-            <ArcadePlayButton size="sm" />
-          </div>
+          {quiz.playCount !== undefined || quiz.avgScore !== undefined ? (
+            <div className="flex items-center gap-3 text-[10px] font-medium text-muted-foreground">
+              {quiz.playCount !== undefined ? (
+                <span>{formatPlayCount(quiz.playCount)} plays</span>
+              ) : null}
+              {quiz.avgScore !== undefined ? <span>{Math.round(quiz.avgScore)}% avg</span> : null}
+            </div>
+          ) : null}
         </div>
       </div>
     </Link>
@@ -215,9 +218,9 @@ export function QuizCard({ quiz, className }: QuizCardProps) {
         transition={{ duration: 0.2, ease: 'easeOut' }}
         className="rounded-2xl border border-border/50 shadow-md transition-shadow duration-300 group-hover:shadow-xl group-hover:shadow-quiz-purple/10"
       >
-        {/* Image area — fixed height, no text overlay */}
+        {/* Square image area */}
         <div
-          className="relative h-32 w-full overflow-hidden rounded-t-2xl"
+          className="relative aspect-square w-full overflow-hidden rounded-t-2xl"
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
@@ -269,21 +272,26 @@ export function QuizCard({ quiz, className }: QuizCardProps) {
           </div>
         </div>
 
-        {/* White info bar — fixed height to prevent title-length layout shifts */}
-        <div className="flex min-h-[56px] items-start justify-between gap-2 rounded-b-2xl bg-card px-3 py-3">
-          <div className="min-w-0 flex-1 overflow-hidden">
-            <h3 className="line-clamp-2 text-sm font-black leading-tight text-foreground">
+        {/* Info section — more vertical space */}
+        <div className="flex flex-col gap-2 rounded-b-2xl bg-card px-4 py-4">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="line-clamp-2 flex-1 text-sm font-black leading-tight text-foreground">
               {quiz.title}
             </h3>
-            {quiz.playCount !== undefined ? (
-              <p className="mt-0.5 truncate text-[11px] font-medium text-muted-foreground">
-                🎮 {formatPlayCount(quiz.playCount)} plays
-              </p>
-            ) : null}
+            <div className="shrink-0">
+              <ArcadePlayButton size="md" />
+            </div>
           </div>
-          <div className="shrink-0">
-            <ArcadePlayButton size="md" />
-          </div>
+          {quiz.playCount !== undefined || quiz.avgScore !== undefined ? (
+            <div className="flex items-center gap-3 text-[11px] font-medium text-muted-foreground">
+              {quiz.playCount !== undefined ? (
+                <span>🎮 {formatPlayCount(quiz.playCount)} plays</span>
+              ) : null}
+              {quiz.avgScore !== undefined ? (
+                <span>📊 {Math.round(quiz.avgScore)}% avg</span>
+              ) : null}
+            </div>
+          ) : null}
         </div>
       </motion.div>
     </Link>
