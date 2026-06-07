@@ -3,11 +3,17 @@ import { absoluteUrl } from '@/lib/site'
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: {
-      userAgent: '*',
-      allow: '/',
-      disallow: ['/api', '/studio', '/admin', '/auth'],
-    },
+    rules: [
+      {
+        userAgent: '*',
+        allow: '/',
+        disallow: ['/api', '/studio', '/admin', '/auth'],
+      },
+      {
+        userAgent: 'GPTBot',
+        disallow: ['/'],
+      },
+    ],
     sitemap: absoluteUrl('/sitemap.xml'),
   }
 }
