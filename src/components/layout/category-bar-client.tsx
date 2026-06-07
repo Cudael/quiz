@@ -20,7 +20,9 @@ const SCROLL_AMOUNT = 200
 const PILL_HOVER_ALPHA = 0.12
 
 function CategoryIcon({ name }: { name: string }) {
-  const Icon = (LucideIcons as Record<string, React.ComponentType<{ className?: string }>>)[name]
+  const Icon = (
+    LucideIcons as unknown as Record<string, React.ComponentType<{ className?: string }>>
+  )[name]
   if (Icon) {
     return <Icon className="h-3.5 w-3.5" />
   }
