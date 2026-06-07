@@ -76,7 +76,7 @@ export function getLeaderboardRows(params: {
   return unstable_cache(
     () => fetchLeaderboardRows({ period, sort, categories: sortedCategories, quizId }),
     ['leaderboard-rows', key],
-    { revalidate: 60, tags: [LEADERBOARD_TAG] }
+    { revalidate: 300, tags: [LEADERBOARD_TAG] }
   )()
 }
 
@@ -152,6 +152,6 @@ export function getLeaderboardTopPlayerNames() {
         categories: [],
       }).then((rows) => rows.slice(0, 3).map((row) => row.displayName)),
     ['leaderboard-top-names'],
-    { revalidate: 60, tags: [LEADERBOARD_TAG] }
+    { revalidate: 300, tags: [LEADERBOARD_TAG] }
   )()
 }

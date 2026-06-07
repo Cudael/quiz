@@ -18,7 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     {
       url: absoluteUrl('/leaderboard'),
       lastModified: new Date(),
-      changeFrequency: 'hourly',
+      changeFrequency: 'daily',
       priority: 0.9,
     },
     {
