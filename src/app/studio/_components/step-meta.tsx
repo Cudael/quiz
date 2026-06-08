@@ -27,12 +27,12 @@ const DIFFICULTY_CONFIG: Array<{
   {
     value: 'EASY',
     label: 'Easy',
-    activeClass: 'bg-quiz-green/20 text-quiz-green border-quiz-green/50',
+    activeClass: 'bg-primary/10 text-primary border-primary/30',
   },
   {
     value: 'MEDIUM',
     label: 'Medium',
-    activeClass: 'bg-quiz-orange/20 text-quiz-orange border-quiz-orange/50',
+    activeClass: 'bg-warning/15 text-warning border-warning/40',
   },
   {
     value: 'HARD',

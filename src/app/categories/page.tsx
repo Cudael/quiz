@@ -155,10 +155,7 @@ export default async function CategoriesPage() {
         }
         title={
           <>
-            Browse{' '}
-            <span className="bg-gradient-to-r from-quiz-purple to-quiz-pink bg-clip-text text-transparent">
-              Categories
-            </span>
+            Browse <span className="text-primary">Categories</span>
           </>
         }
         description={`${totalCategories} categories · ${totalQuizzes} quizzes`}

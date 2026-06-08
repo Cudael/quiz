@@ -17,7 +17,7 @@ function actionBadgeClass(action: string) {
     return 'bg-amber-500/15 text-amber-400 border-amber-500/20'
   }
   if (action.startsWith('QUIZ_')) {
-    return 'bg-quiz-green/15 text-quiz-green border-quiz-green/20'
+    return 'bg-primary/10 text-primary'
   }
   return 'bg-muted text-muted-foreground'
 }
@@ -59,25 +59,25 @@ export default async function AdminDashboardPage() {
       label: 'Total Users',
       value: totalUsers,
       Icon: Users,
-      iconClass: 'bg-quiz-purple/15 text-quiz-purple',
+      iconClass: 'bg-primary/10 text-primary',
     },
     {
       label: 'Published Quizzes',
       value: publishedQuizzes,
       Icon: BookOpen,
-      iconClass: 'bg-quiz-green/15 text-quiz-green',
+      iconClass: 'bg-muted text-muted-foreground',
     },
     {
       label: 'Total Plays',
       value: totalPlays,
       Icon: Play,
-      iconClass: 'bg-blue-500/15 text-blue-400',
+      iconClass: 'bg-muted text-muted-foreground',
     },
     {
       label: 'Plays Today',
       value: playsToday,
       Icon: TrendingUp,
-      iconClass: 'bg-quiz-orange/15 text-quiz-orange',
+      iconClass: 'bg-primary/10 text-primary',
     },
     {
       label: 'Pending Reports',

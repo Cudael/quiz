@@ -41,7 +41,7 @@ export function PlayHeader({
         </p>
       </div>
       <div className="text-right">
-        <p className="text-base font-bold text-quiz-purple-light sm:text-lg">{score}</p>
+        <p className="text-base font-bold text-primary sm:text-lg">{score}</p>
         <p className="text-xs text-muted-foreground">pts</p>
       </div>
       <button

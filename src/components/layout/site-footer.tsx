@@ -9,8 +9,8 @@ export function SiteFooter() {
   return (
     <footer className="mt-24 bg-surface-1">
       {/* Gradient top border */}
-      <div className="h-px w-full bg-gradient-to-r from-transparent via-quiz-purple to-transparent opacity-50" />
-      <div className="h-px w-full bg-gradient-to-r from-transparent via-quiz-pink to-transparent opacity-30" />
+      <div className="h-px w-full bg-border opacity-50" />
+      <div className="h-px w-full bg-border opacity-20" />
 
       <div className="container mx-auto px-4 py-12 md:py-16">
         {/* Main grid */}
@@ -27,9 +27,9 @@ export function SiteFooter() {
             <p className="mt-1 text-xs italic text-muted-foreground/70">
               Test your knowledge. Challenge your friends.
             </p>
-            <div className="flex items-center gap-1.5 rounded-full border border-quiz-purple/20 bg-quiz-purple/5 px-3 py-1.5 w-fit">
-              <Zap className="h-3.5 w-3.5 text-quiz-purple" />
-              <span className="text-xs font-semibold text-quiz-purple">Free to play, forever</span>
+            <div className="flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 w-fit">
+              <Zap className="h-3.5 w-3.5 text-primary" />
+              <span className="text-xs font-semibold text-primary">Free to play, forever</span>
             </div>
             <div className="flex flex-row items-center gap-2">
               <a
@@ -79,6 +79,7 @@ export function SiteFooter() {
                 { href: '/categories', label: 'Browse Categories' },
                 { href: '/studio', label: 'Quiz Studio' },
                 { href: '/random-quiz', label: 'Play Now' },
+                { href: '/blog', label: 'Blog' },
                 { href: '/about', label: 'About' },
                 { href: '/privacy', label: 'Privacy Policy' },
                 { href: '/contact', label: 'Contact' },

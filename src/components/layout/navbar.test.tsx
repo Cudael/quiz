@@ -82,7 +82,7 @@ describe('Navbar', () => {
     const leaderboardLink = screen.getByRole('link', { name: 'Leaderboard' })
     const categoriesLink = screen.getByRole('link', { name: 'Categories' })
 
-    expect(duelLink).toHaveClass('text-quiz-pink', 'font-bold')
+    expect(duelLink).toHaveClass('text-primary', 'font-bold')
     expect(leaderboardLink).toHaveAttribute('data-prefetch', 'false')
     expect(categoriesLink).not.toHaveAttribute('data-prefetch')
     expect(screen.getAllByRole('searchbox', { name: /search quizzes/i }).length).toBe(2)

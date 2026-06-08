@@ -40,7 +40,7 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-40 w-full">
       {/* Gradient line at very top */}
-      <div className="h-[1px] w-full bg-gradient-to-r from-quiz-purple via-quiz-pink to-quiz-orange opacity-60" />
+      <div className="h-[1px] w-full bg-border opacity-60" />
       <div className="bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 border-b border-border/40 shadow-sm">
         <div className="container mx-auto flex h-14 items-center justify-between px-4 md:px-6">
           {/* Logo */}
@@ -66,7 +66,7 @@ export function Navbar() {
                       active
                         ? 'text-primary bg-primary/8'
                         : link.highlighted
-                          ? 'text-quiz-pink font-bold hover:text-quiz-pink/80 hover:bg-quiz-pink/10'
+                          ? 'text-primary font-bold hover:text-primary/80 hover:bg-primary/5'
                           : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
                     )}
                     aria-current={active ? 'page' : undefined}
@@ -74,7 +74,7 @@ export function Navbar() {
                     {link.icon ? <link.icon className="mr-1 inline-flex h-3.5 w-3.5" /> : null}
                     {link.label}
                     {active && (
-                      <span className="absolute inset-x-3 bottom-0.5 h-0.5 rounded-full bg-gradient-to-r from-quiz-purple to-quiz-pink" />
+                      <span className="absolute inset-x-3 bottom-0.5 h-0.5 rounded-full bg-primary" />
                     )}
                   </Link>
                 )

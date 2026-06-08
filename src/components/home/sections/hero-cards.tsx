@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Flame, Swords, Zap } from 'lucide-react'
+import { Flame, Swords } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { HomeCurrentUser } from '../home-page-client.types'
 
@@ -10,49 +10,53 @@ export function HeroCards({ currentUser }: { currentUser: HomeCurrentUser | null
     <section>
       <div className="grid gap-4 sm:grid-cols-2">
         {/* Duel Mode */}
-        <div className="rounded-2xl border border-quiz-purple/25 bg-quiz-purple/5 p-5">
-          <div className="mb-1 inline-flex items-center gap-1.5 rounded-full bg-quiz-purple/10 border border-quiz-purple/20 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-quiz-purple">
-            <Swords className="h-3 w-3" />
-            Head-to-Head
+        <div className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card">
+          {/* Decorative background area — placeholder for future image */}
+          <div className="absolute inset-0 bg-gradient-to-br from-violet-500/15 via-purple-500/10 to-fuchsia-500/5">
+            <div className="absolute -right-6 -top-6 h-36 w-36 rounded-full bg-violet-500/20 blur-2xl" />
+            <div className="absolute -bottom-4 -left-4 h-28 w-28 rounded-full bg-fuchsia-500/15 blur-2xl" />
           </div>
-          <h2 className="mt-2 text-xl font-black tracking-tight">Duel Mode</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Challenge a friend and see who comes out on top!
-          </p>
-          <Button
-            asChild
-            variant="outline"
-            className="mt-4 w-full rounded-xl border-quiz-purple/40 font-bold text-quiz-purple hover:bg-quiz-purple/10"
-          >
-            <Link href={currentUser ? '/duel' : '/sign-up'}>
-              <Swords className="h-4 w-4" />
-              {currentUser ? 'Start a Duel' : 'Sign Up to Duel'}
-            </Link>
-          </Button>
+          {/* Right-side decorative icon */}
+          <div className="absolute right-4 top-1/2 -translate-y-1/2">
+            <Swords className="h-24 w-24 rotate-12 text-violet-500/10" />
+          </div>
+          {/* Content */}
+          <div className="relative flex flex-col p-6 pr-28">
+            <h2 className="text-2xl font-black tracking-tight">Duel Mode</h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Challenge a friend and see who comes out on top!
+            </p>
+            <Button asChild variant="gradient" className="mt-5 w-fit rounded-xl font-bold">
+              <Link href={currentUser ? '/duel' : '/sign-up'}>
+                {currentUser ? 'Start a Duel' : 'Sign Up to Duel'}
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {/* Daily Challenge */}
-        <div className="rounded-2xl border border-orange-500/25 bg-orange-500/5 p-5">
-          <div className="mb-1 inline-flex items-center gap-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400">
-            <Flame className="h-3 w-3" />
-            {currentUser && currentUser.streakDays > 0
-              ? `${currentUser.streakDays}d streak`
-              : 'Daily'}
+        <div className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card">
+          {/* Decorative background area — placeholder for future image */}
+          <div className="absolute inset-0 bg-gradient-to-bl from-amber-500/15 via-orange-500/10 to-yellow-500/5">
+            <div className="absolute -right-6 -top-6 h-36 w-36 rounded-full bg-amber-500/20 blur-2xl" />
+            <div className="absolute -bottom-4 -left-4 h-28 w-28 rounded-full bg-orange-500/15 blur-2xl" />
           </div>
-          <h2 className="mt-2 text-xl font-black tracking-tight">Daily Challenge</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Keep your streak alive and earn bonus XP!
-          </p>
-          <Button
-            asChild
-            size="lg"
-            className="mt-4 w-full rounded-xl bg-orange-500 font-bold text-white hover:bg-orange-600"
-          >
-            <Link href={currentUser ? '/random-quiz' : '/sign-up'}>
-              <Zap className="h-4 w-4" />
-              {currentUser ? 'Play Challenge' : 'Sign Up to Play'}
-            </Link>
-          </Button>
+          {/* Right-side decorative icon */}
+          <div className="absolute right-4 top-1/2 -translate-y-1/2">
+            <Flame className="h-24 w-24 text-orange-500/10" />
+          </div>
+          {/* Content */}
+          <div className="relative flex flex-col p-6 pr-28">
+            <h2 className="text-2xl font-black tracking-tight">Daily Challenge</h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Keep your streak alive and earn bonus XP!
+            </p>
+            <Button asChild variant="gradient" className="mt-5 w-fit rounded-xl font-bold">
+              <Link href={currentUser ? '/random-quiz' : '/sign-up'}>
+                {currentUser ? 'Play Challenge' : 'Sign Up to Play'}
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
     </section>

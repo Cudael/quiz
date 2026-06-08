@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight, Trophy, Users, Zap } from 'lucide-react'
+import { ArrowRight, Trophy, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { HomeCurrentUser, HomeStats, HomeTopPlayer } from '../home-page-client.types'
@@ -98,28 +98,29 @@ export function LeaderboardSection({
           </div>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-primary/15 bg-gradient-to-b from-primary/6 via-primary/3 to-transparent p-7 text-center shadow-sm">
-          <div
-            className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-quiz-purple to-quiz-pink shadow-lg shadow-quiz-purple/30 mb-4"
-            aria-hidden="true"
-          >
-            <Zap className="h-7 w-7 text-primary-foreground" />
+        <div className="group relative flex flex-col items-center justify-center overflow-hidden rounded-3xl border border-border/50 bg-card p-7 text-center shadow-sm">
+          {/* Decorative background */}
+          <div className="absolute inset-0 bg-gradient-to-b from-amber-500/10 via-orange-500/5 to-transparent">
+            <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-amber-500/10 blur-2xl" />
+            <div className="absolute -bottom-8 -left-8 h-36 w-36 rounded-full bg-orange-500/8 blur-2xl" />
           </div>
-          <h3 className="text-xl font-black tracking-tight">Think you can top this?</h3>
-          <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-            Join <span className="font-black text-foreground">{stats.totalPlayers}</span> players
-            competing globally.
-          </p>
-          <Button
-            asChild
-            variant="gradient"
-            className="mt-6 w-full rounded-2xl font-bold shadow-md shadow-quiz-purple/25"
-          >
-            <Link href="/sign-up">
-              <Zap className="h-4 w-4" />
-              Create Free Account
-            </Link>
-          </Button>
+          <div className="absolute right-4 top-6">
+            <Trophy className="h-16 w-16 text-amber-500/10" />
+          </div>
+          <div className="relative">
+            <h3 className="text-xl font-black tracking-tight">Think you can top this?</h3>
+            <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+              Join <span className="font-black text-foreground">{stats.totalPlayers}</span> players
+              competing globally.
+            </p>
+            <Button
+              asChild
+              variant="gradient"
+              className="mt-6 w-full rounded-2xl font-bold shadow-md shadow-foreground/15"
+            >
+              <Link href="/sign-up">Create Free Account</Link>
+            </Button>
+          </div>
         </div>
       )}
     </section>

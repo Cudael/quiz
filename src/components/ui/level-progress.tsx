@@ -70,7 +70,7 @@ export function LevelProgress({ xp, size = 'md', className }: LevelProgressProps
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span
               className={cn(
-                'font-black bg-gradient-to-br from-quiz-purple to-quiz-pink bg-clip-text text-transparent',
+                'font-black text-primary',
                 size === 'sm' ? 'text-sm' : size === 'md' ? 'text-2xl' : 'text-3xl'
               )}
             >

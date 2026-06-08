@@ -10,17 +10,14 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          'bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25',
+          'bg-foreground text-background hover:bg-foreground/90 shadow-lg shadow-foreground/20',
         destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-        outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
-        secondary:
-          'bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-lg shadow-secondary/25',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
-        link: 'text-primary underline-offset-4 hover:underline',
-        gradient:
-          'bg-gradient-to-r from-quiz-purple to-quiz-pink text-white hover:opacity-90 shadow-lg shadow-quiz-purple/30',
-        'gradient-green':
-          'bg-gradient-to-r from-quiz-green to-quiz-blue text-white hover:opacity-90 shadow-lg shadow-quiz-green/30',
+        outline: 'border border-foreground/25 bg-transparent hover:bg-foreground/10',
+        secondary: 'bg-foreground/10 text-foreground hover:bg-foreground/20',
+        ghost: 'hover:bg-foreground/10',
+        link: 'text-foreground underline-offset-4 hover:underline',
+        gradient: 'bg-foreground text-background hover:bg-foreground/85 shadow-sm',
+        'gradient-green': 'bg-foreground text-background hover:bg-foreground/85 shadow-sm',
       },
       size: {
         default: 'h-10 px-4 py-2',

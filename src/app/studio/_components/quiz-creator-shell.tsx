@@ -223,7 +223,7 @@ export function QuizCreatorShell({
                         isActive
                           ? 'bg-primary-foreground text-primary'
                           : isDone
-                            ? 'bg-quiz-green/20 text-quiz-green'
+                            ? 'bg-primary/10 text-primary'
                             : 'bg-muted'
                       )}
                     >

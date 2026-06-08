@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Flame, Trophy, Zap } from 'lucide-react'
+import { Flame } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { QuizCard, type QuizCardData } from '@/components/ui/quiz-card'
 import { xpProgress } from '@/domain/leveling'
@@ -44,87 +44,57 @@ export function HeroDailySection({
           )}
         </div>
 
-        <div className="relative flex flex-col gap-3 overflow-hidden rounded-2xl border border-orange-500/25 bg-gradient-to-br from-orange-500/15 via-amber-500/10 to-orange-500/5 p-4">
-          <div
-            className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-orange-500/20 blur-2xl"
-            aria-hidden="true"
-          />
+        <div className="relative flex flex-col overflow-hidden rounded-2xl border border-border/50 bg-card">
+          {/* Decorative background — placeholder for future image */}
+          <div className="absolute inset-0 bg-gradient-to-bl from-amber-500/15 via-orange-500/10 to-yellow-500/5">
+            <div className="absolute -right-6 -top-6 h-36 w-36 rounded-full bg-amber-500/20 blur-2xl" />
+            <div className="absolute -bottom-4 -left-4 h-28 w-28 rounded-full bg-orange-500/15 blur-2xl" />
+          </div>
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            <Flame className="h-20 w-20 text-orange-500/10" />
+          </div>
 
-          <div className="relative flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 py-1">
-              <Zap className="h-3 w-3 text-primary" />
-              <span className="text-xs font-black text-primary">Lv.{currentUser.level}</span>
-            </div>
-            <div className="flex items-center gap-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 px-3 py-1">
-              <Flame className="h-3 w-3 text-orange-500" />
-              <span className="text-xs font-black text-orange-500 dark:text-orange-400">
-                {currentUser.streakDays}d streak
+          {/* Content */}
+          <div className="relative flex flex-1 flex-col p-5 pr-24">
+            {/* Level & streak inline (kept because they show user context) */}
+            <div className="flex items-center gap-2 text-xs font-semibold">
+              <span className="rounded-md bg-foreground/10 px-2 py-0.5 font-black">
+                Lv.{currentUser.level}
               </span>
-            </div>
-            <div className="flex items-center gap-1.5 rounded-full bg-muted/80 border border-border px-3 py-1">
-              <Trophy className="h-3 w-3 text-muted-foreground" />
-              <span className="text-xs font-bold text-muted-foreground">
+              <span className="text-muted-foreground">
+                {currentUser.streakDays > 0 ? `${currentUser.streakDays}d streak` : 'New'}
+              </span>
+              <span className="ml-auto text-muted-foreground tabular-nums">
                 {currentUser.xp.toLocaleString()} XP
               </span>
             </div>
-          </div>
 
-          <div className="relative space-y-1">
-            <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
-              <span>
-                Level {currentUser.level} → {nextLevel}
-              </span>
-              <span>{Math.round(xpPct)}%</span>
-            </div>
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/10 dark:bg-white/10">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-orange-500 to-amber-400 transition-all duration-700"
-                style={{ width: `${xpPct}%` }}
-              />
-            </div>
-          </div>
+            <h2 className="mt-3 text-xl font-black tracking-tight">Daily Challenge</h2>
+            <p className="mt-1.5 max-w-[70%] text-sm leading-relaxed text-muted-foreground">
+              Keep your streak alive and earn bonus XP!
+            </p>
 
-          <div className="relative border-t border-orange-500/20" />
-
-          <div className="relative flex items-start gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 shadow-md shadow-orange-500/25">
-              <Flame className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-black">Daily Challenge</span>
-                <span className="rounded-full bg-orange-500/15 border border-orange-500/25 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400">
-                  Live
+            {/* XP progress bar */}
+            <div className="mt-4 space-y-1">
+              <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
+                <span>
+                  Level {currentUser.level} → {nextLevel}
                 </span>
+                <span>{Math.round(xpPct)}%</span>
               </div>
-              <p className="mt-0.5 text-xs font-medium text-muted-foreground">
-                {currentUser.streakDays > 0 ? (
-                  <>Keep your streak going!</>
-                ) : (
-                  'Start your streak today!'
-                )}
-              </p>
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-foreground/10">
+                <div
+                  className="h-full rounded-full bg-foreground/70 transition-all duration-700"
+                  style={{ width: `${xpPct}%` }}
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="relative flex flex-col gap-2">
-            <div className="flex items-center gap-2 rounded-xl border border-orange-500/20 bg-orange-500/10 px-3 py-2">
-              <Zap className="h-3.5 w-3.5 shrink-0 text-orange-500" />
-              <span className="text-xs font-semibold">Bonus XP for completing</span>
+            <div className="mt-auto pt-5">
+              <Button asChild variant="gradient" className="w-full rounded-xl font-bold">
+                <Link href="/random-quiz">Play Challenge</Link>
+              </Button>
             </div>
-            <div className="flex items-center gap-2 rounded-xl border border-orange-500/20 bg-orange-500/10 px-3 py-2">
-              <Flame className="h-3.5 w-3.5 shrink-0 text-orange-500" />
-              <span className="text-xs font-semibold">New challenge every day</span>
-            </div>
-          </div>
-
-          <div className="relative mt-auto">
-            <Button
-              asChild
-              className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 font-bold shadow-sm shadow-orange-500/20 hover:opacity-90"
-            >
-              <Link href="/random-quiz">Play Challenge →</Link>
-            </Button>
           </div>
         </div>
       </div>

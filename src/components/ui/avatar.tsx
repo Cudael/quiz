@@ -19,11 +19,11 @@ const sizeClasses = {
 }
 
 const fallbackColors = [
-  'from-quiz-purple to-quiz-pink',
-  'from-quiz-blue to-quiz-purple',
-  'from-quiz-green to-quiz-blue',
-  'from-quiz-pink to-quiz-yellow',
-  'from-quiz-purple to-quiz-green',
+  'bg-primary/15 text-primary',
+  'bg-muted text-muted-foreground',
+  'bg-accent text-accent-foreground',
+  'bg-primary/10 text-primary',
+  'bg-muted text-foreground',
 ] as const
 
 function colorClassFor(value: string) {
@@ -49,7 +49,7 @@ export function Avatar({ src, alt, fallback, size = 'md', className, ...props }:
   return (
     <div
       className={cn(
-        'relative flex shrink-0 overflow-hidden rounded-full bg-gradient-to-br',
+        'relative flex shrink-0 overflow-hidden rounded-full',
         colorClass,
         sizeClasses[size],
         className

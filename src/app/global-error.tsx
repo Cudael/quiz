@@ -30,7 +30,7 @@ export default function GlobalError({
           <button
             type="button"
             onClick={() => unstable_retry()}
-            className="mt-6 rounded-lg border border-border px-4 py-2 font-medium hover:bg-muted"
+            className="mt-6 rounded-lg bg-foreground px-4 py-2 font-medium text-background hover:bg-foreground/90"
           >
             Reload
           </button>

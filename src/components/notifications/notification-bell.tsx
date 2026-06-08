@@ -194,7 +194,7 @@ export function NotificationBell() {
         <button
           type="button"
           aria-label="Open notifications"
-          className="relative inline-flex h-8 w-8 items-center justify-center rounded-md border border-border hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="relative inline-flex h-8 w-8 items-center justify-center rounded-md border border-foreground/25 hover:bg-foreground/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <Bell className="h-4 w-4" />
           {unreadCount > 0 ? (
@@ -205,13 +205,13 @@ export function NotificationBell() {
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[24rem] p-0">
-        <div className="flex items-center justify-between border-b border-border px-3 py-2">
+        <div className="flex items-center justify-between border-b border-foreground/15 px-3 py-2">
           <p className="text-sm font-semibold">Notifications</p>
           <button
             type="button"
             onClick={() => void handleMarkAllRead()}
             disabled={unreadCount === 0 || markingAll}
-            className="text-xs font-medium text-primary disabled:cursor-not-allowed disabled:text-muted-foreground"
+            className="text-xs font-medium text-foreground/70 hover:text-foreground disabled:cursor-not-allowed disabled:text-muted-foreground"
           >
             Mark all read
           </button>

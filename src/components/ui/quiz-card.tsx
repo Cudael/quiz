@@ -85,10 +85,10 @@ function ArcadePlayButton({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
       className={cn(
         sizes[size],
         'flex items-center justify-center rounded-full',
-        'bg-primary',
-        'shadow-[0_4px_0_0_hsl(var(--primary)/0.5),0_0_0_3px_hsl(var(--primary)/0.2)]',
+        'bg-foreground',
+        'shadow-[0_4px_0_0_hsl(var(--foreground)/0.35),0_0_0_3px_hsl(var(--foreground)/0.15)]',
         'transition-all duration-150',
-        'group-hover:shadow-[0_2px_0_0_hsl(var(--primary)/0.5),0_0_0_3px_hsl(var(--primary)/0.3)] group-hover:translate-y-[2px]'
+        'group-hover:shadow-[0_2px_0_0_hsl(var(--foreground)/0.35),0_0_0_3px_hsl(var(--foreground)/0.2)] group-hover:translate-y-[2px]'
       )}
       aria-hidden="true"
     >
@@ -96,9 +96,10 @@ function ArcadePlayButton({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
       <span
         className={cn(
           'block translate-x-[1px]',
-          size === 'sm' && 'border-y-[5px] border-l-[9px] border-y-transparent border-l-white',
-          size === 'md' && 'border-y-[6px] border-l-[11px] border-y-transparent border-l-white',
-          size === 'lg' && 'border-y-[7px] border-l-[13px] border-y-transparent border-l-white'
+          size === 'sm' && 'border-y-[5px] border-l-[9px] border-y-transparent border-l-background',
+          size === 'md' &&
+            'border-y-[6px] border-l-[11px] border-y-transparent border-l-background',
+          size === 'lg' && 'border-y-[7px] border-l-[13px] border-y-transparent border-l-background'
         )}
       />
     </div>

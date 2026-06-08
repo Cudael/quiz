@@ -19,7 +19,7 @@ export function GuestHeroSection({
   showStats?: boolean
 }) {
   const baseSectionClasses =
-    'relative overflow-hidden rounded-3xl border border-border/40 bg-gradient-to-br from-primary/8 via-background to-quiz-purple/5 shadow-sm'
+    'relative overflow-hidden rounded-3xl border border-border/40 bg-surface-1 shadow-sm'
   const sectionClasses = showStats
     ? `${baseSectionClasses} px-6 py-10 md:px-12 md:py-14`
     : `${baseSectionClasses} h-full p-8`
@@ -41,7 +41,7 @@ export function GuestHeroSection({
         aria-hidden="true"
       />
       <div
-        className="pointer-events-none absolute -bottom-12 -right-12 h-48 w-48 rounded-full bg-quiz-purple/10 blur-3xl"
+        className="pointer-events-none absolute -bottom-12 -right-12 h-48 w-48 rounded-full bg-primary/5 blur-3xl"
         aria-hidden="true"
       />
 
@@ -52,10 +52,7 @@ export function GuestHeroSection({
         </div>
 
         <h1 className={headingClasses}>
-          Test Your Knowledge.{' '}
-          <span className="bg-gradient-to-r from-primary via-quiz-purple to-quiz-pink bg-clip-text text-transparent">
-            Challenge the World.
-          </span>
+          Test Your Knowledge. <span className="text-primary">Challenge the World.</span>
         </h1>
 
         <p className={subtitleClasses}>

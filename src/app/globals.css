@@ -142,85 +142,69 @@
 
 :root {
   --background: 0 0% 100%;
-  --foreground: 248 15% 8%;
+  --foreground: 0 0% 10%;
   --card: 0 0% 100%;
-  --card-foreground: 248 15% 8%;
+  --card-foreground: 0 0% 10%;
   --popover: 0 0% 100%;
-  --popover-foreground: 248 15% 8%;
-  --primary: 262 80% 58%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 142 70% 42%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 248 8% 95%;
-  --muted-foreground: 248 8% 46%;
-  --accent: 262 60% 95%;
-  --accent-foreground: 262 80% 35%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 248 10% 90%;
-  --input: 248 10% 90%;
-  --ring: 262 80% 58%;
+  --popover-foreground: 0 0% 10%;
+  --primary: 24 95% 53%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 96%;
+  --secondary-foreground: 0 0% 10%;
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 45%;
+  --accent: 24 95% 95%;
+  --accent-foreground: 24 95% 40%;
+  --destructive: 0 84% 50%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 90%;
+  --input: 0 0% 90%;
+  --ring: 24 95% 53%;
   --radius: 0.75rem;
 
-  /* Warning token — amber hue for countdown urgency, status */
-  --warning: 38 85% 44%;
-  --warning-foreground: 0 0% 98%;
+  --warning: 24 95% 53%;
+  --warning-foreground: 0 0% 100%;
 
-  /* Surface elevation tiers (light: progressively more tinted) */
-  --surface-1: 248 8% 97%;
-  --surface-2: 248 8% 94%;
-  --surface-3: 248 8% 91%;
+  --surface-1: 0 0% 98%;
+  --surface-2: 0 0% 95%;
+  --surface-3: 0 0% 92%;
 
-  /* Shadow scale — theme-aware (light: neutral dark) */
-  --shadow-sm: 0 1px 2px 0 hsl(248 15% 10% / 0.06);
-  --shadow-md: 0 4px 6px -1px hsl(248 15% 10% / 0.08), 0 2px 4px -2px hsl(248 15% 10% / 0.05);
-  --shadow-lg: 0 10px 15px -3px hsl(248 15% 10% / 0.1), 0 4px 6px -4px hsl(248 15% 10% / 0.06);
-
-  --hero-stop-1: 266 90% 97%;
-  --hero-stop-2: 280 85% 94%;
-  --hero-stop-3: 310 88% 95%;
-  --hero-stop-4: 48 96% 94%;
+  --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.06);
+  --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.08), 0 2px 4px -2px hsl(0 0% 0% / 0.05);
+  --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.1), 0 4px 6px -4px hsl(0 0% 0% / 0.06);
 }
 
 .dark {
-  --background: 248 14% 11%;
+  --background: 0 0% 9%;
   --foreground: 0 0% 95%;
-  --card: 248 12% 15%;
+  --card: 0 0% 13%;
   --card-foreground: 0 0% 95%;
-  --popover: 248 12% 15%;
+  --popover: 0 0% 13%;
   --popover-foreground: 0 0% 95%;
-  --primary: 262 78% 70%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 142 68% 47%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 248 10% 20%;
-  --muted-foreground: 240 5% 65%;
-  --accent: 262 48% 24%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 70% 52%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 248 10% 23%;
-  --input: 248 10% 20%;
-  --ring: 262 80% 70%;
+  --primary: 24 95% 57%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 0 0% 95%;
+  --muted: 0 0% 18%;
+  --muted-foreground: 0 0% 60%;
+  --accent: 24 95% 15%;
+  --accent-foreground: 24 95% 65%;
+  --destructive: 0 70% 50%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 22%;
+  --input: 0 0% 20%;
+  --ring: 24 95% 57%;
 
-  /* Warning token */
-  --warning: 38 90% 57%;
-  --warning-foreground: 240 10% 3.9%;
+  --warning: 24 95% 57%;
+  --warning-foreground: 0 0% 10%;
 
-  /* Surface elevation tiers (dark: progressively lighter, purple-tinted) */
-  --surface-1: 248 12% 13%;
-  --surface-2: 248 10% 16%;
-  --surface-3: 248 8% 20%;
+  --surface-1: 0 0% 11%;
+  --surface-2: 0 0% 15%;
+  --surface-3: 0 0% 19%;
 
-  /* Shadow scale — dark mode uses purple-tinted shadows */
-  --shadow-sm: 0 1px 2px 0 hsl(248 30% 4% / 0.4);
-  --shadow-md: 0 4px 6px -1px hsl(248 30% 4% / 0.5), 0 2px 4px -2px hsl(248 30% 4% / 0.3);
-  --shadow-lg: 0 10px 15px -3px hsl(248 30% 4% / 0.55), 0 4px 6px -4px hsl(248 30% 4% / 0.3);
-
-  --hero-stop-1: 248 38% 15%;
-  --hero-stop-2: 262 52% 26%;
-  --hero-stop-3: 276 62% 34%;
-  --hero-stop-4: 316 50% 34%;
+  --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.4);
+  --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.5), 0 2px 4px -2px hsl(0 0% 0% / 0.3);
+  --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.55), 0 4px 6px -4px hsl(0 0% 0% / 0.3);
 }
 
 @layer base {
