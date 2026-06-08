@@ -1,13 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import type { ImgHTMLAttributes, ReactNode } from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import {
-  HomePageClient,
-  type HomeCurrentUser,
-  type HomeFeaturedCategory,
-  type HomeStats,
-  type HomeTopPlayer,
-} from '@/components/home/home-page-client'
+import { HomePageClient, type HomeCurrentUser } from '@/components/home/home-page-client'
 import type { QuizCardData } from '@/components/ui/quiz-card'
 
 vi.mock('next/link', () => ({
@@ -24,28 +18,6 @@ vi.mock('next/image', () => ({
     <img alt={alt ?? ''} {...props} />
   ),
 }))
-
-const featuredCategories: HomeFeaturedCategory[] = [
-  {
-    slug: 'science',
-    name: 'Science',
-    icon: '🧪',
-    color: 'linear-gradient(135deg, #7c3aed, #ec4899)',
-    description: 'Experiments and facts',
-    quizCount: 12,
-  },
-]
-
-const topPlayers: HomeTopPlayer[] = [
-  { userId: 'u1', name: 'Ada Lovelace', image: null, totalScore: 3200 },
-]
-
-const stats: HomeStats = {
-  totalPlayers: 1200,
-  totalQuizzes: 84,
-  totalQuestions: 960,
-  totalCategories: 14,
-}
 
 const popularQuizzes: QuizCardData[] = [
   {
@@ -107,9 +79,6 @@ describe('HomePageClient', () => {
     render(
       <HomePageClient
         categoriesWithQuizzes={[]}
-        featuredCategories={featuredCategories}
-        topPlayers={topPlayers}
-        stats={stats}
         popularQuizzes={popularQuizzes}
         trendingQuizzes={trendingQuizzes}
         newestQuizzes={newestQuizzes}
@@ -139,9 +108,6 @@ describe('HomePageClient', () => {
     render(
       <HomePageClient
         categoriesWithQuizzes={[]}
-        featuredCategories={featuredCategories}
-        topPlayers={topPlayers}
-        stats={stats}
         popularQuizzes={popularQuizzes}
         trendingQuizzes={trendingQuizzes}
         newestQuizzes={newestQuizzes}
@@ -166,9 +132,6 @@ describe('HomePageClient', () => {
     render(
       <HomePageClient
         categoriesWithQuizzes={[]}
-        featuredCategories={featuredCategories}
-        topPlayers={topPlayers}
-        stats={stats}
         popularQuizzes={popularQuizzes}
         trendingQuizzes={trendingQuizzes}
         newestQuizzes={newestQuizzes}

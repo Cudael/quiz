@@ -11,12 +11,7 @@ import {
 import { HeroCards } from './sections/hero-cards'
 import { Divider } from './sections/section-primitives'
 
-export type {
-  HomeCurrentUser,
-  HomeFeaturedCategory,
-  HomeStats,
-  HomeTopPlayer,
-} from './home-page-client.types'
+export type { HomeCurrentUser } from './home-page-client.types'
 
 export function HomePageClient({
   categoriesWithQuizzes,
