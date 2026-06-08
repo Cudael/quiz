@@ -6,8 +6,12 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { QuizCard, QuizCardHorizontal, type QuizCardData } from '@/components/ui/quiz-card'
 import { SectionHeader } from './section-primitives'
 
-const SCROLL_DISTANCE = 600
 const MAX_SCROLLER_QUIZZES = 20
+
+// 6 columns × card width + 5 gaps × gap-3 (0.75rem) = 100% of container
+// auto-cols ensures exactly 6 cards fill the visible width; additional cards overflow into scroll area
+const SCROLL_ROW_CLASS =
+  '-mx-4 md:-mx-6 grid grid-flow-col auto-cols-[calc((100%_-_3.75rem)_/_6)] snap-x snap-mandatory gap-3 overflow-x-auto px-4 md:px-6 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
 
 export function QuizScrollerSection({
   title,
@@ -30,7 +34,7 @@ export function QuizScrollerSection({
   function scroll(dir: 'left' | 'right') {
     if (!scrollRef.current) return
     scrollRef.current.scrollBy({
-      left: dir === 'right' ? SCROLL_DISTANCE : -SCROLL_DISTANCE,
+      left: dir === 'right' ? scrollRef.current.clientWidth : -scrollRef.current.clientWidth,
       behavior: 'smooth',
     })
   }
@@ -62,7 +66,7 @@ export function QuizScrollerSection({
       {visibleQuizzes.length > 0 ? (
         <div
           ref={scrollRef}
-          className="-mx-4 md:-mx-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 md:px-6 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className={SCROLL_ROW_CLASS}
           aria-label={`${title} quizzes`}
         >
           {visibleQuizzes.map((quiz) => (
@@ -170,8 +174,6 @@ export function QuizGridSection({
 
 import type { CategoryWithQuizzes } from '../home-page-client.types'
 
-const CATEGORY_SCROLL_DISTANCE = 500
-
 export function CategoryRowSection({ category }: { category: CategoryWithQuizzes }) {
   const scrollRef = React.useRef<HTMLDivElement>(null)
 
@@ -184,7 +186,7 @@ export function CategoryRowSection({ category }: { category: CategoryWithQuizzes
   function scroll(dir: 'left' | 'right') {
     if (!scrollRef.current) return
     scrollRef.current.scrollBy({
-      left: dir === 'right' ? CATEGORY_SCROLL_DISTANCE : -CATEGORY_SCROLL_DISTANCE,
+      left: dir === 'right' ? scrollRef.current.clientWidth : -scrollRef.current.clientWidth,
       behavior: 'smooth',
     })
   }
@@ -226,7 +228,7 @@ export function CategoryRowSection({ category }: { category: CategoryWithQuizzes
       </div>
       <div
         ref={scrollRef}
-        className="-mx-4 md:-mx-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 md:px-6 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className={SCROLL_ROW_CLASS}
         aria-label={`${category.name} quizzes`}
       >
         {category.quizzes.map((quiz) => (
