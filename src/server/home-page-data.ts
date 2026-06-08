@@ -6,21 +6,12 @@ import {
   type HomeQuizRecord,
 } from '@/server/home-quiz-cache'
 import type { QuizCardData } from '@/components/ui/quiz-card'
-import type {
-  HomeCurrentUser,
-  HomeFeaturedCategory,
-  HomeStats,
-  HomeTopPlayer,
-  CategoryWithQuizzes,
-} from '@/components/home/home-page-client.types'
+import type { HomeCurrentUser, CategoryWithQuizzes } from '@/components/home/home-page-client.types'
 
 const FALLBACK_CATEGORY_GRADIENT = 'var(--background-image-card-gradient)'
 
 export interface HomePageData {
-  featuredCategories: HomeFeaturedCategory[]
   categoriesWithQuizzes: CategoryWithQuizzes[]
-  topPlayers: HomeTopPlayer[]
-  stats: HomeStats
   popularQuizzes: QuizCardData[]
   trendingQuizzes: QuizCardData[]
   newestQuizzes: QuizCardData[]
@@ -49,75 +40,45 @@ function mapQuizCard(quiz: HomeQuizRecord): QuizCardData {
 }
 
 export async function getHomePageData(): Promise<HomePageData> {
-  const [
-    session,
-    categories,
-    playerGroups,
-    totalPlayers,
-    totalQuizzes,
-    totalQuestions,
-    totalCategories,
-    popularQuizzesRaw,
-    trendingQuizzesRaw,
-    newestQuizzesRaw,
-  ] = await Promise.all([
-    auth(),
-    prisma.category.findMany({
-      select: {
-        id: true,
-        slug: true,
-        name: true,
-        icon: true,
-        color: true,
-        imageUrl: true,
-        description: true,
-        parentSlug: true,
-        quizzes: {
-          where: { isPublished: true },
-          select: { playCount: true },
+  const [session, categories, popularQuizzesRaw, trendingQuizzesRaw, newestQuizzesRaw] =
+    await Promise.all([
+      auth(),
+      prisma.category.findMany({
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          icon: true,
+          color: true,
+          imageUrl: true,
+          parentSlug: true,
         },
-      },
-    }),
-    prisma.playSession.groupBy({
-      by: ['userId'],
-      where: { userId: { not: null } },
-      _sum: { score: true },
-      orderBy: {
-        _sum: {
-          score: 'desc',
-        },
-      },
-      take: 5,
-    }),
-    prisma.user.count(),
-    prisma.quiz.count({ where: { isPublished: true } }),
-    prisma.question.count(),
-    prisma.category.count(),
-    getPopularQuizzes(),
-    getTrendingQuizzes(),
-    prisma.quiz.findMany({
-      where: { isPublished: true },
-      orderBy: { createdAt: 'desc' },
-      take: 12,
-      select: {
-        id: true,
-        title: true,
-        coverImage: true,
-        difficulty: true,
-        playCount: true,
-        avgScore: true,
-        author: { select: { name: true } },
-        category: {
-          select: {
-            slug: true,
-            name: true,
-            icon: true,
-            color: true,
+      }),
+      getPopularQuizzes(),
+      getTrendingQuizzes(),
+      prisma.quiz.findMany({
+        where: { isPublished: true },
+        orderBy: { createdAt: 'desc' },
+        take: 12,
+        select: {
+          id: true,
+          title: true,
+          coverImage: true,
+          difficulty: true,
+          playCount: true,
+          avgScore: true,
+          author: { select: { name: true } },
+          category: {
+            select: {
+              slug: true,
+              name: true,
+              icon: true,
+              color: true,
+            },
           },
         },
-      },
-    }),
-  ])
+      }),
+    ])
 
   const isAuthenticatedUser = Boolean(session?.user?.id && session?.user?.email)
   const currentUser: HomeCurrentUser | null = isAuthenticatedUser
@@ -128,67 +89,6 @@ export async function getHomePageData(): Promise<HomePageData> {
         streakDays: session?.user?.streakDays ?? 0,
       }
     : null
-
-  const topUserIds = playerGroups
-    .map((group) => group.userId)
-    .filter((userId): userId is string => !!userId)
-
-  const users = topUserIds.length
-    ? await prisma.user.findMany({
-        where: { id: { in: topUserIds } },
-        select: {
-          id: true,
-          name: true,
-          image: true,
-        },
-      })
-    : []
-
-  const categoriesWithTotals = categories.map((category) => {
-    const totalPlayCount = category.quizzes.reduce((sum, quiz) => sum + quiz.playCount, 0)
-    const quizCount = category.quizzes.length
-    return {
-      ...category,
-      totalPlayCount,
-      quizCount,
-    }
-  })
-
-  const allPlayCountsZero = categoriesWithTotals.every((category) => category.totalPlayCount === 0)
-
-  const featuredCategories = categoriesWithTotals
-    .sort((a, b) => {
-      if (allPlayCountsZero) {
-        return b.quizCount - a.quizCount
-      }
-      return b.totalPlayCount - a.totalPlayCount || b.quizCount - a.quizCount
-    })
-    .slice(0, 8)
-    .map<HomeFeaturedCategory>((category) => ({
-      slug: category.slug,
-      name: category.name,
-      icon: category.icon,
-      color: category.color || FALLBACK_CATEGORY_GRADIENT,
-      imageUrl: category.imageUrl ?? undefined,
-      description: category.description,
-      quizCount: category.quizCount,
-    }))
-
-  const usersById = new Map(users.map((user) => [user.id, user]))
-
-  const topPlayers = playerGroups
-    .map<HomeTopPlayer | null>((group) => {
-      if (!group.userId) return null
-      const user = usersById.get(group.userId)
-      if (!user) return null
-      return {
-        userId: user.id,
-        name: user.name,
-        image: user.image,
-        totalScore: group._sum.score ?? 0,
-      }
-    })
-    .filter((player): player is HomeTopPlayer => !!player)
 
   // --- Fetch quizzes grouped by parent category (includes subcategory quizzes) ---
   const parentCategories = categories.filter((cat) => cat.parentSlug === null)
@@ -336,15 +236,7 @@ export async function getHomePageData(): Promise<HomePageData> {
   }
 
   return {
-    featuredCategories,
     categoriesWithQuizzes,
-    topPlayers,
-    stats: {
-      totalPlayers,
-      totalQuizzes,
-      totalQuestions,
-      totalCategories,
-    },
     popularQuizzes: popularQuizzesRaw.map(mapQuizCard),
     trendingQuizzes: trendingQuizzesRaw.map(mapQuizCard),
     newestQuizzes: newestQuizzesRaw.map(mapQuizCard),
