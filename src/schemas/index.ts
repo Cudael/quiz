@@ -101,6 +101,11 @@ export const joinDuelSchema = z.object({
   code: z.string().trim().toUpperCase().min(6).max(6),
 })
 
+export const ratingSchema = z.object({
+  quizId: z.string().cuid(),
+  stars: z.number().int().min(1).max(5),
+})
+
 export const reportSchema = z.object({
   quizId: z.string().cuid(),
   reason: z.enum(['SPAM', 'INAPPROPRIATE', 'INCORRECT_ANSWERS', 'COPYRIGHT', 'OTHER']),

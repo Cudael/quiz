@@ -105,6 +105,7 @@ model User {
   notifications       Notification[]
   hostedDuels         Duel[]               @relation("HostedDuels")
   duelParticipations  DuelParticipant[]    @relation("DuelParticipations")
+  ratings             Rating[]
 }
 
 model Category {
@@ -146,9 +147,23 @@ model Quiz {
   sessions    PlaySession[]
   reports     Report[]
   favoritedBy FavoriteQuiz[] @relation("FavoritedBy")
+  ratings     Rating[]
 
   @@index([categoryId])
   @@index([authorId])
+}
+
+model Rating {
+  userId    String
+  quizId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  stars     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([userId, quizId])
+  @@index([quizId])
 }
 
 model Question {

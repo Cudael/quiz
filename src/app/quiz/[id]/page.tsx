@@ -2,14 +2,17 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Clock, BarChart3, Users, Trophy, BookOpen, Play } from 'lucide-react'
+import { ArrowLeft, Clock, BarChart3, Users, Trophy, BookOpen, Play, Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar } from '@/components/ui/avatar'
+import { StarRating } from '@/components/ui/star-rating'
 import { serializeJsonLd } from '@/lib/seo'
 import { prisma } from '@/server/prisma'
+import { auth } from '@/server/auth'
 import { ReportQuizForm } from '../report-quiz-form'
+import { RateQuizForm } from '../rate-quiz-form'
 import { absoluteUrl } from '@/lib/site'
 
 const difficultyVariant: Record<string, 'success' | 'warning' | 'destructive'> = {
@@ -59,34 +62,50 @@ export async function generateMetadata({
 
 export default async function QuizDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+  const session = await auth()
 
-  const quiz = await prisma.quiz.findUnique({
-    where: { id, isPublished: true },
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      coverImage: true,
-      difficulty: true,
-      playCount: true,
-      avgScore: true,
-      category: true,
-      author: { select: { id: true, name: true, image: true } },
-      questions: { select: { id: true } },
-      sessions: {
-        orderBy: { score: 'desc' },
-        take: 5,
-        select: {
-          id: true,
-          score: true,
-          guestName: true,
-          timeTakenMs: true,
-          createdAt: true,
-          user: { select: { name: true, image: true } },
+  const [quiz, ratingAgg, userRating] = await Promise.all([
+    prisma.quiz.findUnique({
+      where: { id, isPublished: true },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        coverImage: true,
+        difficulty: true,
+        playCount: true,
+        avgScore: true,
+        category: true,
+        author: { select: { id: true, name: true, image: true } },
+        questions: { select: { id: true } },
+        sessions: {
+          orderBy: { score: 'desc' },
+          take: 5,
+          select: {
+            id: true,
+            score: true,
+            guestName: true,
+            timeTakenMs: true,
+            createdAt: true,
+            user: { select: { name: true, image: true } },
+          },
         },
       },
-    },
-  })
+    }),
+    prisma.rating.aggregate({
+      where: { quizId: id },
+      _avg: { stars: true },
+      _count: { stars: true },
+    }),
+    session?.user?.id
+      ? prisma.rating.findUnique({
+          where: {
+            userId_quizId: { userId: session.user.id, quizId: id },
+          },
+          select: { stars: true },
+        })
+      : null,
+  ])
 
   if (!quiz) {
     notFound()
@@ -108,6 +127,9 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
     educationalLevel,
     numberOfQuestions: questionCount,
   }
+
+  const avgRating = ratingAgg._avg.stars ?? 0
+  const ratingCount = ratingAgg._count.stars
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -167,7 +189,7 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
             </div>
 
             {/* Stats row */}
-            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
               <StatCard icon={<Users className="h-4 w-4" />} label="Plays" value={quiz.playCount} />
               <StatCard
                 icon={<BarChart3 className="h-4 w-4" />}
@@ -184,6 +206,11 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
                 label="~Time"
                 value={`${Math.round((questionCount * 20) / 60)} min`}
               />
+              <StatCard
+                icon={<Star className="h-4 w-4 text-quiz-yellow" />}
+                label="Rating"
+                value={avgRating > 0 ? avgRating.toFixed(1) : '—'}
+              />
             </div>
           </div>
 
@@ -199,6 +226,16 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
               Start Quiz
             </Link>
           </Button>
+          {/* Rating */}
+          <div className="mt-6 rounded-lg border p-4">
+            <RateQuizForm
+              quizId={quiz.id}
+              userRating={userRating?.stars ?? null}
+              avgRating={avgRating}
+              ratingCount={ratingCount}
+            />
+          </div>
+
           <div className="mt-4">
             <ReportQuizForm quizId={quiz.id} />
           </div>

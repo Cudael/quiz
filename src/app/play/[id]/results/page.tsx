@@ -7,6 +7,7 @@ import { prisma } from '@/server/prisma'
 import { ResultsClient } from './results-client'
 import { LevelProgress } from '@/components/ui/level-progress'
 import { auth } from '@/server/auth'
+import { RateQuizForm } from '@/app/quiz/rate-quiz-form'
 import { QuestionBreakdown } from './_components/question-breakdown'
 
 export default async function ResultsPage({
@@ -111,6 +112,26 @@ export default async function ResultsPage({
 
   const isPersonalBest = await personalBest
 
+  // Fetch rating data for this quiz + user's existing rating
+  const [ratingAgg, userRating] = await Promise.all([
+    prisma.rating.aggregate({
+      where: { quizId: id },
+      _avg: { stars: true },
+      _count: { stars: true },
+    }),
+    authSession?.user?.id
+      ? prisma.rating.findUnique({
+          where: {
+            userId_quizId: { userId: authSession.user.id, quizId: id },
+          },
+          select: { stars: true },
+        })
+      : null,
+  ])
+
+  const avgRating = ratingAgg._avg.stars ?? 0
+  const ratingCount = ratingAgg._count.stars
+
   return (
     <div className="container mx-auto max-w-2xl px-4 py-12">
       <ResultsClient
@@ -178,6 +199,16 @@ export default async function ResultsPage({
       </div>
 
       <QuestionBreakdown questions={sessionRow.quiz.questions} answers={sessionRow.answers} />
+
+      {/* Rating */}
+      <div className="mt-8 mb-8 rounded-lg border p-4">
+        <RateQuizForm
+          quizId={id}
+          userRating={userRating?.stars ?? null}
+          avgRating={avgRating}
+          ratingCount={ratingCount}
+        />
+      </div>
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <Button variant="gradient" size="lg" asChild className="flex-1">
