@@ -139,7 +139,7 @@ export function QuizCardHorizontal({ quiz, className }: QuizCardProps) {
   return (
     <Link
       href={`/quiz/${quiz.id}`}
-      className={cn('group block min-w-0 shrink-0 w-36 sm:w-40 md:w-44', className)}
+      className={cn('group block min-w-0 shrink-0 w-full', className)}
     >
       <div className="overflow-hidden rounded-2xl border border-border/40 shadow-sm transition-shadow duration-200 group-hover:shadow-md">
         {/* Square image area */}
