@@ -1,33 +1,31 @@
 import type { Metadata } from 'next'
-import type React from 'react'
 import Link from 'next/link'
-import * as LucideIcons from 'lucide-react'
 import { ArrowLeft, ArrowRight, ChevronRight } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { absoluteUrl } from '@/lib/site'
-import { withAlphaColor } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { PageHeader } from '@/components/ui/page-header'
-import { QuizCard, QuizCardHorizontal } from '@/components/ui/quiz-card'
+import { QuizCardHorizontal } from '@/components/ui/quiz-card'
 import type { QuizCardData } from '@/components/ui/quiz-card'
 import { prisma } from '@/server/prisma'
 
-type IconLikeProps = {
-  className?: string
-  style?: React.CSSProperties
-  'aria-hidden'?: boolean
+const PAGE_SIZE = 20
+
+type SortOption = 'popular' | 'newest' | 'name'
+
+function parseSearchParams(sp: Record<string, string | string[] | undefined>): {
+  page: number
+  sort: SortOption
+} {
+  const page = Math.max(1, Number(sp.page ?? '1'))
+  const sortRaw = Array.isArray(sp.sort) ? sp.sort[0] : sp.sort
+  const sort: SortOption = sortRaw === 'newest' || sortRaw === 'name' ? sortRaw : 'popular'
+  return { page, sort }
 }
 
-function isIconComponent(value: unknown): value is React.ComponentType<IconLikeProps> {
-  return typeof value === 'function'
-}
-
-function renderLucideIcon(name: string, className: string, color: string) {
-  const maybeIcon = LucideIcons[name as keyof typeof LucideIcons]
-  if (!isIconComponent(maybeIcon)) return null
-  const Icon = maybeIcon
-
-  return <Icon className={className} style={{ color } as React.CSSProperties} aria-hidden />
+const SORT_LABELS: Record<SortOption, string> = {
+  popular: 'Most Popular',
+  newest: 'Newest',
+  name: 'A–Z',
 }
 
 export async function generateMetadata({
@@ -45,9 +43,7 @@ export async function generateMetadata({
     return {
       title: 'Category not found | BusQuiz',
       description: 'This category could not be found.',
-      alternates: {
-        canonical: `/categories/${slug}`,
-      },
+      alternates: { canonical: `/categories/${slug}` },
     }
   }
 
@@ -59,15 +55,19 @@ export async function generateMetadata({
   return {
     title,
     description,
-    alternates: {
-      canonical: `/categories/${category.slug}`,
-    },
+    alternates: { canonical: `/categories/${category.slug}` },
     openGraph: { title, description, url },
     twitter: { card: 'summary_large_image', title, description },
   }
 }
 
-export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function CategoryPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
   const { slug } = await params
   const category = await prisma.category.findUnique({
     where: { slug },
@@ -82,44 +82,16 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     },
   })
 
-  if (!category) {
-    notFound()
-  }
+  if (!category) notFound()
 
-  const [subcategories, quizzes, parentCategory] = await Promise.all([
+  const { page, sort } = parseSearchParams(await searchParams)
+
+  // Fetch subcategories (used as filter pills)
+  const [subcategories, parentCategory] = await Promise.all([
     prisma.category.findMany({
       where: { parentSlug: category.slug },
-      include: {
-        quizzes: {
-          where: { isPublished: true },
-          orderBy: { playCount: 'desc' },
-          take: 10,
-          select: {
-            id: true,
-            title: true,
-            coverImage: true,
-            difficulty: true,
-            playCount: true,
-            author: { select: { name: true } },
-          },
-        },
-      },
+      select: { slug: true, name: true, icon: true, color: true },
       orderBy: { name: 'asc' },
-    }),
-    prisma.quiz.findMany({
-      where: {
-        categoryId: category.id,
-        isPublished: true,
-      },
-      orderBy: { playCount: 'desc' },
-      select: {
-        id: true,
-        title: true,
-        coverImage: true,
-        difficulty: true,
-        playCount: true,
-        author: { select: { name: true } },
-      },
     }),
     category.parentSlug
       ? prisma.category.findUnique({
@@ -128,6 +100,50 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         })
       : Promise.resolve(null),
   ])
+
+  // If this is a parent category, include subcategory quizzes
+  const childSlugs = subcategories.map((s) => s.slug)
+  const childCategoryIds =
+    childSlugs.length > 0
+      ? (
+          await prisma.category.findMany({
+            where: { slug: { in: childSlugs } },
+            select: { id: true },
+          })
+        ).map((c) => c.id)
+      : []
+
+  const allCategoryIds = [category.id, ...childCategoryIds]
+
+  const orderBy =
+    sort === 'newest'
+      ? { createdAt: 'desc' as const }
+      : sort === 'name'
+        ? { title: 'asc' as const }
+        : { playCount: 'desc' as const }
+
+  const [quizzes, totalCount] = await Promise.all([
+    prisma.quiz.findMany({
+      where: { categoryId: { in: allCategoryIds }, isPublished: true },
+      orderBy,
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+      select: {
+        id: true,
+        title: true,
+        coverImage: true,
+        difficulty: true,
+        playCount: true,
+        author: { select: { name: true } },
+        category: { select: { name: true, color: true } },
+      },
+    }),
+    prisma.quiz.count({
+      where: { categoryId: { in: allCategoryIds }, isPublished: true },
+    }),
+  ])
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
 
   const quizCards: QuizCardData[] = quizzes.map((quiz) => ({
     id: quiz.id,
@@ -138,15 +154,26 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         ? quiz.difficulty
         : 'MEDIUM',
     category: {
-      name: category.name,
-      color: category.color,
+      name: quiz.category.name,
+      color: quiz.category.color,
     },
     playCount: quiz.playCount,
     authorName: quiz.author?.name ?? undefined,
   }))
 
+  const categorySlug = category.slug
+
+  function buildUrl(p: number, s: SortOption) {
+    const params = new URLSearchParams()
+    if (p > 1) params.set('page', String(p))
+    if (s !== 'popular') params.set('sort', s)
+    const qs = params.toString()
+    return `/categories/${categorySlug}${qs ? `?${qs}` : ''}`
+  }
+
   return (
-    <div className="container mx-auto space-y-8 px-4 py-12">
+    <div className="container mx-auto space-y-6 px-4 py-8 md:px-6">
+      {/* Breadcrumb */}
       <nav
         aria-label="Breadcrumb"
         className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground"
@@ -173,130 +200,92 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         <span className="font-medium text-foreground">{category.name}</span>
       </nav>
 
-      <section
-        className="rounded-3xl border border-border/70 p-6 md:p-8"
-        style={{
-          backgroundImage: `linear-gradient(135deg, ${category.color}44 0%, hsl(var(--card)) 75%)`,
-        }}
-      >
-        <PageHeader
-          className="mb-0"
-          back={
-            <Button variant="ghost" asChild>
+      {/* Banner */}
+      <section className="rounded-2xl border border-border/50 bg-card p-4 md:p-5">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <Button variant="ghost" size="sm" asChild className="-ml-2 mb-1 h-7 px-2 text-xs">
               <Link href="/categories">
-                <ArrowLeft className="mr-2 h-4 w-4" />
+                <ArrowLeft className="mr-1 h-3 w-3" />
                 All Categories
               </Link>
             </Button>
-          }
-          title={
-            <span className="inline-flex items-center gap-3">
-              <span
-                className="flex h-12 w-12 items-center justify-center rounded-xl"
-                style={{ backgroundColor: 'rgb(255 255 255 / 0.45)' }}
-              >
-                {renderLucideIcon(category.icon, 'h-6 w-6', category.color)}
-              </span>
-              {category.name}
-            </span>
-          }
-          description={
-            <span>
-              {category.description} · {quizCards.length}{' '}
-              {quizCards.length === 1 ? 'quiz' : 'quizzes'}
-            </span>
-          }
-        />
+            <h1 className="text-2xl font-black tracking-tight">{category.name}</h1>
+            <p className="mt-1 max-w-xl text-sm leading-relaxed text-muted-foreground">
+              {category.description}
+            </p>
+          </div>
+          <div className="flex shrink-0 items-center gap-1.5 rounded-lg border border-border/50 bg-background px-3 py-1 text-sm">
+            <span className="font-bold tabular-nums">{totalCount.toLocaleString()}</span>
+            <span className="text-muted-foreground">{totalCount === 1 ? 'quiz' : 'quizzes'}</span>
+          </div>
+        </div>
       </section>
 
+      {/* Subcategory pills */}
       {subcategories.length > 0 ? (
-        <div className="space-y-8">
-          {subcategories.map((sub) => {
-            const subQuizCards: QuizCardData[] = sub.quizzes.map((quiz) => ({
-              id: quiz.id,
-              title: quiz.title,
-              coverImage: quiz.coverImage ?? null,
-              difficulty:
-                quiz.difficulty === 'EASY' ||
-                quiz.difficulty === 'MEDIUM' ||
-                quiz.difficulty === 'HARD'
-                  ? quiz.difficulty
-                  : 'MEDIUM',
-              category: { name: sub.name, color: sub.color },
-              playCount: quiz.playCount,
-              authorName: quiz.author?.name ?? undefined,
-            }))
-
-            return (
-              <section key={sub.slug} aria-labelledby={`subcat-${sub.slug}`}>
-                {/* Subcategory header */}
-                <div className="mb-3 flex items-center gap-3">
-                  <span
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
-                    style={{ backgroundColor: withAlphaColor(sub.color, 0.15) }}
-                  >
-                    {renderLucideIcon(sub.icon, 'h-4.5 w-4.5', sub.color)}
-                  </span>
-                  <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
-                    <div>
-                      <h2 id={`subcat-${sub.slug}`} className="text-lg font-bold leading-tight">
-                        <Link
-                          href={`/categories/${sub.slug}`}
-                          className="transition-colors hover:text-primary"
-                        >
-                          {sub.name}
-                        </Link>
-                      </h2>
-                      <p className="text-xs text-muted-foreground">
-                        {sub.quizzes.length} {sub.quizzes.length === 1 ? 'quiz' : 'quizzes'}
-                      </p>
-                    </div>
-                    <Link
-                      href={`/categories/${sub.slug}`}
-                      className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-primary transition-colors hover:text-primary/80"
-                    >
-                      Browse all <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-                    </Link>
-                  </div>
-                </div>
-
-                {/* Horizontal quiz scroller */}
-                {subQuizCards.length > 0 ? (
-                  <div className="-mx-4 md:-mx-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 md:px-6 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                    {subQuizCards.map((quiz) => (
-                      <QuizCardHorizontal
-                        key={quiz.id}
-                        quiz={quiz}
-                        className="w-48 shrink-0 snap-start"
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <p className="rounded-xl border border-dashed border-border px-4 py-3 text-sm text-muted-foreground">
-                    No quizzes yet in this subcategory.
-                  </p>
-                )}
-              </section>
-            )
-          })}
+        <div className="rounded-2xl border border-border/50 bg-card p-4">
+          <p className="mb-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Want to dig deeper?
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href={`/categories/${category.slug}`}
+              className="rounded-lg border border-foreground/20 bg-foreground/10 px-3 py-1 text-sm font-semibold transition-colors hover:bg-foreground/15"
+            >
+              All
+            </Link>
+            {subcategories.map((sub) => (
+              <Link
+                key={sub.slug}
+                href={`/categories/${sub.slug}`}
+                className="rounded-lg border border-border/50 px-3 py-1 text-sm font-medium text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground"
+              >
+                {sub.name}
+              </Link>
+            ))}
+          </div>
         </div>
       ) : null}
 
-      {quizCards.length > 0 ? (
-        <section className="space-y-4">
-          <h2 className="text-xl font-bold">Quizzes</h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {quizCards.map((quiz) => (
-              <QuizCard key={quiz.id} quiz={quiz} />
-            ))}
-          </div>
-        </section>
-      ) : null}
+      {/* Sort + Results count */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground">
+          Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, totalCount)} of{' '}
+          {totalCount.toLocaleString()} results
+        </p>
+        <div className="flex items-center rounded-xl border border-border/50 bg-card p-0.5 text-sm">
+          {(Object.keys(SORT_LABELS) as SortOption[]).map((key) => (
+            <Link
+              key={key}
+              href={buildUrl(1, key)}
+              className={`rounded-lg px-3 py-1 font-medium transition-colors ${
+                sort === key
+                  ? 'bg-foreground text-background'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {SORT_LABELS[key]}
+            </Link>
+          ))}
+        </div>
+      </div>
 
-      {quizCards.length === 0 && subcategories.length === 0 ? (
+      {/* Quiz grid */}
+      {quizCards.length > 0 ? (
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+          {quizCards.map((quiz) => (
+            <QuizCardHorizontal
+              key={quiz.id}
+              quiz={quiz}
+              className="w-full min-w-0 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2"
+            />
+          ))}
+        </div>
+      ) : (
         <div className="rounded-2xl border border-dashed border-border bg-card/50 p-10 text-center">
           <p className="text-sm text-muted-foreground">
-            No published quizzes or subcategories in this category yet.
+            No published quizzes in this category yet.
           </p>
           <div className="mt-4">
             <Button variant="outline" asChild>
@@ -304,6 +293,31 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             </Button>
           </div>
         </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 ? (
+        <nav aria-label="Pagination" className="flex items-center justify-center gap-2">
+          {page > 1 ? (
+            <Button variant="outline" size="sm" asChild>
+              <Link href={buildUrl(page - 1, sort)}>
+                <ArrowLeft className="mr-1 h-4 w-4" />
+                Previous
+              </Link>
+            </Button>
+          ) : null}
+          <span className="text-sm text-muted-foreground">
+            Page {page} of {totalPages}
+          </span>
+          {page < totalPages ? (
+            <Button variant="outline" size="sm" asChild>
+              <Link href={buildUrl(page + 1, sort)}>
+                Next
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+            </Button>
+          ) : null}
+        </nav>
       ) : null}
     </div>
   )

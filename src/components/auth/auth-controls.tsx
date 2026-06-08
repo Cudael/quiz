@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ChevronDown, LogOut } from 'lucide-react'
 import { useSession, signOut } from 'next-auth/react'
 import { Avatar } from '@/components/ui/avatar'
-import { buttonVariants } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { StreakFlame } from '@/components/ui/streak-flame'
 import { useTheme } from '@/components/theme/theme-provider'
 import {
@@ -20,7 +20,6 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { cn } from '@/lib/utils'
 
 export function AuthControls() {
   const { data: session, status } = useSession()
@@ -33,9 +32,17 @@ export function AuthControls() {
 
   if (!session?.user) {
     return (
-      <Link href="/sign-in" className={cn(buttonVariants({ size: 'sm' }), 'h-8 px-3')}>
-        Sign in
-      </Link>
+      <div className="hidden items-center gap-2 md:flex">
+        <Link
+          href="/sign-in"
+          className="rounded-lg px-3 py-1.5 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
+        >
+          Sign in
+        </Link>
+        <Button asChild size="sm" className="rounded-lg">
+          <Link href="/sign-up">Register</Link>
+        </Button>
+      </div>
     )
   }
 
