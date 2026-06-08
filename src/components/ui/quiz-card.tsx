@@ -5,7 +5,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, useReducedMotion } from 'framer-motion'
 import { cn } from '@/lib/utils'
-import { StarRating } from '@/components/ui/star-rating'
 
 export interface QuizCardData {
   id: string
@@ -182,17 +181,17 @@ export function QuizCardHorizontal({ quiz, className }: QuizCardProps) {
           <h3 className="line-clamp-1 w-full truncate text-sm font-bold leading-tight text-foreground">
             {quiz.title}
           </h3>
-          <div className="flex items-center justify-between text-[10px] font-medium text-muted-foreground">
-            <span className="truncate">{quiz.authorName ? `by ${quiz.authorName}` : null}</span>
-            {quiz.playCount !== undefined ? (
-              <span className="shrink-0 tabular-nums">{formatPlayCount(quiz.playCount)} plays</span>
-            ) : null}
+          <div className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
+            {quiz.avgRating !== undefined && (
+              <span className="shrink-0 text-quiz-yellow">★ {quiz.avgRating.toFixed(1)}</span>
+            )}
+            {quiz.authorName && <span className="truncate">· by {quiz.authorName}</span>}
+            {quiz.playCount !== undefined && (
+              <span className="shrink-0 tabular-nums">
+                · {formatPlayCount(quiz.playCount)} plays
+              </span>
+            )}
           </div>
-          {quiz.avgRating !== undefined ? (
-            <div className="mt-0.5">
-              <StarRating value={Math.round(quiz.avgRating)} size="sm" readonly />
-            </div>
-          ) : null}
         </div>
       </div>
     </Link>
@@ -286,23 +285,19 @@ export function QuizCard({ quiz, className }: QuizCardProps) {
               <ArcadePlayButton size="md" />
             </div>
           </div>
-          {quiz.playCount !== undefined ||
-          quiz.avgScore !== undefined ||
-          quiz.avgRating !== undefined ? (
-            <div className="flex items-center gap-3 text-[11px] font-medium text-muted-foreground">
-              {quiz.playCount !== undefined ? (
-                <span>🎮 {formatPlayCount(quiz.playCount)} plays</span>
-              ) : null}
-              {quiz.avgScore !== undefined ? (
-                <span>📊 {Math.round(quiz.avgScore)}% avg</span>
-              ) : null}
-              {quiz.avgRating !== undefined ? (
-                <span className="inline-flex items-center gap-1">
-                  <StarRating value={Math.round(quiz.avgRating)} size="sm" readonly />
-                </span>
-              ) : null}
+          {(quiz.avgRating !== undefined ||
+            quiz.playCount !== undefined ||
+            quiz.avgScore !== undefined) && (
+            <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
+              {quiz.avgRating !== undefined && (
+                <span className="text-quiz-yellow">★ {quiz.avgRating.toFixed(1)}</span>
+              )}
+              {quiz.playCount !== undefined && (
+                <span>· 🎮 {formatPlayCount(quiz.playCount)} plays</span>
+              )}
+              {quiz.avgScore !== undefined && <span>· 📊 {Math.round(quiz.avgScore)}% avg</span>}
             </div>
-          ) : null}
+          )}
         </div>
       </motion.div>
     </Link>
@@ -399,16 +394,16 @@ export function QuizCardFeatured({ quiz, className }: QuizCardProps) {
             <h3 className="line-clamp-2 text-base font-black leading-tight text-foreground md:text-lg">
               {quiz.title}
             </h3>
-            {quiz.playCount !== undefined ? (
-              <p className="mt-0.5 truncate text-xs font-semibold text-muted-foreground">
-                🎮 {formatPlayCount(quiz.playCount)} plays
-                {quiz.avgRating !== undefined ? (
-                  <span className="ml-2 inline-flex items-center">
-                    <StarRating value={Math.round(quiz.avgRating)} size="sm" readonly />
-                  </span>
-                ) : null}
+            {(quiz.avgRating !== undefined || quiz.playCount !== undefined) && (
+              <p className="mt-0.5 flex items-center gap-1.5 truncate text-xs font-semibold text-muted-foreground">
+                {quiz.avgRating !== undefined && (
+                  <span className="text-quiz-yellow">★ {quiz.avgRating.toFixed(1)}</span>
+                )}
+                {quiz.playCount !== undefined && (
+                  <span>· 🎮 {formatPlayCount(quiz.playCount)} plays</span>
+                )}
               </p>
-            ) : null}
+            )}
           </div>
           <div className="shrink-0">
             <ArcadePlayButton size="lg" />
@@ -435,13 +430,11 @@ export function QuizCardCompact({ quiz, className }: QuizCardProps) {
         <h3 className="line-clamp-2 text-xs font-bold leading-tight text-foreground">
           {quiz.title}
         </h3>
-        <div className="mt-auto flex items-center gap-2 text-[10px] font-medium text-muted-foreground">
-          {quiz.playCount !== undefined ? (
-            <span>{formatPlayCount(quiz.playCount)} plays</span>
-          ) : null}
-          {quiz.avgRating !== undefined ? (
-            <StarRating value={Math.round(quiz.avgRating)} size="sm" readonly />
-          ) : null}
+        <div className="mt-auto flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
+          {quiz.avgRating !== undefined && (
+            <span className="text-quiz-yellow">★ {quiz.avgRating.toFixed(1)}</span>
+          )}
+          {quiz.playCount !== undefined && <span>· {formatPlayCount(quiz.playCount)} plays</span>}
           <span
             className="ml-auto rounded-sm px-1 py-px text-[9px] font-bold uppercase"
             style={{
