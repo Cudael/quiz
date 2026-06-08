@@ -104,7 +104,7 @@ export async function getHomePageData(): Promise<HomePageData> {
       const quizzes = await prisma.quiz.findMany({
         where: { categoryId: { in: allCategoryIds }, isPublished: true },
         orderBy: { playCount: 'desc' },
-        take: 15,
+        take: 12,
         select: {
           id: true,
           title: true,
