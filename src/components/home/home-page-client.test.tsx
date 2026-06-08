@@ -106,6 +106,7 @@ describe('HomePageClient', () => {
   it('renders the guest view with Duel and Daily Challenge CTAs', () => {
     render(
       <HomePageClient
+        categoriesWithQuizzes={[]}
         featuredCategories={featuredCategories}
         topPlayers={topPlayers}
         stats={stats}
@@ -137,6 +138,7 @@ describe('HomePageClient', () => {
   it('renders the authenticated view with Duel and Daily Challenge', () => {
     render(
       <HomePageClient
+        categoriesWithQuizzes={[]}
         featuredCategories={featuredCategories}
         topPlayers={topPlayers}
         stats={stats}
@@ -163,6 +165,7 @@ describe('HomePageClient', () => {
   it('falls back to popular quizzes when an authenticated user has no history yet', () => {
     render(
       <HomePageClient
+        categoriesWithQuizzes={[]}
         featuredCategories={featuredCategories}
         topPlayers={topPlayers}
         stats={stats}

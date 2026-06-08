@@ -3,7 +3,11 @@
 import { motion, useReducedMotion } from 'framer-motion'
 import { fadeUp, staggerContainer, withReducedMotion } from '@/lib/motion'
 import type { HomePageClientProps } from './home-page-client.types'
-import { QuizDenseGridSection, QuizScrollerSection } from './sections/quiz-sections'
+import {
+  QuizDenseGridSection,
+  QuizScrollerSection,
+  CategoryRowSection,
+} from './sections/quiz-sections'
 import { HeroCards } from './sections/hero-cards'
 import { Divider } from './sections/section-primitives'
 
@@ -15,6 +19,7 @@ export type {
 } from './home-page-client.types'
 
 export function HomePageClient({
+  categoriesWithQuizzes,
   popularQuizzes,
   trendingQuizzes,
   newestQuizzes,
@@ -36,6 +41,15 @@ export function HomePageClient({
       <motion.div variants={sectionVariants}>
         <HeroCards currentUser={currentUser} />
       </motion.div>
+
+      <Divider />
+
+      {/* Category rows with horizontal scroll — all categories and their quizzes */}
+      {categoriesWithQuizzes.map((cat) => (
+        <motion.div key={cat.slug} variants={sectionVariants}>
+          <CategoryRowSection category={cat} />
+        </motion.div>
+      ))}
 
       <Divider />
 

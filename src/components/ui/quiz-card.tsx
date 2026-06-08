@@ -17,6 +17,7 @@ export interface QuizCardData {
   }
   playCount?: number
   avgScore?: number
+  authorName?: string
 }
 
 function getDifficultyPillStyle(difficulty: QuizCardData['difficulty']) {
@@ -136,7 +137,10 @@ export function QuizCardHorizontal({ quiz, className }: QuizCardProps) {
   const hasCoverImage = Boolean(quiz.coverImage) && !imageFailed
 
   return (
-    <Link href={`/quiz/${quiz.id}`} className={cn('group block shrink-0 w-44', className)}>
+    <Link
+      href={`/quiz/${quiz.id}`}
+      className={cn('group block min-w-0 shrink-0 w-36 sm:w-40 md:w-44', className)}
+    >
       <div className="overflow-hidden rounded-2xl border border-border/40 shadow-sm transition-shadow duration-200 group-hover:shadow-md">
         {/* Square image area */}
         <div className="relative aspect-square w-full">
@@ -168,28 +172,19 @@ export function QuizCardHorizontal({ quiz, className }: QuizCardProps) {
               {quiz.category.name}
             </span>
           </div>
-
-          <DifficultyPill difficulty={quiz.difficulty} className="bottom-2 right-2 text-[9px]" />
         </div>
 
-        {/* Info bar — taller with more content */}
-        <div className="flex flex-col gap-1.5 bg-card px-3 py-3">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="line-clamp-2 flex-1 text-sm font-bold leading-tight text-foreground">
-              {quiz.title}
-            </h3>
-            <div className="shrink-0">
-              <ArcadePlayButton size="sm" />
-            </div>
+        {/* Info bar */}
+        <div className="flex flex-col gap-1 bg-card px-3 py-2.5">
+          <h3 className="line-clamp-1 w-full truncate text-sm font-bold leading-tight text-foreground">
+            {quiz.title}
+          </h3>
+          <div className="flex items-center justify-between text-[10px] font-medium text-muted-foreground">
+            <span className="truncate">{quiz.authorName ? `by ${quiz.authorName}` : null}</span>
+            {quiz.playCount !== undefined ? (
+              <span className="shrink-0 tabular-nums">{formatPlayCount(quiz.playCount)} plays</span>
+            ) : null}
           </div>
-          {quiz.playCount !== undefined || quiz.avgScore !== undefined ? (
-            <div className="flex items-center gap-3 text-[10px] font-medium text-muted-foreground">
-              {quiz.playCount !== undefined ? (
-                <span>{formatPlayCount(quiz.playCount)} plays</span>
-              ) : null}
-              {quiz.avgScore !== undefined ? <span>{Math.round(quiz.avgScore)}% avg</span> : null}
-            </div>
-          ) : null}
         </div>
       </div>
     </Link>
@@ -400,6 +395,41 @@ export function QuizCardFeatured({ quiz, className }: QuizCardProps) {
           </div>
         </div>
       </motion.div>
+    </Link>
+  )
+}
+
+/** Compact card for category rows — ~7 fit on a full-width screen */
+export function QuizCardCompact({ quiz, className }: QuizCardProps) {
+  return (
+    <Link
+      href={`/quiz/${quiz.id}`}
+      className={cn(
+        'group flex w-36 shrink-0 flex-col overflow-hidden rounded-xl border border-border/50 bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md',
+        className
+      )}
+    >
+      {/* Category color accent bar */}
+      <div className="h-1 w-full shrink-0" style={{ backgroundColor: quiz.category.color }} />
+      <div className="flex flex-1 flex-col gap-1 p-2.5">
+        <h3 className="line-clamp-2 text-xs font-bold leading-tight text-foreground">
+          {quiz.title}
+        </h3>
+        <div className="mt-auto flex items-center gap-2 text-[10px] font-medium text-muted-foreground">
+          {quiz.playCount !== undefined ? (
+            <span>{formatPlayCount(quiz.playCount)} plays</span>
+          ) : null}
+          <span
+            className="ml-auto rounded-sm px-1 py-px text-[9px] font-bold uppercase"
+            style={{
+              backgroundColor: `${quiz.category.color}22`,
+              color: quiz.category.color,
+            }}
+          >
+            {quiz.difficulty.toLowerCase()}
+          </span>
+        </div>
+      </div>
     </Link>
   )
 }

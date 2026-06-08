@@ -11,12 +11,14 @@ import type {
   HomeFeaturedCategory,
   HomeStats,
   HomeTopPlayer,
+  CategoryWithQuizzes,
 } from '@/components/home/home-page-client.types'
 
 const FALLBACK_CATEGORY_GRADIENT = 'var(--background-image-card-gradient)'
 
 export interface HomePageData {
   featuredCategories: HomeFeaturedCategory[]
+  categoriesWithQuizzes: CategoryWithQuizzes[]
   topPlayers: HomeTopPlayer[]
   stats: HomeStats
   popularQuizzes: QuizCardData[]
@@ -42,6 +44,7 @@ function mapQuizCard(quiz: HomeQuizRecord): QuizCardData {
     },
     playCount: quiz.playCount,
     avgScore: quiz.avgScore ?? undefined,
+    authorName: quiz.author?.name ?? undefined,
   }
 }
 
@@ -68,6 +71,7 @@ export async function getHomePageData(): Promise<HomePageData> {
         color: true,
         imageUrl: true,
         description: true,
+        parentSlug: true,
         quizzes: {
           where: { isPublished: true },
           select: { playCount: true },
@@ -102,6 +106,7 @@ export async function getHomePageData(): Promise<HomePageData> {
         difficulty: true,
         playCount: true,
         avgScore: true,
+        author: { select: { name: true } },
         category: {
           select: {
             slug: true,
@@ -185,6 +190,45 @@ export async function getHomePageData(): Promise<HomePageData> {
     })
     .filter((player): player is HomeTopPlayer => !!player)
 
+  // --- Fetch quizzes grouped by parent category (includes subcategory quizzes) ---
+  const parentCategories = categories.filter((cat) => cat.parentSlug === null)
+
+  const categoriesWithQuizzes: CategoryWithQuizzes[] = await Promise.all(
+    parentCategories.map(async (parent) => {
+      // Collect IDs of parent + all its child categories
+      const childIds = categories
+        .filter((cat) => cat.parentSlug === parent.slug)
+        .map((cat) => cat.id)
+      const allCategoryIds = [parent.id, ...childIds]
+
+      const quizzes = await prisma.quiz.findMany({
+        where: { categoryId: { in: allCategoryIds }, isPublished: true },
+        orderBy: { playCount: 'desc' },
+        take: 15,
+        select: {
+          id: true,
+          title: true,
+          coverImage: true,
+          difficulty: true,
+          playCount: true,
+          avgScore: true,
+          author: { select: { name: true } },
+          category: {
+            select: { slug: true, name: true, icon: true, color: true },
+          },
+        },
+      })
+      return {
+        slug: parent.slug,
+        name: parent.name,
+        icon: parent.icon,
+        color: parent.color || FALLBACK_CATEGORY_GRADIENT,
+        imageUrl: parent.imageUrl ?? undefined,
+        quizzes: quizzes.map(mapQuizCard),
+      }
+    })
+  )
+
   let personalizedQuizzes: QuizCardData[] = []
   let recentlyPlayed: QuizCardData[] = []
 
@@ -231,6 +275,7 @@ export async function getHomePageData(): Promise<HomePageData> {
               difficulty: true,
               playCount: true,
               avgScore: true,
+              author: { select: { name: true } },
               category: {
                 select: {
                   slug: true,
@@ -256,6 +301,7 @@ export async function getHomePageData(): Promise<HomePageData> {
               difficulty: true,
               playCount: true,
               avgScore: true,
+              author: { select: { name: true } },
               category: {
                 select: {
                   name: true,
@@ -285,11 +331,13 @@ export async function getHomePageData(): Promise<HomePageData> {
         },
         playCount: quiz.playCount,
         avgScore: quiz.avgScore ?? undefined,
+        authorName: quiz.author?.name ?? undefined,
       }))
   }
 
   return {
     featuredCategories,
+    categoriesWithQuizzes,
     topPlayers,
     stats: {
       totalPlayers,

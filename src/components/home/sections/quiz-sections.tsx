@@ -21,6 +21,12 @@ export function QuizScrollerSection({
   const scrollRef = React.useRef<HTMLDivElement>(null)
   const visibleQuizzes = quizzes.slice(0, MAX_SCROLLER_QUIZZES)
 
+  React.useEffect(() => {
+    const el = scrollRef.current
+    if (!el || typeof el.scrollTo !== 'function') return
+    el.scrollTo({ left: 0, behavior: 'instant' })
+  }, [])
+
   function scroll(dir: 'left' | 'right') {
     if (!scrollRef.current) return
     scrollRef.current.scrollBy({
@@ -56,7 +62,7 @@ export function QuizScrollerSection({
       {visibleQuizzes.length > 0 ? (
         <div
           ref={scrollRef}
-          className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="-mx-4 md:-mx-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 md:px-6 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           aria-label={`${title} quizzes`}
         >
           {visibleQuizzes.map((quiz) => (
@@ -111,7 +117,7 @@ export function QuizDenseGridSection({
             <QuizCardHorizontal
               key={quiz.id}
               quiz={quiz}
-              className="w-full focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2"
+              className="w-full min-w-0 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2"
             />
           ))}
         </div>
@@ -158,6 +164,79 @@ export function QuizGridSection({
           Quizzes will appear here soon.
         </div>
       )}
+    </section>
+  )
+}
+
+import type { CategoryWithQuizzes } from '../home-page-client.types'
+
+const CATEGORY_SCROLL_DISTANCE = 500
+
+export function CategoryRowSection({ category }: { category: CategoryWithQuizzes }) {
+  const scrollRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    const el = scrollRef.current
+    if (!el || typeof el.scrollTo !== 'function') return
+    el.scrollTo({ left: 0, behavior: 'instant' })
+  }, [])
+
+  function scroll(dir: 'left' | 'right') {
+    if (!scrollRef.current) return
+    scrollRef.current.scrollBy({
+      left: dir === 'right' ? CATEGORY_SCROLL_DISTANCE : -CATEGORY_SCROLL_DISTANCE,
+      behavior: 'smooth',
+    })
+  }
+
+  if (category.quizzes.length === 0) return null
+
+  return (
+    <section>
+      <div className="mb-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-lg">{category.icon}</span>
+          <h2 className="text-xl font-black tracking-tight">{category.name}</h2>
+          <span className="text-xs font-semibold text-muted-foreground">
+            {category.quizzes.length}+
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/categories/${category.slug}`}
+            className="text-sm font-semibold text-primary transition-colors hover:text-primary/80"
+          >
+            View all
+          </Link>
+          <button
+            onClick={() => scroll('left')}
+            aria-label={`Scroll ${category.name} left`}
+            className="flex h-7 w-7 items-center justify-center rounded-full border border-border/60 bg-background shadow-sm transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={() => scroll('right')}
+            aria-label={`Scroll ${category.name} right`}
+            className="flex h-7 w-7 items-center justify-center rounded-full border border-border/60 bg-background shadow-sm transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <ArrowRight className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
+      <div
+        ref={scrollRef}
+        className="-mx-4 md:-mx-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 md:px-6 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        aria-label={`${category.name} quizzes`}
+      >
+        {category.quizzes.map((quiz) => (
+          <QuizCardHorizontal
+            key={quiz.id}
+            quiz={quiz}
+            className="snap-start focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2"
+          />
+        ))}
+      </div>
     </section>
   )
 }

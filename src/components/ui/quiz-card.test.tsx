@@ -60,7 +60,7 @@ const baseQuiz: QuizCardData = {
 }
 
 describe('QuizCard difficulty overlay', () => {
-  it('renders difficulty pills on the image for all card variants and removes the old strip', () => {
+  it('renders difficulty pills on the image for large card variants', () => {
     const { container } = render(
       <>
         <QuizCardHorizontal quiz={baseQuiz} />
@@ -69,13 +69,8 @@ describe('QuizCard difficulty overlay', () => {
       </>
     )
 
-    const easyPill = screen.getByText('EASY')
-    expect(easyPill.className).toContain('absolute')
-    expect(easyPill.className).toContain('bottom-2')
-    expect(easyPill.className).toContain('right-2')
-    expect(easyPill.className).toContain('backdrop-blur-md')
-    expect(easyPill.getAttribute('style')).toContain('rgba(34, 197, 94, 0.267)')
-    expect(easyPill.getAttribute('style')).toContain('rgba(34, 197, 94, 0.4)')
+    // QuizCardHorizontal no longer renders difficulty pills — only category pill + title + plays + author
+    expect(screen.queryByText('EASY')).not.toBeInTheDocument()
 
     const mediumPill = screen.getByText('MEDIUM')
     expect(mediumPill.className).toContain('bottom-3')

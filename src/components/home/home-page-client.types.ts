@@ -10,6 +10,15 @@ export interface HomeFeaturedCategory {
   quizCount: number
 }
 
+export interface CategoryWithQuizzes {
+  slug: string
+  name: string
+  icon: string
+  color: string
+  imageUrl?: string
+  quizzes: QuizCardData[]
+}
+
 export interface HomeTopPlayer {
   userId: string
   name: string
@@ -33,6 +42,7 @@ export interface HomeCurrentUser {
 
 export interface HomePageClientProps {
   featuredCategories: HomeFeaturedCategory[]
+  categoriesWithQuizzes: CategoryWithQuizzes[]
   topPlayers: HomeTopPlayer[]
   stats: HomeStats
   popularQuizzes: QuizCardData[]

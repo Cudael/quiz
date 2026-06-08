@@ -13,6 +13,11 @@ export const HOME_QUIZ_SELECT = {
   difficulty: true,
   playCount: true,
   avgScore: true,
+  author: {
+    select: {
+      name: true,
+    },
+  },
   category: {
     select: {
       slug: true,

@@ -100,6 +100,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             coverImage: true,
             difficulty: true,
             playCount: true,
+            author: { select: { name: true } },
           },
         },
       },
@@ -116,6 +117,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         title: true,
         coverImage: true,
         difficulty: true,
+        playCount: true,
+        author: { select: { name: true } },
       },
     }),
     category.parentSlug
@@ -138,6 +141,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
       name: category.name,
       color: category.color,
     },
+    playCount: quiz.playCount,
+    authorName: quiz.author?.name ?? undefined,
   }))
 
   return (
@@ -219,6 +224,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
                   : 'MEDIUM',
               category: { name: sub.name, color: sub.color },
               playCount: quiz.playCount,
+              authorName: quiz.author?.name ?? undefined,
             }))
 
             return (
@@ -233,10 +239,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
                   </span>
                   <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
                     <div>
-                      <h2
-                        id={`subcat-${sub.slug}`}
-                        className="text-lg font-bold leading-tight"
-                      >
+                      <h2 id={`subcat-${sub.slug}`} className="text-lg font-bold leading-tight">
                         <Link
                           href={`/categories/${sub.slug}`}
                           className="transition-colors hover:text-primary"
@@ -259,12 +262,12 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
 
                 {/* Horizontal quiz scroller */}
                 {subQuizCards.length > 0 ? (
-                  <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  <div className="-mx-4 md:-mx-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 md:px-6 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                     {subQuizCards.map((quiz) => (
                       <QuizCardHorizontal
                         key={quiz.id}
                         quiz={quiz}
-                        className="w-48 shrink-0"
+                        className="w-48 shrink-0 snap-start"
                       />
                     ))}
                   </div>
