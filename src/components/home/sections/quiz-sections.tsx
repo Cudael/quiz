@@ -10,14 +10,13 @@ import { SectionHeader } from './section-primitives'
 const MAX_SCROLLER_QUIZZES = 20
 const MAX_CATEGORY_QUIZZES = 12
 
-// 6 columns × card width + 5 gaps × gap-3 (0.75rem) = 100% of container
-// auto-cols ensures exactly 6 cards fill the visible width; additional cards overflow into scroll area
+// 6 columns visible; additional cards overflow into scroll area
 const SCROLL_ROW_CLASS =
-  '-mx-4 md:-mx-6 grid grid-flow-col auto-cols-[calc((100%_-_3.75rem)_/_6)] snap-x snap-mandatory gap-3 overflow-x-auto px-4 md:px-6 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
+  'grid grid-flow-col auto-cols-[calc((100%_-_3.75rem)_/_6)] snap-x snap-mandatory gap-3 overflow-x-auto pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
 
 // Responsive: 2 cards on mobile → 3 on sm → 4 on md → 5 on lg → 6 on xl
 const CATEGORY_SCROLL_ROW_CLASS =
-  '-mx-4 md:-mx-6 grid grid-flow-col auto-cols-[calc((100%_-_0.75rem)_/_2)] sm:auto-cols-[calc((100%_-_1.5rem)_/_3)] md:auto-cols-[calc((100%_-_2.25rem)_/_4)] lg:auto-cols-[calc((100%_-_3rem)_/_5)] xl:auto-cols-[calc((100%_-_3.75rem)_/_6)] snap-x snap-mandatory gap-3 overflow-x-auto px-4 md:px-6 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
+  'grid grid-flow-col auto-cols-[calc((100%_-_0.75rem)_/_2)] sm:auto-cols-[calc((100%_-_1.5rem)_/_3)] md:auto-cols-[calc((100%_-_2.25rem)_/_4)] lg:auto-cols-[calc((100%_-_3rem)_/_5)] xl:auto-cols-[calc((100%_-_3.75rem)_/_6)] snap-x snap-mandatory gap-3 overflow-x-auto pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
 
 export function QuizScrollerSection({
   title,
@@ -56,14 +55,14 @@ export function QuizScrollerSection({
           <button
             onClick={() => scroll('left')}
             aria-label={`Scroll ${title} left`}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background shadow-sm transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background shadow-sm transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <ArrowLeft className="h-4 w-4" />
           </button>
           <button
             onClick={() => scroll('right')}
             aria-label={`Scroll ${title} right`}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background shadow-sm transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background shadow-sm transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <ArrowRight className="h-4 w-4" />
           </button>
@@ -211,14 +210,14 @@ export function CategoryRowSection({ category }: { category: CategoryWithQuizzes
           <button
             onClick={() => scroll('left')}
             aria-label={`Scroll ${category.name} left`}
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-border/60 bg-background shadow-sm transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary hidden sm:flex"
+            className="hidden h-7 w-7 items-center justify-center rounded-full border border-border/60 bg-background shadow-sm transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:flex"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={() => scroll('right')}
             aria-label={`Scroll ${category.name} right`}
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-border/60 bg-background shadow-sm transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary hidden sm:flex"
+            className="hidden h-7 w-7 items-center justify-center rounded-full border border-border/60 bg-background shadow-sm transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:flex"
           >
             <ArrowRight className="h-3.5 w-3.5" />
           </button>

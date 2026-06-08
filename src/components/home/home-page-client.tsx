@@ -28,7 +28,7 @@ export function HomePageClient({
 
   return (
     <motion.div
-      className="container mx-auto space-y-6 overflow-x-hidden px-4 py-6 md:px-6"
+      className="container mx-auto space-y-6 px-4 py-6 md:px-6"
       variants={containerVariants}
       initial="hidden"
       animate="show"
