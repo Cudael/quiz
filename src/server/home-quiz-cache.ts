@@ -26,6 +26,12 @@ export const HOME_QUIZ_SELECT = {
       color: true,
     },
   },
+  _count: {
+    select: { ratings: true },
+  },
+  ratings: {
+    select: { stars: true },
+  },
 } satisfies Prisma.QuizSelect
 
 export type HomeQuizRecord = Prisma.QuizGetPayload<{ select: typeof HOME_QUIZ_SELECT }>

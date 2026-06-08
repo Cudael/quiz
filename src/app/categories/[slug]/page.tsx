@@ -136,6 +136,8 @@ export default async function CategoryPage({
         playCount: true,
         author: { select: { name: true } },
         category: { select: { name: true, color: true } },
+        _count: { select: { ratings: true } },
+        ratings: { select: { stars: true } },
       },
     }),
     prisma.quiz.count({
@@ -145,21 +147,30 @@ export default async function CategoryPage({
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
 
-  const quizCards: QuizCardData[] = quizzes.map((quiz) => ({
-    id: quiz.id,
-    title: quiz.title,
-    coverImage: quiz.coverImage,
-    difficulty:
-      quiz.difficulty === 'EASY' || quiz.difficulty === 'MEDIUM' || quiz.difficulty === 'HARD'
-        ? quiz.difficulty
-        : 'MEDIUM',
-    category: {
-      name: quiz.category.name,
-      color: quiz.category.color,
-    },
-    playCount: quiz.playCount,
-    authorName: quiz.author?.name ?? undefined,
-  }))
+  const quizCards: QuizCardData[] = quizzes.map((quiz) => {
+    const ratingCount = quiz._count?.ratings ?? 0
+    const ratings = quiz.ratings ?? []
+    const avgRating =
+      ratingCount > 0 ? ratings.reduce((sum, r) => sum + r.stars, 0) / ratingCount : undefined
+
+    return {
+      id: quiz.id,
+      title: quiz.title,
+      coverImage: quiz.coverImage,
+      difficulty:
+        quiz.difficulty === 'EASY' || quiz.difficulty === 'MEDIUM' || quiz.difficulty === 'HARD'
+          ? quiz.difficulty
+          : 'MEDIUM',
+      category: {
+        name: quiz.category.name,
+        color: quiz.category.color,
+      },
+      playCount: quiz.playCount,
+      avgRating,
+      ratingCount,
+      authorName: quiz.author?.name ?? undefined,
+    }
+  })
 
   const categorySlug = category.slug
 

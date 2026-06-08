@@ -18,10 +18,7 @@ export function RateQuizForm({
   ratingCount,
 }: RateQuizFormProps) {
   const [isPending, startTransition] = useTransition()
-  const [optimisticRating, setOptimisticRating] = useOptimistic<number | null>(
-    initialUserRating,
-    (_state, newRating: number) => newRating
-  )
+  const [optimisticRating, setOptimisticRating] = useOptimistic<number | null>(initialUserRating)
   const [error, setError] = useState<string | null>(null)
 
   function handleRate(stars: number) {

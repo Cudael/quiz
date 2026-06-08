@@ -10,6 +10,34 @@ import type { HomeCurrentUser, CategoryWithQuizzes } from '@/components/home/hom
 
 const FALLBACK_CATEGORY_GRADIENT = 'var(--background-image-card-gradient)'
 
+const QUIZ_CARD_SELECT_WITH_RATINGS = {
+  id: true,
+  title: true,
+  coverImage: true,
+  difficulty: true,
+  playCount: true,
+  avgScore: true,
+  author: { select: { name: true } },
+  category: {
+    select: { slug: true, name: true, icon: true, color: true },
+  },
+  _count: { select: { ratings: true } },
+  ratings: { select: { stars: true } },
+} as const
+
+function computeRatingInfo(quiz: {
+  _count?: { ratings?: number } | null
+  ratings?: readonly { stars: number }[] | { stars: number }[] | null
+}) {
+  const ratingCount = quiz._count?.ratings ?? 0
+  const ratings = quiz.ratings ?? []
+  const avgRating =
+    ratingCount > 0
+      ? ratings.reduce((sum: number, r: { stars: number }) => sum + r.stars, 0) / ratingCount
+      : undefined
+  return { avgRating, ratingCount }
+}
+
 export interface HomePageData {
   categoriesWithQuizzes: CategoryWithQuizzes[]
   popularQuizzes: QuizCardData[]
@@ -21,6 +49,8 @@ export interface HomePageData {
 }
 
 function mapQuizCard(quiz: HomeQuizRecord): QuizCardData {
+  const { avgRating, ratingCount } = computeRatingInfo(quiz)
+
   return {
     id: quiz.id,
     title: quiz.title,
@@ -35,6 +65,8 @@ function mapQuizCard(quiz: HomeQuizRecord): QuizCardData {
     },
     playCount: quiz.playCount,
     avgScore: quiz.avgScore ?? undefined,
+    avgRating,
+    ratingCount,
     authorName: quiz.author?.name ?? undefined,
   }
 }
@@ -60,23 +92,7 @@ export async function getHomePageData(): Promise<HomePageData> {
         where: { isPublished: true },
         orderBy: { createdAt: 'desc' },
         take: 12,
-        select: {
-          id: true,
-          title: true,
-          coverImage: true,
-          difficulty: true,
-          playCount: true,
-          avgScore: true,
-          author: { select: { name: true } },
-          category: {
-            select: {
-              slug: true,
-              name: true,
-              icon: true,
-              color: true,
-            },
-          },
-        },
+        select: QUIZ_CARD_SELECT_WITH_RATINGS,
       }),
     ])
 
@@ -105,18 +121,7 @@ export async function getHomePageData(): Promise<HomePageData> {
         where: { categoryId: { in: allCategoryIds }, isPublished: true },
         orderBy: { playCount: 'desc' },
         take: 12,
-        select: {
-          id: true,
-          title: true,
-          coverImage: true,
-          difficulty: true,
-          playCount: true,
-          avgScore: true,
-          author: { select: { name: true } },
-          category: {
-            select: { slug: true, name: true, icon: true, color: true },
-          },
-        },
+        select: QUIZ_CARD_SELECT_WITH_RATINGS,
       })
       return {
         slug: parent.slug,
@@ -168,23 +173,7 @@ export async function getHomePageData(): Promise<HomePageData> {
             },
             orderBy: [{ playCount: 'desc' }, { createdAt: 'desc' }],
             take: 12,
-            select: {
-              id: true,
-              title: true,
-              coverImage: true,
-              difficulty: true,
-              playCount: true,
-              avgScore: true,
-              author: { select: { name: true } },
-              category: {
-                select: {
-                  slug: true,
-                  name: true,
-                  icon: true,
-                  color: true,
-                },
-              },
-            },
+            select: QUIZ_CARD_SELECT_WITH_RATINGS,
           })
         : Promise.resolve([]),
       prisma.playSession.findMany({
@@ -194,21 +183,7 @@ export async function getHomePageData(): Promise<HomePageData> {
         take: 10,
         select: {
           quiz: {
-            select: {
-              id: true,
-              title: true,
-              coverImage: true,
-              difficulty: true,
-              playCount: true,
-              avgScore: true,
-              author: { select: { name: true } },
-              category: {
-                select: {
-                  name: true,
-                  color: true,
-                },
-              },
-            },
+            select: QUIZ_CARD_SELECT_WITH_RATINGS,
           },
         },
       }),
@@ -217,22 +192,27 @@ export async function getHomePageData(): Promise<HomePageData> {
     personalizedQuizzes = personalizedRaw.map(mapQuizCard)
     recentlyPlayed = recentlyPlayedSessions
       .map((s) => s.quiz)
-      .map((quiz) => ({
-        id: quiz.id,
-        title: quiz.title,
-        coverImage: quiz.coverImage,
-        difficulty:
-          quiz.difficulty === 'EASY' || quiz.difficulty === 'MEDIUM' || quiz.difficulty === 'HARD'
-            ? quiz.difficulty
-            : ('MEDIUM' as const),
-        category: {
-          name: quiz.category.name,
-          color: quiz.category.color || FALLBACK_CATEGORY_GRADIENT,
-        },
-        playCount: quiz.playCount,
-        avgScore: quiz.avgScore ?? undefined,
-        authorName: quiz.author?.name ?? undefined,
-      }))
+      .map((quiz) => {
+        const { avgRating, ratingCount } = computeRatingInfo(quiz)
+        return {
+          id: quiz.id,
+          title: quiz.title,
+          coverImage: quiz.coverImage,
+          difficulty:
+            quiz.difficulty === 'EASY' || quiz.difficulty === 'MEDIUM' || quiz.difficulty === 'HARD'
+              ? quiz.difficulty
+              : ('MEDIUM' as const),
+          category: {
+            name: quiz.category.name,
+            color: quiz.category.color || FALLBACK_CATEGORY_GRADIENT,
+          },
+          playCount: quiz.playCount,
+          avgScore: quiz.avgScore ?? undefined,
+          avgRating,
+          ratingCount,
+          authorName: quiz.author?.name ?? undefined,
+        }
+      })
   }
 
   return {
