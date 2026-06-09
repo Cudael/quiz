@@ -7,10 +7,11 @@ import { Button } from '@/components/ui/button'
 import { QuizCardHorizontal } from '@/components/ui/quiz-card'
 import type { QuizCardData } from '@/components/ui/quiz-card'
 import { prisma } from '@/server/prisma'
+import { auth } from '@/server/auth'
 
 const PAGE_SIZE = 20
 
-type SortOption = 'popular' | 'newest' | 'name'
+type SortOption = 'popular' | 'newest' | 'name' | 'rating'
 
 function parseSearchParams(sp: Record<string, string | string[] | undefined>): {
   page: number
@@ -18,7 +19,8 @@ function parseSearchParams(sp: Record<string, string | string[] | undefined>): {
 } {
   const page = Math.max(1, Number(sp.page ?? '1'))
   const sortRaw = Array.isArray(sp.sort) ? sp.sort[0] : sp.sort
-  const sort: SortOption = sortRaw === 'newest' || sortRaw === 'name' ? sortRaw : 'popular'
+  const sort: SortOption =
+    sortRaw === 'newest' || sortRaw === 'name' || sortRaw === 'rating' ? sortRaw : 'popular'
   return { page, sort }
 }
 
@@ -26,6 +28,7 @@ const SORT_LABELS: Record<SortOption, string> = {
   popular: 'Most Popular',
   newest: 'Newest',
   name: 'A–Z',
+  rating: 'Highest Rated',
 }
 
 export async function generateMetadata({
@@ -86,6 +89,20 @@ export default async function CategoryPage({
 
   const { page, sort } = parseSearchParams(await searchParams)
 
+  // Cross-reference user's played quizzes to show completion badge
+  const session = await auth()
+  const playedQuizIds = new Set<string>()
+  if (session?.user?.id) {
+    const userSessions = await prisma.playSession.findMany({
+      where: { userId: session.user.id },
+      select: { quizId: true },
+      distinct: ['quizId'],
+    })
+    for (const s of userSessions) {
+      playedQuizIds.add(s.quizId)
+    }
+  }
+
   // Fetch subcategories (used as filter pills)
   const [subcategories, parentCategory] = await Promise.all([
     prisma.category.findMany({
@@ -115,44 +132,25 @@ export default async function CategoryPage({
 
   const allCategoryIds = [category.id, ...childCategoryIds]
 
-  const orderBy =
-    sort === 'newest'
-      ? { createdAt: 'desc' as const }
-      : sort === 'name'
-        ? { title: 'asc' as const }
-        : { playCount: 'desc' as const }
+  const selectFields = {
+    id: true,
+    title: true,
+    coverImage: true,
+    difficulty: true,
+    playCount: true,
+    author: { select: { name: true } },
+    category: { select: { name: true, color: true } },
+    _count: { select: { ratings: true } },
+    ratings: { select: { stars: true } },
+  } as const
 
-  const [quizzes, totalCount] = await Promise.all([
-    prisma.quiz.findMany({
-      where: { categoryId: { in: allCategoryIds }, isPublished: true },
-      orderBy,
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-      select: {
-        id: true,
-        title: true,
-        coverImage: true,
-        difficulty: true,
-        playCount: true,
-        author: { select: { name: true } },
-        category: { select: { name: true, color: true } },
-        _count: { select: { ratings: true } },
-        ratings: { select: { stars: true } },
-      },
-    }),
-    prisma.quiz.count({
-      where: { categoryId: { in: allCategoryIds }, isPublished: true },
-    }),
-  ])
-
-  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
-
-  const quizCards: QuizCardData[] = quizzes.map((quiz) => {
+  function toQuizCard(
+    quiz: Awaited<ReturnType<typeof prisma.quiz.findMany<{ select: typeof selectFields }>>>[number]
+  ): QuizCardData {
     const ratingCount = quiz._count?.ratings ?? 0
     const ratings = quiz.ratings ?? []
     const avgRating =
       ratingCount > 0 ? ratings.reduce((sum, r) => sum + r.stars, 0) / ratingCount : undefined
-
     return {
       id: quiz.id,
       title: quiz.title,
@@ -161,16 +159,68 @@ export default async function CategoryPage({
         quiz.difficulty === 'EASY' || quiz.difficulty === 'MEDIUM' || quiz.difficulty === 'HARD'
           ? quiz.difficulty
           : 'MEDIUM',
-      category: {
-        name: quiz.category.name,
-        color: quiz.category.color,
-      },
+      category: { name: quiz.category.name, color: quiz.category.color },
       playCount: quiz.playCount,
       avgRating,
       ratingCount,
       authorName: quiz.author?.name ?? undefined,
+      completed: playedQuizIds.has(quiz.id) || undefined,
     }
-  })
+  }
+
+  async function fetchPaginatedQuizzes(
+    orderBy: Record<string, unknown>,
+    skip: number
+  ): Promise<{ quizCards: QuizCardData[]; totalCount: number }> {
+    const [quizzes, totalCount] = await Promise.all([
+      prisma.quiz.findMany({
+        where: { categoryId: { in: allCategoryIds }, isPublished: true },
+        orderBy,
+        skip,
+        take: PAGE_SIZE,
+        select: selectFields,
+      }),
+      prisma.quiz.count({
+        where: { categoryId: { in: allCategoryIds }, isPublished: true },
+      }),
+    ])
+    return { quizCards: quizzes.map(toQuizCard), totalCount }
+  }
+
+  let quizCards: QuizCardData[]
+  let totalCount: number
+
+  if (sort === 'rating') {
+    // Fetch all quizzes, compute avg rating in-memory, then paginate
+    const allQuizzes = await prisma.quiz.findMany({
+      where: { categoryId: { in: allCategoryIds }, isPublished: true },
+      select: selectFields,
+    })
+
+    totalCount = allQuizzes.length
+
+    const scored = allQuizzes.map(toQuizCard).sort((a, b) => {
+      const aAvg = a.avgRating ?? 0
+      const bAvg = b.avgRating ?? 0
+      if (bAvg !== aAvg) return bAvg - aAvg
+      // Tie-break by rating count, then playCount
+      if (b.ratingCount !== a.ratingCount) return b.ratingCount - a.ratingCount
+      return b.playCount - a.playCount
+    })
+
+    const skip = (page - 1) * PAGE_SIZE
+    quizCards = scored.slice(skip, skip + PAGE_SIZE)
+  } else {
+    const orderBy =
+      sort === 'newest'
+        ? { createdAt: 'desc' as const }
+        : sort === 'name'
+          ? { title: 'asc' as const }
+          : { playCount: 'desc' as const }
+    ;({ quizCards, totalCount } = await fetchPaginatedQuizzes(orderBy, (page - 1) * PAGE_SIZE))
+  }
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
 
   const categorySlug = category.slug
 

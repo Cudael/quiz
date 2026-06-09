@@ -1,7 +1,8 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
-import { Flame, Swords } from 'lucide-react'
+import { Flame } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { HomeCurrentUser } from '../home-page-client.types'
 
@@ -11,19 +12,19 @@ export function HeroCards({ currentUser }: { currentUser: HomeCurrentUser | null
       <div className="grid gap-4 sm:grid-cols-2">
         {/* Duel Mode */}
         <div className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card">
-          {/* Decorative background area — placeholder for future image */}
-          <div className="absolute inset-0 bg-gradient-to-br from-violet-500/15 via-purple-500/10 to-fuchsia-500/5">
-            <div className="absolute -right-6 -top-6 h-36 w-36 rounded-full bg-violet-500/20 blur-2xl" />
-            <div className="absolute -bottom-4 -left-4 h-28 w-28 rounded-full bg-fuchsia-500/15 blur-2xl" />
-          </div>
-          {/* Right-side decorative icon */}
-          <div className="absolute right-4 top-1/2 -translate-y-1/2">
-            <Swords className="h-24 w-24 rotate-12 text-violet-500/10" />
-          </div>
+          {/* Background image */}
+          <Image
+            src="/duel.png"
+            alt=""
+            fill
+            unoptimized
+            sizes="(max-width: 640px) 100vw, 50vw"
+            className="object-cover"
+          />
           {/* Content */}
-          <div className="relative flex flex-col p-6 pr-28">
+          <div className="relative flex flex-col p-6">
             <h2 className="text-2xl font-black tracking-tight">Duel Mode</h2>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            <p className="mt-2 text-sm leading-relaxed text-white">
               Challenge a friend and see who comes out on top!
             </p>
             <Button asChild variant="gradient" className="mt-5 w-fit rounded-xl font-bold">

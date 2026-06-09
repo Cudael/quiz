@@ -1,4 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton'
+import { QuizCardGridSkeleton } from '@/components/ui/quiz-card'
 
 export default function CategoryLoading() {
   return (
@@ -39,7 +40,7 @@ export default function CategoryLoading() {
         <Skeleton className="h-7 w-24" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-52 rounded-2xl" />
+            <QuizCardGridSkeleton key={i} />
           ))}
         </div>
       </div>

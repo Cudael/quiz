@@ -14,7 +14,7 @@ import {
 
 /**
  * Owns all stateful logic for the quiz runner: data fetching, timers,
- * keyboard shortcuts, answer handling and submission. The
+ * answer handling and submission. The
  * presentational `PlayView` component consumes the returned state/handlers.
  */
 export function usePlayRunner(quizId: string) {
@@ -415,97 +415,6 @@ export function usePlayRunner(quizId: string) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quizId])
-
-  useEffect(() => {
-    if (store.status !== 'playing') return
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (showQuitModal) {
-        if (event.key === 'Escape') {
-          event.preventDefault()
-        }
-        return
-      }
-
-      const target = event.target as HTMLElement | null
-      const isEditableTarget =
-        target instanceof HTMLInputElement ||
-        target instanceof HTMLTextAreaElement ||
-        target?.isContentEditable === true
-
-      if (event.key === 'Escape') {
-        event.preventDefault()
-        return
-      }
-
-      if (isEditableTarget) {
-        if (
-          (currentQuestion?.type === 'FILL_BLANK' || currentQuestion?.type === 'LABEL') &&
-          event.key === 'Enter' &&
-          !isAnswered
-        ) {
-          event.preventDefault()
-          handleSubmitSelection()
-        }
-        return
-      }
-
-      if (isAnswered) {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault()
-          onNextRef.current?.()
-        }
-        return
-      }
-
-      const visibleChoices = currentQuestion?.choices.filter(
-        (choice) => !questionUI.hiddenChoiceIds.includes(choice.id)
-      )
-
-      const normalizedKey = event.key.toLowerCase()
-      // Only apply 1-4 / a-d shortcuts for classic question types
-      const useShortcuts = !['ORDERING', 'MATCHING', 'CATEGORIZE', 'LABEL'].includes(
-        currentQuestion?.type ?? ''
-      )
-      const shortcutMap: Record<string, number> = {
-        '1': 0,
-        a: 0,
-        '2': 1,
-        b: 1,
-        '3': 2,
-        c: 2,
-        '4': 3,
-        d: 3,
-      }
-      const shortcutIndex = shortcutMap[normalizedKey]
-      if (useShortcuts && visibleChoices && shortcutIndex !== undefined) {
-        const choice = visibleChoices[shortcutIndex]
-        if (choice) {
-          event.preventDefault()
-          handleChoiceSelect(choice.id)
-        }
-        return
-      }
-
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault()
-        handleSubmitSelection()
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [
-    currentQuestion,
-    handleChoiceSelect,
-    handleSubmitSelection,
-    isAnswered,
-    questionUI.hiddenChoiceIds,
-    showQuitModal,
-    store.status,
-  ])
 
   const goNext = useCallback(() => {
     onNextRef.current?.()

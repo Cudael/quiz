@@ -48,7 +48,7 @@ export interface HomePageData {
   currentUser: HomeCurrentUser | null
 }
 
-function mapQuizCard(quiz: HomeQuizRecord): QuizCardData {
+function mapQuizCard(quiz: HomeQuizRecord, completedQuizIds?: Set<string>): QuizCardData {
   const { avgRating, ratingCount } = computeRatingInfo(quiz)
 
   return {
@@ -68,6 +68,7 @@ function mapQuizCard(quiz: HomeQuizRecord): QuizCardData {
     avgRating,
     ratingCount,
     authorName: quiz.author?.name ?? undefined,
+    completed: completedQuizIds?.has(quiz.id) ?? undefined,
   }
 }
 
@@ -106,6 +107,19 @@ export async function getHomePageData(): Promise<HomePageData> {
       }
     : null
 
+  // Fetch user's played quiz IDs early to mark completed cards
+  const playedQuizIds = new Set<string>()
+  if (isAuthenticatedUser && session?.user?.id) {
+    const userSessions = await prisma.playSession.findMany({
+      where: { userId: session.user.id },
+      select: { quizId: true },
+      distinct: ['quizId'],
+    })
+    for (const s of userSessions) {
+      playedQuizIds.add(s.quizId)
+    }
+  }
+
   // --- Fetch quizzes grouped by parent category (includes subcategory quizzes) ---
   const parentCategories = categories.filter((cat) => cat.parentSlug === null)
 
@@ -129,7 +143,7 @@ export async function getHomePageData(): Promise<HomePageData> {
         icon: parent.icon,
         color: parent.color || FALLBACK_CATEGORY_GRADIENT,
         imageUrl: parent.imageUrl ?? undefined,
-        quizzes: quizzes.map(mapQuizCard),
+        quizzes: quizzes.map((q) => mapQuizCard(q, playedQuizIds)),
       }
     })
   )
@@ -150,7 +164,7 @@ export async function getHomePageData(): Promise<HomePageData> {
       },
     })
 
-    const playedQuizIds = [...new Set(userSessions.map((playSession) => playSession.quizId))]
+    const previouslyPlayedIds = [...new Set(userSessions.map((playSession) => playSession.quizId))]
     const categoryCounts = new Map<string, number>()
 
     for (const playSession of userSessions) {
@@ -169,7 +183,7 @@ export async function getHomePageData(): Promise<HomePageData> {
             where: {
               isPublished: true,
               categoryId: { in: topCategoryIds },
-              ...(playedQuizIds.length > 0 ? { id: { notIn: playedQuizIds } } : {}),
+              ...(previouslyPlayedIds.length > 0 ? { id: { notIn: previouslyPlayedIds } } : {}),
             },
             orderBy: [{ playCount: 'desc' }, { createdAt: 'desc' }],
             take: 12,
@@ -189,7 +203,7 @@ export async function getHomePageData(): Promise<HomePageData> {
       }),
     ])
 
-    personalizedQuizzes = personalizedRaw.map(mapQuizCard)
+    personalizedQuizzes = personalizedRaw.map((q) => mapQuizCard(q, playedQuizIds))
     recentlyPlayed = recentlyPlayedSessions
       .map((s) => s.quiz)
       .map((quiz) => {
@@ -211,15 +225,16 @@ export async function getHomePageData(): Promise<HomePageData> {
           avgRating,
           ratingCount,
           authorName: quiz.author?.name ?? undefined,
+          completed: playedQuizIds.has(quiz.id) || undefined,
         }
       })
   }
 
   return {
     categoriesWithQuizzes,
-    popularQuizzes: popularQuizzesRaw.map(mapQuizCard),
-    trendingQuizzes: trendingQuizzesRaw.map(mapQuizCard),
-    newestQuizzes: newestQuizzesRaw.map(mapQuizCard),
+    popularQuizzes: popularQuizzesRaw.map((q) => mapQuizCard(q, playedQuizIds)),
+    trendingQuizzes: trendingQuizzesRaw.map((q) => mapQuizCard(q, playedQuizIds)),
+    newestQuizzes: newestQuizzesRaw.map((q) => mapQuizCard(q, playedQuizIds)),
     personalizedQuizzes,
     recentlyPlayed,
     currentUser,

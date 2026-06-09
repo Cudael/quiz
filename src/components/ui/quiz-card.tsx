@@ -20,6 +20,7 @@ export interface QuizCardData {
   avgRating?: number
   ratingCount?: number
   authorName?: string
+  completed?: boolean
 }
 
 function getDifficultyPillStyle(difficulty: QuizCardData['difficulty']) {
@@ -114,6 +115,14 @@ interface QuizCardProps {
   className?: string
 }
 
+function PlayedBadge() {
+  return (
+    <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-500/20 px-1.5 py-px text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 shrink-0">
+      ✓ Played
+    </span>
+  )
+}
+
 function DifficultyPill({
   difficulty,
   className,
@@ -191,6 +200,7 @@ export function QuizCardHorizontal({ quiz, className }: QuizCardProps) {
                 · {formatPlayCount(quiz.playCount)} plays
               </span>
             )}
+            {quiz.completed && <PlayedBadge />}
           </div>
         </div>
       </div>
@@ -296,6 +306,7 @@ export function QuizCard({ quiz, className }: QuizCardProps) {
                 <span>· 🎮 {formatPlayCount(quiz.playCount)} plays</span>
               )}
               {quiz.avgScore !== undefined && <span>· 📊 {Math.round(quiz.avgScore)}% avg</span>}
+              {quiz.completed && <PlayedBadge />}
             </div>
           )}
         </div>
@@ -402,6 +413,7 @@ export function QuizCardFeatured({ quiz, className }: QuizCardProps) {
                 {quiz.playCount !== undefined && (
                   <span>· 🎮 {formatPlayCount(quiz.playCount)} plays</span>
                 )}
+                {quiz.completed && <PlayedBadge />}
               </p>
             )}
           </div>
@@ -435,6 +447,7 @@ export function QuizCardCompact({ quiz, className }: QuizCardProps) {
             <span className="text-quiz-yellow">★ {quiz.avgRating.toFixed(1)}</span>
           )}
           {quiz.playCount !== undefined && <span>· {formatPlayCount(quiz.playCount)} plays</span>}
+          {quiz.completed && <PlayedBadge />}
           <span
             className="ml-auto rounded-sm px-1 py-px text-[9px] font-bold uppercase"
             style={{
@@ -447,5 +460,101 @@ export function QuizCardCompact({ quiz, className }: QuizCardProps) {
         </div>
       </div>
     </Link>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Skeleton placeholders — match the shape of each card variant
+// ---------------------------------------------------------------------------
+
+function SkeletonPulse({ className }: { className?: string }) {
+  return <div className={cn('animate-pulse rounded-md bg-muted', className)} />
+}
+
+/** Skeleton matching QuizCardHorizontal: square image area + info bar */
+export function QuizCardHorizontalSkeleton({ className }: { className?: string }) {
+  return (
+    <div className={cn('block min-w-0 shrink-0 w-full', className)}>
+      <div className="overflow-hidden rounded-2xl border border-border/40 shadow-sm">
+        {/* Square image area */}
+        <div className="relative aspect-square w-full bg-muted animate-pulse">
+          {/* Category pill placeholder */}
+          <div className="absolute left-2 top-2">
+            <SkeletonPulse className="h-5 w-14 rounded-full" />
+          </div>
+        </div>
+        {/* Info bar */}
+        <div className="flex flex-col gap-2 bg-card px-3 py-2.5">
+          <SkeletonPulse className="h-3.5 w-3/4" />
+          <div className="flex items-center gap-1.5">
+            <SkeletonPulse className="h-2.5 w-10" />
+            <SkeletonPulse className="h-2.5 w-14" />
+            <SkeletonPulse className="h-2.5 w-12" />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/** Skeleton matching QuizCard: taller image + info section */
+export function QuizCardGridSkeleton({ className }: { className?: string }) {
+  return (
+    <div className={cn('block', className)}>
+      <div className="rounded-2xl border border-border/50 shadow-md">
+        {/* Image area — taller than horizontal */}
+        <div className="relative aspect-square w-full overflow-hidden rounded-t-2xl bg-muted animate-pulse">
+          <div className="absolute left-3 top-3">
+            <SkeletonPulse className="h-5 w-16 rounded-full" />
+          </div>
+          <div className="absolute bottom-3 right-3">
+            <SkeletonPulse className="h-5 w-16 rounded-full" />
+          </div>
+        </div>
+        {/* Info section */}
+        <div className="flex flex-col gap-2 rounded-b-2xl bg-card px-4 py-4">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex-1 space-y-2">
+              <SkeletonPulse className="h-4 w-full" />
+              <SkeletonPulse className="h-4 w-2/3" />
+            </div>
+            <SkeletonPulse className="h-10 w-10 rounded-full" />
+          </div>
+          <div className="flex items-center gap-1.5">
+            <SkeletonPulse className="h-3 w-10" />
+            <SkeletonPulse className="h-3 w-16" />
+            <SkeletonPulse className="h-3 w-14" />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Renders a row of `count` QuizCardHorizontalSkeleton placeholders
+ * matching the home-page scroller layout.
+ */
+export function QuizCardScrollerSkeleton({ count = 6 }: { count?: number }) {
+  return (
+    <div className="grid grid-flow-col auto-cols-[calc((100%_-_3.75rem)_/_6)] snap-x gap-3 overflow-hidden pb-3">
+      {Array.from({ length: count }).map((_, i) => (
+        <QuizCardHorizontalSkeleton key={i} className="snap-start" />
+      ))}
+    </div>
+  )
+}
+
+/**
+ * Renders a responsive grid of QuizCardHorizontalSkeleton placeholders
+ * matching the category-row scroller layout.
+ */
+export function QuizCardCategoryRowSkeleton({ count = 12 }: { count?: number }) {
+  return (
+    <div className="grid grid-flow-col auto-cols-[calc((100%_-_0.75rem)_/_2)] sm:auto-cols-[calc((100%_-_1.5rem)_/_3)] md:auto-cols-[calc((100%_-_2.25rem)_/_4)] lg:auto-cols-[calc((100%_-_3rem)_/_5)] xl:auto-cols-[calc((100%_-_3.75rem)_/_6)] snap-x gap-3 overflow-hidden pb-3">
+      {Array.from({ length: count }).map((_, i) => (
+        <QuizCardHorizontalSkeleton key={i} className="snap-start" />
+      ))}
+    </div>
   )
 }

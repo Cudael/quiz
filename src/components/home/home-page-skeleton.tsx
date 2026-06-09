@@ -1,4 +1,10 @@
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  QuizCardGridSkeleton,
+  QuizCardHorizontalSkeleton,
+  QuizCardScrollerSkeleton,
+  QuizCardCategoryRowSkeleton,
+} from '@/components/ui/quiz-card'
 
 export function HomePageSkeleton() {
   return (
@@ -6,44 +12,32 @@ export function HomePageSkeleton() {
       {/* Hero */}
       <Skeleton className="h-72 w-full rounded-3xl md:h-80" />
 
-      {/* Quiz grid */}
+      {/* Quiz grid — 2 cols mobile, 3 cols lg */}
       <div className="space-y-3">
         <Skeleton className="h-7 w-48 rounded-xl" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[0, 1, 2, 3, 4, 5].map((i) => (
-            <Skeleton key={i} className="h-52 rounded-2xl" />
+          {Array.from({ length: 6 }).map((_, i) => (
+            <QuizCardGridSkeleton key={i} />
           ))}
         </div>
       </div>
 
-      {/* Horizontal scroller */}
+      {/* Horizontal scroller — matching the 6-col scroller */}
       <div className="space-y-3">
         <Skeleton className="h-7 w-44 rounded-xl" />
-        <div className="flex gap-4 overflow-hidden">
-          {[0, 1, 2, 3].map((j) => (
-            <Skeleton key={j} className="h-44 w-52 shrink-0 rounded-2xl" />
-          ))}
-        </div>
+        <QuizCardScrollerSkeleton count={6} />
       </div>
 
-      {/* Category mosaic */}
+      {/* Category mosaic — category row scroller */}
       <div className="space-y-3">
         <Skeleton className="h-7 w-40 rounded-xl" />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-          {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
-            <Skeleton key={i} className="h-28 rounded-2xl" />
-          ))}
-        </div>
+        <QuizCardCategoryRowSkeleton count={12} />
       </div>
 
       {/* Horizontal scroller */}
       <div className="space-y-3">
         <Skeleton className="h-7 w-36 rounded-xl" />
-        <div className="flex gap-4 overflow-hidden">
-          {[0, 1, 2, 3].map((j) => (
-            <Skeleton key={j} className="h-44 w-52 shrink-0 rounded-2xl" />
-          ))}
-        </div>
+        <QuizCardScrollerSkeleton count={6} />
       </div>
 
       {/* Leaderboard section */}

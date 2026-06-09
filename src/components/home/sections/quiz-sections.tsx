@@ -202,7 +202,7 @@ export function CategoryRowSection({ category }: { category: CategoryWithQuizzes
         <div className="flex items-center gap-2">
           <Link
             href={`/categories/${category.slug}`}
-            className="text-sm font-semibold text-primary transition-colors hover:text-primary/80"
+            className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
           >
             View all
           </Link>
