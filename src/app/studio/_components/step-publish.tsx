@@ -10,7 +10,7 @@ import { ImageUpload } from './image-upload'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import { updateQuiz } from '@/app/studio/actions'
 import { createQuizAndReturnId } from '@/app/studio/actions/quiz-meta-actions'
-import { addQuestion } from '@/app/studio/actions/question-actions'
+import { addQuestion, updateQuestion } from '@/app/studio/actions/question-actions'
 import { togglePublish } from '@/app/studio/actions'
 
 interface StepPublishProps {
@@ -119,7 +119,14 @@ export function StepPublish({ quizId }: StepPublishProps) {
               }))
             )
           )
-          const qResult = await addQuestion(qFd)
+
+          let qResult
+          if (q.dbId) {
+            qFd.set('questionId', q.dbId)
+            qResult = await updateQuestion(qFd)
+          } else {
+            qResult = await addQuestion(qFd)
+          }
           if (!qResult.ok) {
             addToast(qResult.message || 'Could not save a question.', 'error')
             return
@@ -140,6 +147,36 @@ export function StepPublish({ quizId }: StepPublishProps) {
         setLastSaved(new Date())
         router.push(`/quiz/${newQuizId}`)
         return
+      }
+
+      // Existing quiz — persist any unsaved questions, then toggle publish
+      for (let i = 0; i < questions.length; i++) {
+        const q = questions[i]
+        if (!q.dbId) {
+          const qFd = new FormData()
+          qFd.set('quizId', quizId)
+          qFd.set('type', q.type)
+          qFd.set('prompt', q.prompt)
+          qFd.set('timeLimitSec', String(q.timeLimitSec))
+          qFd.set('order', String(i))
+          if (q.imageUrl) qFd.set('imageUrl', q.imageUrl)
+          if (q.explanation) qFd.set('explanation', q.explanation)
+          qFd.set(
+            'choices',
+            JSON.stringify(
+              q.choices.map((c) => ({
+                text: c.text,
+                isCorrect: c.isCorrect,
+                ...(c.meta ? { meta: c.meta } : {}),
+              }))
+            )
+          )
+          const qResult = await addQuestion(qFd)
+          if (!qResult.ok) {
+            addToast(qResult.message || 'Could not save a question.', 'error')
+            return
+          }
+        }
       }
 
       const fd = new FormData()
