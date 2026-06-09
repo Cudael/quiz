@@ -142,6 +142,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           t.streakDays = dbUser.streakDays
           t.emailVerified = dbUser.emailVerified ? dbUser.emailVerified.toISOString() : null
           t.profileRefreshedAt = now
+        } else {
+          // User no longer exists — clear the token to force re-auth
+          delete t.id
+          delete t.role
+          delete t.username
+          delete t.xp
+          delete t.level
+          delete t.streakDays
+          delete t.emailVerified
+          delete t.profileRefreshedAt
         }
       }
 

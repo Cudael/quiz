@@ -43,6 +43,13 @@ export async function createQuizAndReturnId(formData: FormData): Promise<QuizMet
     authorId: session.user.id,
   }
 
+  // Verify the user still exists before creating to avoid FK violations
+  // from stale JWT sessions where the user was deleted from the DB.
+  const userExists = await prisma.user.count({ where: { id: session.user.id } })
+  if (userExists === 0) {
+    return { ok: false, error: 'UNAUTHORIZED', message: 'Session expired. Please sign in again.' }
+  }
+
   const quiz = await prisma.quiz.create({ data })
 
   revalidatePath('/studio')

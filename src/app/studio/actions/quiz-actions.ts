@@ -97,6 +97,11 @@ export async function createQuiz(formData: FormData): Promise<ActionResult> {
     authorId: session.user.id,
   }
 
+  const userExists = await prisma.user.count({ where: { id: session.user.id } })
+  if (userExists === 0) {
+    return { ok: false, error: 'UNAUTHORIZED', message: 'Session expired. Please sign in again.' }
+  }
+
   await prisma.quiz.create({ data })
 
   revalidatePath('/studio')

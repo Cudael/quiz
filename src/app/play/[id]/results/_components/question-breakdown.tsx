@@ -2,11 +2,52 @@ import { CheckCircle2, MinusCircle, XCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { copy } from '@/lib/copy'
 import { renderFillBlankPrompt } from '@/domain/quiz-constants'
-import type { ResultAnswer, ResultQuestion } from '../results.types'
+import type { ResultAnswer, ResultChoice, ResultQuestion } from '../results.types'
 
 interface QuestionBreakdownProps {
   questions: ResultQuestion[]
   answers: ResultAnswer[]
+}
+
+/** Determine per-choice correctness for format-specific types using meta fields. */
+function isChoiceCorrect(
+  choice: ResultChoice,
+  allChoices: ResultChoice[],
+  questionType: string
+): boolean {
+  // Classic types use the isCorrect flag directly
+  if (!['ORDERING', 'MATCHING', 'CATEGORIZE', 'LABEL'].includes(questionType)) {
+    return choice.isCorrect
+  }
+
+  const meta = choice.meta
+
+  if (questionType === 'ORDERING') {
+    const sorted = [...allChoices].sort(
+      (a, b) =>
+        ((a.meta as { order?: number } | null)?.order ?? 0) -
+        ((b.meta as { order?: number } | null)?.order ?? 0)
+    )
+    const choiceIndex = allChoices.indexOf(choice)
+    const sortedIndex = sorted.indexOf(choice)
+    return choiceIndex === sortedIndex
+  }
+
+  if (questionType === 'MATCHING') {
+    const m = meta as { pairKey?: string; side?: string } | null
+    return !!m?.pairKey
+  }
+
+  if (questionType === 'CATEGORIZE') {
+    const m = meta as { isHeader?: boolean } | null
+    return !!m?.isHeader
+  }
+
+  if (questionType === 'LABEL') {
+    return true
+  }
+
+  return choice.isCorrect
 }
 
 export function QuestionBreakdown({ questions, answers }: QuestionBreakdownProps) {
@@ -20,7 +61,7 @@ export function QuestionBreakdown({ questions, answers }: QuestionBreakdownProps
       <CardContent className="space-y-3">
         {questions.map((q, idx) => {
           const correctText = q.choices
-            .filter((c) => c.isCorrect)
+            .filter((c) => isChoiceCorrect(c, q.choices, q.type))
             .map((c) => c.text)
             .join(', ')
           const displayPrompt = q.type === 'FILL_BLANK' ? renderFillBlankPrompt(q.prompt) : q.prompt
@@ -73,13 +114,13 @@ export function QuestionBreakdown({ questions, answers }: QuestionBreakdownProps
                     <div className="mt-3 space-y-2">
                       {q.choices.map((choice) => {
                         const isChosen = chosenIds.has(choice.id)
-                        const isCorrect = choice.isCorrect
+                        const correct = isChoiceCorrect(choice, q.choices, q.type)
 
                         return (
                           <div
                             key={choice.id}
                             className={`flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-xs ${
-                              isCorrect
+                              correct
                                 ? 'border-quiz-green/40 bg-quiz-green/10'
                                 : isChosen
                                   ? 'border-destructive/40 bg-destructive/10'
@@ -87,10 +128,19 @@ export function QuestionBreakdown({ questions, answers }: QuestionBreakdownProps
                             }`}
                           >
                             <span>{choice.text}</span>
-                            <span className="shrink-0 font-semibold text-muted-foreground">
-                              {isChosen ? 'Selected' : null}
-                              {isChosen && isCorrect ? ' • ' : null}
-                              {isCorrect ? 'Correct' : null}
+                            <span className="shrink-0 font-semibold">
+                              {isChosen && correct && (
+                                <span className="text-quiz-green">Selected • Correct</span>
+                              )}
+                              {isChosen && !correct && (
+                                <span className="text-destructive">Wrong</span>
+                              )}
+                              {!isChosen && correct && (
+                                <span className="text-quiz-green">Correct</span>
+                              )}
+                              {!isChosen && !correct && (
+                                <span className="text-muted-foreground">Incorrect</span>
+                              )}
                             </span>
                           </div>
                         )
