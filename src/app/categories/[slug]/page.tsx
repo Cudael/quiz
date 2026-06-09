@@ -204,8 +204,10 @@ export default async function CategoryPage({
       const bAvg = b.avgRating ?? 0
       if (bAvg !== aAvg) return bAvg - aAvg
       // Tie-break by rating count, then playCount
-      if (b.ratingCount !== a.ratingCount) return b.ratingCount - a.ratingCount
-      return b.playCount - a.playCount
+      const aCount = a.ratingCount ?? 0
+      const bCount = b.ratingCount ?? 0
+      if (bCount !== aCount) return bCount - aCount
+      return (b.playCount ?? 0) - (a.playCount ?? 0)
     })
 
     const skip = (page - 1) * PAGE_SIZE
