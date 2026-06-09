@@ -10,6 +10,8 @@ import { ImageUpload } from './image-upload'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import { updateQuiz } from '@/app/studio/actions'
 import { createQuizAndReturnId } from '@/app/studio/actions/quiz-meta-actions'
+import { addQuestion } from '@/app/studio/actions/question-actions'
+import { togglePublish } from '@/app/studio/actions'
 
 interface StepPublishProps {
   quizId: string | null
@@ -77,7 +79,7 @@ export function StepPublish({ quizId }: StepPublishProps) {
 
     try {
       if (!quizId) {
-        // Quiz hasn't been saved yet – create and publish in one step
+        // Quiz hasn't been saved yet – create as draft, save questions, then publish
         const fd = new FormData()
         fd.set('title', trimmedTitle)
         fd.set('description', trimmedDescription)
@@ -88,16 +90,54 @@ export function StepPublish({ quizId }: StepPublishProps) {
         if (defaultTimeLimitSec !== null) {
           fd.set('defaultTimeLimitSec', String(defaultTimeLimitSec))
         }
-        fd.set('isPublished', 'on')
-        const result = await createQuizAndReturnId(fd)
-        if (!result.ok) {
-          addToast(result.message || 'Could not publish quiz.', 'error')
+        // Create as draft first so we have a quizId for question saves
+        const createResult = await createQuizAndReturnId(fd)
+        if (!createResult.ok) {
+          addToast(createResult.message || 'Could not create quiz.', 'error')
           return
         }
-        setQuizId(result.quizId)
+        const newQuizId = createResult.quizId
+
+        // Persist all questions to the database
+        for (const q of questions) {
+          const qFd = new FormData()
+          qFd.set('quizId', newQuizId)
+          qFd.set('type', q.type)
+          qFd.set('prompt', q.prompt)
+          qFd.set('timeLimitSec', String(q.timeLimitSec))
+          qFd.set('order', String(q.order ?? 0))
+          if (q.imageUrl) qFd.set('imageUrl', q.imageUrl)
+          if (q.explanation) qFd.set('explanation', q.explanation)
+          qFd.set(
+            'choices',
+            JSON.stringify(
+              q.choices.map((c) => ({
+                text: c.text,
+                isCorrect: c.isCorrect,
+                ...(c.meta ? { meta: c.meta } : {}),
+              }))
+            )
+          )
+          const qResult = await addQuestion(qFd)
+          if (!qResult.ok) {
+            addToast(qResult.message || 'Could not save a question.', 'error')
+            return
+          }
+        }
+
+        // Publish the quiz
+        const pubFd = new FormData()
+        pubFd.set('quizId', newQuizId)
+        const pubResult = await togglePublish(pubFd)
+        if (!pubResult.ok) {
+          addToast(pubResult.message || 'Could not publish quiz.', 'error')
+          return
+        }
+
+        setQuizId(newQuizId)
         setMeta({ isPublished: true })
         setLastSaved(new Date())
-        router.push(`/studio/quiz/${result.quizId}/edit`)
+        router.push(`/quiz/${newQuizId}`)
         return
       }
 

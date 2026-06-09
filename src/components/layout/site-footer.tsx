@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { Instagram, Twitter, Zap } from 'lucide-react'
+import { ArrowUp, Instagram, Twitter } from 'lucide-react'
 import { ThemeToggle } from '@/components/theme/theme-toggle'
 
 export function SiteFooter() {
@@ -27,10 +27,6 @@ export function SiteFooter() {
             <p className="mt-1 text-xs italic text-muted-foreground/70">
               Test your knowledge. Challenge your friends.
             </p>
-            <div className="flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 w-fit">
-              <Zap className="h-3.5 w-3.5 text-primary" />
-              <span className="text-xs font-semibold text-primary">Free to play, forever</span>
-            </div>
             <div className="flex flex-row items-center gap-2">
               <a
                 href="https://x.com/PlayBusQuiz"
@@ -82,6 +78,7 @@ export function SiteFooter() {
                 { href: '/blog', label: 'Blog' },
                 { href: '/about', label: 'About' },
                 { href: '/privacy', label: 'Privacy Policy' },
+                { href: '/terms', label: 'Terms of Service' },
                 { href: '/contact', label: 'Contact' },
               ].map((link) => (
                 <Link
@@ -115,22 +112,6 @@ export function SiteFooter() {
               >
                 Duel
               </Link>
-              <a
-                href="https://www.tiktok.com/@TheBusQuiz"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
-              >
-                TikTok
-              </a>
-              <a
-                href="https://x.com/PlayBusQuiz"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
-              >
-                Twitter / X
-              </a>
               <Link
                 href="/about/accessibility"
                 className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
@@ -147,7 +128,17 @@ export function SiteFooter() {
           <span suppressHydrationWarning>
             © {new Date().getFullYear()} BusQuiz. All rights reserved.
           </span>
-          <ThemeToggle />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              aria-label="Scroll to top"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+            >
+              <ArrowUp className="h-3 w-3" />
+              Back to top
+            </button>
+            <ThemeToggle />
+          </div>
         </div>
       </div>
     </footer>

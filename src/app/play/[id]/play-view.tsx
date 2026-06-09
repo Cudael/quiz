@@ -44,6 +44,16 @@ export function PlayView({ quizId }: PlayViewProps) {
     )
   }
 
+  if (!loading && questions.length === 0) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="text-center">
+          <p className="text-muted-foreground">This quiz has no questions yet.</p>
+        </div>
+      </div>
+    )
+  }
+
   if (!currentQuestion) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">

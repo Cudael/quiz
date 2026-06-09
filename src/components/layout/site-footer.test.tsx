@@ -50,7 +50,10 @@ describe('SiteFooter', () => {
     )
     expect(screen.getByRole('link', { name: 'Duel' })).toHaveAttribute('href', '/duel')
     expect(screen.queryByRole('link', { name: 'Discord' })).not.toBeInTheDocument()
-    expect(screen.getAllByRole('link', { name: 'Twitter / X' })).toHaveLength(2)
+    expect(screen.getByRole('link', { name: 'Twitter / X' })).toHaveAttribute(
+      'href',
+      'https://x.com/PlayBusQuiz'
+    )
     expect(screen.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/about')
     expect(screen.getByRole('link', { name: 'About' })).toHaveAttribute('data-prefetch', 'false')
     expect(screen.getByRole('link', { name: 'Leaderboard' })).toHaveAttribute(
@@ -78,17 +81,6 @@ describe('SiteFooter', () => {
       'https://www.tiktok.com/@TheBusQuiz'
     )
 
-    expect(
-      screen
-        .getAllByRole('link', { name: 'TikTok' })
-        .find((element) => element.textContent === 'TikTok')
-    ).toHaveAttribute('href', 'https://www.tiktok.com/@TheBusQuiz')
-
-    expect(
-      screen
-        .getAllByRole('link', { name: 'Twitter / X' })
-        .find((element) => element.textContent === 'Twitter / X')
-    ).toHaveAttribute('href', 'https://x.com/PlayBusQuiz')
     expect(screen.getByText('Test your knowledge. Challenge your friends.')).toBeInTheDocument()
     expect(screen.getByText(/All rights reserved\./)).toBeInTheDocument()
   })
