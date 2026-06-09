@@ -8,6 +8,7 @@ import { FILL_BLANK_PLACEHOLDER } from '@/domain/quiz-constants'
 import { ImageUpload } from './image-upload'
 import { QuestionTypeIcon } from './question-type-icon'
 import { useQuestionCard } from './use-question-card'
+import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import type { DraftQuestion, DraftChoice } from '@/store/quiz-creator-store'
 
 interface QuestionCardProps {
@@ -22,16 +23,16 @@ interface QuestionCardProps {
 export function makeDefaultChoices(type: DraftQuestion['type']): DraftChoice[] {
   if (type === 'TRUEFALSE') {
     return [
-      { localId: crypto.randomUUID(), text: 'True', isCorrect: true },
-      { localId: crypto.randomUUID(), text: 'False', isCorrect: false },
+      { localId: crypto.randomUUID(), text: 'True', imageUrl: '', isCorrect: true },
+      { localId: crypto.randomUUID(), text: 'False', imageUrl: '', isCorrect: false },
     ]
   }
   if (type === 'FILL_BLANK') {
-    return [{ localId: crypto.randomUUID(), text: '', isCorrect: true }]
+    return [{ localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: true }]
   }
   return [
-    { localId: crypto.randomUUID(), text: '', isCorrect: true },
-    { localId: crypto.randomUUID(), text: '', isCorrect: false },
+    { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: true },
+    { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: false },
   ]
 }
 
@@ -43,6 +44,7 @@ export function QuestionCard({
   onUpdate,
   onRemove,
 }: QuestionCardProps) {
+  const quizFormat = useQuizCreatorStore((state) => state.quizFormat)
   const {
     open,
     setOpen,
@@ -145,11 +147,6 @@ export function QuestionCard({
                   Fill in all the choices, then select the radio button next to the correct one.
                 </p>
               )}
-              {question.type === 'MULTIPLE' && (
-                <p className="text-xs text-muted-foreground">
-                  Fill in all the choices, then check every box that is a correct answer.
-                </p>
-              )}
             </div>
 
             {question.type === 'TRUEFALSE' ? (
@@ -200,32 +197,33 @@ export function QuestionCard({
                     key={choice.localId}
                     className={cn(
                       'flex items-center gap-2 rounded-md border px-2 py-1 transition-colors',
-                      choice.isCorrect ? 'border-quiz-green/40 bg-quiz-green/10' : 'border-transparent'
+                      choice.isCorrect
+                        ? 'border-quiz-green/40 bg-quiz-green/10'
+                        : 'border-transparent'
                     )}
                   >
-                    {question.type === 'SINGLE' ? (
-                      <input
-                        type="radio"
-                        name={`correct-${question.localId}`}
-                        checked={choice.isCorrect}
-                        onChange={() => setCorrect(choice.localId, true)}
-                        title="Mark as correct answer"
+                    <input
+                      type="radio"
+                      name={`correct-${question.localId}`}
+                      checked={choice.isCorrect}
+                      onChange={() => setCorrect(choice.localId, true)}
+                      title="Mark as correct answer"
+                    />
+                    {quizFormat === 'IMAGE_CHOICE' ? (
+                      <ImageUpload
+                        compact
+                        value={choice.imageUrl}
+                        onChange={(url) => updateChoice(choice.localId, { imageUrl: url })}
                       />
                     ) : (
                       <input
-                        type="checkbox"
-                        checked={choice.isCorrect}
-                        onChange={(e) => setCorrect(choice.localId, e.target.checked)}
-                        title="Mark as correct answer"
+                        type="text"
+                        value={choice.text}
+                        onChange={(e) => updateChoice(choice.localId, { text: e.target.value })}
+                        placeholder={`Choice ${i + 1}`}
+                        className="min-w-0 flex-1 rounded-md border bg-background px-3 py-1.5 text-sm"
                       />
                     )}
-                    <input
-                      type="text"
-                      value={choice.text}
-                      onChange={(e) => updateChoice(choice.localId, { text: e.target.value })}
-                      placeholder={`Choice ${i + 1}`}
-                      className="min-w-0 flex-1 rounded-md border bg-background px-3 py-1.5 text-sm"
-                    />
                     {choice.isCorrect && (
                       <span className="shrink-0 text-xs font-medium text-quiz-green">✓</span>
                     )}

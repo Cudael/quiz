@@ -89,82 +89,21 @@ export async function POST(req: NextRequest) {
     const timeTakenMs = Math.min(Math.max(0, answer.timeTakenMs), timeLimitMs)
 
     let isCorrect: boolean
-    let givenIds: string[]
 
-    if (question.type === 'ORDERING') {
-      // Order matters: compare submitted sequence against correct order from meta.order
-      const sortedChoices = [...question.choices].sort(
-        (a, b) =>
-          (((a.meta as Record<string, unknown> | null)?.order as number) ?? 0) -
-          (((b.meta as Record<string, unknown> | null)?.order as number) ?? 0)
+    // Classic types (SINGLE, TRUEFALSE, FILL_BLANK)
+    const correctChoiceIds = question.choices
+      .filter((c) => c.isCorrect)
+      .map((c) => c.id)
+      .sort()
+    const givenIds = sanitizeChoiceIds(answer.choiceIds, validChoiceIds)
+
+    if (correctChoiceIds.length === 0) {
+      // No correct choices are configured for this question — treat as always incorrect
+      console.error(
+        `[submit] Question ${question.id} (type=${question.type}) has no correct choices configured.`
       )
-      const correctOrder = sortedChoices.map((c) => c.id)
-      // Preserve submitted order — do NOT sort
-      givenIds = answer.choiceIds.filter((id) => validChoiceIds.has(id))
-      isCorrect =
-        givenIds.length === correctOrder.length && givenIds.every((id, i) => id === correctOrder[i])
-    } else if (question.type === 'MATCHING') {
-      // Score by verifying each pair shares the same pairKey
-      const pairMap = new Map<string, { left?: string; right?: string }>()
-      for (const choice of question.choices) {
-        const m = choice.meta as { pairKey?: string; side?: string } | null
-        const pairKey = m?.pairKey ?? ''
-        const side = m?.side
-        if (!pairMap.has(pairKey)) pairMap.set(pairKey, {})
-        const entry = pairMap.get(pairKey)!
-        if (side === 'left') entry.left = choice.id
-        else if (side === 'right') entry.right = choice.id
-      }
-      const givenSet = new Set(answer.choiceIds.filter((id) => validChoiceIds.has(id)))
-      givenIds = [...givenSet]
-      isCorrect =
-        pairMap.size > 0 &&
-        [...pairMap.values()].every(
-          (pair) => pair.left && pair.right && givenSet.has(pair.left) && givenSet.has(pair.right)
-        )
-    } else if (question.type === 'CATEGORIZE') {
-      // Score by verifying item→category assignments stored in textAnswer (JSON)
-      givenIds = []
-      let assignments: Record<string, string> = {}
-      try {
-        assignments = JSON.parse(answer.textAnswer ?? '{}') as Record<string, string>
-      } catch (err) {
-        console.error('CATEGORIZE: failed to parse textAnswer for question', question.id, err)
-        assignments = {}
-      }
-      const items = question.choices.filter(
-        (c) => !(c.meta as { isHeader?: boolean } | null)?.isHeader
-      )
-      isCorrect =
-        items.length > 0 &&
-        items.every((item) => {
-          const correctCategory = (item.meta as { category?: string } | null)?.category ?? ''
-          return assignments[item.id] === correctCategory
-        })
-    } else if (question.type === 'LABEL') {
-      // Score by verifying label text answers stored in textAnswer (JSON)
-      givenIds = []
-      let labelAnswers: Record<string, string> = {}
-      try {
-        labelAnswers = JSON.parse(answer.textAnswer ?? '{}') as Record<string, string>
-      } catch (err) {
-        console.error('LABEL: failed to parse textAnswer for question', question.id, err)
-        labelAnswers = {}
-      }
-      isCorrect =
-        question.choices.length > 0 &&
-        question.choices.every((pos) => {
-          const correctLabel = (pos.meta as { label?: string } | null)?.label ?? ''
-          const given = labelAnswers[pos.id] ?? ''
-          return given.trim().toLowerCase() === correctLabel.trim().toLowerCase()
-        })
+      isCorrect = false
     } else {
-      // Classic types (SINGLE, MULTIPLE, TRUEFALSE, FILL_BLANK)
-      const correctChoiceIds = question.choices
-        .filter((c) => c.isCorrect)
-        .map((c) => c.id)
-        .sort()
-      givenIds = sanitizeChoiceIds(answer.choiceIds, validChoiceIds)
       isCorrect =
         correctChoiceIds.length === givenIds.length &&
         correctChoiceIds.every((id, i) => id === givenIds[i])
@@ -193,6 +132,20 @@ export async function POST(req: NextRequest) {
   // duplicate submissions and out-of-range timeTakenMs values cannot inflate the total.
   const totalTimeTakenMs = evaluatedAnswers.reduce((sum, a) => sum + a.timeTakenMs, 0)
   const xpEarned = Math.round(score / 10)
+
+  if (evaluatedAnswers.length === 0) {
+    console.warn(
+      `[submit] No answers were scored for quiz ${quizId}. ` +
+        `Submitted ${answers.length} answer(s), quiz has ${quiz.questions.length} question(s).`
+    )
+  } else {
+    const correctEvalCount = evaluatedAnswers.filter((a) => a.isCorrect).length
+    console.log(
+      `[submit] Scored ${evaluatedAnswers.length} answers: ` +
+        `${correctEvalCount} correct, ${evaluatedAnswers.length - correctEvalCount} incorrect. ` +
+        `Score: ${score}, XP: ${xpEarned}`
+    )
+  }
 
   const now = new Date()
 

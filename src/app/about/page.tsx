@@ -21,9 +21,9 @@ export default function AboutPage() {
       <section className="mt-10 space-y-4">
         <h2 className="text-2xl font-semibold">Play</h2>
         <p className="text-muted-foreground">
-          Dive into quizzes spanning science, history, pop culture, sports, and more. With multiple
-          question formats — single choice, multiple choice, fill-in-the-blank, ordering, matching,
-          categorize, and label — every quiz feels fresh and challenging.
+          Dive into quizzes spanning science, history, pop culture, sports, and more. With
+          text-based multiple choice and image-based multiple choice formats, every quiz feels fresh
+          and challenging.
         </p>
       </section>
 

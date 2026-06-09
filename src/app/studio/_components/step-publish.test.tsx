@@ -50,8 +50,8 @@ const baseQuestion = {
   explanation: '',
   timeLimitSec: 20,
   choices: [
-    { localId: 'c1', text: 'A', isCorrect: true },
-    { localId: 'c2', text: 'B', isCorrect: false },
+    { localId: 'c1', text: 'A', imageUrl: '', isCorrect: true },
+    { localId: 'c2', text: 'B', imageUrl: '', isCorrect: false },
   ],
 }
 
@@ -66,7 +66,7 @@ describe('StepPublish', () => {
       difficulty: 'MEDIUM',
       imageUrl: 'https://example.com/cover.jpg',
       isPublished: false,
-      quizFormat: 'CLASSIC',
+      quizFormat: 'TEXT_CHOICE',
       defaultTimeLimitSec: null,
       questions: [baseQuestion, baseQuestion, baseQuestion, baseQuestion, baseQuestion],
     })

@@ -1,5 +1,4 @@
 type,prompt,explanation,timeLimitSec,choices
 SINGLE,"What is 2+2?","Basic math",15,"3;*4;5;6"
-MULTIPLE,"Which are primes?","",20,"*2;*3;4;*5;6"
 TRUEFALSE,"The sky is blue.","",10,"*True;False"
 FILL_BLANK,"Capital of France is {{blank}}.","",15,"*Paris;*paris"

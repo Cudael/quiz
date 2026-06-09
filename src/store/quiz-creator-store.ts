@@ -7,20 +7,13 @@ import { create } from 'zustand'
 export interface DraftChoice {
   localId: string
   text: string
+  imageUrl: string
   isCorrect: boolean
   meta?: Record<string, unknown>
 }
 
-export type QuestionType =
-  | 'SINGLE'
-  | 'MULTIPLE'
-  | 'TRUEFALSE'
-  | 'FILL_BLANK'
-  | 'ORDERING'
-  | 'MATCHING'
-  | 'CATEGORIZE'
-  | 'LABEL'
-export type QuizFormat = 'CLASSIC' | 'TIMELINE' | 'MATCHING' | 'CATEGORIZE' | 'LABEL_DIAGRAM'
+export type QuestionType = 'SINGLE' | 'TRUEFALSE' | 'FILL_BLANK'
+export type QuizFormat = 'TEXT_CHOICE' | 'IMAGE_CHOICE'
 export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD'
 
 export interface DraftQuestion {
@@ -97,7 +90,7 @@ const initialState: QuizCreatorState = {
   questions: [],
   currentStep: 1,
   selectedTemplateId: null,
-  quizFormat: 'CLASSIC',
+  quizFormat: 'TEXT_CHOICE',
   saving: false,
   lastSavedAt: null,
 }

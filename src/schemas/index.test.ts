@@ -21,7 +21,7 @@ describe('quizSchema', () => {
         coverImage: 'https://example.com/cover.png',
         categoryId: 'ckq6xdr2w0000u3z5f6l6x4t5',
         difficulty: 'MEDIUM',
-        format: 'CLASSIC',
+        format: 'TEXT_CHOICE',
         defaultTimeLimitSec: 60,
         isPublished: true,
       }).success
@@ -36,7 +36,7 @@ describe('quizSchema', () => {
         coverImage: 'not-a-url',
         categoryId: 'ckq6xdr2w0000u3z5f6l6x4t5',
         difficulty: 'MEDIUM',
-        format: 'CLASSIC',
+        format: 'TEXT_CHOICE',
         isPublished: true,
       }).success
     ).toBe(false)
@@ -49,7 +49,7 @@ describe('quizSchema', () => {
         description: 'A valid description',
         categoryId: 'ckq6xdr2w0000u3z5f6l6x4t5',
         difficulty: 'MEDIUM',
-        format: 'CLASSIC',
+        format: 'TEXT_CHOICE',
         defaultTimeLimitSec: 4,
         isPublished: true,
       }).success
@@ -81,15 +81,12 @@ describe('questionSchema', () => {
     expect(result.success).toBe(false)
   })
 
-  it('allows non-classic types without correct-choice rules', () => {
+  it('allows FILL_BLANK with valid placeholder', () => {
     const result = questionSchema.safeParse({
-      type: 'MATCHING',
-      prompt: 'Match each item',
+      type: 'FILL_BLANK',
+      prompt: 'Capital of France is {{blank}}.',
       timeLimitSec: 20,
-      choices: [
-        { text: 'A', isCorrect: false, meta: { pairKey: 'one', side: 'left' } },
-        { text: '1', isCorrect: false, meta: { pairKey: 'one', side: 'right' } },
-      ],
+      choices: [{ text: 'Paris', isCorrect: true }],
     })
     expect(result.success).toBe(true)
   })

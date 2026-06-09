@@ -7,9 +7,7 @@ export const quizSchema = z.object({
   coverImage: z.string().trim().url().optional(),
   categoryId: z.string().cuid(),
   difficulty: z.enum(['EASY', 'MEDIUM', 'HARD']),
-  format: z
-    .enum(['CLASSIC', 'TIMELINE', 'MATCHING', 'CATEGORIZE', 'LABEL_DIAGRAM'])
-    .default('CLASSIC'),
+  format: z.enum(['TEXT_CHOICE', 'IMAGE_CHOICE']).default('TEXT_CHOICE'),
   defaultTimeLimitSec: z.number().int().min(60).max(3600).optional(),
   isPublished: z.boolean().default(false),
 })
@@ -21,38 +19,23 @@ export const draftQuizSchema = quizSchema.extend({
 
 export const questionSchema = z
   .object({
-    type: z.enum([
-      'SINGLE',
-      'MULTIPLE',
-      'TRUEFALSE',
-      'FILL_BLANK',
-      'ORDERING',
-      'MATCHING',
-      'CATEGORIZE',
-      'LABEL',
-    ]),
+    type: z.enum(['SINGLE', 'TRUEFALSE', 'FILL_BLANK']),
     prompt: z.string().trim().min(1),
     explanation: z.string().trim().max(500).optional(),
     timeLimitSec: z.number().int().min(5).max(120),
     choices: z.array(
       z.object({
         text: z.string().trim().min(1),
+        imageUrl: z.string().trim().url().optional(),
         isCorrect: z.boolean(),
         meta: z.record(z.string(), z.unknown()).optional(),
       })
     ),
   })
   .superRefine((value, ctx) => {
-    if (['ORDERING', 'MATCHING', 'CATEGORIZE', 'LABEL'].includes(value.type)) {
-      return
-    }
-
     const correctCount = value.choices.filter((choice) => choice.isCorrect).length
     if ((value.type === 'SINGLE' || value.type === 'TRUEFALSE') && correctCount !== 1) {
       ctx.addIssue({ code: 'custom', message: 'Exactly one correct answer is required.' })
-    }
-    if (value.type === 'MULTIPLE' && correctCount < 2) {
-      ctx.addIssue({ code: 'custom', message: 'At least two correct answers are required.' })
     }
     if (value.type === 'FILL_BLANK' && !value.prompt.includes(FILL_BLANK_PLACEHOLDER)) {
       ctx.addIssue({

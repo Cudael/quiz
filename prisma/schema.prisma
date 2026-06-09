@@ -21,21 +21,13 @@ enum Difficulty {
 
 enum QuestionType {
   SINGLE
-  MULTIPLE
   TRUEFALSE
   FILL_BLANK
-  ORDERING
-  MATCHING
-  CATEGORIZE
-  LABEL
 }
 
 enum QuizFormat {
-  CLASSIC
-  TIMELINE
-  MATCHING
-  CATEGORIZE
-  LABEL_DIAGRAM
+  TEXT_CHOICE
+  IMAGE_CHOICE
 }
 
 
@@ -139,7 +131,7 @@ model Quiz {
   playCount           Int        @default(0)
   avgScore            Float      @default(0)
   defaultTimeLimitSec Int?
-  format              QuizFormat @default(CLASSIC)
+  format              QuizFormat @default(TEXT_CHOICE)
   createdAt           DateTime   @default(now())
   updatedAt           DateTime   @updatedAt
 
@@ -189,6 +181,7 @@ model Choice {
   questionId String
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   text       String
+  imageUrl   String?
   isCorrect  Boolean  @default(false)
   meta       Json?
 

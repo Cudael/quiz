@@ -48,6 +48,7 @@ const questionMetaSchema = z.object({
 function mapChoicesForCreate(choices: z.infer<typeof questionSchema>['choices']) {
   return choices.map((choice) => ({
     text: choice.text,
+    imageUrl: choice.imageUrl || null,
     isCorrect: choice.isCorrect,
     ...(choice.meta ? { meta: choice.meta as Prisma.InputJsonValue } : {}),
   }))

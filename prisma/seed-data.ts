@@ -11,7 +11,7 @@
 // Type aliases mirroring Prisma enums (stored as String in SQLite)
 // ---------------------------------------------------------------------------
 export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD'
-export type QuestionType = 'SINGLE' | 'MULTIPLE' | 'TRUEFALSE' | 'FILL_BLANK'
+export type QuestionType = 'SINGLE' | 'TRUEFALSE' | 'FILL_BLANK'
 export type Role = 'USER' | 'ADMIN'
 
 // ---------------------------------------------------------------------------
@@ -1524,7 +1524,7 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     },
     {
       prompt: 'Which of the following are examples of potential energy?',
-      type: 'MULTIPLE',
+      type: 'SINGLE',
       explanation:
         'Potential energy is stored energy. A stretched spring and a raised weight both have gravitational or elastic potential energy.',
       timeLimitSec: 25,
@@ -1646,7 +1646,7 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     },
     {
       prompt: 'Which elements are classified as halogens?',
-      type: 'MULTIPLE',
+      type: 'SINGLE',
       explanation:
         'Halogens are Group 17 elements: Fluorine (F), Chlorine (Cl), Bromine (Br), Iodine (I), and Astatine (At).',
       timeLimitSec: 30,
@@ -1755,7 +1755,7 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     },
     {
       prompt: 'Which of the following were Seven Wonders of the Ancient World?',
-      type: 'MULTIPLE',
+      type: 'SINGLE',
       explanation:
         'The Seven Wonders included the Great Pyramid (still standing), the Hanging Gardens of Babylon, the Colossus of Rhodes, the Lighthouse of Alexandria, and others.',
       timeLimitSec: 30,
@@ -1865,7 +1865,7 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     },
     {
       prompt: 'Which countries formed the main Axis powers in WWII?',
-      type: 'MULTIPLE',
+      type: 'SINGLE',
       explanation:
         'The main Axis powers were Germany, Italy, and Japan. They were formally allied through the Tripartite Pact signed in September 1940.',
       timeLimitSec: 25,
@@ -1990,7 +1990,7 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     },
     {
       prompt: 'Which Infinity Stones are yellow and orange?',
-      type: 'MULTIPLE',
+      type: 'SINGLE',
       explanation:
         'The Mind Stone is yellow and the Soul Stone is orange. There are six Infinity Stones in total.',
       timeLimitSec: 25,
@@ -2100,7 +2100,7 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     },
     {
       prompt: 'Which of these cities are capitals of Scandinavian countries?',
-      type: 'MULTIPLE',
+      type: 'SINGLE',
       explanation:
         'Oslo is the capital of Norway, Stockholm is the capital of Sweden, and Copenhagen is the capital of Denmark — all Scandinavian countries.',
       timeLimitSec: 25,
@@ -2209,7 +2209,7 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     },
     {
       prompt: 'Which HTTP methods are used to send data to a server?',
-      type: 'MULTIPLE',
+      type: 'SINGLE',
       explanation:
         'POST is the standard method for sending data (e.g., form submissions). PUT is used to update or create resources. Both send data in the request body.',
       timeLimitSec: 25,
@@ -2318,7 +2318,7 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     },
     {
       prompt: 'Which consoles were part of the 16-bit era (4th generation)?',
-      type: 'MULTIPLE',
+      type: 'SINGLE',
       explanation:
         'The 16-bit era featured the Super Nintendo Entertainment System (SNES) and the Sega Genesis/Mega Drive as the dominant consoles.',
       timeLimitSec: 25,
@@ -2442,7 +2442,7 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     },
     {
       prompt: 'What are the four main studios known for producing popular anime?',
-      type: 'MULTIPLE',
+      type: 'SINGLE',
       explanation:
         'MAPPA, Wit Studio, Toei Animation, and Bones are among the most well-known and critically acclaimed anime studios.',
       timeLimitSec: 30,
@@ -2537,7 +2537,7 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     },
     {
       prompt: 'Which planets in our solar system have rings?',
-      type: 'MULTIPLE',
+      type: 'SINGLE',
       explanation:
         'All four gas/ice giant planets have ring systems: Saturn (most prominent), Jupiter, Uranus, and Neptune.',
       timeLimitSec: 30,
@@ -2632,7 +2632,7 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     },
     {
       prompt: 'Which of these languages are statically typed?',
-      type: 'MULTIPLE',
+      type: 'SINGLE',
       explanation:
         'Java and Rust are statically typed languages where types are checked at compile time. Python and JavaScript are dynamically typed.',
       timeLimitSec: 25,
@@ -2771,7 +2771,7 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     },
     {
       prompt: 'Which streaming era artists have won multiple Grammy Awards for Album of the Year?',
-      type: 'MULTIPLE',
+      type: 'SINGLE',
       explanation:
         'Taylor Swift has won the most Album of the Year Grammys (4), and Adele has also won this award multiple times.',
       timeLimitSec: 25,
@@ -2866,7 +2866,7 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     },
     {
       prompt: 'Which countries hosted the 2026 FIFA World Cup?',
-      type: 'MULTIPLE',
+      type: 'SINGLE',
       explanation:
         'The 2026 FIFA World Cup was co-hosted by the United States, Canada, and Mexico — the first World Cup with three host nations.',
       timeLimitSec: 25,
@@ -2975,7 +2975,7 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     },
     {
       prompt: 'Which of these are programming paradigms?',
-      type: 'MULTIPLE',
+      type: 'SINGLE',
       explanation:
         'Object-oriented and functional are programming paradigms. HTML is a markup language, and SQL is a query language.',
       timeLimitSec: 25,
@@ -3179,7 +3179,7 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
   'Genetics & DNA': [
     {
       prompt: 'What are the four nucleotide bases in DNA?',
-      type: 'MULTIPLE',
+      type: 'SINGLE',
       explanation: 'DNA bases: Adenine, Thymine, Guanine, Cytosine.',
       timeLimitSec: 20,
       order: 1,
@@ -3733,7 +3733,7 @@ export const questionsByQuiz: Record<string, QuestionDef[]> = {
     },
     {
       prompt: 'Which countries made up the Triple Entente?',
-      type: 'MULTIPLE',
+      type: 'SINGLE',
       explanation: 'The Triple Entente: France, Russia, and the United Kingdom.',
       timeLimitSec: 20,
       order: 2,

@@ -5,7 +5,7 @@ describe('parseCsvQuizImport', () => {
   it('parses valid CSV rows', () => {
     const csv = `type,prompt,explanation,timeLimitSec,choices
 SINGLE,"What is 2+2?","Basic math",15,"3;*4;5;6"
-MULTIPLE,"Which are primes?","",20,"*2;*3;4;*5;6"`
+TRUEFALSE,"The sky is blue.","",10,"*True;False"`
 
     const result = parseCsvQuizImport(csv)
     expect(result.errors).toEqual([])

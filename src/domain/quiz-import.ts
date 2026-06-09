@@ -1,9 +1,10 @@
 import { DEFAULT_TIME_LIMIT_SEC, FILL_BLANK_PLACEHOLDER } from '@/domain/quiz-constants'
 
-export type ImportQuestionType = 'SINGLE' | 'MULTIPLE' | 'TRUEFALSE' | 'FILL_BLANK'
+export type ImportQuestionType = 'SINGLE' | 'TRUEFALSE' | 'FILL_BLANK'
 
 export interface ImportChoice {
   text: string
+  imageUrl?: string
   isCorrect: boolean
 }
 
@@ -25,7 +26,7 @@ export interface QuizImportResult {
   errors: ImportValidationError[]
 }
 
-const VALID_TYPES: ImportQuestionType[] = ['SINGLE', 'MULTIPLE', 'TRUEFALSE', 'FILL_BLANK']
+const VALID_TYPES: ImportQuestionType[] = ['SINGLE', 'TRUEFALSE', 'FILL_BLANK']
 
 function parseCsvLine(line: string) {
   const fields: string[] = []
@@ -71,9 +72,6 @@ function validateQuestion(question: ImportQuestion, row: number) {
   const correctCount = question.choices.filter((choice) => choice.isCorrect).length
   if ((question.type === 'SINGLE' || question.type === 'TRUEFALSE') && correctCount !== 1) {
     errors.push({ row, message: `${question.type} requires exactly one correct choice.` })
-  }
-  if (question.type === 'MULTIPLE' && correctCount < 2) {
-    errors.push({ row, message: 'MULTIPLE requires at least two correct choices.' })
   }
   if (question.type === 'FILL_BLANK' && correctCount < 1) {
     errors.push({ row, message: 'FILL_BLANK requires one or more accepted answers.' })

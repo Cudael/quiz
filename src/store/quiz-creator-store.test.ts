@@ -11,7 +11,7 @@ function makeQuestion(localId: string): DraftQuestion {
     imageUrl: '',
     explanation: '',
     timeLimitSec: 30,
-    choices: [{ localId: `c-${localId}`, text: 'Answer', isCorrect: true }],
+    choices: [{ localId: `c-${localId}`, text: 'Answer', imageUrl: '', isCorrect: true }],
   }
 }
 
@@ -25,7 +25,7 @@ beforeEach(() => {
     difficulty: 'MEDIUM',
     imageUrl: '',
     defaultTimeLimitSec: null,
-    quizFormat: 'CLASSIC',
+    quizFormat: 'TEXT_CHOICE',
     isPublished: false,
   })
   store.setQuestions([])
@@ -41,7 +41,7 @@ describe('initial state', () => {
     expect(state.currentStep).toBe(1)
     expect(state.saving).toBe(false)
     expect(state.quizId).toBeNull()
-    expect(state.quizFormat).toBe('CLASSIC')
+    expect(state.quizFormat).toBe('TEXT_CHOICE')
   })
 })
 
@@ -122,18 +122,18 @@ describe('setStep', () => {
 
 describe('setQuizFormat', () => {
   it('updates quiz format', () => {
-    useQuizCreatorStore.getState().setQuizFormat('MATCHING')
-    expect(useQuizCreatorStore.getState().quizFormat).toBe('MATCHING')
+    useQuizCreatorStore.getState().setQuizFormat('IMAGE_CHOICE')
+    expect(useQuizCreatorStore.getState().quizFormat).toBe('IMAGE_CHOICE')
   })
 })
 
 describe('applyTemplate', () => {
   it('sets selectedTemplateId, format, and replaces questions', () => {
     const questions = [makeQuestion('t1'), makeQuestion('t2')]
-    useQuizCreatorStore.getState().applyTemplate('tmpl-1', 'TIMELINE', questions)
+    useQuizCreatorStore.getState().applyTemplate('tmpl-1', 'IMAGE_CHOICE', questions)
     const state = useQuizCreatorStore.getState()
     expect(state.selectedTemplateId).toBe('tmpl-1')
-    expect(state.quizFormat).toBe('TIMELINE')
+    expect(state.quizFormat).toBe('IMAGE_CHOICE')
     expect(state.questions).toHaveLength(2)
     expect(state.questions[0].localId).toBe('t1')
   })

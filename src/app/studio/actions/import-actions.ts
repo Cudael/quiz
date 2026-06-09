@@ -57,6 +57,7 @@ export async function importQuestions(formData: FormData): Promise<ActionResult>
             choices: {
               create: question.choices.map((choice) => ({
                 text: choice.text,
+                imageUrl: choice.imageUrl || null,
                 isCorrect: choice.isCorrect,
               })),
             },

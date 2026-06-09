@@ -49,6 +49,7 @@ export function useQuestionCard({
       JSON.stringify(
         question.choices.map((c) => ({
           text: c.text,
+          imageUrl: c.imageUrl || undefined,
           isCorrect: c.isCorrect,
           ...(c.meta ? { meta: c.meta } : {}),
         }))
@@ -82,7 +83,10 @@ export function useQuestionCard({
 
   const addChoice = () => {
     onUpdate({
-      choices: [...question.choices, { localId: crypto.randomUUID(), text: '', isCorrect: false }],
+      choices: [
+        ...question.choices,
+        { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: false },
+      ],
     })
   }
 

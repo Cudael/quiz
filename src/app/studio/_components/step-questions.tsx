@@ -26,10 +26,6 @@ import { DEFAULT_TIME_LIMIT_SEC } from '@/domain/quiz-constants'
 import { QuestionCard, makeDefaultChoices } from './question-card'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import type { QuestionType } from '@/store/quiz-creator-store'
-import { TimelineQuestionsEditor } from './timeline-questions-editor'
-import { MatchingQuestionsEditor } from './matching-questions-editor'
-import { CategorizeQuestionsEditor } from './categorize-questions-editor'
-import { LabelDiagramQuestionsEditor } from './label-diagram-questions-editor'
 
 interface StepQuestionsProps {
   quizId: string
@@ -37,7 +33,6 @@ interface StepQuestionsProps {
 
 const QUESTION_TYPES: Array<{ type: QuestionType; label: string }> = [
   { type: 'SINGLE', label: 'Single choice' },
-  { type: 'MULTIPLE', label: 'Multiple choice' },
   { type: 'TRUEFALSE', label: 'True / False' },
   { type: 'FILL_BLANK', label: 'Fill in the blank' },
 ]
@@ -45,47 +40,14 @@ const QUESTION_TYPES: Array<{ type: QuestionType; label: string }> = [
 export function StepQuestions({ quizId }: StepQuestionsProps) {
   const quizFormat = useQuizCreatorStore((state) => state.quizFormat)
 
-  if (quizFormat === 'TIMELINE') {
+  if (quizFormat === 'IMAGE_CHOICE') {
     return (
       <div className="space-y-6">
         <FormatBanner
-          title="Timeline Quiz"
-          description="Add rounds where players put events in chronological order. For each round, enter the events and arrange them in the correct sequence by dragging. Players must place them in the same order to score points."
+          title="Image Choice Quiz"
+          description="Add single-choice questions where each answer is an image. Upload an image for each choice and mark the correct one."
         />
-        <TimelineQuestionsEditor quizId={quizId} />
-      </div>
-    )
-  }
-  if (quizFormat === 'MATCHING') {
-    return (
-      <div className="space-y-6">
-        <FormatBanner
-          title="Match the Pairs Quiz"
-          description="Add rounds where players connect items from the left column to their matching item on the right. Fill in both sides of each pair — the left item and its correct match on the right."
-        />
-        <MatchingQuestionsEditor quizId={quizId} />
-      </div>
-    )
-  }
-  if (quizFormat === 'CATEGORIZE') {
-    return (
-      <div className="space-y-6">
-        <FormatBanner
-          title="Sort It Out Quiz"
-          description="Add rounds where players sort items into the correct category. Name your categories and place each item in the right bucket. Players must assign every item to its correct category."
-        />
-        <CategorizeQuestionsEditor quizId={quizId} />
-      </div>
-    )
-  }
-  if (quizFormat === 'LABEL_DIAGRAM') {
-    return (
-      <div className="space-y-6">
-        <FormatBanner
-          title="Label the Diagram Quiz"
-          description="Add rounds where players identify and type labels on a diagram. Upload an image, then add label points by entering the correct label text and its X/Y position (as a percentage of the image size). Players must type the correct label for each marked spot."
-        />
-        <LabelDiagramQuestionsEditor quizId={quizId} />
+        <ClassicQuestionsEditor quizId={quizId} />
       </div>
     )
   }
@@ -93,8 +55,8 @@ export function StepQuestions({ quizId }: StepQuestionsProps) {
   return (
     <div className="space-y-6">
       <FormatBanner
-        title="Classic Quiz"
-        description="Add multiple-choice, true/false, or fill-in-the-blank questions. For each question, write the question text, fill in all the answer choices, and mark the correct answer using the radio button or checkbox next to it."
+        title="Text Choice Quiz"
+        description="Add single-choice, true/false, or fill-in-the-blank questions. For each question, write the question text, fill in all the answer choices, and mark the correct answer using the radio button."
       />
       <ClassicQuestionsEditor quizId={quizId} />
     </div>

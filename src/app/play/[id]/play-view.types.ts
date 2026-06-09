@@ -1,6 +1,7 @@
 export interface Choice {
   id: string
   text: string
+  imageUrl?: string | null
   meta?: Record<string, unknown> | null
 }
 

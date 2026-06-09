@@ -26,7 +26,7 @@ export async function createQuizAndReturnId(formData: FormData): Promise<QuizMet
     coverImage: formData.get('coverImage') || undefined,
     categoryId: formData.get('categoryId'),
     difficulty: formData.get('difficulty'),
-    format: formData.get('format') || 'CLASSIC',
+    format: formData.get('format') || 'TEXT_CHOICE',
     defaultTimeLimitSec: formData.get('defaultTimeLimitSec')
       ? Number(formData.get('defaultTimeLimitSec'))
       : undefined,

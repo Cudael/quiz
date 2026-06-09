@@ -44,179 +44,64 @@ const DIFFICULTY_CONFIG: Array<{
 function buildTemplateQuestions(template: QuizTemplate): DraftQuestion[] {
   if (template.questionCount === 0) return []
 
-  const makeClassicChoices = (
+  const makeTextChoices = (
     index: number
   ): { type: DraftQuestion['type']; choices: DraftChoice[] } => {
-    const typeCycle: DraftQuestion['type'][] = ['SINGLE', 'TRUEFALSE', 'MULTIPLE', 'FILL_BLANK']
+    const typeCycle: DraftQuestion['type'][] = ['SINGLE', 'TRUEFALSE', 'FILL_BLANK']
     const type = typeCycle[index % typeCycle.length]
 
     if (type === 'TRUEFALSE') {
       return {
         type,
         choices: [
-          { localId: crypto.randomUUID(), text: 'True', isCorrect: true },
-          { localId: crypto.randomUUID(), text: 'False', isCorrect: false },
+          { localId: crypto.randomUUID(), text: 'True', imageUrl: '', isCorrect: true },
+          { localId: crypto.randomUUID(), text: 'False', imageUrl: '', isCorrect: false },
         ],
       }
     }
     if (type === 'FILL_BLANK') {
       return {
         type,
-        choices: [{ localId: crypto.randomUUID(), text: '', isCorrect: true }],
+        choices: [{ localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: true }],
       }
     }
 
     return {
       type,
       choices: [
-        { localId: crypto.randomUUID(), text: '', isCorrect: true },
-        { localId: crypto.randomUUID(), text: '', isCorrect: false },
+        { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: true },
+        { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: false },
       ],
     }
   }
 
   return Array.from({ length: template.questionCount }, (_, templateIndex) => {
-    if (template.format === 'TIMELINE') {
+    if (template.format === 'IMAGE_CHOICE') {
       return {
         localId: crypto.randomUUID(),
         dbId: null,
-        type: 'ORDERING',
-        prompt: 'Put these events in the correct order:',
-        imageUrl: '',
-        explanation: '',
-        timeLimitSec: template.timeLimitSec,
-        choices: Array.from({ length: 4 }, (_, index) => ({
-          localId: crypto.randomUUID(),
-          text: `Event ${index + 1}`,
-          isCorrect: false,
-          meta: { order: index },
-        })),
-      }
-    }
-
-    if (template.format === 'MATCHING') {
-      const pairs = Array.from({ length: 4 }, (_, index) => ({
-        pairKey: crypto.randomUUID(),
-        index,
-      }))
-      return {
-        localId: crypto.randomUUID(),
-        dbId: null,
-        type: 'MATCHING',
-        prompt: 'Match each item on the left to its pair on the right:',
+        type: 'SINGLE' as const,
+        prompt: '',
         imageUrl: '',
         explanation: '',
         timeLimitSec: template.timeLimitSec,
         choices: [
-          ...pairs.map(({ pairKey, index }) => ({
-            localId: crypto.randomUUID(),
-            text: `Left ${index + 1}`,
-            isCorrect: false,
-            meta: { pairKey, side: 'left' },
-          })),
-          ...pairs.map(({ pairKey, index }) => ({
-            localId: crypto.randomUUID(),
-            text: `Right ${index + 1}`,
-            isCorrect: false,
-            meta: { pairKey, side: 'right' },
-          })),
+          { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: true },
+          { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: false },
         ],
       }
     }
 
-    if (template.format === 'CATEGORIZE') {
-      return {
-        localId: crypto.randomUUID(),
-        dbId: null,
-        type: 'CATEGORIZE',
-        prompt: 'Sort each item into the correct category:',
-        imageUrl: '',
-        explanation: '',
-        timeLimitSec: template.timeLimitSec,
-        choices: [
-          {
-            localId: crypto.randomUUID(),
-            text: 'Category A',
-            isCorrect: false,
-            meta: { category: 'A', isHeader: true },
-          },
-          {
-            localId: crypto.randomUUID(),
-            text: 'Category B',
-            isCorrect: false,
-            meta: { category: 'B', isHeader: true },
-          },
-          {
-            localId: crypto.randomUUID(),
-            text: 'Item 1',
-            isCorrect: false,
-            meta: { category: 'A' },
-          },
-          {
-            localId: crypto.randomUUID(),
-            text: 'Item 2',
-            isCorrect: false,
-            meta: { category: 'B' },
-          },
-          {
-            localId: crypto.randomUUID(),
-            text: 'Item 3',
-            isCorrect: false,
-            meta: { category: 'A' },
-          },
-          {
-            localId: crypto.randomUUID(),
-            text: 'Item 4',
-            isCorrect: false,
-            meta: { category: 'B' },
-          },
-        ],
-      }
-    }
-
-    if (template.format === 'LABEL_DIAGRAM') {
-      return {
-        localId: crypto.randomUUID(),
-        dbId: null,
-        type: 'LABEL',
-        prompt: 'Label the diagram:',
-        imageUrl: '',
-        explanation: '',
-        timeLimitSec: template.timeLimitSec,
-        choices: [
-          {
-            localId: crypto.randomUUID(),
-            text: '',
-            isCorrect: false,
-            meta: { x: 0.3, y: 0.4, label: '' },
-          },
-          {
-            localId: crypto.randomUUID(),
-            text: '',
-            isCorrect: false,
-            meta: { x: 0.5, y: 0.55, label: '' },
-          },
-          {
-            localId: crypto.randomUUID(),
-            text: '',
-            isCorrect: false,
-            meta: { x: 0.7, y: 0.3, label: '' },
-          },
-        ],
-      }
-    }
-
-    const classic = makeClassicChoices(templateIndex)
-
+    const textChoice = makeTextChoices(templateIndex)
     return {
       localId: crypto.randomUUID(),
       dbId: null,
-      type: classic.type,
+      type: textChoice.type,
       prompt: '',
       imageUrl: '',
       explanation: '',
       timeLimitSec: template.timeLimitSec,
-      choices: classic.choices,
+      choices: textChoice.choices,
     }
   })
 }
