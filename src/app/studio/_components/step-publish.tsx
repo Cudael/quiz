@@ -99,13 +99,14 @@ export function StepPublish({ quizId }: StepPublishProps) {
         const newQuizId = createResult.quizId
 
         // Persist all questions to the database
-        for (const q of questions) {
+        for (let i = 0; i < questions.length; i++) {
+          const q = questions[i]
           const qFd = new FormData()
           qFd.set('quizId', newQuizId)
           qFd.set('type', q.type)
           qFd.set('prompt', q.prompt)
           qFd.set('timeLimitSec', String(q.timeLimitSec))
-          qFd.set('order', String(q.order ?? 0))
+          qFd.set('order', String(i))
           if (q.imageUrl) qFd.set('imageUrl', q.imageUrl)
           if (q.explanation) qFd.set('explanation', q.explanation)
           qFd.set(
