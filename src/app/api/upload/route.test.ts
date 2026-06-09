@@ -1,13 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { authMock, putMock, checkRateLimitMock } = vi.hoisted(() => ({
+const { authMock, s3SendMock, checkRateLimitMock } = vi.hoisted(() => ({
   authMock: vi.fn(),
-  putMock: vi.fn(),
+  s3SendMock: vi.fn().mockResolvedValue({}),
   checkRateLimitMock: vi.fn().mockResolvedValue(true),
 }))
 
 vi.mock('@/server/auth', () => ({ auth: authMock }))
-vi.mock('@vercel/blob', () => ({ put: putMock }))
+vi.mock('@aws-sdk/client-s3', () => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  S3Client: vi.fn(function (this: any) {
+    this.send = s3SendMock
+  }),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  PutObjectCommand: vi.fn(function (this: any, input: unknown) {
+    Object.assign(this, input)
+  }),
+}))
 vi.mock('@/server/rate-limit', () => ({ checkRateLimit: checkRateLimitMock }))
 
 import { POST } from '@/app/api/upload/route'
@@ -27,6 +36,8 @@ describe('POST /api/upload', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     checkRateLimitMock.mockResolvedValue(true)
+    s3SendMock.mockResolvedValue({})
+    vi.stubEnv('R2_PUBLIC_URL', 'https://images.example.com')
   })
 
   it('returns 401 when the user is not authenticated', async () => {
@@ -35,7 +46,7 @@ describe('POST /api/upload', () => {
     const response = await POST(createRequest())
 
     expect(response.status).toBe(401)
-    expect(putMock).not.toHaveBeenCalled()
+    expect(s3SendMock).not.toHaveBeenCalled()
   })
 
   it('returns 429 when the per-user upload rate limit is exceeded', async () => {
@@ -45,7 +56,7 @@ describe('POST /api/upload', () => {
     const response = await POST(createRequest(new File(['img'], 'photo.png', { type: 'image/png' })))
 
     expect(response.status).toBe(429)
-    expect(putMock).not.toHaveBeenCalled()
+    expect(s3SendMock).not.toHaveBeenCalled()
   })
 
   it('returns 415 for non-image uploads', async () => {
@@ -56,7 +67,7 @@ describe('POST /api/upload', () => {
     )
 
     expect(response.status).toBe(415)
-    expect(putMock).not.toHaveBeenCalled()
+    expect(s3SendMock).not.toHaveBeenCalled()
   })
 
   it('returns 413 for files larger than 5 MB', async () => {
@@ -67,14 +78,11 @@ describe('POST /api/upload', () => {
     const response = await POST(createRequest(file))
 
     expect(response.status).toBe(413)
-    expect(putMock).not.toHaveBeenCalled()
+    expect(s3SendMock).not.toHaveBeenCalled()
   })
 
-  it('uploads namespaced images to Vercel Blob and returns the public URL', async () => {
+  it('uploads namespaced images to R2 and returns the public URL', async () => {
     authMock.mockResolvedValue({ user: { id: 'user_123' } })
-    putMock.mockResolvedValue({
-      url: 'https://blob.vercel-storage.com/quiz-images/user_123/cover.png',
-    })
     vi.spyOn(Date, 'now').mockReturnValue(1710000000000)
     vi.spyOn(crypto, 'randomUUID').mockReturnValue('uuid-1234')
 
@@ -82,24 +90,21 @@ describe('POST /api/upload', () => {
     const response = await POST(createRequest(file))
 
     expect(response.status).toBe(200)
-    expect(putMock).toHaveBeenCalledWith(
-      'quiz-images/user_123/1710000000000-uuid-1234-My-cover-image.png',
-      file,
-      {
-        access: 'public',
-        addRandomSuffix: false,
-      }
+    expect(s3SendMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        Bucket: process.env.R2_BUCKET_NAME,
+        Key: 'quiz-images/user_123/1710000000000-uuid-1234-My-cover-image.png',
+        Body: expect.any(Buffer),
+        ContentType: 'image/png',
+      })
     )
     await expect(response.json()).resolves.toEqual({
-      url: 'https://blob.vercel-storage.com/quiz-images/user_123/cover.png',
+      url: 'https://images.example.com/quiz-images/user_123/1710000000000-uuid-1234-My-cover-image.png',
     })
   })
 
   it('preserves a safe extension when the original filename has no usable basename', async () => {
     authMock.mockResolvedValue({ user: { id: 'user_123' } })
-    putMock.mockResolvedValue({
-      url: 'https://blob.vercel-storage.com/quiz-images/user_123/image.png',
-    })
     vi.spyOn(Date, 'now').mockReturnValue(1710000000000)
     vi.spyOn(crypto, 'randomUUID').mockReturnValue('uuid-5678')
 
@@ -108,13 +113,13 @@ describe('POST /api/upload', () => {
     )
 
     expect(response.status).toBe(200)
-    expect(putMock).toHaveBeenCalledWith(
-      'quiz-images/user_123/1710000000000-uuid-5678-image.png',
-      expect.any(File),
-      {
-        access: 'public',
-        addRandomSuffix: false,
-      }
+    expect(s3SendMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        Key: 'quiz-images/user_123/1710000000000-uuid-5678-image.png',
+        Body: expect.any(Buffer),
+        ContentType: 'image/png',
+      })
     )
   })
 })
+

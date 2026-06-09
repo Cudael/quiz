@@ -1,7 +1,16 @@
-import { put } from '@vercel/blob'
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { NextResponse } from 'next/server'
 import { auth } from '@/server/auth'
 import { checkRateLimit } from '@/server/rate-limit'
+
+const s3 = new S3Client({
+  region: 'auto',
+  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+  },
+})
 
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024
 
@@ -78,12 +87,16 @@ export async function POST(request: Request) {
   const pathname = `quiz-images/${session.user.id}/${Date.now()}-${crypto.randomUUID()}-${sanitizeFilename(file.name)}`
 
   try {
-    const blob = await put(pathname, file, {
-      access: 'public',
-      addRandomSuffix: false,
-    })
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: process.env.R2_BUCKET_NAME!,
+        Key: pathname,
+        Body: Buffer.from(await file.arrayBuffer()),
+        ContentType: file.type,
+      })
+    )
 
-    return NextResponse.json({ url: blob.url })
+    return NextResponse.json({ url: `${process.env.R2_PUBLIC_URL}/${pathname}` })
   } catch {
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 })
   }
