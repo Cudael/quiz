@@ -2,7 +2,7 @@ export interface ResultChoice {
   id: string
   text: string
   isCorrect: boolean
-  meta?: Record<string, unknown> | null
+  meta?: unknown
 }
 
 export interface ResultQuestion {
