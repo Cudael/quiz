@@ -18,6 +18,14 @@ const securityHeaders = [
   // production.  See middleware.ts for the full policy.
 ]
 
+const r2Hostname = (() => {
+  try {
+    return process.env.R2_PUBLIC_URL ? new URL(process.env.R2_PUBLIC_URL).hostname : null
+  } catch {
+    return null
+  }
+})()
+
 const nextConfig: NextConfig = {
   async headers() {
     return [
@@ -41,14 +49,12 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: '*.public.blob.vercel-storage.com',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
         pathname: '/**',
       },
+      ...(r2Hostname
+        ? [{ protocol: 'https' as const, hostname: r2Hostname, pathname: '/**' }]
+        : []),
     ],
   },
 }
