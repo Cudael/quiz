@@ -9,17 +9,33 @@ const GUEST_ONLY_ROUTES = ['/sign-in', '/sign-up']
 
 const { auth } = NextAuth(authConfig)
 
+const r2ImageHost = (() => {
+  try {
+    return process.env.R2_PUBLIC_URL ? new URL(process.env.R2_PUBLIC_URL).hostname : null
+  } catch {
+    return null
+  }
+})()
+
 function buildCsp(nonce: string): string {
   const scriptSrc =
     process.env.NODE_ENV === 'production'
       ? `script-src 'self' 'nonce-${nonce}'`
       : `script-src 'self' 'nonce-${nonce}' 'unsafe-eval'`
 
+  const imgSrcHosts = [
+    'https://images.unsplash.com',
+    'https://avatars.githubusercontent.com',
+    'https://lh3.googleusercontent.com',
+    'https://*.public.blob.vercel-storage.com',
+    ...(r2ImageHost ? [`https://${r2ImageHost}`] : []),
+  ].join(' ')
+
   return [
     "default-src 'self'",
     scriptSrc,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: https://images.unsplash.com https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://*.public.blob.vercel-storage.com",
+    `img-src 'self' data: blob: ${imgSrcHosts}`,
     "font-src 'self'",
     "connect-src 'self' https://busquiz.com https://www.busquiz.com",
     "frame-ancestors 'self'",
