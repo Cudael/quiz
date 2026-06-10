@@ -24,12 +24,17 @@ export const questionSchema = z
     explanation: z.string().trim().max(500).optional(),
     timeLimitSec: z.number().int().min(5).max(120),
     choices: z.array(
-      z.object({
-        text: z.string().trim().min(1),
-        imageUrl: z.string().trim().url().optional(),
-        isCorrect: z.boolean(),
-        meta: z.record(z.string(), z.unknown()).optional(),
-      })
+      z
+        .object({
+          text: z.string().trim(),
+          imageUrl: z.string().trim().url().optional(),
+          isCorrect: z.boolean(),
+          meta: z.record(z.string(), z.unknown()).optional(),
+        })
+        .refine(
+          (choice) => choice.text.length > 0 || (choice.imageUrl && choice.imageUrl.length > 0),
+          { message: 'Each choice must have text or an image.' }
+        )
     ),
   })
   .superRefine((value, ctx) => {
