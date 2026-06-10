@@ -36,31 +36,16 @@ describe('ImageUpload', () => {
     vi.stubGlobal('fetch', vi.fn())
   })
 
-  it('uploads a selected image and allows removing it', async () => {
-    const fetchMock = vi.mocked(fetch)
-    fetchMock.mockResolvedValue(
-      createFetchResponse({
-        url: 'https://blob.vercel-storage.com/quiz-images/user_123/cover.png',
-      }) as unknown as Response
-    )
-
+  it('shows a local preview of a selected image and allows removing it', async () => {
     render(<ImageUploadHarness />)
 
     const input = screen.getByLabelText('Cover image')
     const file = new File(['image'], 'cover.png', { type: 'image/png' })
     fireEvent.change(input, { target: { files: [file] } })
 
-    await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledWith(
-        '/api/upload',
-        expect.objectContaining({ method: 'POST' })
-      )
-    })
-
-    expect(await screen.findByAltText('Image preview')).toHaveAttribute(
-      'src',
-      'https://blob.vercel-storage.com/quiz-images/user_123/cover.png'
-    )
+    // Should show a local blob:// preview (no network call to /api/upload)
+    const preview = await screen.findByAltText('Image preview')
+    expect(preview.getAttribute('src')).toMatch(/^blob:/)
 
     fireEvent.click(screen.getByRole('button', { name: 'Remove' }))
 

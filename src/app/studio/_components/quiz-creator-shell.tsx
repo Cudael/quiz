@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import { createQuizAndReturnId } from '@/app/studio/actions/quiz-meta-actions'
 import { saveDraft } from '@/app/studio/actions'
+import { getPendingFile, uploadFileToStorage, clearPendingUpload } from './use-image-upload'
 import { StepMeta } from './step-meta'
 import { StepQuestions } from './step-questions'
 import { StepPreview } from './step-preview'
@@ -143,46 +144,64 @@ export function QuizCreatorShell({
   const handleSaveDraft = async () => {
     setSavingDraft(true)
 
-    const trimmedTitle = title.trim()
-    const trimmedDescription = description.trim()
-    const safeCategoryId = categoryId || (categories[0]?.id ?? '')
+    try {
+      const trimmedTitle = title.trim()
+      const trimmedDescription = description.trim()
+      const safeCategoryId = categoryId || (categories[0]?.id ?? '')
 
-    if (mode === 'new' && !quizId) {
-      const fd = new FormData()
-      fd.set('title', trimmedTitle)
-      fd.set('description', trimmedDescription)
-      fd.set('coverImage', imageUrl.trim())
-      fd.set('categoryId', safeCategoryId)
-      fd.set('difficulty', difficulty)
-      fd.set('format', quizFormat)
-      if (defaultTimeLimitSec !== null) {
-        fd.set('defaultTimeLimitSec', String(defaultTimeLimitSec))
+      // Upload cover image if it's a pending blob URL
+      let resolvedImageUrl = imageUrl.trim()
+      if (resolvedImageUrl && resolvedImageUrl.startsWith('blob:')) {
+        const file = getPendingFile(resolvedImageUrl)
+        if (file) {
+          try {
+            resolvedImageUrl = await uploadFileToStorage(file)
+            clearPendingUpload(imageUrl)
+            store.setMeta({ imageUrl: resolvedImageUrl })
+          } catch {
+            setSavingDraft(false)
+            return
+          }
+        }
       }
-      const result = await createQuizAndReturnId(fd)
-      if (result.ok) {
-        store.setQuizId(result.quizId)
-        store.setLastSaved(new Date())
-        router.push(`/studio/quiz/${result.quizId}/edit`)
+
+      if (mode === 'new' && !quizId) {
+        const fd = new FormData()
+        fd.set('title', trimmedTitle)
+        fd.set('description', trimmedDescription)
+        fd.set('coverImage', resolvedImageUrl)
+        fd.set('categoryId', safeCategoryId)
+        fd.set('difficulty', difficulty)
+        fd.set('format', quizFormat)
+        if (defaultTimeLimitSec !== null) {
+          fd.set('defaultTimeLimitSec', String(defaultTimeLimitSec))
+        }
+        const result = await createQuizAndReturnId(fd)
+        if (result.ok) {
+          store.setQuizId(result.quizId)
+          store.setLastSaved(new Date())
+          router.push(`/studio/quiz/${result.quizId}/edit`)
+        }
+      } else if (quizId) {
+        const fd = new FormData()
+        fd.set('quizId', quizId)
+        fd.set('title', trimmedTitle)
+        fd.set('description', trimmedDescription)
+        fd.set('coverImage', resolvedImageUrl)
+        fd.set('categoryId', safeCategoryId)
+        fd.set('difficulty', difficulty)
+        fd.set('format', quizFormat)
+        if (defaultTimeLimitSec !== null) {
+          fd.set('defaultTimeLimitSec', String(defaultTimeLimitSec))
+        }
+        const result = await saveDraft(fd)
+        if (result.ok) {
+          store.setLastSaved(new Date())
+        }
       }
-    } else if (quizId) {
-      const fd = new FormData()
-      fd.set('quizId', quizId)
-      fd.set('title', trimmedTitle)
-      fd.set('description', trimmedDescription)
-      fd.set('coverImage', imageUrl.trim())
-      fd.set('categoryId', safeCategoryId)
-      fd.set('difficulty', difficulty)
-      fd.set('format', quizFormat)
-      if (defaultTimeLimitSec !== null) {
-        fd.set('defaultTimeLimitSec', String(defaultTimeLimitSec))
-      }
-      const result = await saveDraft(fd)
-      if (result.ok) {
-        store.setLastSaved(new Date())
-      }
+    } finally {
+      setSavingDraft(false)
     }
-
-    setSavingDraft(false)
   }
 
   const handleBack = () => {

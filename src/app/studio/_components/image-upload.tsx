@@ -29,7 +29,7 @@ export function ImageUpload({
     setPreviewErrorUrl,
     isDragging,
     setIsDragging,
-    isUploading,
+    isProcessing,
     error,
     openFilePicker,
     handleRemove,
@@ -76,9 +76,9 @@ export function ImageUpload({
                 variant="outline"
                 size="sm"
                 onClick={openFilePicker}
-                disabled={isUploading}
+                disabled={isProcessing}
               >
-                {isUploading ? (
+                {isProcessing ? (
                   <Loader2 className="h-3 w-3 animate-spin" />
                 ) : (
                   <Upload className="h-3 w-3" />
@@ -90,7 +90,7 @@ export function ImageUpload({
                 variant="ghost"
                 size="sm"
                 onClick={handleRemove}
-                disabled={isUploading}
+                disabled={isProcessing}
               >
                 <Trash2 className="h-3 w-3" />
                 Remove
@@ -116,19 +116,19 @@ export function ImageUpload({
               }
             }}
             onDrop={(event) => void handleDrop(event)}
-            disabled={isUploading}
+            disabled={isProcessing}
             className={cn(
               'flex w-full items-center gap-2 rounded-md border border-dashed px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground',
               isDragging && 'border-primary bg-primary/5',
-              isUploading && 'cursor-progress'
+              isProcessing && 'cursor-progress'
             )}
           >
-            {isUploading ? (
+            {isProcessing ? (
               <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
             ) : (
               <Upload className="h-4 w-4 shrink-0" />
             )}
-            {isUploading ? 'Uploading…' : 'Add image (optional)'}
+            Add image (optional)
           </button>
         )}
 
@@ -184,9 +184,9 @@ export function ImageUpload({
               variant="outline"
               size="sm"
               onClick={openFilePicker}
-              disabled={isUploading}
+              disabled={isProcessing}
             >
-              {isUploading ? (
+              {isProcessing ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Upload className="h-4 w-4" />
@@ -198,7 +198,7 @@ export function ImageUpload({
               variant="ghost"
               size="sm"
               onClick={handleRemove}
-              disabled={isUploading}
+              disabled={isProcessing}
             >
               <Trash2 className="h-4 w-4" />
               Remove
@@ -224,23 +224,21 @@ export function ImageUpload({
             }
           }}
           onDrop={(event) => void handleDrop(event)}
-          disabled={isUploading}
+          disabled={isProcessing}
           className={cn(
             'flex w-full flex-col items-center justify-center gap-2 rounded-md border border-dashed bg-muted/40 px-4 py-8 text-center transition-colors',
             aspectRatio === '16/9' ? 'aspect-video' : 'aspect-square',
             isDragging && 'border-primary bg-primary/5',
-            isUploading && 'cursor-progress'
+            isProcessing && 'cursor-progress'
           )}
         >
-          {isUploading ? (
+          {isProcessing ? (
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           ) : (
             <Upload className="h-8 w-8 text-muted-foreground" />
           )}
           <div className="space-y-1">
-            <p className="text-sm font-medium">
-              {isUploading ? 'Uploading image…' : 'Drag and drop an image, or click to browse'}
-            </p>
+            <p className="text-sm font-medium">Drag and drop an image, or click to browse</p>
             <p className="text-xs text-muted-foreground">PNG, JPG, GIF, and WebP up to 5 MB</p>
           </div>
         </button>
