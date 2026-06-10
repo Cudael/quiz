@@ -32,7 +32,7 @@ describe('worker image proxy', () => {
     )
 
     expect(response.status).toBe(405)
-    expect(response.status).toBe(405)
+    expect(response.headers.get('allow')).toBe('GET, HEAD')
     expect(get).not.toHaveBeenCalled()
   })
 
