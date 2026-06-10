@@ -20,6 +20,8 @@ export function useDuelSession(duelId: string) {
   const [submitted, setSubmitted] = useState(false)
   const questionStartRef = useRef<number>(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const stateRef = useRef(state)
+  stateRef.current = state
 
   const currentQuestion = state?.questions?.[currentQuestionIndex] ?? null
   const participantCount = state?.participants.length ?? 0
@@ -32,8 +34,11 @@ export function useDuelSession(duelId: string) {
     [state]
   )
 
-  const fetchState = useCallback(async () => {
-    const response = await fetch(`/api/duel/${duelId}`)
+  const fetchState = useCallback(async (includeQuestions = false) => {
+    const url = includeQuestions
+      ? `/api/duel/${duelId}?includeQuestions=true`
+      : `/api/duel/${duelId}`
+    const response = await fetch(url)
     if (!response.ok) {
       if (response.status === 404) {
         addToast('Duel not found.', 'error')
@@ -42,7 +47,12 @@ export function useDuelSession(duelId: string) {
       return
     }
     const payload = (await response.json()) as DuelStatePayload
-    setState(payload)
+    setState((prevState) => {
+      if (payload.questions === null) {
+        return { ...payload, questions: prevState?.questions ?? null }
+      }
+      return payload
+    })
     if (payload.duel.status !== 'IN_PROGRESS') {
       setSubmitted(false)
       setAnswers({})
@@ -54,7 +64,7 @@ export function useDuelSession(duelId: string) {
   useEffect(() => {
     let active = true
     const bootstrapTimer = setTimeout(() => {
-      fetchState()
+      fetchState(true)
         .catch(() => addToast('Could not load duel.', 'error'))
         .finally(() => {
           if (active) setLoading(false)
@@ -62,8 +72,9 @@ export function useDuelSession(duelId: string) {
     }, 0)
 
     const interval = setInterval(() => {
-      fetchState().catch(() => {})
-    }, 2000)
+      if (stateRef.current?.duel.status === 'FINISHED') return
+      fetchState(false).catch(() => {})
+    }, 5000)
     return () => {
       active = false
       clearTimeout(bootstrapTimer)
