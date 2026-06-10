@@ -1,0 +1,11 @@
+name = "busquiz-images"
+main = "worker/src/index.ts"
+compatibility_date = "2025-01-01"
+
+[[r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "YOUR_BUCKET_NAME"  # Replace with actual bucket name — same as R2_BUCKET_NAME env var
+
+# Custom domain is configured in the Cloudflare dashboard:
+# Workers & Pages → busquiz-images → Settings → Domains & Routes → Add Custom Domain
+# Set it to e.g. images.busquiz.com, then use that as R2_PUBLIC_URL
