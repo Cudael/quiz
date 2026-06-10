@@ -4,10 +4,11 @@ import { auth } from '@/server/auth'
 import { pickDuelQuestionIds } from '@/server/duel'
 import { prisma } from '@/server/prisma'
 
-export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
   const cookieStore = await cookies()
   const guestKey = cookieStore.get('qa_guest_id')?.value
+  const includeQuestions = req.nextUrl.searchParams.get('includeQuestions') === 'true'
 
   const { id } = await params
   const duel = await prisma.duel.findUnique({
@@ -60,7 +61,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     choices: Array<{ id: string; text: string }>
   }> | null = null
 
-  if (duel.status === 'IN_PROGRESS') {
+  if (includeQuestions && duel.status === 'IN_PROGRESS') {
     const candidateQuestions = await prisma.question.findMany({
       where: {
         quiz: {
