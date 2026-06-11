@@ -95,7 +95,7 @@ export function QuestionPanel({
                 value={textAnswer ?? ''}
                 onChange={(e) => onTextChange?.(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && textAnswer && textAnswer.trim().length > 0) {
+                  if (e.key === 'Enter' && textAnswer?.trim()) {
                     onTextSubmit?.(textAnswer)
                   }
                 }}

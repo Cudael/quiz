@@ -112,7 +112,12 @@ const TOKEN_TTL_MS = 4 * 60 * 60 * 1000
  */
 async function consumeNonce(nonce: string, expiresAt: number): Promise<boolean> {
   const now = Date.now()
-  const ttlMs = Math.max(expiresAt - now, 1000) // minimum 1s TTL
+  const rawTtl = expiresAt - now
+  if (rawTtl <= 0) {
+    // Token already expired — reject without storing
+    return false
+  }
+  const ttlMs = Math.max(rawTtl, 1000) // minimum 1s TTL for Redis PX
 
   const client = getRedis()
   if (client) {
