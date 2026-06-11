@@ -51,7 +51,8 @@ export function DangerZoneSection({ username }: DangerZoneSectionProps) {
               return
             }
 
-            await signOut({ callbackUrl: '/' })
+            await signOut({ redirect: false })
+            window.location.href = '/'
           }}
         >
           <div className="space-y-1">

@@ -96,8 +96,10 @@ export function AuthControls() {
             </DropdownMenuSubContent>
           </DropdownMenuSub>
           <DropdownMenuItem
-            onSelect={() => {
-              void signOut({ callbackUrl: '/' }).catch(() => undefined)
+            onSelect={async (event) => {
+              event.preventDefault()
+              await signOut({ redirect: false })
+              window.location.href = '/'
             }}
           >
             <LogOut className="h-3.5 w-3.5" />

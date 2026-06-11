@@ -108,7 +108,7 @@ export function QuizCreatorShell({
             (c): DraftChoice => ({
               localId: crypto.randomUUID(),
               text: c.text,
-              imageUrl: '',
+              imageUrl: (c as { imageUrl?: string }).imageUrl ?? '',
               isCorrect: c.isCorrect,
               meta:
                 typeof c.meta === 'object' && c.meta !== null

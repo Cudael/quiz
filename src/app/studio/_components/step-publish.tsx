@@ -12,6 +12,7 @@ import { updateQuiz } from '@/app/studio/actions'
 import { createQuizAndReturnId } from '@/app/studio/actions/quiz-meta-actions'
 import { addQuestion, updateQuestion } from '@/app/studio/actions/question-actions'
 import { togglePublish } from '@/app/studio/actions'
+import { getPendingFile, uploadFileToStorage, clearPendingUpload } from './use-image-upload'
 
 interface StepPublishProps {
   quizId: string | null
@@ -77,13 +78,47 @@ export function StepPublish({ quizId }: StepPublishProps) {
     setSavingLocal(true)
     setSaving(true)
 
+    /** Upload a blob URL to R2 and return the permanent URL. */
+    const resolveBlobUrl = async (url: string): Promise<string> => {
+      if (url && url.startsWith('blob:')) {
+        const file = getPendingFile(url)
+        if (file) {
+          const permanent = await uploadFileToStorage(file)
+          clearPendingUpload(url)
+          return permanent
+        }
+      }
+      return url
+    }
+
+    // Resolve blob URLs for every image in every question before saving.
+    const resolvedQuestions = await Promise.all(
+      questions.map(async (q) => {
+        const resolvedImageUrl = await resolveBlobUrl(q.imageUrl)
+        const resolvedChoices = await Promise.all(
+          q.choices.map(async (c) => {
+            if (c.imageUrl && c.imageUrl.startsWith('blob:')) {
+              const permanent = await resolveBlobUrl(c.imageUrl)
+              return { ...c, imageUrl: permanent }
+            }
+            return c
+          })
+        )
+        return { ...q, imageUrl: resolvedImageUrl, choices: resolvedChoices }
+      })
+    )
+    const resolvedCoverImage = await resolveBlobUrl(trimmedCoverImage)
+    if (resolvedCoverImage !== imageUrl) {
+      setMeta({ imageUrl: resolvedCoverImage })
+    }
+
     try {
       if (!quizId) {
         // Quiz hasn't been saved yet – create as draft, save questions, then publish
         const fd = new FormData()
         fd.set('title', trimmedTitle)
         fd.set('description', trimmedDescription)
-        fd.set('coverImage', trimmedCoverImage)
+        fd.set('coverImage', resolvedCoverImage)
         fd.set('categoryId', categoryId)
         fd.set('difficulty', difficulty)
         fd.set('format', quizFormat)
@@ -99,8 +134,8 @@ export function StepPublish({ quizId }: StepPublishProps) {
         const newQuizId = createResult.quizId
 
         // Persist all questions to the database
-        for (let i = 0; i < questions.length; i++) {
-          const q = questions[i]
+        for (let i = 0; i < resolvedQuestions.length; i++) {
+          const q = resolvedQuestions[i]
           const qFd = new FormData()
           qFd.set('quizId', newQuizId)
           qFd.set('type', q.type)
@@ -114,6 +149,7 @@ export function StepPublish({ quizId }: StepPublishProps) {
             JSON.stringify(
               q.choices.map((c) => ({
                 text: c.text,
+                imageUrl: c.imageUrl || undefined,
                 isCorrect: c.isCorrect,
                 ...(c.meta ? { meta: c.meta } : {}),
               }))
@@ -150,8 +186,8 @@ export function StepPublish({ quizId }: StepPublishProps) {
       }
 
       // Existing quiz — persist any unsaved questions, then toggle publish
-      for (let i = 0; i < questions.length; i++) {
-        const q = questions[i]
+      for (let i = 0; i < resolvedQuestions.length; i++) {
+        const q = resolvedQuestions[i]
         if (!q.dbId) {
           const qFd = new FormData()
           qFd.set('quizId', quizId)
@@ -166,6 +202,7 @@ export function StepPublish({ quizId }: StepPublishProps) {
             JSON.stringify(
               q.choices.map((c) => ({
                 text: c.text,
+                imageUrl: c.imageUrl || undefined,
                 isCorrect: c.isCorrect,
                 ...(c.meta ? { meta: c.meta } : {}),
               }))
@@ -183,7 +220,7 @@ export function StepPublish({ quizId }: StepPublishProps) {
       fd.set('quizId', quizId)
       fd.set('title', trimmedTitle)
       fd.set('description', trimmedDescription)
-      fd.set('coverImage', trimmedCoverImage)
+      fd.set('coverImage', resolvedCoverImage)
       fd.set('categoryId', categoryId)
       fd.set('difficulty', difficulty)
       if (!isPublished) fd.set('isPublished', 'on')
