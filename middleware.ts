@@ -31,13 +31,33 @@ function buildCsp(nonce: string): string {
     ...(r2ImageHost ? [`https://${r2ImageHost}`] : []),
   ].join(' ')
 
+  // connect-src: allow self + the configured app domain (NEXTAUTH_URL) for API
+  // calls. Avoids hardcoding domains that may differ between deployments.
+  const connectSrcHosts = process.env.NEXTAUTH_URL
+    ? (() => {
+        try {
+          const origin = new URL(process.env.NEXTAUTH_URL).origin
+          return origin !== "'self'" ? ` ${origin}` : ''
+        } catch {
+          return ''
+        }
+      })()
+    : ''
+
   return [
     "default-src 'self'",
     scriptSrc,
+    // style-src 'unsafe-inline' is required because Tailwind v4 injects styles
+    // at runtime via inline <style> tags and class-based utilities that generate
+    // inline style attributes. Removing 'unsafe-inline' would break all
+    // Tailwind-generated styles. A nonce or hash approach is not viable here
+    // because Tailwind does not support CSP nonces for its generated styles.
     "style-src 'self' 'unsafe-inline'",
     `img-src 'self' data: blob: ${imgSrcHosts}`,
     "font-src 'self'",
-    "connect-src 'self' https://busquiz.com https://www.busquiz.com",
+    `connect-src 'self'${connectSrcHosts}`,
+    // frame-ancestors 'self' supersedes X-Frame-Options in modern browsers;
+    // both are kept for backwards compatibility with older clients.
     "frame-ancestors 'self'",
   ].join('; ')
 }

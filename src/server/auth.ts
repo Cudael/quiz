@@ -49,57 +49,64 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
 
       const now = new Date()
-      let dbUser = await prisma.user.findUnique({
-        where: { email: normalizedEmail },
-        select: { id: true, emailVerified: true },
-      })
 
-      if (!dbUser) {
-        const emailLocalPart = normalizedEmail.split('@')[0] || normalizedEmail
-        const profileName = user.name?.trim() || emailLocalPart
-        const username = await generateUniqueUsername(profileName)
-        dbUser = await prisma.user.create({
-          data: {
-            name: profileName,
-            email: normalizedEmail,
-            image: user.image,
-            emailVerified: now,
-            role: 'USER',
-            username,
+      // Wrap user+account operations in a transaction to prevent inconsistent
+      // state if the account upsert fails after user creation.
+      const dbUser = await prisma.$transaction(async (tx) => {
+        let foundUser = await tx.user.findUnique({
+          where: { email: normalizedEmail },
+          select: { id: true, emailVerified: true },
+        })
+
+        if (!foundUser) {
+          const emailLocalPart = normalizedEmail.split('@')[0] || normalizedEmail
+          const profileName = user.name?.trim() || emailLocalPart
+          const username = await generateUniqueUsername(profileName)
+          foundUser = await tx.user.create({
+            data: {
+              name: profileName,
+              email: normalizedEmail,
+              image: user.image,
+              emailVerified: now,
+              role: 'USER',
+              username,
+            },
+            select: { id: true, emailVerified: true },
+          })
+        } else if (!foundUser.emailVerified) {
+          foundUser = await tx.user.update({
+            where: { id: foundUser.id },
+            data: { emailVerified: now },
+            select: { id: true, emailVerified: true },
+          })
+        }
+
+        await tx.account.upsert({
+          where: {
+            provider_providerAccountId: {
+              provider: account.provider,
+              providerAccountId: account.providerAccountId,
+            },
           },
-          select: { id: true, emailVerified: true },
-        })
-      } else if (!dbUser.emailVerified) {
-        dbUser = await prisma.user.update({
-          where: { id: dbUser.id },
-          data: { emailVerified: now },
-          select: { id: true, emailVerified: true },
-        })
-      }
-
-      await prisma.account.upsert({
-        where: {
-          provider_providerAccountId: {
+          update: {
+            userId: foundUser.id,
+          },
+          create: {
+            userId: foundUser.id,
+            type: account.type,
             provider: account.provider,
             providerAccountId: account.providerAccountId,
+            refresh_token: account.refresh_token,
+            access_token: account.access_token,
+            expires_at: account.expires_at,
+            token_type: account.token_type,
+            scope: account.scope,
+            id_token: account.id_token,
+            session_state: account.session_state ? String(account.session_state) : null,
           },
-        },
-        update: {
-          userId: dbUser.id,
-        },
-        create: {
-          userId: dbUser.id,
-          type: account.type,
-          provider: account.provider,
-          providerAccountId: account.providerAccountId,
-          refresh_token: account.refresh_token,
-          access_token: account.access_token,
-          expires_at: account.expires_at,
-          token_type: account.token_type,
-          scope: account.scope,
-          id_token: account.id_token,
-          session_state: account.session_state ? String(account.session_state) : null,
-        },
+        })
+
+        return foundUser
       })
 
       user.id = dbUser.id

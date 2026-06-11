@@ -19,6 +19,9 @@ interface QuestionPanelProps {
   onChoiceSelect: (choiceId: string) => void
   onSubmit: () => void
   onNext: () => void
+  onTextSubmit?: (text: string) => void
+  textAnswer?: string
+  onTextChange?: (text: string) => void
 }
 
 export function QuestionPanel({
@@ -34,6 +37,9 @@ export function QuestionPanel({
   onChoiceSelect,
   onSubmit,
   onNext,
+  onTextSubmit,
+  textAnswer,
+  onTextChange,
 }: QuestionPanelProps) {
   const renderedPrompt = currentQuestion.prompt
   const questionImageSrc = getQuestionImageSrc(currentQuestion.imageUrl)
@@ -76,7 +82,30 @@ export function QuestionPanel({
 
         <QuestionTypeHint type={currentQuestion.type} isAnswered={isAnswered} />
 
-        {isImageChoice ? (
+        {currentQuestion.type === 'FILL_BLANK' ? (
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="fill-blank-input" className="sr-only">
+                Your answer
+              </label>
+              <input
+                id="fill-blank-input"
+                type="text"
+                aria-label="Your answer"
+                value={textAnswer ?? ''}
+                onChange={(e) => onTextChange?.(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && textAnswer?.trim()) {
+                    onTextSubmit?.(textAnswer)
+                  }
+                }}
+                disabled={isAnswered}
+                placeholder="Type your answer…"
+                className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+              />
+            </div>
+          </div>
+        ) : isImageChoice ? (
           <div className="grid gap-3 sm:grid-cols-2">
             {currentQuestion.choices
               .filter((c) => !hiddenChoiceIds.includes(c.id))
@@ -192,6 +221,8 @@ export function QuestionPanel({
 
 const TYPE_HINTS: Record<string, string> = {
   SINGLE: 'Choose one answer.',
+  TRUEFALSE: 'True or false?',
+  FILL_BLANK: 'Type your answer below.',
 }
 
 function QuestionTypeHint({ type, isAnswered }: { type: string; isAnswered: boolean }) {

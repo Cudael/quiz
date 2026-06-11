@@ -8,11 +8,17 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     globals: true,
+    server: {
+      deps: {
+        inline: ['next-auth'],
+      },
+    },
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
       'server-only': path.resolve(__dirname, './src/test/server-only.ts'),
+      'next/server': path.resolve(__dirname, './node_modules/next/server.js'),
     },
   },
 })

@@ -8,6 +8,8 @@ import 'server-only'
  * (submitting the same token twice to inflate scores).
  */
 
+import { Redis } from '@upstash/redis'
+
 const DEV_SECRET = 'busquiz-dev-secret-do-not-use-in-prod'
 
 function getSecret(): string {
@@ -19,6 +21,22 @@ function getSecret(): string {
     return DEV_SECRET
   }
   return secret
+}
+
+// ---------------------------------------------------------------------------
+// Redis client (shared with rate-limit.ts pattern)
+// ---------------------------------------------------------------------------
+
+let redis: Redis | null = null
+
+function getRedis(): Redis | null {
+  if (redis !== null) return redis
+  const url = process.env.UPSTASH_REDIS_REST_URL
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN
+  if (url && token) {
+    redis = new Redis({ url, token })
+  }
+  return redis
 }
 
 // ---------------------------------------------------------------------------
@@ -66,28 +84,55 @@ async function verify(message: string, sigB64: string, key: CryptoKey): Promise<
 // ---------------------------------------------------------------------------
 
 /**
- * Maps nonce → expiry timestamp (ms). Entries are cleaned up lazily.
+ * In-memory fallback when Redis is unavailable. Maps nonce → expiry timestamp.
+ * Entries are cleaned up lazily.
  *
- * **Serverless limitation:** Like the in-memory rate-limiter, this map is
- * local to each server instance. On platforms such as Vercel, isolated
- * function instances do not share memory, so replay protection is best-effort
- * within a single warm instance. For strict single-use enforcement across all
- * instances, replace this with a shared atomic store (e.g. Redis / Upstash).
- * Node.js is single-threaded, so there is no intra-process race condition.
+ * **Serverless limitation:** This map is local to each server instance. On
+ * platforms such as Vercel, isolated function instances do not share memory.
+ * When Redis is configured (UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN),
+ * the nonce is tracked atomically across all instances via SET NX PX.
  */
 const usedNonces = new Map<string, number>()
 
+/**
+ * Token TTL: 4 hours.
+ *
+ * Rationale: A quiz play session should not take longer than 4 hours.
+ * This provides ample buffer for slow connections while bounding the
+ * window in which a token could theoretically be replayed.
+ */
 const TOKEN_TTL_MS = 4 * 60 * 60 * 1000
 
 /**
- * Attempts to consume `nonce`.  Returns `true` on the first call (nonce is
+ * Attempts to consume `nonce`. Returns `true` on the first call (nonce is
  * fresh) and `false` on any subsequent call (nonce already used).
- * Expired entries are purged lazily to keep the map bounded.
+ *
+ * Uses Redis SET NX PX for atomic cross-instance enforcement when available;
+ * falls back to in-memory tracking with a warning log.
  */
-function consumeNonce(nonce: string, expiresAt: number): boolean {
+async function consumeNonce(nonce: string, expiresAt: number): Promise<boolean> {
   const now = Date.now()
+  const rawTtl = expiresAt - now
+  if (rawTtl <= 0) {
+    // Token already expired — reject without storing
+    return false
+  }
+  const ttlMs = Math.max(rawTtl, 1000) // minimum 1s TTL for Redis PX
 
-  // Lazy cleanup: purge expired nonces when the map grows large.
+  const client = getRedis()
+  if (client) {
+    try {
+      // SET NX: only succeeds if the key does not already exist (atomic).
+      // PX: auto-expires after the token's remaining TTL.
+      const result = await client.set(`nonce:${nonce}`, '1', { nx: true, px: ttlMs })
+      return result === 'OK'
+    } catch (err) {
+      // Redis unavailable — fall through to in-memory with warning.
+      console.warn('[play-token] Redis unavailable for nonce check, using in-memory fallback', err)
+    }
+  }
+
+  // In-memory fallback: purge expired nonces when the map grows large.
   if (usedNonces.size >= 10_000) {
     for (const [n, exp] of usedNonces) {
       if (exp < now) usedNonces.delete(n)
@@ -151,7 +196,7 @@ export async function verifyPlayToken(
     if (!payload.nonce) return { valid: false }
 
     const expiresAt = payload.issuedAt + TOKEN_TTL_MS
-    if (!consumeNonce(payload.nonce, expiresAt)) return { valid: false }
+    if (!(await consumeNonce(payload.nonce, expiresAt))) return { valid: false }
 
     return { valid: true, quizId: payload.quizId }
   } catch {

@@ -70,6 +70,14 @@ export async function checkRateLimit(key: string, config: RateLimitConfig): Prom
   const now = Date.now()
   const entry = store.get(key)
 
+  // Lazy cleanup: purge expired entries when the store grows large to prevent
+  // unbounded memory growth in long-running instances.
+  if (store.size >= 10_000) {
+    for (const [k, e] of store) {
+      if (now - e.windowStart >= config.windowMs) store.delete(k)
+    }
+  }
+
   if (!entry || now - entry.windowStart >= config.windowMs) {
     store.set(key, { count: 1, windowStart: now })
     return true

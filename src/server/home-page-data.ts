@@ -86,6 +86,7 @@ export async function getHomePageData(): Promise<HomePageData> {
           imageUrl: true,
           parentSlug: true,
         },
+        take: 100, // Bounded to prevent unbounded result sets
       }),
       getPopularQuizzes(),
       getTrendingQuizzes(),
@@ -107,67 +108,68 @@ export async function getHomePageData(): Promise<HomePageData> {
       }
     : null
 
-  // Fetch user's played quiz IDs early to mark completed cards
+  // Fetch user's play sessions once and reuse for played IDs, category counts, and recent plays.
   const playedQuizIds = new Set<string>()
+  let userPlaySessions: { quizId: string; quiz: { categoryId: string } }[] = []
+
   if (isAuthenticatedUser && session?.user?.id) {
-    const userSessions = await prisma.playSession.findMany({
+    userPlaySessions = await prisma.playSession.findMany({
       where: { userId: session.user.id },
-      select: { quizId: true },
-      distinct: ['quizId'],
+      select: {
+        quizId: true,
+        quiz: { select: { categoryId: true } },
+      },
+      orderBy: { createdAt: 'desc' },
     })
-    for (const s of userSessions) {
+    for (const s of userPlaySessions) {
       playedQuizIds.add(s.quizId)
     }
   }
 
-  // --- Fetch quizzes grouped by parent category (includes subcategory quizzes) ---
+  // --- Fetch quizzes grouped by parent category (single batch query) ---
   const parentCategories = categories.filter((cat) => cat.parentSlug === null)
 
-  const categoriesWithQuizzes: CategoryWithQuizzes[] = await Promise.all(
-    parentCategories.map(async (parent) => {
-      // Collect IDs of parent + all its child categories
-      const childIds = categories
-        .filter((cat) => cat.parentSlug === parent.slug)
-        .map((cat) => cat.id)
-      const allCategoryIds = [parent.id, ...childIds]
+  // Collect all category IDs across all parents to batch into one query
+  const parentCategoryMap = new Map<
+    string,
+    { parent: (typeof parentCategories)[number]; allIds: string[] }
+  >()
+  for (const parent of parentCategories) {
+    const childIds = categories.filter((cat) => cat.parentSlug === parent.slug).map((cat) => cat.id)
+    parentCategoryMap.set(parent.id, { parent, allIds: [parent.id, ...childIds] })
+  }
 
-      const quizzes = await prisma.quiz.findMany({
-        where: { categoryId: { in: allCategoryIds }, isPublished: true },
-        orderBy: { playCount: 'desc' },
-        take: 12,
-        select: QUIZ_CARD_SELECT_WITH_RATINGS,
-      })
-      return {
-        slug: parent.slug,
-        name: parent.name,
-        icon: parent.icon,
-        color: parent.color || FALLBACK_CATEGORY_GRADIENT,
-        imageUrl: parent.imageUrl ?? undefined,
-        quizzes: quizzes.map((q) => mapQuizCard(q, playedQuizIds)),
-      }
-    })
-  )
+  const allCategoryIds = [...parentCategoryMap.values()].flatMap((v) => v.allIds)
+  const allCategoryQuizzes = await prisma.quiz.findMany({
+    where: { categoryId: { in: allCategoryIds }, isPublished: true },
+    orderBy: { playCount: 'desc' },
+    select: { ...QUIZ_CARD_SELECT_WITH_RATINGS, categoryId: true },
+  })
+
+  // Group quizzes by parent category (a quiz belongs to a parent if its
+  // categoryId is in that parent's allIds set) and take top 12 per parent.
+  const categoriesWithQuizzes: CategoryWithQuizzes[] = parentCategories.map((parent) => {
+    const entry = parentCategoryMap.get(parent.id)!
+    const idSet = new Set(entry.allIds)
+    const quizzes = allCategoryQuizzes.filter((q) => idSet.has(q.categoryId)).slice(0, 12)
+    return {
+      slug: parent.slug,
+      name: parent.name,
+      icon: parent.icon,
+      color: parent.color || FALLBACK_CATEGORY_GRADIENT,
+      imageUrl: parent.imageUrl ?? undefined,
+      quizzes: quizzes.map((q) => mapQuizCard(q, playedQuizIds)),
+    }
+  })
 
   let personalizedQuizzes: QuizCardData[] = []
   let recentlyPlayed: QuizCardData[] = []
 
   if (isAuthenticatedUser && session?.user?.id) {
-    const userSessions = await prisma.playSession.findMany({
-      where: { userId: session.user.id },
-      select: {
-        quizId: true,
-        quiz: {
-          select: {
-            categoryId: true,
-          },
-        },
-      },
-    })
-
-    const previouslyPlayedIds = [...new Set(userSessions.map((playSession) => playSession.quizId))]
+    const previouslyPlayedIds = [...playedQuizIds]
     const categoryCounts = new Map<string, number>()
 
-    for (const playSession of userSessions) {
+    for (const playSession of userPlaySessions) {
       const currentCount = categoryCounts.get(playSession.quiz.categoryId) ?? 0
       categoryCounts.set(playSession.quiz.categoryId, currentCount + 1)
     }
@@ -206,28 +208,7 @@ export async function getHomePageData(): Promise<HomePageData> {
     personalizedQuizzes = personalizedRaw.map((q) => mapQuizCard(q, playedQuizIds))
     recentlyPlayed = recentlyPlayedSessions
       .map((s) => s.quiz)
-      .map((quiz) => {
-        const { avgRating, ratingCount } = computeRatingInfo(quiz)
-        return {
-          id: quiz.id,
-          title: quiz.title,
-          coverImage: quiz.coverImage,
-          difficulty:
-            quiz.difficulty === 'EASY' || quiz.difficulty === 'MEDIUM' || quiz.difficulty === 'HARD'
-              ? quiz.difficulty
-              : ('MEDIUM' as const),
-          category: {
-            name: quiz.category.name,
-            color: quiz.category.color || FALLBACK_CATEGORY_GRADIENT,
-          },
-          playCount: quiz.playCount,
-          avgScore: quiz.avgScore ?? undefined,
-          avgRating,
-          ratingCount,
-          authorName: quiz.author?.name ?? undefined,
-          completed: playedQuizIds.has(quiz.id) || undefined,
-        }
-      })
+      .map((quiz) => mapQuizCard(quiz, playedQuizIds))
   }
 
   return {

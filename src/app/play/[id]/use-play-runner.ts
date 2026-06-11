@@ -28,7 +28,8 @@ export function usePlayRunner(quizId: string) {
   const [questionUI, setQuestionUI] = useState<{
     selectedChoiceIds: string[]
     hiddenChoiceIds: string[]
-  }>({ selectedChoiceIds: [], hiddenChoiceIds: [] })
+    textAnswer: string
+  }>({ selectedChoiceIds: [], hiddenChoiceIds: [], textAnswer: '' })
   const [soundEnabled, setSoundEnabled] = useState(getSoundPreference)
   const [showQuitModal, setShowQuitModal] = useState(false)
   // Ref avoids render loops here; we only need to track previous question id without re-rendering.
@@ -160,7 +161,7 @@ export function usePlayRunner(quizId: string) {
     const currentQuestionId = currentQuestion?.id ?? null
     if (currentQuestionId === prevQuestionIdRef.current) return
     prevQuestionIdRef.current = currentQuestionId
-    setQuestionUI({ selectedChoiceIds: [], hiddenChoiceIds: [] })
+    setQuestionUI({ selectedChoiceIds: [], hiddenChoiceIds: [], textAnswer: '' })
   }, [currentQuestion?.id])
 
   useEffect(() => {
@@ -176,6 +177,29 @@ export function usePlayRunner(quizId: string) {
       }))
     },
     [currentQuestion, isAnswered]
+  )
+
+  const handleTextChange = useCallback(
+    (text: string) => {
+      if (!currentQuestion || isAnswered) return
+      setQuestionUI((prev) => ({ ...prev, textAnswer: text }))
+    },
+    [currentQuestion, isAnswered]
+  )
+
+  const handleTextSubmit = useCallback(
+    (text: string) => {
+      if (!currentQuestion || isAnswered) return
+      const trimmed = text.trim().toLowerCase()
+      if (!trimmed) return
+      // Match text answer against choices (case-insensitive)
+      const matchedChoice = currentQuestion.choices.find(
+        (c) => c.text.trim().toLowerCase() === trimmed
+      )
+      const choiceIds = matchedChoice ? [matchedChoice.id] : []
+      handleAnswer(choiceIds, false, text)
+    },
+    [currentQuestion, isAnswered, handleAnswer]
   )
 
   const handleSubmitSelection = useCallback(() => {
@@ -262,6 +286,8 @@ export function usePlayRunner(quizId: string) {
     setShowQuitModal,
     timerAnnouncement,
     handleChoiceSelect,
+    handleTextChange,
+    handleTextSubmit,
     handleSubmitSelection,
     goNext,
     quitToQuiz,

@@ -157,8 +157,8 @@ describe('PlayView', () => {
           questions: [
             {
               id: 'question-1',
-              type: 'SINGLE',
-              prompt: 'What is the capital of France?',
+              type: 'FILL_BLANK',
+              prompt: 'The capital of France is _____.',
               imageUrl: null,
               timeLimitSec: 20,
               order: 1,
