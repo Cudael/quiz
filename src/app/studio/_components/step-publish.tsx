@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
-import { Check, Copy, Loader2, X } from 'lucide-react'
+import { Check, Copy, Loader2, X, AlertTriangle } from 'lucide-react'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/toast'
@@ -53,24 +53,64 @@ export function StepPublish({ quizId }: StepPublishProps) {
   const trimmedCoverImage = imageUrl.trim()
   const isCategorySelected = categoryIdSchema.safeParse(categoryId.trim()).success
   const hasCoverImage = trimmedCoverImage.length > 0
-  // In edit mode, only count questions already persisted to the DB (dbId !== null).
-  // Fall back to questions.length if no questions have been persisted yet (e.g. during
-  // the brief transition after a new quiz is first created) so the checklist does not
-  // flash a false failure while the page is navigating away.
-  const publishableQuestionsCount =
-    quizId && questions.some((q) => q.dbId !== null)
-      ? questions.filter((q) => q.dbId !== null).length
-      : questions.length
+
+  // ── Question-level validation ──────────────────────────────────────────
+  const emptyPromptCount = questions.filter((q) => !q.prompt.trim()).length
+  const noCorrectCount = questions.filter((q) => !q.choices.some((c) => c.isCorrect)).length
+  const tooFewChoicesCount = questions.filter((q) => q.choices.length < 2).length
+  const emptyChoiceTextCount = questions.filter((q) => q.choices.some((c) => !c.text.trim())).length
+
+  const completeQuestionCount = questions.filter((q) => {
+    return (
+      q.prompt.trim() &&
+      q.choices.length >= 2 &&
+      q.choices.some((c) => c.isCorrect) &&
+      !q.choices.some((c) => !c.text.trim())
+    )
+  }).length
+
   const checks: CheckItem[] = [
     { label: 'Title is set', ok: trimmedTitle.length > 0 },
     { label: 'Description is set', ok: trimmedDescription.length > 0 },
     { label: 'Category is selected', ok: isCategorySelected },
     { label: 'Cover image is set', ok: hasCoverImage },
     {
-      label: `At least ${MIN_QUESTIONS} questions`,
-      ok: publishableQuestionsCount >= MIN_QUESTIONS,
+      label: `At least ${MIN_QUESTIONS} complete questions (${completeQuestionCount} of ${questions.length} ready)`,
+      ok: completeQuestionCount >= MIN_QUESTIONS,
     },
   ]
+
+  // Build a list of specific issues for partial/warning diagnostics
+  const questionIssues: string[] = []
+  if (questions.length === 0) {
+    questionIssues.push('No questions added yet.')
+  } else {
+    if (emptyPromptCount > 0) {
+      questionIssues.push(
+        `${emptyPromptCount} question${emptyPromptCount > 1 ? 's have' : ' has'} an empty prompt.`
+      )
+    }
+    if (noCorrectCount > 0) {
+      questionIssues.push(
+        `${noCorrectCount} question${noCorrectCount > 1 ? 's have' : ' has'} no correct answer selected.`
+      )
+    }
+    if (tooFewChoicesCount > 0) {
+      questionIssues.push(
+        `${tooFewChoicesCount} question${tooFewChoicesCount > 1 ? 's have' : ' has'} fewer than 2 choices.`
+      )
+    }
+    if (emptyChoiceTextCount > 0) {
+      questionIssues.push(
+        `${emptyChoiceTextCount} question${emptyChoiceTextCount > 1 ? 's have' : ' has'} choice${emptyChoiceTextCount > 1 ? 's' : ''} with empty text.`
+      )
+    }
+    if (questionIssues.length === 0 && completeQuestionCount < MIN_QUESTIONS) {
+      questionIssues.push(
+        `You need ${MIN_QUESTIONS} complete questions but only have ${completeQuestionCount}. Add ${MIN_QUESTIONS - completeQuestionCount} more.`
+      )
+    }
+  }
 
   const canPublish = checks.every((c) => c.ok)
 
@@ -279,6 +319,21 @@ export function StepPublish({ quizId }: StepPublishProps) {
             </span>
           </div>
         ))}
+
+        {/* Question issues — shown when there are problems to fix */}
+        {questionIssues.length > 0 && (
+          <div className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 space-y-1.5">
+            {questionIssues.map((issue) => (
+              <div
+                key={issue}
+                className="flex items-start gap-2 text-sm text-amber-600 dark:text-amber-400"
+              >
+                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                <span>{issue}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Publish toggle */}
