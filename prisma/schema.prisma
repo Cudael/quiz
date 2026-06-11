@@ -195,7 +195,7 @@ model PlaySession {
   guestName    String?
   guestKey     String?
   quizId       String
-  quiz         Quiz     @relation(fields: [quizId], references: [id])
+  quiz         Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
   score        Int
   correctCount Int
   totalCount   Int

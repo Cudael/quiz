@@ -77,6 +77,13 @@ function formatPlayCount(count: number): string {
   return count.toString()
 }
 
+/** Blob URLs and data URLs that don't start with http/https are never valid
+ *  across page loads — treat them as missing so we fall back to the gradient. */
+function isValidImageUrl(url: string | null | undefined): boolean {
+  if (!url) return false
+  return url.startsWith('http://') || url.startsWith('https://')
+}
+
 /** Arcade-style play button used across all card sizes */
 function ArcadePlayButton({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
   const sizes = {
@@ -145,7 +152,7 @@ function DifficultyPill({
 
 export function QuizCardHorizontal({ quiz, className }: QuizCardProps) {
   const [imageFailed, setImageFailed] = React.useState(false)
-  const hasCoverImage = Boolean(quiz.coverImage) && !imageFailed
+  const hasCoverImage = isValidImageUrl(quiz.coverImage) && !imageFailed
 
   return (
     <Link
@@ -212,7 +219,7 @@ export function QuizCard({ quiz, className }: QuizCardProps) {
   const shouldReduceMotion = useReducedMotion()
   const [imageFailed, setImageFailed] = React.useState(false)
   const [spotlight, setSpotlight] = React.useState({ x: 0, y: 0, visible: false })
-  const hasCoverImage = Boolean(quiz.coverImage) && !imageFailed
+  const hasCoverImage = isValidImageUrl(quiz.coverImage) && !imageFailed
 
   function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
     if (shouldReduceMotion) return
@@ -319,7 +326,7 @@ export function QuizCardFeatured({ quiz, className }: QuizCardProps) {
   const shouldReduceMotion = useReducedMotion()
   const [imageFailed, setImageFailed] = React.useState(false)
   const [spotlight, setSpotlight] = React.useState({ x: 0, y: 0, visible: false })
-  const hasCoverImage = Boolean(quiz.coverImage) && !imageFailed
+  const hasCoverImage = isValidImageUrl(quiz.coverImage) && !imageFailed
 
   function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
     if (shouldReduceMotion) return

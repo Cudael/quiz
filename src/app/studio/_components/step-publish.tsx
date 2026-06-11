@@ -78,15 +78,17 @@ export function StepPublish({ quizId }: StepPublishProps) {
     setSavingLocal(true)
     setSaving(true)
 
-    /** Upload a blob URL to R2 and return the permanent URL. */
+    /** Upload a blob URL to R2 and return the permanent URL.
+     *  Throws if the blob file is no longer available (e.g. after a page refresh). */
     const resolveBlobUrl = async (url: string): Promise<string> => {
       if (url && url.startsWith('blob:')) {
         const file = getPendingFile(url)
-        if (file) {
-          const permanent = await uploadFileToStorage(file)
-          clearPendingUpload(url)
-          return permanent
+        if (!file) {
+          throw new Error('An image is no longer available. Please re-upload it before publishing.')
         }
+        const permanent = await uploadFileToStorage(file)
+        clearPendingUpload(url)
+        return permanent
       }
       return url
     }

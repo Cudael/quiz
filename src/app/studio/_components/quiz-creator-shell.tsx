@@ -69,6 +69,7 @@ export function QuizCreatorShell({
   const router = useRouter()
   const store = useQuizCreatorStore()
   const [savingDraft, setSavingDraft] = React.useState(false)
+  const [draftError, setDraftError] = React.useState<string | null>(null)
   const initializedRef = React.useRef(false)
 
   // Initialize store on mount
@@ -142,6 +143,7 @@ export function QuizCreatorShell({
   } = store
 
   const handleSaveDraft = async () => {
+    setDraftError(null)
     setSavingDraft(true)
 
     try {
@@ -153,15 +155,19 @@ export function QuizCreatorShell({
       let resolvedImageUrl = imageUrl.trim()
       if (resolvedImageUrl && resolvedImageUrl.startsWith('blob:')) {
         const file = getPendingFile(resolvedImageUrl)
-        if (file) {
-          try {
-            resolvedImageUrl = await uploadFileToStorage(file)
-            clearPendingUpload(imageUrl)
-            store.setMeta({ imageUrl: resolvedImageUrl })
-          } catch {
-            setSavingDraft(false)
-            return
-          }
+        if (!file) {
+          setDraftError('Cover image is no longer available. Please re-upload it.')
+          setSavingDraft(false)
+          return
+        }
+        try {
+          resolvedImageUrl = await uploadFileToStorage(file)
+          clearPendingUpload(imageUrl)
+          store.setMeta({ imageUrl: resolvedImageUrl })
+        } catch {
+          setDraftError('Failed to upload cover image. Please try again.')
+          setSavingDraft(false)
+          return
         }
       }
 
@@ -271,6 +277,11 @@ export function QuizCreatorShell({
 
       {/* Sticky bottom bar */}
       <div className="sticky bottom-0 z-20 border-t bg-card px-4 py-3">
+        {draftError && (
+          <div className="container mx-auto max-w-4xl pb-2">
+            <p className="text-sm text-destructive">{draftError}</p>
+          </div>
+        )}
         <div className="container mx-auto flex max-w-4xl items-center justify-between gap-3">
           <Button type="button" variant="ghost" onClick={handleBack} disabled={currentStep === 1}>
             ← Back

@@ -42,15 +42,17 @@ export function useQuestionCard({
       let resolvedImageUrl = question.imageUrl
       if (resolvedImageUrl && resolvedImageUrl.startsWith('blob:')) {
         const file = getPendingFile(resolvedImageUrl)
-        if (file) {
-          try {
-            resolvedImageUrl = await uploadFileToStorage(file)
-            clearPendingUpload(question.imageUrl)
-            onUpdate({ imageUrl: resolvedImageUrl })
-          } catch {
-            setSaveState('idle')
-            return
-          }
+        if (!file) {
+          setSaveState('idle')
+          return
+        }
+        try {
+          resolvedImageUrl = await uploadFileToStorage(file)
+          clearPendingUpload(question.imageUrl)
+          onUpdate({ imageUrl: resolvedImageUrl })
+        } catch {
+          setSaveState('idle')
+          return
         }
       }
 
@@ -64,14 +66,16 @@ export function useQuestionCard({
         let choiceImageUrl = c.imageUrl
         if (choiceImageUrl && choiceImageUrl.startsWith('blob:')) {
           const file = getPendingFile(choiceImageUrl)
-          if (file) {
-            try {
-              choiceImageUrl = await uploadFileToStorage(file)
-              clearPendingUpload(c.imageUrl)
-            } catch {
-              setSaveState('idle')
-              return
-            }
+          if (!file) {
+            setSaveState('idle')
+            return
+          }
+          try {
+            choiceImageUrl = await uploadFileToStorage(file)
+            clearPendingUpload(c.imageUrl)
+          } catch {
+            setSaveState('idle')
+            return
           }
         }
         resolvedChoices.push({
