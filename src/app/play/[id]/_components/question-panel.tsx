@@ -15,6 +15,7 @@ interface QuestionPanelProps {
   isAnswered: boolean
   canSubmit: boolean
   isLastQuestion: boolean
+  submitting: boolean
   onChoiceSelect: (choiceId: string) => void
   onSubmit: () => void
   onNext: () => void
@@ -29,6 +30,7 @@ export function QuestionPanel({
   isAnswered,
   canSubmit,
   isLastQuestion,
+  submitting,
   onChoiceSelect,
   onSubmit,
   onNext,
@@ -176,7 +178,7 @@ export function QuestionPanel({
               animate={{ opacity: 1, y: 0 }}
               className="mt-6 flex justify-end"
             >
-              <Button onClick={onNext} variant="gradient">
+              <Button onClick={onNext} variant="gradient" disabled={submitting}>
                 {isLastQuestion ? 'Finish' : 'Next'}
                 <span className="text-xs opacity-70 ml-1">(Enter)</span>
               </Button>

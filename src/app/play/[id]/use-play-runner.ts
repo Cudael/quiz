@@ -51,6 +51,7 @@ export function usePlayRunner(quizId: string) {
 
   // handleFinish — defined first
   const handleFinish = useCallback(async () => {
+    if (store.status !== 'playing') return
     clearTimer()
     store.setStatus('submitting')
     const answers = Object.entries(store.answers).map(([questionId, ans]) => ({

@@ -94,6 +94,7 @@ export function PlayView({ quizId }: PlayViewProps) {
         isAnswered={isAnswered}
         canSubmit={canSubmitCurrentAnswer}
         isLastQuestion={isLastQuestion}
+        submitting={store.status === 'submitting'}
         onChoiceSelect={handleChoiceSelect}
         onSubmit={handleSubmitSelection}
         onNext={goNext}
