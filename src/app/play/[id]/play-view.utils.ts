@@ -9,11 +9,6 @@ export function getSoundPreference() {
   return storedPreference === null ? true : storedPreference === 'true'
 }
 
-// Fill-in-the-blank matching ignores surrounding whitespace and letter casing.
-export function normalizeBlankAnswer(value: string) {
-  return value.trim().toLowerCase()
-}
-
 // Question images can come from arbitrary quiz-authored URLs, so this loader intentionally
 // bypasses Next's remote-pattern restrictions while still using the <Image> component layout API.
 export function imageLoader({ src }: { src: string }) {

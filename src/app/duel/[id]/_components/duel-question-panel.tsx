@@ -3,10 +3,9 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import type { DuelAnswer, DuelQuestion, DuelStatePayload } from '../duel-view.types'
-import { getOptimisticPoints, normalizeAnswer } from '../duel-view.utils'
+import { getOptimisticPoints } from '../duel-view.utils'
 
 interface DuelQuestionPanelProps {
   state: DuelStatePayload
@@ -14,8 +13,6 @@ interface DuelQuestionPanelProps {
   currentQuestionIndex: number
   localScore: number
   timeRemainingMs: number | null
-  fillBlankValue: string
-  setFillBlankValue: Dispatch<SetStateAction<string>>
   answers: Record<string, DuelAnswer>
   setAnswers: Dispatch<SetStateAction<Record<string, DuelAnswer>>>
   setCurrentQuestionIndex: Dispatch<SetStateAction<number>>
@@ -30,8 +27,6 @@ export function DuelQuestionPanel({
   currentQuestionIndex,
   localScore,
   timeRemainingMs,
-  fillBlankValue,
-  setFillBlankValue,
   answers,
   setAnswers,
   setCurrentQuestionIndex,
@@ -59,99 +54,62 @@ export function DuelQuestionPanel({
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
-          {currentQuestion.type === 'FILL_BLANK' ? (
-            <div className="space-y-3">
-              <Input
-                value={fillBlankValue}
-                onChange={(event) => setFillBlankValue(event.target.value)}
-                placeholder="Type your answer"
-              />
+          <div className="grid gap-2">
+            {currentQuestion.choices.map((choice) => {
+              const isSelected = (answers[currentQuestion.id]?.choiceIds ?? []).includes(choice.id)
+              return (
+                <Button
+                  key={choice.id}
+                  variant="outline"
+                  className={cn('justify-start', isSelected && 'border-primary bg-primary/10')}
+                  disabled={currentQuestion.type !== 'MULTIPLE' && hasAnsweredCurrent}
+                  onClick={() => {
+                    if (currentQuestion.type !== 'MULTIPLE' && hasAnsweredCurrent) return
+                    const elapsed = Date.now() - questionStartRef.current
+                    const timeLimitMs = state.duel.timeLimitSec * 1000
+                    const timeTakenMs = Math.min(Math.max(elapsed, 0), timeLimitMs)
+                    const choiceIds =
+                      currentQuestion.type === 'MULTIPLE'
+                        ? (answers[currentQuestion.id]?.choiceIds ?? []).includes(choice.id)
+                          ? (answers[currentQuestion.id]?.choiceIds ?? []).filter(
+                              (id) => id !== choice.id
+                            )
+                          : [...(answers[currentQuestion.id]?.choiceIds ?? []), choice.id]
+                        : [choice.id]
+
+                    setAnswers((prev) => ({
+                      ...prev,
+                      [currentQuestion.id]: { choiceIds, timeTakenMs },
+                    }))
+
+                    if (currentQuestion.type !== 'MULTIPLE') {
+                      // Question advances automatically after a 400ms highlight delay
+                      // via the useEffect in useDuelSession.
+                      setLocalScore(
+                        (prev) => prev + getOptimisticPoints(state.duel.timeLimitSec, timeTakenMs)
+                      )
+                    }
+                  }}
+                >
+                  {choice.text}
+                </Button>
+              )
+            })}
+            {currentQuestion.type === 'MULTIPLE' ? (
               <Button
-                className="w-full"
-                disabled={fillBlankValue.trim().length === 0}
                 onClick={() => {
-                  const normalized = normalizeAnswer(fillBlankValue)
-                  const choiceIds = currentQuestion.choices
-                    .filter((choice) => normalizeAnswer(choice.text) === normalized)
-                    .map((choice) => choice.id)
-                  const elapsed = Date.now() - questionStartRef.current
-                  const timeLimitMs = state.duel.timeLimitSec * 1000
-                  const timeTakenMs = Math.min(Math.max(elapsed, 0), timeLimitMs)
-                  setAnswers((prev) => ({
-                    ...prev,
-                    [currentQuestion.id]: { choiceIds, timeTakenMs },
-                  }))
+                  const saved = answers[currentQuestion.id]
+                  if (!saved || saved.choiceIds.length === 0) return
                   setCurrentQuestionIndex((index) => index + 1)
-                  setFillBlankValue('')
                   setLocalScore(
-                    (prev) => prev + getOptimisticPoints(state.duel.timeLimitSec, timeTakenMs)
+                    (prev) => prev + getOptimisticPoints(state.duel.timeLimitSec, saved.timeTakenMs)
                   )
                 }}
               >
-                Submit answer
+                Lock answer
               </Button>
-            </div>
-          ) : (
-            <div className="grid gap-2">
-              {currentQuestion.choices.map((choice) => {
-                const isSelected = (answers[currentQuestion.id]?.choiceIds ?? []).includes(
-                  choice.id
-                )
-                return (
-                  <Button
-                    key={choice.id}
-                    variant="outline"
-                    className={cn('justify-start', isSelected && 'border-primary bg-primary/10')}
-                    disabled={currentQuestion.type !== 'MULTIPLE' && hasAnsweredCurrent}
-                    onClick={() => {
-                      if (currentQuestion.type !== 'MULTIPLE' && hasAnsweredCurrent) return
-                      const elapsed = Date.now() - questionStartRef.current
-                      const timeLimitMs = state.duel.timeLimitSec * 1000
-                      const timeTakenMs = Math.min(Math.max(elapsed, 0), timeLimitMs)
-                      const choiceIds =
-                        currentQuestion.type === 'MULTIPLE'
-                          ? (answers[currentQuestion.id]?.choiceIds ?? []).includes(choice.id)
-                            ? (answers[currentQuestion.id]?.choiceIds ?? []).filter(
-                                (id) => id !== choice.id
-                              )
-                            : [...(answers[currentQuestion.id]?.choiceIds ?? []), choice.id]
-                          : [choice.id]
-
-                      setAnswers((prev) => ({
-                        ...prev,
-                        [currentQuestion.id]: { choiceIds, timeTakenMs },
-                      }))
-
-                      if (currentQuestion.type !== 'MULTIPLE') {
-                        // Question advances automatically after a 400ms highlight delay
-                        // via the useEffect in useDuelSession.
-                        setLocalScore(
-                          (prev) => prev + getOptimisticPoints(state.duel.timeLimitSec, timeTakenMs)
-                        )
-                      }
-                    }}
-                  >
-                    {choice.text}
-                  </Button>
-                )
-              })}
-              {currentQuestion.type === 'MULTIPLE' ? (
-                <Button
-                  onClick={() => {
-                    const saved = answers[currentQuestion.id]
-                    if (!saved || saved.choiceIds.length === 0) return
-                    setCurrentQuestionIndex((index) => index + 1)
-                    setLocalScore(
-                      (prev) =>
-                        prev + getOptimisticPoints(state.duel.timeLimitSec, saved.timeTakenMs)
-                    )
-                  }}
-                >
-                  Lock answer
-                </Button>
-              ) : null}
-            </div>
-          )}
+            ) : null}
+          </div>
         </CardContent>
       </Card>
     </div>

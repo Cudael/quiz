@@ -125,7 +125,7 @@ describe('seed-data shapes', () => {
     })
 
     it('every question has a valid type', () => {
-      const validTypes = ['SINGLE', 'TRUEFALSE', 'FILL_BLANK']
+      const validTypes = ['SINGLE']
       for (const [, questions] of Object.entries(questionsByQuiz)) {
         for (const q of questions) {
           expect(validTypes).toContain(q.type)

@@ -133,14 +133,10 @@ export function useQuestionCard({
     onUpdate({ choices: question.choices.filter((c) => c.localId !== localId) })
   }
 
-  const setCorrect = (localId: string, isCorrect: boolean) => {
-    if (question.type === 'SINGLE' || question.type === 'TRUEFALSE') {
-      onUpdate({
-        choices: question.choices.map((c) => ({ ...c, isCorrect: c.localId === localId })),
-      })
-    } else {
-      updateChoice(localId, { isCorrect })
-    }
+  const setCorrect = (localId: string) => {
+    onUpdate({
+      choices: question.choices.map((c) => ({ ...c, isCorrect: c.localId === localId })),
+    })
   }
 
   return {

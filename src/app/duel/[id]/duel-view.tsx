@@ -19,8 +19,6 @@ export function DuelView({ duelId }: DuelViewProps) {
     currentQuestionIndex,
     setCurrentQuestionIndex,
     timeRemainingMs,
-    fillBlankValue,
-    setFillBlankValue,
     localScore,
     setLocalScore,
     submitted,
@@ -93,8 +91,6 @@ export function DuelView({ duelId }: DuelViewProps) {
       currentQuestionIndex={currentQuestionIndex}
       localScore={localScore}
       timeRemainingMs={timeRemainingMs}
-      fillBlankValue={fillBlankValue}
-      setFillBlankValue={setFillBlankValue}
       answers={answers}
       setAnswers={setAnswers}
       setCurrentQuestionIndex={setCurrentQuestionIndex}

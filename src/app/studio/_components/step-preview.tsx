@@ -66,9 +66,7 @@ export function StepPreview({ categories }: StepPreviewProps) {
       {/* Questions preview */}
       <div className="space-y-3">
         {questions.map((question, index) => {
-          const usesClassicCorrectness = ['SINGLE', 'MULTIPLE', 'TRUEFALSE', 'FILL_BLANK'].includes(
-            question.type
-          )
+          const usesClassicCorrectness = ['SINGLE', 'MULTIPLE'].includes(question.type)
           const hasCorrect = question.choices.some((c) => c.isCorrect)
           return (
             <div key={question.localId} className="rounded-xl border bg-card p-4">
@@ -102,28 +100,20 @@ export function StepPreview({ categories }: StepPreviewProps) {
                 </div>
               )}
 
-              {question.type !== 'FILL_BLANK' && (
-                <div className="space-y-1">
-                  {question.choices.map((choice) => (
-                    <div
-                      key={choice.localId}
-                      className={`rounded-lg border px-3 py-2 text-sm ${
-                        usesClassicCorrectness && choice.isCorrect
-                          ? 'border-quiz-green/50 bg-quiz-green/10 text-quiz-green'
-                          : 'border-border'
-                      }`}
-                    >
-                      {choice.text || '(empty)'}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {question.type === 'FILL_BLANK' && question.choices[0] && (
-                <div className="rounded-lg border border-quiz-green/50 bg-quiz-green/10 px-3 py-2 text-sm text-quiz-green">
-                  Answer: {question.choices[0].text || '(empty)'}
-                </div>
-              )}
+              <div className="space-y-1">
+                {question.choices.map((choice) => (
+                  <div
+                    key={choice.localId}
+                    className={`rounded-lg border px-3 py-2 text-sm ${
+                      usesClassicCorrectness && choice.isCorrect
+                        ? 'border-quiz-green/50 bg-quiz-green/10 text-quiz-green'
+                        : 'border-border'
+                    }`}
+                  >
+                    {choice.text || '(empty)'}
+                  </div>
+                ))}
+              </div>
             </div>
           )
         })}

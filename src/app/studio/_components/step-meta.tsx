@@ -44,30 +44,9 @@ const DIFFICULTY_CONFIG: Array<{
 function buildTemplateQuestions(template: QuizTemplate): DraftQuestion[] {
   if (template.questionCount === 0) return []
 
-  const makeTextChoices = (
-    index: number
-  ): { type: DraftQuestion['type']; choices: DraftChoice[] } => {
-    const typeCycle: DraftQuestion['type'][] = ['SINGLE', 'TRUEFALSE', 'FILL_BLANK']
-    const type = typeCycle[index % typeCycle.length]
-
-    if (type === 'TRUEFALSE') {
-      return {
-        type,
-        choices: [
-          { localId: crypto.randomUUID(), text: 'True', imageUrl: '', isCorrect: true },
-          { localId: crypto.randomUUID(), text: 'False', imageUrl: '', isCorrect: false },
-        ],
-      }
-    }
-    if (type === 'FILL_BLANK') {
-      return {
-        type,
-        choices: [{ localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: true }],
-      }
-    }
-
+  const makeTextChoices = (): { type: DraftQuestion['type']; choices: DraftChoice[] } => {
     return {
-      type,
+      type: 'SINGLE',
       choices: [
         { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: true },
         { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: false },
@@ -75,7 +54,7 @@ function buildTemplateQuestions(template: QuizTemplate): DraftQuestion[] {
     }
   }
 
-  return Array.from({ length: template.questionCount }, (_, templateIndex) => {
+  return Array.from({ length: template.questionCount }, () => {
     if (template.format === 'IMAGE_CHOICE') {
       return {
         localId: crypto.randomUUID(),
@@ -92,7 +71,7 @@ function buildTemplateQuestions(template: QuizTemplate): DraftQuestion[] {
       }
     }
 
-    const textChoice = makeTextChoices(templateIndex)
+    const textChoice = makeTextChoices()
     return {
       localId: crypto.randomUUID(),
       dbId: null,

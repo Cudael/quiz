@@ -1,7 +1,6 @@
 'use client'
 
 import { useReducedMotion } from 'framer-motion'
-import { renderFillBlankPrompt } from '@/domain/quiz-constants'
 import { PlayHeader } from './_components/play-header'
 import { QuestionPanel } from './_components/question-panel'
 import { QuitModal } from './_components/quit-modal'
@@ -19,8 +18,6 @@ export function PlayView({ quizId }: PlayViewProps) {
     isAnswered,
     timeRemainingMs,
     questionUI,
-    fillBlankValue,
-    setFillBlankValue,
     soundEnabled,
     setSoundEnabled,
     showQuitModal,
@@ -62,12 +59,8 @@ export function PlayView({ quizId }: PlayViewProps) {
   }
 
   const progress = ((store.currentQuestionIndex + (isAnswered ? 1 : 0)) / questions.length) * 100
-  const renderedPrompt =
-    currentQuestion.type === 'FILL_BLANK'
-      ? renderFillBlankPrompt(currentQuestion.prompt)
-      : currentQuestion.prompt
+  const renderedPrompt = currentQuestion.prompt
   const canSubmitCurrentAnswer = (() => {
-    if (currentQuestion.type === 'FILL_BLANK') return fillBlankValue.trim().length > 0
     return questionUI.selectedChoiceIds.length > 0
   })()
   const isLastQuestion = store.currentQuestionIndex >= questions.length - 1
@@ -98,8 +91,6 @@ export function PlayView({ quizId }: PlayViewProps) {
         timeRemainingMs={timeRemainingMs}
         selectedChoiceIds={questionUI.selectedChoiceIds}
         hiddenChoiceIds={questionUI.hiddenChoiceIds}
-        fillBlankValue={fillBlankValue}
-        onFillBlankChange={setFillBlankValue}
         isAnswered={isAnswered}
         canSubmit={canSubmitCurrentAnswer}
         isLastQuestion={isLastQuestion}

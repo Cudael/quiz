@@ -70,26 +70,6 @@ describe('questionSchema', () => {
     })
     expect(result.success).toBe(false)
   })
-
-  it('requires the fill blank placeholder for FILL_BLANK prompts', () => {
-    const result = questionSchema.safeParse({
-      type: 'FILL_BLANK',
-      prompt: 'The capital of France is Paris.',
-      timeLimitSec: 20,
-      choices: [{ text: 'Paris', isCorrect: true }],
-    })
-    expect(result.success).toBe(false)
-  })
-
-  it('allows FILL_BLANK with valid placeholder', () => {
-    const result = questionSchema.safeParse({
-      type: 'FILL_BLANK',
-      prompt: 'Capital of France is {{blank}}.',
-      timeLimitSec: 20,
-      choices: [{ text: 'Paris', isCorrect: true }],
-    })
-    expect(result.success).toBe(true)
-  })
 })
 
 describe('reportSchema', () => {

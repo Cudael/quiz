@@ -1,6 +1,6 @@
 'use client'
 
-import { CircleDot, ToggleLeft, PenLine } from 'lucide-react'
+import { CircleDot } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { QuestionType } from '@/store/quiz-creator-store'
 
@@ -15,8 +15,6 @@ const TYPE_CONFIG: Record<
   { icon: React.ComponentType<{ className?: string }>; label: string; colorClass: string }
 > = {
   SINGLE: { icon: CircleDot, label: 'Single', colorClass: 'text-quiz-purple' },
-  TRUEFALSE: { icon: ToggleLeft, label: 'True/False', colorClass: 'text-quiz-green' },
-  FILL_BLANK: { icon: PenLine, label: 'Fill Blank', colorClass: 'text-quiz-orange' },
 }
 
 export function QuestionTypeIcon({ type, className, showLabel = false }: QuestionTypeIconProps) {

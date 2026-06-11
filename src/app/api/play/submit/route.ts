@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
 
     let isCorrect: boolean
 
-    // Classic types (SINGLE, TRUEFALSE, FILL_BLANK)
+    // Classic type (SINGLE)
     const correctChoiceIds = question.choices
       .filter((c) => c.isCorrect)
       .map((c) => c.id)

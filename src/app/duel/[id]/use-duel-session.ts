@@ -15,13 +15,15 @@ export function useDuelSession(duelId: string) {
   const [answers, setAnswers] = useState<Record<string, DuelAnswer>>({})
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [timeRemainingMs, setTimeRemainingMs] = useState<number | null>(null)
-  const [fillBlankValue, setFillBlankValue] = useState('')
   const [localScore, setLocalScore] = useState(0)
   const [submitted, setSubmitted] = useState(false)
   const questionStartRef = useRef<number>(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const stateRef = useRef(state)
-  stateRef.current = state
+
+  useEffect(() => {
+    stateRef.current = state
+  })
 
   const currentQuestion = state?.questions?.[currentQuestionIndex] ?? null
   const participantCount = state?.participants.length ?? 0
@@ -34,32 +36,35 @@ export function useDuelSession(duelId: string) {
     [state]
   )
 
-  const fetchState = useCallback(async (includeQuestions = false) => {
-    const url = includeQuestions
-      ? `/api/duel/${duelId}?includeQuestions=true`
-      : `/api/duel/${duelId}`
-    const response = await fetch(url)
-    if (!response.ok) {
-      if (response.status === 404) {
-        addToast('Duel not found.', 'error')
-        router.push('/duel')
+  const fetchState = useCallback(
+    async (includeQuestions = false) => {
+      const url = includeQuestions
+        ? `/api/duel/${duelId}?includeQuestions=true`
+        : `/api/duel/${duelId}`
+      const response = await fetch(url)
+      if (!response.ok) {
+        if (response.status === 404) {
+          addToast('Duel not found.', 'error')
+          router.push('/duel')
+        }
+        return
       }
-      return
-    }
-    const payload = (await response.json()) as DuelStatePayload
-    setState((prevState) => {
-      if (payload.questions === null) {
-        return { ...payload, questions: prevState?.questions ?? null }
+      const payload = (await response.json()) as DuelStatePayload
+      setState((prevState) => {
+        if (payload.questions === null) {
+          return { ...payload, questions: prevState?.questions ?? null }
+        }
+        return payload
+      })
+      if (payload.duel.status !== 'IN_PROGRESS') {
+        setSubmitted(false)
+        setAnswers({})
+        setCurrentQuestionIndex(0)
+        setLocalScore(0)
       }
-      return payload
-    })
-    if (payload.duel.status !== 'IN_PROGRESS') {
-      setSubmitted(false)
-      setAnswers({})
-      setCurrentQuestionIndex(0)
-      setLocalScore(0)
-    }
-  }, [duelId, addToast, router])
+    },
+    [duelId, addToast, router]
+  )
 
   useEffect(() => {
     let active = true
@@ -174,7 +179,6 @@ export function useDuelSession(duelId: string) {
           [currentQuestion.id]: { choiceIds: [], timeTakenMs: state.duel.timeLimitSec * 1000 },
         }))
         setCurrentQuestionIndex((index) => index + 1)
-        setFillBlankValue('')
       }, 0)
       return () => clearTimeout(timeoutTimer)
     }
@@ -182,13 +186,7 @@ export function useDuelSession(duelId: string) {
 
   // For single-choice questions, show the selected answer briefly before advancing.
   useEffect(() => {
-    if (
-      !hasAnsweredCurrent ||
-      !currentQuestion ||
-      currentQuestion.type === 'MULTIPLE' ||
-      currentQuestion.type === 'FILL_BLANK' ||
-      submitted
-    )
+    if (!hasAnsweredCurrent || !currentQuestion || currentQuestion.type === 'MULTIPLE' || submitted)
       return
     const advanceTimer = setTimeout(() => {
       setCurrentQuestionIndex((index) => index + 1)
@@ -220,8 +218,6 @@ export function useDuelSession(duelId: string) {
     currentQuestionIndex,
     setCurrentQuestionIndex,
     timeRemainingMs,
-    fillBlankValue,
-    setFillBlankValue,
     localScore,
     setLocalScore,
     submitted,

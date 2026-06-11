@@ -6,11 +6,7 @@ import { useToast } from '@/components/ui/toast'
 import { usePlaySessionStore } from '@/store/play-session'
 import { copy } from '@/lib/copy'
 import type { Question, QuizData } from './play-view.types'
-import {
-  getSoundPreference,
-  normalizeBlankAnswer,
-  SOUND_PREFERENCE_STORAGE_KEY,
-} from './play-view.utils'
+import { getSoundPreference, SOUND_PREFERENCE_STORAGE_KEY } from './play-view.utils'
 
 /**
  * Owns all stateful logic for the quiz runner: data fetching, timers,
@@ -33,7 +29,6 @@ export function usePlayRunner(quizId: string) {
     selectedChoiceIds: string[]
     hiddenChoiceIds: string[]
   }>({ selectedChoiceIds: [], hiddenChoiceIds: [] })
-  const [fillBlankValue, setFillBlankValue] = useState('')
   const [soundEnabled, setSoundEnabled] = useState(getSoundPreference)
   const [showQuitModal, setShowQuitModal] = useState(false)
   // Ref avoids render loops here; we only need to track previous question id without re-rendering.
@@ -115,18 +110,6 @@ export function usePlayRunner(quizId: string) {
     onNextRef.current = () => handleNext(questions.length)
   }, [handleNext, questions.length])
 
-  const getFillBlankChoiceIds = useCallback(
-    (rawValue: string) => {
-      if (!currentQuestion) return []
-      const normalizedInput = normalizeBlankAnswer(rawValue)
-      if (!normalizedInput) return []
-      return currentQuestion.choices
-        .filter((choice) => normalizeBlankAnswer(choice.text) === normalizedInput)
-        .map((choice) => choice.id)
-    },
-    [currentQuestion]
-  )
-
   // handleAnswer — needs nothing above that's circular
   const handleAnswer = useCallback(
     (choiceIds: string[], timeout = false, textAnswer?: string) => {
@@ -177,7 +160,6 @@ export function usePlayRunner(quizId: string) {
     if (currentQuestionId === prevQuestionIdRef.current) return
     prevQuestionIdRef.current = currentQuestionId
     setQuestionUI({ selectedChoiceIds: [], hiddenChoiceIds: [] })
-    setFillBlankValue('')
   }, [currentQuestion?.id])
 
   useEffect(() => {
@@ -198,21 +180,9 @@ export function usePlayRunner(quizId: string) {
   const handleSubmitSelection = useCallback(() => {
     if (!currentQuestion || isAnswered) return
 
-    if (currentQuestion.type === 'FILL_BLANK') {
-      handleAnswer(getFillBlankChoiceIds(fillBlankValue), false, fillBlankValue)
-      return
-    }
-
     if (questionUI.selectedChoiceIds.length === 0) return
     handleAnswer(questionUI.selectedChoiceIds)
-  }, [
-    currentQuestion,
-    fillBlankValue,
-    getFillBlankChoiceIds,
-    handleAnswer,
-    isAnswered,
-    questionUI.selectedChoiceIds,
-  ])
+  }, [currentQuestion, handleAnswer, isAnswered, questionUI.selectedChoiceIds])
 
   const timerAnnouncement = useMemo(() => {
     const seconds = Math.ceil(timeRemainingMs / 1000)
@@ -285,8 +255,6 @@ export function usePlayRunner(quizId: string) {
     isAnswered,
     timeRemainingMs,
     questionUI,
-    fillBlankValue,
-    setFillBlankValue,
     soundEnabled,
     setSoundEnabled,
     showQuitModal,

@@ -12,14 +12,14 @@ export interface DraftChoice {
   meta?: Record<string, unknown>
 }
 
-export type QuestionType = 'SINGLE' | 'TRUEFALSE' | 'FILL_BLANK'
+export type QuestionType = 'SINGLE'
 export type QuizFormat = 'TEXT_CHOICE' | 'IMAGE_CHOICE'
 export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD'
 
 export interface DraftQuestion {
   localId: string
   dbId: string | null
-  type: QuestionType
+  type: 'SINGLE'
   prompt: string
   imageUrl: string
   explanation: string

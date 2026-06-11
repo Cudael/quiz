@@ -1,7 +1,6 @@
 import Image from 'next/image'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { renderFillBlankPrompt } from '@/domain/quiz-constants'
 import { cn } from '@/lib/utils'
 import type { Question } from '../play-view.types'
 import { getQuestionImageSrc, imageLoader } from '../play-view.utils'
@@ -13,8 +12,6 @@ interface QuestionPanelProps {
   timeRemainingMs: number
   selectedChoiceIds: string[]
   hiddenChoiceIds: string[]
-  fillBlankValue: string
-  onFillBlankChange: (value: string) => void
   isAnswered: boolean
   canSubmit: boolean
   isLastQuestion: boolean
@@ -29,8 +26,6 @@ export function QuestionPanel({
   timeRemainingMs,
   selectedChoiceIds,
   hiddenChoiceIds,
-  fillBlankValue,
-  onFillBlankChange,
   isAnswered,
   canSubmit,
   isLastQuestion,
@@ -38,10 +33,7 @@ export function QuestionPanel({
   onSubmit,
   onNext,
 }: QuestionPanelProps) {
-  const renderedPrompt =
-    currentQuestion.type === 'FILL_BLANK'
-      ? renderFillBlankPrompt(currentQuestion.prompt)
-      : currentQuestion.prompt
+  const renderedPrompt = currentQuestion.prompt
   const questionImageSrc = getQuestionImageSrc(currentQuestion.imageUrl)
   const showHeaderImage = !!questionImageSrc
   const isImageChoice = currentQuestion.choices.some((c) => c.imageUrl)
@@ -82,34 +74,7 @@ export function QuestionPanel({
 
         <QuestionTypeHint type={currentQuestion.type} isAnswered={isAnswered} />
 
-        {currentQuestion.type === 'FILL_BLANK' ? (
-          <div className="space-y-3">
-            <label htmlFor={`fill-blank-${currentQuestion.id}`} className="text-sm font-medium">
-              Your answer
-            </label>
-            <input
-              id={`fill-blank-${currentQuestion.id}`}
-              type="text"
-              value={fillBlankValue}
-              onChange={(event) => onFillBlankChange(event.target.value)}
-              disabled={isAnswered}
-              autoComplete="off"
-              spellCheck={false}
-              className={cn(
-                'w-full rounded-xl border bg-card px-4 py-3 text-base transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                isAnswered ? 'border-border bg-muted/30 text-muted-foreground' : 'border-border'
-              )}
-              placeholder="Type your answer"
-              aria-describedby={`fill-blank-help-${currentQuestion.id}`}
-            />
-            <p
-              id={`fill-blank-help-${currentQuestion.id}`}
-              className="text-xs text-muted-foreground"
-            >
-              Press Enter to submit your answer.
-            </p>
-          </div>
-        ) : isImageChoice ? (
+        {isImageChoice ? (
           <div className="grid gap-3 sm:grid-cols-2">
             {currentQuestion.choices
               .filter((c) => !hiddenChoiceIds.includes(c.id))
@@ -225,8 +190,6 @@ export function QuestionPanel({
 
 const TYPE_HINTS: Record<string, string> = {
   SINGLE: 'Choose one answer.',
-  TRUEFALSE: 'Choose True or False.',
-  FILL_BLANK: 'Type the missing word or phrase.',
 }
 
 function QuestionTypeHint({ type, isAnswered }: { type: string; isAnswered: boolean }) {

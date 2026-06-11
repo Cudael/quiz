@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import { FILL_BLANK_PLACEHOLDER } from '@/domain/quiz-constants'
 
 export const quizSchema = z.object({
   title: z.string().trim().min(1).max(120),
@@ -19,7 +18,7 @@ export const draftQuizSchema = quizSchema.extend({
 
 export const questionSchema = z
   .object({
-    type: z.enum(['SINGLE', 'TRUEFALSE', 'FILL_BLANK']),
+    type: z.enum(['SINGLE']),
     prompt: z.string().trim().min(1),
     explanation: z.string().trim().max(500).optional(),
     timeLimitSec: z.number().int().min(5).max(120),
@@ -39,14 +38,8 @@ export const questionSchema = z
   })
   .superRefine((value, ctx) => {
     const correctCount = value.choices.filter((choice) => choice.isCorrect).length
-    if ((value.type === 'SINGLE' || value.type === 'TRUEFALSE') && correctCount !== 1) {
+    if (correctCount !== 1) {
       ctx.addIssue({ code: 'custom', message: 'Exactly one correct answer is required.' })
-    }
-    if (value.type === 'FILL_BLANK' && !value.prompt.includes(FILL_BLANK_PLACEHOLDER)) {
-      ctx.addIssue({
-        code: 'custom',
-        message: `FILL_BLANK prompt must contain ${FILL_BLANK_PLACEHOLDER}.`,
-      })
     }
   })
 

@@ -25,17 +25,10 @@ import { useToast } from '@/components/ui/toast'
 import { DEFAULT_TIME_LIMIT_SEC } from '@/domain/quiz-constants'
 import { QuestionCard, makeDefaultChoices } from './question-card'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
-import type { QuestionType } from '@/store/quiz-creator-store'
 
 interface StepQuestionsProps {
   quizId: string
 }
-
-const QUESTION_TYPES: Array<{ type: QuestionType; label: string }> = [
-  { type: 'SINGLE', label: 'Single choice' },
-  { type: 'TRUEFALSE', label: 'True / False' },
-  { type: 'FILL_BLANK', label: 'Fill in the blank' },
-]
 
 export function StepQuestions({ quizId }: StepQuestionsProps) {
   const quizFormat = useQuizCreatorStore((state) => state.quizFormat)
@@ -56,7 +49,7 @@ export function StepQuestions({ quizId }: StepQuestionsProps) {
     <div className="space-y-6">
       <FormatBanner
         title="Text Choice Quiz"
-        description="Add single-choice, true/false, or fill-in-the-blank questions. For each question, write the question text, fill in all the answer choices, and mark the correct answer using the radio button."
+        description="Add single-choice questions. For each question, write the question text, fill in all the answer choices, and mark the correct answer using the radio button."
       />
       <ClassicQuestionsEditor quizId={quizId} />
     </div>
@@ -79,8 +72,6 @@ function ClassicQuestionsEditor({ quizId }: StepQuestionsProps) {
   const { addToast } = useToast()
 
   const [reorderMode, setReorderMode] = React.useState(false)
-  const [showDropdown, setShowDropdown] = React.useState(false)
-  const dropdownRef = React.useRef<HTMLDivElement>(null)
   const [reorderPending, setReorderPending] = React.useState(false)
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -91,28 +82,17 @@ function ClassicQuestionsEditor({ quizId }: StepQuestionsProps) {
     })
   )
 
-  React.useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setShowDropdown(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
-  const handleAddQuestion = (type: QuestionType) => {
+  const handleAddQuestion = () => {
     addQuestion({
       localId: crypto.randomUUID(),
       dbId: null,
-      type,
+      type: 'SINGLE',
       prompt: '',
       imageUrl: '',
       explanation: '',
       timeLimitSec: defaultTimeLimitSec ?? DEFAULT_TIME_LIMIT_SEC,
-      choices: makeDefaultChoices(type),
+      choices: makeDefaultChoices(),
     })
-    setShowDropdown(false)
   }
 
   const handleDragEnd = async ({ active, over }: DragEndEvent) => {
@@ -155,26 +135,10 @@ function ClassicQuestionsEditor({ quizId }: StepQuestionsProps) {
     <div className="space-y-4">
       {/* Toolbar */}
       <div className="flex items-center gap-3">
-        <div className="relative" ref={dropdownRef}>
-          <Button type="button" size="sm" onClick={() => setShowDropdown((v) => !v)}>
-            <PlusCircle className="h-4 w-4" />
-            Add question
-          </Button>
-          {showDropdown && (
-            <div className="absolute left-0 top-full z-10 mt-1 w-52 rounded-lg border bg-card p-1 shadow-md">
-              {QUESTION_TYPES.map(({ type, label }) => (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => handleAddQuestion(type)}
-                  className="w-full rounded px-3 py-2 text-left text-sm hover:bg-accent"
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        <Button type="button" size="sm" onClick={handleAddQuestion}>
+          <PlusCircle className="h-4 w-4" />
+          Add question
+        </Button>
 
         <Badge variant="secondary">
           {questions.length} question{questions.length !== 1 ? 's' : ''}

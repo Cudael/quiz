@@ -5,7 +5,7 @@ describe('parseCsvQuizImport', () => {
   it('parses valid CSV rows', () => {
     const csv = `type,prompt,explanation,timeLimitSec,choices
 SINGLE,"What is 2+2?","Basic math",15,"3;*4;5;6"
-TRUEFALSE,"The sky is blue.","",10,"*True;False"`
+SINGLE,"The sky is blue.","",10,"*True;False"`
 
     const result = parseCsvQuizImport(csv)
     expect(result.errors).toEqual([])
@@ -34,7 +34,7 @@ describe('parseJsonQuizImport', () => {
   it('parses valid JSON', () => {
     const json = JSON.stringify([
       {
-        type: 'TRUEFALSE',
+        type: 'SINGLE',
         prompt: 'The sky is blue.',
         choices: [
           { text: 'True', isCorrect: true },
@@ -50,17 +50,5 @@ describe('parseJsonQuizImport', () => {
   it('rejects invalid JSON payload shape', () => {
     const result = parseJsonQuizImport('{"type":"SINGLE"}')
     expect(result.errors[0]?.message).toContain('array')
-  })
-
-  it('rejects fill blank without placeholder', () => {
-    const json = JSON.stringify([
-      {
-        type: 'FILL_BLANK',
-        prompt: 'Capital of France is Paris',
-        choices: [{ text: 'Paris', isCorrect: true }],
-      },
-    ])
-    const result = parseJsonQuizImport(json)
-    expect(result.errors[0]?.message).toContain('{{blank}}')
   })
 })

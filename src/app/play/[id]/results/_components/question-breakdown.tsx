@@ -1,7 +1,6 @@
 import { CheckCircle2, MinusCircle, XCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { copy } from '@/lib/copy'
-import { renderFillBlankPrompt } from '@/domain/quiz-constants'
 import type { ResultAnswer, ResultChoice, ResultQuestion } from '../results.types'
 
 interface QuestionBreakdownProps {
@@ -64,7 +63,7 @@ export function QuestionBreakdown({ questions, answers }: QuestionBreakdownProps
             .filter((c) => isChoiceCorrect(c, q.choices, q.type))
             .map((c) => c.text)
             .join(', ')
-          const displayPrompt = q.type === 'FILL_BLANK' ? renderFillBlankPrompt(q.prompt) : q.prompt
+          const displayPrompt = q.prompt
           const answer = answersByQuestionId.get(q.id) ?? null
           const chosenIds = new Set(answer?.chosenIds ?? [])
           const hasAnswerData = answer !== null
@@ -145,11 +144,6 @@ export function QuestionBreakdown({ questions, answers }: QuestionBreakdownProps
                           </div>
                         )
                       })}
-                      {!isCorrectAnswer && chosenIds.size === 0 && q.type === 'FILL_BLANK' ? (
-                        <p className="text-xs text-muted-foreground">
-                          No accepted answer was recorded for this response.
-                        </p>
-                      ) : null}
                     </div>
                   ) : (
                     <p className="mt-2 text-xs text-muted-foreground">

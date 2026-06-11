@@ -1,6 +1,6 @@
-import { DEFAULT_TIME_LIMIT_SEC, FILL_BLANK_PLACEHOLDER } from '@/domain/quiz-constants'
+import { DEFAULT_TIME_LIMIT_SEC } from '@/domain/quiz-constants'
 
-export type ImportQuestionType = 'SINGLE' | 'TRUEFALSE' | 'FILL_BLANK'
+export type ImportQuestionType = 'SINGLE'
 
 export interface ImportChoice {
   text: string
@@ -26,7 +26,7 @@ export interface QuizImportResult {
   errors: ImportValidationError[]
 }
 
-const VALID_TYPES: ImportQuestionType[] = ['SINGLE', 'TRUEFALSE', 'FILL_BLANK']
+const VALID_TYPES: ImportQuestionType[] = ['SINGLE']
 
 function parseCsvLine(line: string) {
   const fields: string[] = []
@@ -66,24 +66,12 @@ function validateQuestion(question: ImportQuestion, row: number) {
   if (question.timeLimitSec <= 0) {
     errors.push({ row, message: 'timeLimitSec must be greater than 0.' })
   }
-  if (question.choices.length < 2 && question.type !== 'FILL_BLANK') {
+  if (question.choices.length < 2) {
     errors.push({ row, message: 'At least two choices are required.' })
   }
   const correctCount = question.choices.filter((choice) => choice.isCorrect).length
-  if ((question.type === 'SINGLE' || question.type === 'TRUEFALSE') && correctCount !== 1) {
+  if (correctCount !== 1) {
     errors.push({ row, message: `${question.type} requires exactly one correct choice.` })
-  }
-  if (question.type === 'FILL_BLANK' && correctCount < 1) {
-    errors.push({ row, message: 'FILL_BLANK requires one or more accepted answers.' })
-  }
-  if (question.type === 'TRUEFALSE' && question.choices.length !== 2) {
-    errors.push({ row, message: 'TRUEFALSE must include True and False choices.' })
-  }
-  if (question.type === 'FILL_BLANK' && !question.prompt.includes(FILL_BLANK_PLACEHOLDER)) {
-    errors.push({
-      row,
-      message: `FILL_BLANK prompt must include ${FILL_BLANK_PLACEHOLDER} placeholder.`,
-    })
   }
 
   return errors

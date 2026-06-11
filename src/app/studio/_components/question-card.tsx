@@ -4,7 +4,6 @@ import * as React from 'react'
 import { ChevronDown, ChevronUp, GripVertical, Loader2, Check, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { FILL_BLANK_PLACEHOLDER } from '@/domain/quiz-constants'
 import { ImageUpload } from './image-upload'
 import { QuestionTypeIcon } from './question-type-icon'
 import { useQuestionCard } from './use-question-card'
@@ -20,16 +19,7 @@ interface QuestionCardProps {
   onRemove: () => void
 }
 
-export function makeDefaultChoices(type: DraftQuestion['type']): DraftChoice[] {
-  if (type === 'TRUEFALSE') {
-    return [
-      { localId: crypto.randomUUID(), text: 'True', imageUrl: '', isCorrect: true },
-      { localId: crypto.randomUUID(), text: 'False', imageUrl: '', isCorrect: false },
-    ]
-  }
-  if (type === 'FILL_BLANK') {
-    return [{ localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: true }]
-  }
+export function makeDefaultChoices(): DraftChoice[] {
   return [
     { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: true },
     { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: false },
@@ -121,128 +111,71 @@ export function QuestionCard({
                 onChange={(e) => onUpdate({ prompt: e.target.value })}
                 rows={3}
                 className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-                placeholder={
-                  question.type === 'FILL_BLANK'
-                    ? `Include ${FILL_BLANK_PLACEHOLDER} exactly once, e.g. The capital of France is ${FILL_BLANK_PLACEHOLDER}.`
-                    : 'Enter your question...'
-                }
+                placeholder="Enter your question..."
               />
-              {question.type === 'FILL_BLANK' && (
-                <p className="text-xs text-muted-foreground">
-                  Include {FILL_BLANK_PLACEHOLDER} exactly once in the prompt so players know where
-                  to type the missing answer.
-                </p>
-              )}
             </div>
           </div>
 
           {/* Choices */}
           <div className="space-y-2">
             <div>
-              <p className="block text-sm font-medium">
-                {question.type === 'FILL_BLANK' ? 'Correct answer' : 'Choices'}
+              <p className="block text-sm font-medium">Choices</p>
+              <p className="text-xs text-muted-foreground">
+                Fill in all the choices, then select the radio button next to the correct one.
               </p>
-              {question.type === 'SINGLE' && (
-                <p className="text-xs text-muted-foreground">
-                  Fill in all the choices, then select the radio button next to the correct one.
-                </p>
-              )}
             </div>
 
-            {question.type === 'TRUEFALSE' ? (
-              <div className="space-y-2">
-                <p className="text-xs text-muted-foreground">
-                  Select the radio button next to the correct answer.
-                </p>
-                {question.choices.map((choice) => (
-                  <div
-                    key={choice.localId}
-                    className={cn(
-                      'flex items-center gap-2 rounded-md border px-3 py-2 transition-colors',
-                      choice.isCorrect
-                        ? 'border-quiz-green/40 bg-quiz-green/10'
-                        : 'border-transparent'
-                    )}
-                  >
-                    <input
-                      type="radio"
-                      name={`correct-${question.localId}`}
-                      checked={choice.isCorrect}
-                      onChange={() => setCorrect(choice.localId, true)}
-                    />
-                    <span className="text-sm">{choice.text}</span>
-                    {choice.isCorrect && (
-                      <span className="ml-auto text-xs font-medium text-quiz-green">✓ Correct</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : question.type === 'FILL_BLANK' ? (
-              <div className="space-y-2">
-                {question.choices.map((choice) => (
+            <div className="space-y-2">
+              {question.choices.map((choice, i) => (
+                <div
+                  key={choice.localId}
+                  className={cn(
+                    'flex items-center gap-2 rounded-md border px-2 py-1 transition-colors',
+                    choice.isCorrect
+                      ? 'border-quiz-green/40 bg-quiz-green/10'
+                      : 'border-transparent'
+                  )}
+                >
                   <input
-                    key={choice.localId}
-                    type="text"
-                    value={choice.text}
-                    onChange={(e) => updateChoice(choice.localId, { text: e.target.value })}
-                    placeholder="Correct answer"
-                    className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                    type="radio"
+                    name={`correct-${question.localId}`}
+                    checked={choice.isCorrect}
+                    onChange={() => setCorrect(choice.localId)}
+                    title="Mark as correct answer"
                   />
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {question.choices.map((choice, i) => (
-                  <div
-                    key={choice.localId}
-                    className={cn(
-                      'flex items-center gap-2 rounded-md border px-2 py-1 transition-colors',
-                      choice.isCorrect
-                        ? 'border-quiz-green/40 bg-quiz-green/10'
-                        : 'border-transparent'
-                    )}
-                  >
-                    <input
-                      type="radio"
-                      name={`correct-${question.localId}`}
-                      checked={choice.isCorrect}
-                      onChange={() => setCorrect(choice.localId, true)}
-                      title="Mark as correct answer"
+                  {quizFormat === 'IMAGE_CHOICE' ? (
+                    <ImageUpload
+                      compact
+                      value={choice.imageUrl}
+                      onChange={(url) => updateChoice(choice.localId, { imageUrl: url })}
                     />
-                    {quizFormat === 'IMAGE_CHOICE' ? (
-                      <ImageUpload
-                        compact
-                        value={choice.imageUrl}
-                        onChange={(url) => updateChoice(choice.localId, { imageUrl: url })}
-                      />
-                    ) : (
-                      <input
-                        type="text"
-                        value={choice.text}
-                        onChange={(e) => updateChoice(choice.localId, { text: e.target.value })}
-                        placeholder={`Choice ${i + 1}`}
-                        className="min-w-0 flex-1 rounded-md border bg-background px-3 py-1.5 text-sm"
-                      />
-                    )}
-                    {choice.isCorrect && (
-                      <span className="shrink-0 text-xs font-medium text-quiz-green">✓</span>
-                    )}
-                    {question.choices.length > 2 && (
-                      <button
-                        type="button"
-                        onClick={() => removeChoice(choice.localId)}
-                        className="shrink-0 text-muted-foreground hover:text-destructive"
-                      >
-                        ×
-                      </button>
-                    )}
-                  </div>
-                ))}
-                <Button type="button" variant="outline" size="sm" onClick={addChoice}>
-                  + Add choice
-                </Button>
-              </div>
-            )}
+                  ) : (
+                    <input
+                      type="text"
+                      value={choice.text}
+                      onChange={(e) => updateChoice(choice.localId, { text: e.target.value })}
+                      placeholder={`Choice ${i + 1}`}
+                      className="min-w-0 flex-1 rounded-md border bg-background px-3 py-1.5 text-sm"
+                    />
+                  )}
+                  {choice.isCorrect && (
+                    <span className="shrink-0 text-xs font-medium text-quiz-green">✓</span>
+                  )}
+                  {question.choices.length > 2 && (
+                    <button
+                      type="button"
+                      onClick={() => removeChoice(choice.localId)}
+                      className="shrink-0 text-muted-foreground hover:text-destructive"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+              ))}
+              <Button type="button" variant="outline" size="sm" onClick={addChoice}>
+                + Add choice
+              </Button>
+            </div>
           </div>
 
           {/* Explanation toggle */}
