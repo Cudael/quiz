@@ -24,6 +24,8 @@ export function PlayView({ quizId }: PlayViewProps) {
     setShowQuitModal,
     timerAnnouncement,
     handleChoiceSelect,
+    handleTextChange,
+    handleTextSubmit,
     handleSubmitSelection,
     goNext,
     quitToQuiz,
@@ -61,6 +63,9 @@ export function PlayView({ quizId }: PlayViewProps) {
   const progress = ((store.currentQuestionIndex + (isAnswered ? 1 : 0)) / questions.length) * 100
   const renderedPrompt = currentQuestion.prompt
   const canSubmitCurrentAnswer = (() => {
+    if (currentQuestion.type === 'FILL_BLANK') {
+      return questionUI.textAnswer.trim().length > 0
+    }
     return questionUI.selectedChoiceIds.length > 0
   })()
   const isLastQuestion = store.currentQuestionIndex >= questions.length - 1
@@ -98,6 +103,9 @@ export function PlayView({ quizId }: PlayViewProps) {
         onChoiceSelect={handleChoiceSelect}
         onSubmit={handleSubmitSelection}
         onNext={goNext}
+        onTextSubmit={handleTextSubmit}
+        textAnswer={questionUI.textAnswer}
+        onTextChange={handleTextChange}
       />
 
       <QuitModal open={showQuitModal} onClose={() => setShowQuitModal(false)} onQuit={quitToQuiz} />

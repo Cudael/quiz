@@ -23,6 +23,8 @@ const allowlist = new Set([
   // Daily-challenge XP track: translucent bg-black/10 dark:bg-white/10 overlay on a
   // branded gradient bar — intentional neutral tint that adapts to the active theme.
   'components/home/sections/hero-daily-section.tsx',
+  // Hero cards: text-white on dark overlay image — intentional contrast for readability.
+  'components/home/sections/hero-cards.tsx',
 ])
 
 async function walk(dir) {

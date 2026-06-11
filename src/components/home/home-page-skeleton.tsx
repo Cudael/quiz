@@ -1,7 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton'
 import {
   QuizCardGridSkeleton,
-  QuizCardHorizontalSkeleton,
   QuizCardScrollerSkeleton,
   QuizCardCategoryRowSkeleton,
 } from '@/components/ui/quiz-card'

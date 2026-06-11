@@ -17,6 +17,7 @@ vi.mock('next/image', () => ({
   },
 }))
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function createFetchResponse(body: unknown, ok = true) {
   return {
     ok,
