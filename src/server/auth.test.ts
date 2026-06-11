@@ -4,6 +4,21 @@ import type { NextAuthConfig } from 'next-auth'
 const { state, nextAuthMock, prismaMock, generateUniqueUsernameMock, buildOAuthProvidersMock } =
   vi.hoisted(() => {
     const state = { config: null as NextAuthConfig | null }
+    const prismaMock = {
+      user: {
+        findUnique: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
+      },
+      account: {
+        upsert: vi.fn(),
+      },
+      $transaction: vi.fn(),
+    }
+    // $transaction passes itself as tx to the callback
+    prismaMock.$transaction.mockImplementation(
+      async (fn: (tx: typeof prismaMock) => Promise<unknown>) => fn(prismaMock)
+    )
     return {
       state,
       nextAuthMock: vi.fn((config: NextAuthConfig) => {
@@ -15,16 +30,7 @@ const { state, nextAuthMock, prismaMock, generateUniqueUsernameMock, buildOAuthP
           signOut: vi.fn(),
         }
       }),
-      prismaMock: {
-        user: {
-          findUnique: vi.fn(),
-          create: vi.fn(),
-          update: vi.fn(),
-        },
-        account: {
-          upsert: vi.fn(),
-        },
-      },
+      prismaMock,
       generateUniqueUsernameMock: vi.fn(),
       buildOAuthProvidersMock: vi.fn(() => []),
     }
