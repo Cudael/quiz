@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Clock, BarChart3, Compass, Users, BookOpen, Play, Star } from 'lucide-react'
+import { ArrowLeft, Clock, BarChart3, Compass, Users, BookOpen, Star, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
@@ -137,85 +137,106 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
 
       <div className="grid gap-8 lg:grid-cols-3">
         {/* Main content */}
-        <div className="lg:col-span-2">
-          <div className="mb-6 overflow-hidden rounded-2xl border">
-            {quiz.coverImage ? (
-              <div className="relative h-56 w-full md:h-64">
-                <Image
-                  src={quiz.coverImage}
-                  alt={`${quiz.title} cover image`}
-                  fill
-                  unoptimized
-                  sizes="(max-width: 1024px) 100vw, 66vw"
-                  className="object-cover"
-                />
+        <div className="lg:col-span-2 space-y-6">
+          {/* Hero card — image left, content right */}
+          <div className="overflow-hidden rounded-2xl border bg-card">
+            <div className="flex flex-col sm:flex-row">
+              {/* Image — compact, left side */}
+              <div className="relative h-48 w-full shrink-0 sm:h-auto sm:w-56 md:w-64">
+                {quiz.coverImage ? (
+                  <Image
+                    src={quiz.coverImage}
+                    alt={`${quiz.title} cover image`}
+                    fill
+                    unoptimized
+                    sizes="(max-width: 640px) 100vw, 256px"
+                    className="object-cover"
+                  />
+                ) : (
+                  <div
+                    className="h-full w-full"
+                    style={{
+                      background: `linear-gradient(135deg, ${quiz.category.color} 0%, #111827 100%)`,
+                    }}
+                  />
+                )}
               </div>
-            ) : (
-              <div
-                className="h-56 w-full md:h-64"
-                style={{
-                  background: `linear-gradient(135deg, ${quiz.category.color} 0%, #111827 100%)`,
-                }}
-              />
-            )}
-          </div>
 
-          {/* Header */}
-          <div className="mb-6">
-            <div className="mb-3 flex flex-wrap gap-2">
-              <Badge variant="purple">{quiz.category.name}</Badge>
-              <Badge variant={difficultyVariant[quiz.difficulty] ?? 'outline'}>
-                {quiz.difficulty}
-              </Badge>
+              {/* Content — right side */}
+              <div className="flex flex-col justify-between gap-3 p-4 sm:p-5 md:p-6">
+                <div>
+                  {/* Badges */}
+                  <div className="mb-2 flex flex-wrap gap-1.5">
+                    <Badge variant="purple">{quiz.category.name}</Badge>
+                    <Badge variant={difficultyVariant[quiz.difficulty] ?? 'outline'}>
+                      {quiz.difficulty}
+                    </Badge>
+                  </div>
+
+                  {/* Title */}
+                  <h1 className="text-xl font-extrabold leading-tight md:text-2xl">{quiz.title}</h1>
+
+                  {/* Author */}
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <Avatar src={quiz.author.image} fallback={quiz.author.name} size="sm" />
+                    <span className="text-xs text-muted-foreground">by {quiz.author.name}</span>
+                  </div>
+
+                  {/* Description */}
+                  {quiz.description && (
+                    <p className="mt-2 line-clamp-2 text-sm text-muted-foreground leading-relaxed">
+                      {quiz.description}
+                    </p>
+                  )}
+                </div>
+
+                {/* Play button — prominent */}
+                <Button
+                  asChild
+                  size="lg"
+                  variant="gradient"
+                  className="w-full sm:w-fit rounded-xl font-bold shadow-lg shadow-quiz-purple/25"
+                >
+                  <Link href={`/play/${quiz.id}`}>
+                    <Zap className="mr-2 h-5 w-5" />
+                    Play Quiz
+                  </Link>
+                </Button>
+              </div>
             </div>
-            <h1 className="text-3xl font-extrabold md:text-4xl">{quiz.title}</h1>
 
-            {/* Author */}
-            <div className="mt-4 flex items-center gap-3">
-              <Avatar src={quiz.author.image} fallback={quiz.author.name} size="sm" />
-              <span className="text-sm text-muted-foreground">by {quiz.author.name}</span>
-            </div>
-
-            {/* Stats row */}
-            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
-              <StatCard icon={<Users className="h-4 w-4" />} label="Plays" value={quiz.playCount} />
-              <StatCard
-                icon={<BarChart3 className="h-4 w-4" />}
-                label="Avg Score"
-                value={Math.round(quiz.avgScore)}
+            {/* Stats strip — below the hero */}
+            <div className="grid grid-cols-5 border-t">
+              <StatStrip
+                icon={<Users className="h-3.5 w-3.5" />}
+                label="Plays"
+                value={quiz.playCount}
               />
-              <StatCard
-                icon={<BookOpen className="h-4 w-4" />}
-                label="Questions"
+              <StatStrip
+                icon={<BarChart3 className="h-3.5 w-3.5" />}
+                label="Avg"
+                value={`${Math.round(quiz.avgScore)}%`}
+              />
+              <StatStrip
+                icon={<BookOpen className="h-3.5 w-3.5" />}
+                label="Qns"
                 value={questionCount}
               />
-              <StatCard
-                icon={<Clock className="h-4 w-4" />}
-                label="~Time"
-                value={`${Math.round((questionCount * 20) / 60)} min`}
+              <StatStrip
+                icon={<Clock className="h-3.5 w-3.5" />}
+                label="Time"
+                value={`${Math.round((questionCount * 20) / 60)}m`}
               />
-              <StatCard
-                icon={<Star className="h-4 w-4 text-quiz-yellow" />}
+              <StatStrip
+                icon={<Star className="h-3.5 w-3.5 text-quiz-yellow" />}
                 label="Rating"
                 value={avgRating > 0 ? avgRating.toFixed(1) : '—'}
               />
             </div>
           </div>
 
-          {/* Description */}
-          {quiz.description && (
-            <p className="mb-8 text-muted-foreground leading-relaxed">{quiz.description}</p>
-          )}
-
-          {/* CTA */}
-          <Button asChild size="lg" className="w-full sm:w-auto">
-            <Link href={`/play/${quiz.id}`}>
-              <Play className="mr-2 h-4 w-4" />
-              Start Quiz
-            </Link>
-          </Button>
-          {/* Rating */}
-          <div className="mt-6 rounded-lg border p-4">
+          {/* Rating + Report */}
+          <div className="rounded-lg border p-4">
             <RateQuizForm
               quizId={quiz.id}
               userRating={userRating?.stars ?? null}
@@ -224,7 +245,7 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
             />
           </div>
 
-          <div className="mt-4">
+          <div>
             <ReportQuizForm quizId={quiz.id} />
           </div>
         </div>
@@ -251,7 +272,7 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
   )
 }
 
-function StatCard({
+function StatStrip({
   icon,
   label,
   value,
@@ -261,10 +282,12 @@ function StatCard({
   value: number | string
 }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-3 text-center">
-      <div className="flex justify-center mb-1 text-muted-foreground">{icon}</div>
-      <p className="text-lg font-bold">{value}</p>
-      <p className="text-xs text-muted-foreground">{label}</p>
+    <div className="flex flex-col items-center justify-center gap-0.5 border-r border-border px-2 py-2.5 last:border-r-0">
+      <div className="flex items-center gap-1 text-muted-foreground">
+        {icon}
+        <span className="text-xs font-bold tabular-nums">{value}</span>
+      </div>
+      <p className="text-[10px] text-muted-foreground/70">{label}</p>
     </div>
   )
 }
