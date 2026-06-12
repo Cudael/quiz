@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { cache, Suspense } from 'react'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -12,7 +13,7 @@ import { prisma } from '@/server/prisma'
 import { auth } from '@/server/auth'
 import { ReportQuizForm } from '../report-quiz-form'
 import { RateQuizForm } from '../rate-quiz-form'
-import { RecommendedQuizzes } from './_components/recommended-quizzes'
+import { RecommendedQuizzes, RecommendedQuizzesSkeleton } from './_components/recommended-quizzes'
 import { absoluteUrl } from '@/lib/site'
 
 const difficultyVariant: Record<string, 'success' | 'warning' | 'destructive'> = {
@@ -21,22 +22,34 @@ const difficultyVariant: Record<string, 'success' | 'warning' | 'destructive'> =
   HARD: 'destructive',
 }
 
+const QUIZ_META_SELECT = {
+  id: true,
+  title: true,
+  description: true,
+  coverImage: true,
+  difficulty: true,
+  playCount: true,
+  avgScore: true,
+  category: true,
+  author: { select: { id: true, name: true, image: true } },
+  questions: { select: { id: true } },
+} as const
+
+/** Cached quiz fetch — deduplicates across generateMetadata + page render. */
+const getQuiz = cache(async (id: string) => {
+  return prisma.quiz.findUnique({
+    where: { id, isPublished: true },
+    select: QUIZ_META_SELECT,
+  })
+})
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ id: string }>
 }): Promise<Metadata> {
   const { id } = await params
-  const quiz = await prisma.quiz.findUnique({
-    where: { id, isPublished: true },
-    select: {
-      title: true,
-      description: true,
-      coverImage: true,
-      category: { select: { name: true } },
-      author: { select: { name: true } },
-    },
-  })
+  const quiz = await getQuiz(id)
 
   if (!quiz) {
     return {
@@ -65,21 +78,7 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
   const session = await auth()
 
   const [quiz, ratingAgg, userRating] = await Promise.all([
-    prisma.quiz.findUnique({
-      where: { id, isPublished: true },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        coverImage: true,
-        difficulty: true,
-        playCount: true,
-        avgScore: true,
-        category: true,
-        author: { select: { id: true, name: true, image: true } },
-        questions: { select: { id: true } },
-      },
-    }),
+    getQuiz(id),
     prisma.rating.aggregate({
       where: { quizId: id },
       _avg: { stars: true },
@@ -258,7 +257,9 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
               <h2 className="text-lg font-bold">Recommended</h2>
             </div>
             <Card className="overflow-hidden">
-              <RecommendedQuizzes currentQuizId={quiz.id} categorySlug={quiz.category.slug} />
+              <Suspense fallback={<RecommendedQuizzesSkeleton />}>
+                <RecommendedQuizzes currentQuizId={quiz.id} categorySlug={quiz.category.slug} />
+              </Suspense>
             </Card>
             <div className="mt-4">
               <Button variant="outline" asChild className="w-full rounded-xl">

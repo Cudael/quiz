@@ -1,6 +1,8 @@
 import Link from 'next/link'
+import { unstable_cache } from 'next/cache'
 import { prisma } from '@/server/prisma'
 import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
 import { BarChart3, Play, Star } from 'lucide-react'
 
 const difficultyVariant: Record<string, 'success' | 'warning' | 'destructive'> = {
@@ -20,55 +22,64 @@ interface RecommendedQuiz {
   ratings: { stars: number }[]
 }
 
-async function fetchRecommendedQuizzes(
-  currentQuizId: string,
-  categorySlug: string
-): Promise<RecommendedQuiz[]> {
-  // Fetch quizzes from the same category (excluding current), ordered by play count
-  const sameCategory = await prisma.quiz.findMany({
-    where: {
-      isPublished: true,
-      id: { not: currentQuizId },
-      category: { slug: categorySlug },
-    },
-    orderBy: { playCount: 'desc' },
-    take: 3,
-    select: {
-      id: true,
-      title: true,
-      difficulty: true,
-      playCount: true,
-      avgScore: true,
-      category: { select: { name: true, color: true } },
-      _count: { select: { ratings: true } },
-      ratings: { select: { stars: true } },
-    },
-  })
+const QUIZ_RECOMMENDED_TAG = 'quiz-recommended'
 
-  const sameIds = new Set(sameCategory.map((q) => q.id))
+const fetchRecommendedQuizzes = unstable_cache(
+  async (currentQuizId: string, categorySlug: string): Promise<RecommendedQuiz[]> => {
+    // Fetch same-category + popular quizzes in parallel
+    const [sameCategory, popularAll] = await Promise.all([
+      prisma.quiz.findMany({
+        where: {
+          isPublished: true,
+          id: { not: currentQuizId },
+          category: { slug: categorySlug },
+        },
+        orderBy: { playCount: 'desc' },
+        take: 3,
+        select: {
+          id: true,
+          title: true,
+          difficulty: true,
+          playCount: true,
+          avgScore: true,
+          category: { select: { name: true, color: true } },
+          _count: { select: { ratings: true } },
+          ratings: { select: { stars: true } },
+        },
+      }),
+      prisma.quiz.findMany({
+        where: {
+          isPublished: true,
+          id: { not: currentQuizId },
+        },
+        orderBy: { playCount: 'desc' },
+        take: 5,
+        select: {
+          id: true,
+          title: true,
+          difficulty: true,
+          playCount: true,
+          avgScore: true,
+          category: { select: { name: true, color: true } },
+          _count: { select: { ratings: true } },
+          ratings: { select: { stars: true } },
+        },
+      }),
+    ])
 
-  // Fetch popular quizzes from other categories
-  const popular = await prisma.quiz.findMany({
-    where: {
-      isPublished: true,
-      id: { notIn: [currentQuizId, ...sameIds] },
-    },
-    orderBy: { playCount: 'desc' },
-    take: 5 - sameCategory.length,
-    select: {
-      id: true,
-      title: true,
-      difficulty: true,
-      playCount: true,
-      avgScore: true,
-      category: { select: { name: true, color: true } },
-      _count: { select: { ratings: true } },
-      ratings: { select: { stars: true } },
-    },
-  })
+    // Deduplicate — same-category first, then popular (excluding already shown)
+    const sameIds = new Set(sameCategory.map((q) => q.id))
+    const popular = popularAll.filter((q) => !sameIds.has(q.id))
+    const needed = 5 - sameCategory.length
 
-  return [...sameCategory, ...popular]
-}
+    return [...sameCategory, ...popular.slice(0, Math.max(0, needed))]
+  },
+  ['quiz-recommended'],
+  {
+    revalidate: 300,
+    tags: [QUIZ_RECOMMENDED_TAG],
+  }
+)
 
 function formatCount(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`
@@ -145,6 +156,22 @@ export async function RecommendedQuizzes({
           </Link>
         )
       })}
+    </div>
+  )
+}
+
+export function RecommendedQuizzesSkeleton() {
+  return (
+    <div className="divide-y divide-border">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="flex items-center gap-3 px-4 py-3">
+          <Skeleton className="h-2.5 w-2.5 shrink-0 rounded-full" />
+          <div className="flex-1 space-y-1.5">
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-3 w-1/2" />
+          </div>
+        </div>
+      ))}
     </div>
   )
 }
