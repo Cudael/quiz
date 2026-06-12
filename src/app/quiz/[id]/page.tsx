@@ -2,16 +2,17 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Clock, BarChart3, Users, Trophy, BookOpen, Play, Star } from 'lucide-react'
+import { ArrowLeft, Clock, BarChart3, Compass, Users, BookOpen, Play, Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { Avatar } from '@/components/ui/avatar'
 import { serializeJsonLd } from '@/lib/seo'
 import { prisma } from '@/server/prisma'
 import { auth } from '@/server/auth'
 import { ReportQuizForm } from '../report-quiz-form'
 import { RateQuizForm } from '../rate-quiz-form'
+import { RecommendedQuizzes } from './_components/recommended-quizzes'
 import { absoluteUrl } from '@/lib/site'
 
 const difficultyVariant: Record<string, 'success' | 'warning' | 'destructive'> = {
@@ -77,18 +78,6 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
         category: true,
         author: { select: { id: true, name: true, image: true } },
         questions: { select: { id: true } },
-        sessions: {
-          orderBy: { score: 'desc' },
-          take: 5,
-          select: {
-            id: true,
-            score: true,
-            guestName: true,
-            timeTakenMs: true,
-            createdAt: true,
-            user: { select: { name: true, image: true } },
-          },
-        },
       },
     }),
     prisma.rating.aggregate({
@@ -240,60 +229,22 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
           </div>
         </div>
 
-        {/* Leaderboard sidebar */}
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Trophy className="h-5 w-5 text-quiz-yellow" />
-                Top Scores
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {quiz.sessions.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  No scores yet — be the first!
-                </p>
-              ) : (
-                <ol className="space-y-3">
-                  {quiz.sessions.map((session, i) => {
-                    const name = session.user?.name ?? session.guestName ?? 'Anonymous'
-                    const mins = Math.floor(session.timeTakenMs / 60000)
-                    const secs = Math.floor((session.timeTakenMs % 60000) / 1000)
-                    return (
-                      <li key={session.id} className="flex items-center gap-3">
-                        <span
-                          className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                            i === 0
-                              ? 'bg-quiz-yellow text-foreground'
-                              : i === 1
-                                ? 'bg-muted-foreground/30 text-foreground'
-                                : 'bg-muted text-muted-foreground'
-                          }`}
-                        >
-                          {i + 1}
-                        </span>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {mins}:{String(secs).padStart(2, '0')}
-                          </p>
-                        </div>
-                        <span className="text-sm font-bold text-quiz-purple-light">
-                          {session.score}
-                        </span>
-                      </li>
-                    )
-                  })}
-                </ol>
-              )}
-              <div className="mt-4">
-                <Button variant="outline" asChild className="w-full">
-                  <Link href={`/leaderboard?quizId=${quiz.id}`}>View full leaderboard</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Sidebar — Recommended Quizzes */}
+        <div className="lg:col-span-1">
+          <div className="lg:sticky lg:top-20">
+            <div className="mb-4 flex items-center gap-2">
+              <Compass className="h-5 w-5 text-quiz-purple-light" />
+              <h2 className="text-lg font-bold">Recommended</h2>
+            </div>
+            <Card className="overflow-hidden">
+              <RecommendedQuizzes currentQuizId={quiz.id} categorySlug={quiz.category.slug} />
+            </Card>
+            <div className="mt-4">
+              <Button variant="outline" asChild className="w-full rounded-xl">
+                <Link href="/categories">Browse all quizzes</Link>
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
