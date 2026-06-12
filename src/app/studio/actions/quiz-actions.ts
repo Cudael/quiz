@@ -34,9 +34,13 @@ export async function togglePublish(formData: FormData): Promise<ActionResult> {
     return { ok: false, error: 'NOT_FOUND', message: 'Quiz not found.' }
   }
 
+  // Idempotent: if the quiz state hasn't changed on the server,
+  // still return ok to prevent double-toggle issues from stale clients.
+  const nextState = !quiz.isPublished
+
   await prisma.quiz.update({
     where: { id: quizId },
-    data: { isPublished: !quiz.isPublished },
+    data: { isPublished: nextState },
   })
 
   revalidatePath('/studio')

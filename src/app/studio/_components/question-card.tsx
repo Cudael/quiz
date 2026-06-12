@@ -93,14 +93,20 @@ export function QuestionCard({
       {/* Body */}
       {open && (
         <div className="space-y-4 border-t px-4 py-4">
-          <div className="grid gap-4 sm:grid-cols-[auto_1fr]">
-            <div className="sm:w-48">
-              <ImageUpload
-                compact
-                value={question.imageUrl}
-                onChange={(v) => onUpdate({ imageUrl: v })}
-              />
-            </div>
+          <div
+            className={
+              quizFormat === 'IMAGE_CHOICE' ? 'grid gap-4 sm:grid-cols-[auto_1fr]' : 'space-y-1'
+            }
+          >
+            {quizFormat === 'IMAGE_CHOICE' && (
+              <div className="sm:w-48">
+                <ImageUpload
+                  compact
+                  value={question.imageUrl}
+                  onChange={(v) => onUpdate({ imageUrl: v })}
+                />
+              </div>
+            )}
             <div className="space-y-1">
               <label htmlFor={`prompt-${question.localId}`} className="block text-sm font-medium">
                 Question

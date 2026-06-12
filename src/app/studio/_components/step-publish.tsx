@@ -46,6 +46,7 @@ export function StepPublish({ quizId }: StepPublishProps) {
 
   const [saving, setSavingLocal] = React.useState(false)
   const [copied, setCopied] = React.useState(false)
+  const publishInFlightRef = React.useRef(false)
 
   const MIN_QUESTIONS = 5
   const trimmedTitle = title.trim()
@@ -115,6 +116,9 @@ export function StepPublish({ quizId }: StepPublishProps) {
   const canPublish = checks.every((c) => c.ok)
 
   const handleTogglePublish = async () => {
+    // Guard against double-clicks / concurrent submissions
+    if (publishInFlightRef.current) return
+    publishInFlightRef.current = true
     setSavingLocal(true)
     setSaving(true)
 
@@ -133,30 +137,31 @@ export function StepPublish({ quizId }: StepPublishProps) {
       return url
     }
 
-    // Resolve blob URLs for every image in every question before saving.
-    const resolvedQuestions = await Promise.all(
-      questions.map(async (q) => {
-        const resolvedImageUrl = await resolveBlobUrl(q.imageUrl)
-        const resolvedChoices = await Promise.all(
-          q.choices.map(async (c) => {
-            if (c.imageUrl && c.imageUrl.startsWith('blob:')) {
-              const permanent = await resolveBlobUrl(c.imageUrl)
-              return { ...c, imageUrl: permanent }
-            }
-            return c
-          })
-        )
-        return { ...q, imageUrl: resolvedImageUrl, choices: resolvedChoices }
-      })
-    )
-    const resolvedCoverImage = await resolveBlobUrl(trimmedCoverImage)
-    if (resolvedCoverImage !== imageUrl) {
-      setMeta({ imageUrl: resolvedCoverImage })
-    }
-
     try {
+      // Resolve blob URLs for every image across all questions — in parallel
+      const resolvedQuestions = await Promise.all(
+        questions.map(async (q) => {
+          const resolvedImageUrl = await resolveBlobUrl(q.imageUrl)
+          const resolvedChoices = await Promise.all(
+            q.choices.map(async (c) => {
+              if (c.imageUrl && c.imageUrl.startsWith('blob:')) {
+                const permanent = await resolveBlobUrl(c.imageUrl)
+                return { ...c, imageUrl: permanent }
+              }
+              return c
+            })
+          )
+          return { ...q, imageUrl: resolvedImageUrl, choices: resolvedChoices }
+        })
+      )
+
+      const resolvedCoverImage = await resolveBlobUrl(trimmedCoverImage)
+      if (resolvedCoverImage !== imageUrl) {
+        setMeta({ imageUrl: resolvedCoverImage })
+      }
+
       if (!quizId) {
-        // Quiz hasn't been saved yet – create as draft, save questions, then publish
+        // ── New quiz — create draft, save all questions in parallel, then publish ──
         const fd = new FormData()
         fd.set('title', trimmedTitle)
         fd.set('description', trimmedDescription)
@@ -167,7 +172,7 @@ export function StepPublish({ quizId }: StepPublishProps) {
         if (defaultTimeLimitSec !== null) {
           fd.set('defaultTimeLimitSec', String(defaultTimeLimitSec))
         }
-        // Create as draft first so we have a quizId for question saves
+
         const createResult = await createQuizAndReturnId(fd)
         if (!createResult.ok) {
           addToast(createResult.message || 'Could not create quiz.', 'error')
@@ -175,43 +180,44 @@ export function StepPublish({ quizId }: StepPublishProps) {
         }
         const newQuizId = createResult.quizId
 
-        // Persist all questions to the database
-        for (let i = 0; i < resolvedQuestions.length; i++) {
-          const q = resolvedQuestions[i]
-          const qFd = new FormData()
-          qFd.set('quizId', newQuizId)
-          qFd.set('type', q.type)
-          qFd.set('prompt', q.prompt)
-          qFd.set('timeLimitSec', String(q.timeLimitSec))
-          qFd.set('order', String(i))
-          if (q.imageUrl) qFd.set('imageUrl', q.imageUrl)
-          if (q.explanation) qFd.set('explanation', q.explanation)
-          qFd.set(
-            'choices',
-            JSON.stringify(
-              q.choices.map((c) => ({
-                text: c.text,
-                imageUrl: c.imageUrl || undefined,
-                isCorrect: c.isCorrect,
-                ...(c.meta ? { meta: c.meta } : {}),
-              }))
+        // Save ALL questions in parallel
+        const questionResults = await Promise.all(
+          resolvedQuestions.map(async (q, i) => {
+            const qFd = new FormData()
+            qFd.set('quizId', newQuizId)
+            qFd.set('type', q.type)
+            qFd.set('prompt', q.prompt)
+            qFd.set('timeLimitSec', String(q.timeLimitSec))
+            qFd.set('order', String(i))
+            if (q.imageUrl) qFd.set('imageUrl', q.imageUrl)
+            if (q.explanation) qFd.set('explanation', q.explanation)
+            qFd.set(
+              'choices',
+              JSON.stringify(
+                q.choices.map((c) => ({
+                  text: c.text,
+                  imageUrl: c.imageUrl || undefined,
+                  isCorrect: c.isCorrect,
+                  ...(c.meta ? { meta: c.meta } : {}),
+                }))
+              )
             )
-          )
 
-          let qResult
-          if (q.dbId) {
-            qFd.set('questionId', q.dbId)
-            qResult = await updateQuestion(qFd)
-          } else {
-            qResult = await addQuestion(qFd)
-          }
-          if (!qResult.ok) {
-            addToast(qResult.message || 'Could not save a question.', 'error')
-            return
-          }
+            if (q.dbId) {
+              qFd.set('questionId', q.dbId)
+              return updateQuestion(qFd)
+            }
+            return addQuestion(qFd)
+          })
+        )
+
+        const failedQuestion = questionResults.find((r) => !r.ok)
+        if (failedQuestion && !failedQuestion.ok) {
+          addToast(failedQuestion.message || 'Could not save a question.', 'error')
+          return
         }
 
-        // Publish the quiz
+        // Publish
         const pubFd = new FormData()
         pubFd.set('quizId', newQuizId)
         const pubResult = await togglePublish(pubFd)
@@ -223,61 +229,73 @@ export function StepPublish({ quizId }: StepPublishProps) {
         setQuizId(newQuizId)
         setMeta({ isPublished: true })
         setLastSaved(new Date())
+        addToast('Quiz published! 🎉', 'success')
         router.push(`/quiz/${newQuizId}`)
         return
       }
 
-      // Existing quiz — persist any unsaved questions, then toggle publish
-      for (let i = 0; i < resolvedQuestions.length; i++) {
-        const q = resolvedQuestions[i]
-        if (!q.dbId) {
-          const qFd = new FormData()
-          qFd.set('quizId', quizId)
-          qFd.set('type', q.type)
-          qFd.set('prompt', q.prompt)
-          qFd.set('timeLimitSec', String(q.timeLimitSec))
-          qFd.set('order', String(i))
-          if (q.imageUrl) qFd.set('imageUrl', q.imageUrl)
-          if (q.explanation) qFd.set('explanation', q.explanation)
-          qFd.set(
-            'choices',
-            JSON.stringify(
-              q.choices.map((c) => ({
-                text: c.text,
-                imageUrl: c.imageUrl || undefined,
-                isCorrect: c.isCorrect,
-                ...(c.meta ? { meta: c.meta } : {}),
-              }))
+      // ── Existing quiz — save only unsaved questions in parallel, then publish ──
+      const unsavedQuestions = resolvedQuestions
+        .map((q, i) => ({ q, i }))
+        .filter(({ q }) => !q.dbId)
+
+      if (unsavedQuestions.length > 0) {
+        const questionResults = await Promise.all(
+          unsavedQuestions.map(async ({ q, i }) => {
+            const qFd = new FormData()
+            qFd.set('quizId', quizId)
+            qFd.set('type', q.type)
+            qFd.set('prompt', q.prompt)
+            qFd.set('timeLimitSec', String(q.timeLimitSec))
+            qFd.set('order', String(i))
+            if (q.imageUrl) qFd.set('imageUrl', q.imageUrl)
+            if (q.explanation) qFd.set('explanation', q.explanation)
+            qFd.set(
+              'choices',
+              JSON.stringify(
+                q.choices.map((c) => ({
+                  text: c.text,
+                  imageUrl: c.imageUrl || undefined,
+                  isCorrect: c.isCorrect,
+                  ...(c.meta ? { meta: c.meta } : {}),
+                }))
+              )
             )
-          )
-          const qResult = await addQuestion(qFd)
-          if (!qResult.ok) {
-            addToast(qResult.message || 'Could not save a question.', 'error')
-            return
-          }
+            return addQuestion(qFd)
+          })
+        )
+
+        const failedQuestion = questionResults.find((r) => !r.ok)
+        if (failedQuestion && !failedQuestion.ok) {
+          addToast(failedQuestion.message || 'Could not save a question.', 'error')
+          return
         }
       }
 
-      const fd = new FormData()
-      fd.set('quizId', quizId)
-      fd.set('title', trimmedTitle)
-      fd.set('description', trimmedDescription)
-      fd.set('coverImage', resolvedCoverImage)
-      fd.set('categoryId', categoryId)
-      fd.set('difficulty', difficulty)
-      if (!isPublished) fd.set('isPublished', 'on')
+      // Update quiz metadata + publish in one call
+      const updateFd = new FormData()
+      updateFd.set('quizId', quizId)
+      updateFd.set('title', trimmedTitle)
+      updateFd.set('description', trimmedDescription)
+      updateFd.set('coverImage', resolvedCoverImage)
+      updateFd.set('categoryId', categoryId)
+      updateFd.set('difficulty', difficulty)
+      if (!isPublished) updateFd.set('isPublished', 'on')
 
-      const result = await updateQuiz(fd)
+      const result = await updateQuiz(updateFd)
       if (!result.ok) {
         addToast(result.message || 'Could not update quiz publishing status.', 'error')
         return
       }
+
       setMeta({ isPublished: !isPublished })
       setLastSaved(new Date())
+      addToast(isPublished ? 'Quiz unpublished.' : 'Quiz published! 🎉', 'success')
     } catch (error) {
       console.error(error)
       addToast('Could not update quiz publishing status.', 'error')
     } finally {
+      publishInFlightRef.current = false
       setSavingLocal(false)
       setSaving(false)
     }
