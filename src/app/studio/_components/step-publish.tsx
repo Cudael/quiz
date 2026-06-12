@@ -56,17 +56,23 @@ export function StepPublish({ quizId }: StepPublishProps) {
   const hasCoverImage = trimmedCoverImage.length > 0
 
   // ── Question-level validation ──────────────────────────────────────────
+  const isImageChoice = quizFormat === 'IMAGE_CHOICE'
+
   const emptyPromptCount = questions.filter((q) => !q.prompt.trim()).length
   const noCorrectCount = questions.filter((q) => !q.choices.some((c) => c.isCorrect)).length
   const tooFewChoicesCount = questions.filter((q) => q.choices.length < 2).length
-  const emptyChoiceTextCount = questions.filter((q) => q.choices.some((c) => !c.text.trim())).length
+
+  // For IMAGE_CHOICE: check empty images. For TEXT_CHOICE: check empty text.
+  const emptyChoiceCount = questions.filter((q) =>
+    q.choices.some((c) => (isImageChoice ? !c.imageUrl.trim() : !c.text.trim()))
+  ).length
 
   const completeQuestionCount = questions.filter((q) => {
     return (
       q.prompt.trim() &&
       q.choices.length >= 2 &&
       q.choices.some((c) => c.isCorrect) &&
-      !q.choices.some((c) => !c.text.trim())
+      !q.choices.some((c) => (isImageChoice ? !c.imageUrl.trim() : !c.text.trim()))
     )
   }).length
 
@@ -101,9 +107,10 @@ export function StepPublish({ quizId }: StepPublishProps) {
         `${tooFewChoicesCount} question${tooFewChoicesCount > 1 ? 's have' : ' has'} fewer than 2 choices.`
       )
     }
-    if (emptyChoiceTextCount > 0) {
+    if (emptyChoiceCount > 0) {
+      const label = isImageChoice ? 'image' : 'text'
       questionIssues.push(
-        `${emptyChoiceTextCount} question${emptyChoiceTextCount > 1 ? 's have' : ' has'} choice${emptyChoiceTextCount > 1 ? 's' : ''} with empty text.`
+        `${emptyChoiceCount} question${emptyChoiceCount > 1 ? 's have' : ' has'} choice${emptyChoiceCount > 1 ? 's' : ''} with empty ${label}.`
       )
     }
     if (questionIssues.length === 0 && completeQuestionCount < MIN_QUESTIONS) {
