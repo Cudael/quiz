@@ -161,6 +161,20 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
+          {!session?.user && (
+            <div className="mt-3 space-y-2 px-2">
+              <Button asChild variant="outline" className="w-full rounded-xl">
+                <Link href="/sign-in" onClick={() => setMobileOpen(false)}>
+                  Sign in
+                </Link>
+              </Button>
+              <Button asChild variant="gradient" className="w-full rounded-xl font-bold">
+                <Link href="/sign-up" onClick={() => setMobileOpen(false)}>
+                  Register
+                </Link>
+              </Button>
+            </div>
+          )}
           <div className="mt-3 px-2">
             <Button asChild size="lg" variant="gradient" className="w-full rounded-xl font-bold">
               <Link href="/random-quiz" onClick={() => setMobileOpen(false)}>

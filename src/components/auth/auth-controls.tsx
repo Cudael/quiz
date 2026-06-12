@@ -32,14 +32,14 @@ export function AuthControls() {
 
   if (!session?.user) {
     return (
-      <div className="hidden items-center gap-2 md:flex">
+      <div className="flex items-center gap-1 md:gap-2">
         <Link
           href="/sign-in"
-          className="rounded-lg px-3 py-1.5 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
+          className="rounded-lg px-2 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground md:px-3 md:text-sm"
         >
           Sign in
         </Link>
-        <Button asChild size="sm" className="rounded-lg">
+        <Button asChild size="sm" className="rounded-lg text-xs md:text-sm">
           <Link href="/sign-up">Register</Link>
         </Button>
       </div>
@@ -98,8 +98,7 @@ export function AuthControls() {
           <DropdownMenuItem
             onSelect={async (event) => {
               event.preventDefault()
-              await signOut({ redirect: false })
-              window.location.href = '/'
+              await signOut({ redirectTo: '/' })
             }}
           >
             <LogOut className="h-3.5 w-3.5" />
