@@ -1,8 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import { CategoryBrowser } from './category-browser'
-import type { ParentCategoryData } from './page'
+import { CategoryBrowser, type ParentCategoryData } from './category-browser'
 
 vi.mock('next/link', () => ({
   default: ({ href, children, ...props }: { href: string; children: ReactNode }) => (

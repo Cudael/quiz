@@ -7,7 +7,35 @@ import { ArrowRight, Search } from 'lucide-react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { EmptyState } from '@/components/ui/empty-state'
-import type { ParentCategoryData, SubcategoryData } from './page'
+
+interface SubcategoryData {
+  slug: string
+  name: string
+  description: string
+  icon: string
+  color: string
+  quizCount: number
+  totalPlays: number
+  popularQuizzes: {
+    id: string
+    title: string
+    coverImage: string | null
+    difficulty: 'EASY' | 'MEDIUM' | 'HARD'
+    playCount: number
+  }[]
+}
+
+export interface ParentCategoryData {
+  slug: string
+  name: string
+  description: string
+  icon: string
+  color: string
+  quizCount: number
+  totalPlays: number
+  subcategories: SubcategoryData[]
+  popularQuizzes: SubcategoryData['popularQuizzes']
+}
 
 interface CategoryBrowserProps {
   parentCategories: ParentCategoryData[]

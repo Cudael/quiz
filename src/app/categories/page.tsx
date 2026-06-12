@@ -1,11 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { PageHeader } from '@/components/ui/page-header'
 import { prisma } from '@/server/prisma'
-import { CategoryBrowser } from './category-browser'
 import { absoluteUrl } from '@/lib/site'
+import { cn } from '@/lib/utils'
 
 export const metadata: Metadata = {
   title: 'Categories | BusQuiz',
@@ -25,147 +24,168 @@ export const metadata: Metadata = {
   },
 }
 
-export interface SubcategoryData {
+interface CategoryWithQuizzes {
   slug: string
   name: string
-  description: string
-  icon: string
   color: string
   quizCount: number
-  totalPlays: number
-  popularQuizzes: {
-    id: string
-    title: string
-    coverImage: string | null
-    difficulty: 'EASY' | 'MEDIUM' | 'HARD'
-    playCount: number
-  }[]
-}
-
-export interface ParentCategoryData {
-  slug: string
-  name: string
-  description: string
-  icon: string
-  color: string
-  quizCount: number
-  totalPlays: number
-  subcategories: SubcategoryData[]
-  popularQuizzes: {
-    id: string
-    title: string
-    coverImage: string | null
-    difficulty: 'EASY' | 'MEDIUM' | 'HARD'
-    playCount: number
-  }[]
+  topQuizzes: { id: string; title: string; playCount: number }[]
 }
 
 export default async function CategoriesPage() {
   const categories = await prisma.category.findMany({
+    where: { parentSlug: null },
     include: {
       quizzes: {
         where: { isPublished: true },
-        select: {
-          id: true,
-          title: true,
-          coverImage: true,
-          difficulty: true,
-          playCount: true,
-        },
+        select: { id: true },
       },
     },
     orderBy: { name: 'asc' },
   })
 
-  const parents = categories.filter((c) => !c.parentSlug)
-  const subcats = categories.filter((c) => Boolean(c.parentSlug))
+  // Fetch top 5 quizzes per parent category (including subcategory quizzes)
+  const categorySlugs = categories.map((c) => c.slug)
+  const subcategories = await prisma.category.findMany({
+    where: { parentSlug: { in: categorySlugs } },
+    select: { slug: true, parentSlug: true },
+  })
 
-  const parentCategories: ParentCategoryData[] = parents
-    .map((parent) => {
-      const children = subcats.filter((s) => s.parentSlug === parent.slug)
-      const childSubcategories: SubcategoryData[] = children
-        .map((child) => ({
-          slug: child.slug,
-          name: child.name,
-          description: child.description,
-          icon: child.icon,
-          color: child.color,
-          quizCount: child.quizzes.length,
-          totalPlays: child.quizzes.reduce((s, q) => s + q.playCount, 0),
-          popularQuizzes: child.quizzes
-            .sort((a, b) => b.playCount - a.playCount)
-            .slice(0, 8)
-            .map((q) => ({
-              id: q.id,
-              title: q.title,
-              coverImage: q.coverImage ?? null,
-              difficulty:
-                q.difficulty === 'EASY' || q.difficulty === 'MEDIUM' || q.difficulty === 'HARD'
-                  ? q.difficulty
-                  : ('MEDIUM' as const),
-              playCount: q.playCount,
-            })),
-        }))
-        .sort((a, b) => b.quizCount - a.quizCount)
+  const parentToSubSlugs = new Map<string, string[]>()
+  for (const sub of subcategories) {
+    if (!sub.parentSlug) continue
+    const arr = parentToSubSlugs.get(sub.parentSlug) ?? []
+    arr.push(sub.slug)
+    parentToSubSlugs.set(sub.parentSlug, arr)
+  }
 
-      const ownQuizCount = parent.quizzes.length
-      const childQuizCount = childSubcategories.reduce((s, c) => s + c.quizCount, 0)
-      const ownPlays = parent.quizzes.reduce((s, q) => s + q.playCount, 0)
-      const childPlays = childSubcategories.reduce((s, c) => s + c.totalPlays, 0)
+  const allWithQuizzes: CategoryWithQuizzes[] = await Promise.all(
+    categories.map(async (cat) => {
+      const slugs = [cat.slug, ...(parentToSubSlugs.get(cat.slug) ?? [])]
+
+      const topQuizzes = await prisma.quiz.findMany({
+        where: {
+          isPublished: true,
+          category: { slug: { in: slugs } },
+        },
+        orderBy: { playCount: 'desc' },
+        take: 5,
+        select: { id: true, title: true, playCount: true },
+      })
+
+      // Count quizzes across parent + children (include subcategory quiz counts)
+      const childCounts = await prisma.category.findMany({
+        where: { parentSlug: cat.slug },
+        select: {
+          _count: { select: { quizzes: { where: { isPublished: true } } } },
+        },
+      })
+      const childTotal = childCounts.reduce((s, c) => s + c._count.quizzes, 0)
 
       return {
-        slug: parent.slug,
-        name: parent.name,
-        description: parent.description,
-        icon: parent.icon,
-        color: parent.color,
-        quizCount: ownQuizCount + childQuizCount,
-        totalPlays: ownPlays + childPlays,
-        subcategories: childSubcategories,
-        popularQuizzes: parent.quizzes
-          .sort((a, b) => b.playCount - a.playCount)
-          .slice(0, 8)
-          .map((q) => ({
-            id: q.id,
-            title: q.title,
-            coverImage: q.coverImage ?? null,
-            difficulty:
-              q.difficulty === 'EASY' || q.difficulty === 'MEDIUM' || q.difficulty === 'HARD'
-                ? q.difficulty
-                : ('MEDIUM' as const),
-            playCount: q.playCount,
-          })),
+        slug: cat.slug,
+        name: cat.name,
+        color: cat.color,
+        quizCount: cat.quizzes.length + childTotal,
+        topQuizzes,
       }
     })
-    .sort((a, b) => b.quizCount - a.quizCount)
+  )
 
-  const totalQuizzes = parentCategories.reduce((s, p) => s + p.quizCount, 0)
-  const totalCategories = categories.length
+  // Sort by quiz count descending
+  allWithQuizzes.sort((a, b) => b.quizCount - a.quizCount)
+
+  const totalQuizzes = allWithQuizzes.reduce((s, c) => s + c.quizCount, 0)
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <PageHeader
-        back={
-          <Button variant="ghost" asChild>
-            <Link href="/">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Home
-            </Link>
-          </Button>
-        }
-        title={
-          <>
-            Browse <span className="text-primary">Categories</span>
-          </>
-        }
-        description={`${totalCategories} categories · ${totalQuizzes} quizzes`}
-      />
+      {/* Header */}
+      <div className="mb-8">
+        <Button variant="ghost" asChild className="mb-4">
+          <Link href="/">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Home
+          </Link>
+        </Button>
+        <h1 className="text-3xl font-extrabold md:text-4xl">
+          Browse <span className="text-primary">Categories</span>
+        </h1>
+        <p className="mt-2 text-muted-foreground">
+          {allWithQuizzes.length} categories · {totalQuizzes} quizzes
+        </p>
+      </div>
 
-      <CategoryBrowser
-        parentCategories={parentCategories}
-        totalQuizzes={totalQuizzes}
-        totalCategories={totalCategories}
-      />
+      {/* Category grid */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {allWithQuizzes.map((cat) => (
+          <CategoryCard key={cat.slug} category={cat} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/** Formats a play count for display. */
+function formatCount(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`
+  if (n >= 1000) return `${(n / 1000).toFixed(1).replace(/\.0$/, '')}k`
+  return n.toString()
+}
+
+function CategoryCard({ category }: { category: CategoryWithQuizzes }) {
+  return (
+    <div className="flex flex-col overflow-hidden rounded-2xl border bg-card transition-shadow hover:shadow-md">
+      {/* Header — colored */}
+      <div
+        className="flex items-center justify-between px-4 py-3"
+        style={{ backgroundColor: category.color + '14' }}
+      >
+        <Link
+          href={`/categories/${category.slug}`}
+          className="text-sm font-bold transition-colors hover:opacity-80"
+          style={{ color: category.color }}
+        >
+          {category.name}
+        </Link>
+        <span className="text-xs font-semibold text-muted-foreground">({category.quizCount})</span>
+      </div>
+
+      {/* Quiz list */}
+      <div className="flex flex-1 flex-col">
+        {category.topQuizzes.length === 0 ? (
+          <p className="px-4 py-6 text-center text-xs text-muted-foreground">No quizzes yet</p>
+        ) : (
+          <ul className="divide-y divide-border/50">
+            {category.topQuizzes.map((quiz, i) => (
+              <li key={quiz.id}>
+                <Link
+                  href={`/quiz/${quiz.id}`}
+                  className={cn(
+                    'flex items-center justify-between gap-3 px-4 py-2.5 transition-colors hover:bg-accent/60',
+                    i % 2 === 0 ? 'bg-background/40' : 'bg-transparent'
+                  )}
+                >
+                  <span className="min-w-0 flex-1 truncate text-sm">{quiz.title}</span>
+                  <span className="shrink-0 text-xs font-medium tabular-nums text-muted-foreground">
+                    {formatCount(quiz.playCount)}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {/* Browse all link */}
+        <div className="mt-auto border-t px-4 py-2.5">
+          <Link
+            href={`/categories/${category.slug}`}
+            className="inline-flex items-center text-xs font-semibold text-muted-foreground transition-colors hover:text-primary"
+          >
+            Browse all
+            <ArrowRight className="ml-1 h-3 w-3" />
+          </Link>
+        </div>
+      </div>
     </div>
   )
 }
