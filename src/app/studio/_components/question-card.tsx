@@ -93,33 +93,18 @@ export function QuestionCard({
       {/* Body */}
       {open && (
         <div className="space-y-4 border-t px-4 py-4">
-          <div
-            className={
-              quizFormat === 'IMAGE_CHOICE' ? 'grid gap-4 sm:grid-cols-[auto_1fr]' : 'space-y-1'
-            }
-          >
-            {quizFormat === 'IMAGE_CHOICE' && (
-              <div className="sm:w-48">
-                <ImageUpload
-                  compact
-                  value={question.imageUrl}
-                  onChange={(v) => onUpdate({ imageUrl: v })}
-                />
-              </div>
-            )}
-            <div className="space-y-1">
-              <label htmlFor={`prompt-${question.localId}`} className="block text-sm font-medium">
-                Question
-              </label>
-              <textarea
-                id={`prompt-${question.localId}`}
-                value={question.prompt}
-                onChange={(e) => onUpdate({ prompt: e.target.value })}
-                rows={3}
-                className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-                placeholder="Enter your question..."
-              />
-            </div>
+          <div className="space-y-1">
+            <label htmlFor={`prompt-${question.localId}`} className="block text-sm font-medium">
+              Question
+            </label>
+            <textarea
+              id={`prompt-${question.localId}`}
+              value={question.prompt}
+              onChange={(e) => onUpdate({ prompt: e.target.value })}
+              rows={3}
+              className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+              placeholder="Enter your question..."
+            />
           </div>
 
           {/* Choices */}
@@ -127,11 +112,13 @@ export function QuestionCard({
             <div>
               <p className="block text-sm font-medium">Choices</p>
               <p className="text-xs text-muted-foreground">
-                Fill in all the choices, then select the radio button next to the correct one.
+                {quizFormat === 'IMAGE_CHOICE'
+                  ? 'Upload an image for each choice, then select the correct one.'
+                  : 'Fill in all the choices, then select the radio button next to the correct one.'}
               </p>
             </div>
 
-            <div className="space-y-2">
+            <div className={quizFormat === 'IMAGE_CHOICE' ? 'grid grid-cols-2 gap-2' : 'space-y-2'}>
               {question.choices.map((choice, i) => (
                 <div
                   key={choice.localId}
@@ -139,7 +126,9 @@ export function QuestionCard({
                     'flex items-center gap-2 rounded-md border px-2 py-1 transition-colors',
                     choice.isCorrect
                       ? 'border-quiz-green/40 bg-quiz-green/10'
-                      : 'border-transparent'
+                      : quizFormat === 'IMAGE_CHOICE'
+                        ? 'border-border'
+                        : 'border-transparent'
                   )}
                 >
                   <input

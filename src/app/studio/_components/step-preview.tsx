@@ -25,7 +25,7 @@ const DIFFICULTY_VARIANT: Record<string, 'success' | 'warning' | 'destructive'> 
 }
 
 export function StepPreview({ categories }: StepPreviewProps) {
-  const { title, description, categoryId, difficulty, imageUrl, questions, setStep } =
+  const { title, description, categoryId, difficulty, imageUrl, questions, quizFormat, setStep } =
     useQuizCreatorStore()
 
   const category = categories.find((c) => c.id === categoryId)
@@ -100,17 +100,30 @@ export function StepPreview({ categories }: StepPreviewProps) {
                 </div>
               )}
 
-              <div className="space-y-1">
+              <div
+                className={quizFormat === 'IMAGE_CHOICE' ? 'grid grid-cols-2 gap-2' : 'space-y-1'}
+              >
                 {question.choices.map((choice) => (
                   <div
                     key={choice.localId}
-                    className={`rounded-lg border px-3 py-2 text-sm ${
+                    className={`rounded-lg border ${
                       usesClassicCorrectness && choice.isCorrect
                         ? 'border-quiz-green/50 bg-quiz-green/10 text-quiz-green'
                         : 'border-border'
-                    }`}
+                    } ${quizFormat === 'IMAGE_CHOICE' ? 'flex aspect-square items-center justify-center overflow-hidden p-0' : 'px-3 py-2 text-sm'}`}
                   >
-                    {choice.text || '(empty)'}
+                    {quizFormat === 'IMAGE_CHOICE' && choice.imageUrl ? (
+                      <Image
+                        src={choice.imageUrl}
+                        alt={`Choice ${choice.text || 'image'}`}
+                        width={160}
+                        height={160}
+                        unoptimized
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      choice.text || (quizFormat === 'IMAGE_CHOICE' ? 'No image' : '(empty)')
+                    )}
                   </div>
                 ))}
               </div>
