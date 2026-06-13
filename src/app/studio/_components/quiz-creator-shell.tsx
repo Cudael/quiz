@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import { createQuizAndReturnId } from '@/app/studio/actions/quiz-meta-actions'
 import { saveDraft } from '@/app/studio/actions'
-import { addQuestion, updateQuestion } from '@/app/studio/actions/question-actions'
+import { addQuestion } from '@/app/studio/actions/question-actions'
 import { getPendingFile, uploadFileToStorage, clearPendingUpload } from './use-image-upload'
 import { StepMeta } from './step-meta'
 import { StepQuestions } from './step-questions'
@@ -152,7 +152,7 @@ export function QuizCreatorShell({
       const trimmedDescription = description.trim()
       const safeCategoryId = categoryId || (categories[0]?.id ?? '')
 
-      // Resolve blob URLs to permanent URLs
+      // Resolve blob URLs to permanent URLs (safety net — images should already be permanent)
       const resolveBlobUrl = async (url: string): Promise<string> => {
         if (url && url.startsWith('blob:')) {
           const file = getPendingFile(url)
@@ -172,7 +172,7 @@ export function QuizCreatorShell({
         store.setMeta({ imageUrl: resolvedImageUrl })
       }
 
-      // Resolve all question + choice images
+      // Resolve any remaining blob URLs in questions/choices
       const resolvedQuestions = await Promise.all(
         store.questions.map(async (q) => {
           const resolvedQImage = await resolveBlobUrl(q.imageUrl)
@@ -207,10 +207,9 @@ export function QuizCreatorShell({
           return
         }
         store.setQuizId(result.quizId)
-        store.setLastSaved(new Date())
 
-        // Save all questions
-        await Promise.all(
+        // Save all new questions and capture their dbIds
+        const questionResults = await Promise.all(
           resolvedQuestions.map((q, i) => {
             const qFd = new FormData()
             qFd.set('quizId', result.quizId)
@@ -231,13 +230,19 @@ export function QuizCreatorShell({
                 }))
               )
             )
-            if (q.dbId) {
-              qFd.set('questionId', q.dbId)
-              return updateQuestion(qFd)
-            }
             return addQuestion(qFd)
           })
         )
+
+        // Update store with the server-assigned IDs
+        const updatedQuestions = resolvedQuestions.map((q, i) => ({
+          ...q,
+          dbId: questionResults[i]?.ok
+            ? ((questionResults[i] as { questionId?: string }).questionId ?? q.dbId)
+            : q.dbId,
+        }))
+        store.setQuestions(updatedQuestions)
+        store.setLastSaved(new Date())
 
         router.push(`/studio/quiz/${result.quizId}/edit`)
       } else if (quizId) {
@@ -258,37 +263,54 @@ export function QuizCreatorShell({
           setDraftError('Could not save draft.')
           return
         }
-        store.setLastSaved(new Date())
 
-        // Save all questions in parallel
-        await Promise.all(
-          resolvedQuestions.map((q, i) => {
-            const qFd = new FormData()
-            qFd.set('quizId', quizId)
-            qFd.set('type', q.type)
-            qFd.set('prompt', q.prompt)
-            qFd.set('timeLimitSec', String(q.timeLimitSec))
-            qFd.set('order', String(i))
-            if (q.imageUrl) qFd.set('imageUrl', q.imageUrl)
-            if (q.explanation) qFd.set('explanation', q.explanation)
-            qFd.set(
-              'choices',
-              JSON.stringify(
-                q.choices.map((c) => ({
-                  text: c.text,
-                  imageUrl: c.imageUrl || undefined,
-                  isCorrect: c.isCorrect,
-                  ...(c.meta ? { meta: c.meta } : {}),
-                }))
+        // Only save new (unsaved) questions — existing questions have a dbId
+        const newQuestions = resolvedQuestions.map((q, i) => ({ q, i })).filter(({ q }) => !q.dbId)
+
+        if (newQuestions.length > 0) {
+          const questionResults = await Promise.all(
+            newQuestions.map(({ q, i }) => {
+              const qFd = new FormData()
+              qFd.set('quizId', quizId)
+              qFd.set('type', q.type)
+              qFd.set('prompt', q.prompt)
+              qFd.set('timeLimitSec', String(q.timeLimitSec))
+              qFd.set('order', String(i))
+              if (q.imageUrl) qFd.set('imageUrl', q.imageUrl)
+              if (q.explanation) qFd.set('explanation', q.explanation)
+              qFd.set(
+                'choices',
+                JSON.stringify(
+                  q.choices.map((c) => ({
+                    text: c.text,
+                    imageUrl: c.imageUrl || undefined,
+                    isCorrect: c.isCorrect,
+                    ...(c.meta ? { meta: c.meta } : {}),
+                  }))
+                )
               )
-            )
-            if (q.dbId) {
-              qFd.set('questionId', q.dbId)
-              return updateQuestion(qFd)
+              return addQuestion(qFd)
+            })
+          )
+
+          // Update store with the server-assigned IDs
+          const updatedQuestions = resolvedQuestions.map((q, i) => {
+            const newIdx = newQuestions.findIndex(({ q: nq }) => nq.localId === q.localId)
+            if (newIdx >= 0) {
+              const result = questionResults[newIdx]
+              return {
+                ...q,
+                dbId: result?.ok
+                  ? ((result as { questionId?: string }).questionId ?? q.dbId)
+                  : q.dbId,
+              }
             }
-            return addQuestion(qFd)
+            return q
           })
-        )
+          store.setQuestions(updatedQuestions)
+        }
+
+        store.setLastSaved(new Date())
       }
     } catch (err) {
       setDraftError(err instanceof Error ? err.message : 'Could not save draft.')
