@@ -85,8 +85,8 @@ export function useImageUpload(onChange: (url: string) => void) {
     onChange('')
   }
 
-  /** Validate and stage a file: create a blob preview, register it, call onChange. */
-  const stageFile = (file: File) => {
+  /** Validate and stage a file: create a blob preview, register it, upload to storage, call onChange with permanent URL. */
+  const stageFile = async (file: File) => {
     const validationError = validateFile(file)
     if (validationError) {
       setError(validationError)
@@ -101,15 +101,25 @@ export function useImageUpload(onChange: (url: string) => void) {
     // Revoke previous blob URL before replacing it
     cleanupPrevBlob()
 
+    // Create a temporary blob URL for immediate preview, then upload to permanent storage
     const blobUrl = URL.createObjectURL(file)
     pendingFiles.set(blobUrl, file)
     prevBlobUrlRef.current = blobUrl
 
-    onChange(blobUrl)
-    setIsProcessing(false)
-
-    if (inputRef.current) {
-      inputRef.current.value = ''
+    try {
+      const permanentUrl = await uploadFileToStorage(file)
+      // Clean up the temporary blob since we have the permanent URL now
+      clearPendingUpload(blobUrl)
+      onChange(permanentUrl)
+    } catch (uploadErr) {
+      setError(uploadErr instanceof Error ? uploadErr.message : GENERIC_UPLOAD_ERROR)
+      // Keep the blob URL as fallback so the preview still shows
+      onChange(blobUrl)
+    } finally {
+      setIsProcessing(false)
+      if (inputRef.current) {
+        inputRef.current.value = ''
+      }
     }
   }
 
