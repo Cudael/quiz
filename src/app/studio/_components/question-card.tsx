@@ -1,11 +1,11 @@
 'use client'
 
 import * as React from 'react'
-import { ChevronDown, ChevronUp, GripVertical, Loader2, Check, Trash2 } from 'lucide-react'
+import { ChevronDown, ChevronUp, GripVertical, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { Modal } from '@/components/ui/modal'
 import { ImageUpload } from './image-upload'
-import { QuestionTypeIcon } from './question-type-icon'
 import { useQuestionCard } from './use-question-card'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import type { DraftQuestion, DraftChoice } from '@/store/quiz-creator-store'
@@ -38,12 +38,12 @@ export function QuestionCard({
   const {
     open,
     setOpen,
-    deleteCount,
-    saveState,
+    deleteModalOpen,
+    setDeleteModalOpen,
     showExplanation,
     setShowExplanation,
     handleDeleteClick,
-    handleSave,
+    handleConfirmDelete,
     updateChoice,
     addChoice,
     removeChoice,
@@ -67,7 +67,6 @@ export function QuestionCard({
             {question.prompt || 'New question'}
           </span>
         </button>
-        <QuestionTypeIcon type={question.type} showLabel />
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
@@ -78,13 +77,8 @@ export function QuestionCard({
         <button
           type="button"
           onClick={handleDeleteClick}
-          className={cn(
-            'shrink-0 rounded p-1 transition-colors',
-            deleteCount === 1
-              ? 'text-destructive bg-destructive/10'
-              : 'text-muted-foreground hover:text-destructive'
-          )}
-          title={deleteCount === 1 ? 'Click again to confirm delete' : 'Delete question'}
+          className="shrink-0 rounded p-1 text-muted-foreground transition-colors hover:text-destructive"
+          title="Delete question"
         >
           <Trash2 className="h-4 w-4" />
         </button>
@@ -193,16 +187,25 @@ export function QuestionCard({
               />
             )}
           </div>
-
-          {/* Save button */}
-          <Button type="button" onClick={handleSave} disabled={saveState === 'saving'} size="sm">
-            {saveState === 'saving' && <Loader2 className="h-4 w-4 animate-spin" />}
-            {saveState === 'saved' && <Check className="h-4 w-4" />}
-            {saveState === 'idle' && null}
-            {saveState === 'saving' ? 'Saving…' : saveState === 'saved' ? 'Saved' : 'Save question'}
-          </Button>
         </div>
       )}
+
+      <Modal
+        open={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        title="Delete question?"
+        description="All its content will be lost."
+        size="sm"
+      >
+        <div className="flex justify-end gap-2 mt-4">
+          <Button variant="outline" onClick={() => setDeleteModalOpen(false)}>
+            Cancel
+          </Button>
+          <Button variant="destructive" onClick={handleConfirmDelete}>
+            Delete
+          </Button>
+        </div>
+      </Modal>
     </div>
   )
 }
