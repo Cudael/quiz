@@ -5,7 +5,7 @@ import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { QuestionTypeIcon } from './question-type-icon'
-import { ImageIcon } from 'lucide-react'
+import { Image as ImageIcon } from 'lucide-react'
 
 interface Category {
   id: string
