@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import { createQuizAndReturnId } from '@/app/studio/actions/quiz-meta-actions'
 import { saveDraft } from '@/app/studio/actions'
-import { addQuestion } from '@/app/studio/actions/question-actions'
+import { addQuestion, updateQuestion } from '@/app/studio/actions/question-actions'
 import { getPendingFile, uploadFileToStorage, clearPendingUpload } from './use-image-upload'
 import { StepMeta } from './step-meta'
 import { StepQuestions } from './step-questions'
@@ -234,6 +234,16 @@ export function QuizCreatorShell({
           })
         )
 
+        // Report any failed question saves
+        const failedCount = questionResults.filter((r) => !r.ok).length
+        if (failedCount > 0) {
+          setDraftError(
+            failedCount === questionResults.length
+              ? 'Could not save any questions. Please check that every question has a prompt and at least one choice with text or an image.'
+              : `${failedCount} question(s) could not be saved. Please check that every question has a prompt and at least one choice with text or an image.`
+          )
+        }
+
         // Update store with the server-assigned IDs
         const updatedQuestions = resolvedQuestions.map((q, i) => ({
           ...q,
@@ -244,7 +254,11 @@ export function QuizCreatorShell({
         store.setQuestions(updatedQuestions)
         store.setLastSaved(new Date())
 
-        router.push(`/studio/quiz/${result.quizId}/edit`)
+        // Only navigate if at least some questions saved successfully,
+        // or if there were no questions to begin with
+        if (questionResults.length === 0 || failedCount < questionResults.length) {
+          router.push(`/studio/quiz/${result.quizId}/edit`)
+        }
       } else if (quizId) {
         // Save quiz metadata
         const fd = new FormData()
@@ -264,50 +278,81 @@ export function QuizCreatorShell({
           return
         }
 
-        // Only save new (unsaved) questions — existing questions have a dbId
+        // Build FormData helper
+        const buildQuestionFd = (q: DraftQuestion, order: number): FormData => {
+          const qFd = new FormData()
+          qFd.set('quizId', quizId)
+          qFd.set('type', q.type)
+          qFd.set('prompt', q.prompt)
+          qFd.set('timeLimitSec', String(q.timeLimitSec))
+          qFd.set('order', String(order))
+          if (q.imageUrl) qFd.set('imageUrl', q.imageUrl)
+          if (q.explanation) qFd.set('explanation', q.explanation)
+          qFd.set(
+            'choices',
+            JSON.stringify(
+              q.choices.map((c) => ({
+                text: c.text,
+                imageUrl: c.imageUrl || undefined,
+                isCorrect: c.isCorrect,
+                ...(c.meta ? { meta: c.meta } : {}),
+              }))
+            )
+          )
+          return qFd
+        }
+
+        // Save new questions (those without a dbId)
         const newQuestions = resolvedQuestions.map((q, i) => ({ q, i })).filter(({ q }) => !q.dbId)
+
+        // Update existing questions (those with a dbId)
+        const existingQuestions = resolvedQuestions
+          .map((q, i) => ({ q, i }))
+          .filter(({ q }) => !!q.dbId)
+
+        let failedNew = 0
+        let failedExisting = 0
 
         if (newQuestions.length > 0) {
           const questionResults = await Promise.all(
-            newQuestions.map(({ q, i }) => {
-              const qFd = new FormData()
-              qFd.set('quizId', quizId)
-              qFd.set('type', q.type)
-              qFd.set('prompt', q.prompt)
-              qFd.set('timeLimitSec', String(q.timeLimitSec))
-              qFd.set('order', String(i))
-              if (q.imageUrl) qFd.set('imageUrl', q.imageUrl)
-              if (q.explanation) qFd.set('explanation', q.explanation)
-              qFd.set(
-                'choices',
-                JSON.stringify(
-                  q.choices.map((c) => ({
-                    text: c.text,
-                    imageUrl: c.imageUrl || undefined,
-                    isCorrect: c.isCorrect,
-                    ...(c.meta ? { meta: c.meta } : {}),
-                  }))
-                )
-              )
-              return addQuestion(qFd)
-            })
+            newQuestions.map(({ q, i }) => addQuestion(buildQuestionFd(q, i)))
           )
 
+          failedNew = questionResults.filter((r) => !r.ok).length
+
           // Update store with the server-assigned IDs
-          const updatedQuestions = resolvedQuestions.map((q, i) => {
+          const updatedQuestions = resolvedQuestions.map((q) => {
             const newIdx = newQuestions.findIndex(({ q: nq }) => nq.localId === q.localId)
             if (newIdx >= 0) {
-              const result = questionResults[newIdx]
+              const qr = questionResults[newIdx]
               return {
                 ...q,
-                dbId: result?.ok
-                  ? ((result as { questionId?: string }).questionId ?? q.dbId)
-                  : q.dbId,
+                dbId: qr?.ok ? ((qr as { questionId?: string }).questionId ?? q.dbId) : q.dbId,
               }
             }
             return q
           })
           store.setQuestions(updatedQuestions)
+        }
+
+        if (existingQuestions.length > 0) {
+          const updateResults = await Promise.all(
+            existingQuestions.map(({ q, i }) => {
+              const qFd = buildQuestionFd(q, i)
+              qFd.set('questionId', q.dbId!)
+              return updateQuestion(qFd)
+            })
+          )
+
+          failedExisting = updateResults.filter((r) => !r.ok).length
+        }
+
+        // Report any failures
+        const totalFailed = failedNew + failedExisting
+        if (totalFailed > 0) {
+          setDraftError(
+            `${totalFailed} question(s) could not be saved. Please check that every question has a prompt and at least one choice with text or an image.`
+          )
         }
 
         store.setLastSaved(new Date())

@@ -11,13 +11,7 @@ interface UseQuestionCardParams {
   onRemove: () => void
 }
 
-export function useQuestionCard({
-  question,
-  index,
-  quizId,
-  onUpdate,
-  onRemove,
-}: UseQuestionCardParams) {
+export function useQuestionCard({ question, onUpdate, onRemove }: UseQuestionCardParams) {
   const [open, setOpen] = React.useState(question.dbId === null)
   const [deleteModalOpen, setDeleteModalOpen] = React.useState(false)
   const [showExplanation, setShowExplanation] = React.useState(!!question.explanation)
