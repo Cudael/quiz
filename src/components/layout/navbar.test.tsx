@@ -73,7 +73,7 @@ describe('Navbar', () => {
     usePathnameMock.mockReturnValue('/')
   })
 
-  it('renders desktop and mobile search controls with duel link styling and disables leaderboard prefetch', () => {
+  it('renders nav links with duel link styling and disables leaderboard prefetch', () => {
     render(<Navbar />)
 
     expect(screen.queryByRole('link', { name: 'Play' })).not.toBeInTheDocument()
@@ -85,7 +85,6 @@ describe('Navbar', () => {
     expect(duelLink).toHaveClass('text-primary', 'font-bold')
     expect(leaderboardLink).toHaveAttribute('data-prefetch', 'false')
     expect(categoriesLink).not.toHaveAttribute('data-prefetch')
-    expect(screen.getAllByRole('searchbox', { name: /search quizzes/i }).length).toBe(2)
-    expect(screen.getByRole('button', { name: /open search/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /open menu/i })).toBeInTheDocument()
   })
 })

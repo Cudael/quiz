@@ -60,8 +60,8 @@ const baseQuiz: QuizCardData = {
 }
 
 describe('QuizCard difficulty overlay', () => {
-  it('renders difficulty pills on the image for large card variants', () => {
-    const { container } = render(
+  it('renders difficulty pills on the image for QuizCard variants', () => {
+    render(
       <>
         <QuizCardHorizontal quiz={baseQuiz} />
         <QuizCard quiz={{ ...baseQuiz, id: 'quiz-2', difficulty: 'MEDIUM' }} />
@@ -69,21 +69,15 @@ describe('QuizCard difficulty overlay', () => {
       </>
     )
 
-    // QuizCardHorizontal no longer renders difficulty pills — only category pill + title + plays + author
+    // QuizCardHorizontal and QuizCardFeatured no longer render difficulty pills
     expect(screen.queryByText('EASY')).not.toBeInTheDocument()
+    expect(screen.queryByText('HARD')).not.toBeInTheDocument()
 
+    // QuizCard still renders the difficulty pill
     const mediumPill = screen.getByText('MEDIUM')
     expect(mediumPill.className).toContain('bottom-3')
     expect(mediumPill.className).toContain('right-3')
     expect(mediumPill.getAttribute('style')).toContain('--color-warning')
     expect(mediumPill.getAttribute('style')).toContain('color-mix')
-
-    const hardPill = screen.getByText('HARD')
-    expect(hardPill.className).toContain('bottom-3')
-    expect(hardPill.className).toContain('right-3')
-    expect(hardPill.getAttribute('style')).toContain('--color-destructive')
-    expect(hardPill.getAttribute('style')).toContain('color-mix')
-
-    expect(container.querySelectorAll('.border-t')).toHaveLength(0)
   })
 })

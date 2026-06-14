@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Zap, Trophy, Users, Sparkles } from 'lucide-react'
+import { Search, Zap, Trophy, Users, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { HomeCurrentUser } from '../home-page-client.types'
 
@@ -20,11 +20,7 @@ export function HeroInsightBox({ currentUser, totalQuizCount }: HeroInsightBoxPr
     <div className="flex flex-col justify-center space-y-5 py-2">
       <div>
         <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-          Free Online Quiz &{' '}
-          <span className="bg-gradient-to-r from-quiz-purple to-quiz-pink bg-clip-text text-transparent">
-            Trivia
-          </span>{' '}
-          Platform
+          Free Online Quiz & Trivia Platform
         </h1>
         <p className="mt-3 text-base leading-relaxed text-muted-foreground">
           {currentUser
@@ -32,6 +28,18 @@ export function HeroInsightBox({ currentUser, totalQuizCount }: HeroInsightBoxPr
             : 'Test your knowledge across thousands of quizzes. No sign-up needed — just pick a quiz and play.'}
         </p>
       </div>
+
+      {/* Search bar */}
+      <form action="/categories" method="get" className="relative">
+        <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+        <input
+          type="search"
+          name="q"
+          placeholder="What do you want to learn today?"
+          className="h-12 w-full rounded-xl border border-border/60 bg-muted/40 pl-12 pr-4 text-sm focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+          aria-label="Search quizzes"
+        />
+      </form>
 
       <div className="grid grid-cols-2 gap-3">
         <div className="flex items-center gap-2 rounded-lg border border-border/40 bg-muted/30 px-3 py-2">

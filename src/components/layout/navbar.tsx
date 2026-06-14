@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, Search, Swords, Zap } from 'lucide-react'
+import { Menu, Swords, Zap } from 'lucide-react'
 import Image from 'next/image'
 import { useState } from 'react'
 import { useSession } from 'next-auth/react'
@@ -29,7 +29,6 @@ const navLinks: NavLink[] = [
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [searchOpen, setSearchOpen] = useState(false)
   const pathname = usePathname()
   const { data: session } = useSession()
 
@@ -80,40 +79,16 @@ export function Navbar() {
                 )
               })}
             </nav>
-
-            <form action="/categories" method="get" className="relative w-full max-w-xs">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                type="search"
-                name="q"
-                placeholder="What do you want to learn today?"
-                className="h-9 w-full rounded-xl border border-border/60 bg-muted/60 pl-9 pr-3 text-sm focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                aria-label="Search quizzes"
-              />
-            </form>
           </div>
 
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-xl md:hidden"
-              onClick={() => setSearchOpen((open) => !open)}
-              aria-label={searchOpen ? 'Close search' : 'Open search'}
-              aria-expanded={searchOpen}
-            >
-              <Search className="h-5 w-5" />
-            </Button>
             {session?.user ? <NotificationBell /> : null}
             <AuthControls />
             <Button
               variant="ghost"
               size="icon"
               className="md:hidden rounded-xl"
-              onClick={() => {
-                setSearchOpen(false)
-                setMobileOpen(true)
-              }}
+              onClick={() => setMobileOpen(true)}
               aria-label="Open menu"
               aria-expanded={mobileOpen}
             >
@@ -121,23 +96,6 @@ export function Navbar() {
             </Button>
           </div>
         </div>
-      </div>
-      <div
-        className={cn(
-          'overflow-hidden border-b border-border/30 bg-background/95 px-4 transition-all duration-200 md:hidden',
-          searchOpen ? 'max-h-20 py-3' : 'max-h-0 py-0'
-        )}
-      >
-        <form action="/categories" method="get" className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            type="search"
-            name="q"
-            placeholder="What do you want to learn today?"
-            className="h-9 w-full rounded-xl border border-border/60 bg-muted/60 pl-9 pr-3 text-sm focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-            aria-label="Search quizzes"
-          />
-        </form>
       </div>
 
       {/* Mobile navigation sheet */}

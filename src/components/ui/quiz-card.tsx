@@ -162,7 +162,7 @@ export const QuizCardHorizontal = React.memo(function QuizCardHorizontal({
       href={`/quiz/${quiz.id}`}
       className={cn('group block min-w-0 shrink-0 w-full', className)}
     >
-      <div className="overflow-hidden rounded-2xl border border-border/40 shadow-sm transition-shadow duration-200 group-hover:shadow-md">
+      <div className="overflow-hidden rounded-xl border border-border/40 shadow-sm transition-shadow duration-200 group-hover:shadow-md">
         {/* Square image area */}
         <div className="relative aspect-square w-full">
           <div
@@ -239,11 +239,11 @@ export const QuizCard = React.memo(function QuizCard({ quiz, className }: QuizCa
       <motion.div
         whileHover={shouldReduceMotion ? undefined : { y: -3, scale: 1.01 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="rounded-2xl border border-border/50 shadow-md transition-shadow duration-300 group-hover:shadow-xl group-hover:shadow-quiz-purple/10"
+        className="rounded-xl border border-border/50 shadow-md transition-shadow duration-300 group-hover:shadow-xl group-hover:shadow-quiz-purple/10"
       >
         {/* Square image area */}
         <div
-          className="relative aspect-square w-full overflow-hidden rounded-t-2xl"
+          className="relative aspect-square w-full overflow-hidden rounded-t-xl"
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
@@ -296,7 +296,7 @@ export const QuizCard = React.memo(function QuizCard({ quiz, className }: QuizCa
         </div>
 
         {/* Info section — more vertical space */}
-        <div className="flex flex-col gap-2 rounded-b-2xl bg-card px-4 py-4">
+        <div className="flex flex-col gap-2 rounded-b-xl bg-card px-4 py-4">
           <div className="flex items-start justify-between gap-2">
             <h3 className="line-clamp-2 flex-1 text-sm font-black leading-tight text-foreground">
               {quiz.title}
@@ -329,34 +329,14 @@ export const QuizCardFeatured = React.memo(function QuizCardFeatured({
   quiz,
   className,
 }: QuizCardProps) {
-  const shouldReduceMotion = useReducedMotion()
   const [imageFailed, setImageFailed] = React.useState(false)
-  const [spotlight, setSpotlight] = React.useState({ x: 0, y: 0, visible: false })
   const hasCoverImage = isValidImageUrl(quiz.coverImage) && !imageFailed
 
-  function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
-    if (shouldReduceMotion) return
-    const rect = e.currentTarget.getBoundingClientRect()
-    setSpotlight({ x: e.clientX - rect.left, y: e.clientY - rect.top, visible: true })
-  }
-
-  function handleMouseLeave() {
-    setSpotlight((prev) => ({ ...prev, visible: false }))
-  }
-
   return (
-    <Link href={`/quiz/${quiz.id}`} className={cn('group block w-full', className)}>
-      <motion.div
-        whileHover={shouldReduceMotion ? undefined : { y: -3, scale: 1.005 }}
-        transition={{ duration: 0.25, ease: 'easeOut' }}
-        className="rounded-3xl border border-border/50 shadow-xl transition-shadow duration-300 group-hover:shadow-2xl group-hover:shadow-quiz-purple/20"
-      >
-        {/* Image area */}
-        <div
-          className="relative h-44 w-full overflow-hidden rounded-t-3xl md:h-48"
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-        >
+    <Link href={`/quiz/${quiz.id}`} className={cn('group block min-w-0 w-full h-full', className)}>
+      <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border/40 shadow-sm transition-shadow duration-200 group-hover:shadow-md">
+        {/* Square image area */}
+        <div className="relative aspect-square w-full">
           <div
             className="absolute inset-0"
             style={{ backgroundImage: getFallbackGradient(quiz.category.color) }}
@@ -367,33 +347,15 @@ export const QuizCardFeatured = React.memo(function QuizCardFeatured({
               alt={`${quiz.title} cover image`}
               fill
               unoptimized
-              sizes="100vw"
-              className="object-cover transition-transform duration-700 group-hover:scale-105"
+              sizes="(max-width: 1024px) 50vw, 33vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
               onError={() => setImageFailed(true)}
             />
           ) : null}
-
-          {/* Spotlight */}
-          {spotlight.visible && (
-            <div
-              className="pointer-events-none absolute inset-0"
-              style={{
-                background: `radial-gradient(circle 300px at ${spotlight.x}px ${spotlight.y}px, rgba(255,255,255,0.07), transparent 80%)`,
-              }}
-            />
-          )}
-
-          {/* Featured badge */}
-          <div className="absolute left-5 top-5">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500 px-3 py-1.5 text-xs font-black uppercase tracking-wider text-amber-950 shadow-lg shadow-amber-500/30">
-              ★ Featured
-            </span>
-          </div>
-
-          {/* Category pill */}
-          <div className="absolute right-5 top-5">
+          {/* Category pill over image */}
+          <div className="absolute left-2 top-2">
             <span
-              className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold backdrop-blur-md"
+              className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider backdrop-blur-md"
               style={{
                 backgroundColor: `${quiz.category.color}44`,
                 color: '#fff',
@@ -403,38 +365,27 @@ export const QuizCardFeatured = React.memo(function QuizCardFeatured({
               {quiz.category.name}
             </span>
           </div>
-
-          <DifficultyPill difficulty={quiz.difficulty} className="bottom-3 right-3 text-xs" />
-
-          {/* Centered arcade play button on hover */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-            <ArcadePlayButton size="lg" />
-          </div>
         </div>
 
-        {/* White info bar — fixed height */}
-        <div className="flex min-h-[60px] items-start justify-between gap-3 rounded-b-3xl bg-card px-5 py-4">
-          <div className="min-w-0 flex-1 overflow-hidden">
-            <h3 className="line-clamp-2 text-base font-black leading-tight text-foreground md:text-lg">
-              {quiz.title}
-            </h3>
-            {(quiz.avgRating !== undefined || quiz.playCount !== undefined) && (
-              <p className="mt-0.5 flex items-center gap-1.5 truncate text-xs font-semibold text-muted-foreground">
-                {quiz.avgRating !== undefined && (
-                  <span className="text-quiz-yellow">★ {quiz.avgRating.toFixed(1)}</span>
-                )}
-                {quiz.playCount !== undefined && (
-                  <span>· 🎮 {formatPlayCount(quiz.playCount)} plays</span>
-                )}
-                {quiz.completed && <PlayedBadge />}
-              </p>
+        {/* Info bar */}
+        <div className="flex flex-col gap-1 bg-card px-3 py-2.5">
+          <h3 className="line-clamp-1 w-full truncate text-sm font-bold leading-tight text-foreground">
+            {quiz.title}
+          </h3>
+          <div className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
+            {quiz.avgRating !== undefined && (
+              <span className="shrink-0 text-quiz-yellow">★ {quiz.avgRating.toFixed(1)}</span>
             )}
-          </div>
-          <div className="shrink-0">
-            <ArcadePlayButton size="lg" />
+            {quiz.authorName && <span className="truncate">· by {quiz.authorName}</span>}
+            {quiz.playCount !== undefined && (
+              <span className="shrink-0 tabular-nums">
+                · {formatPlayCount(quiz.playCount)} plays
+              </span>
+            )}
+            {quiz.completed && <PlayedBadge />}
           </div>
         </div>
-      </motion.div>
+      </div>
     </Link>
   )
 })
@@ -448,7 +399,7 @@ export const QuizCardCompact = React.memo(function QuizCardCompact({
     <Link
       href={`/quiz/${quiz.id}`}
       className={cn(
-        'group flex w-36 shrink-0 flex-col overflow-hidden rounded-xl border border-border/50 bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md',
+        'group flex w-36 shrink-0 flex-col overflow-hidden rounded-lg border border-border/50 bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md',
         className
       )}
     >
@@ -491,7 +442,7 @@ function SkeletonPulse({ className }: { className?: string }) {
 export function QuizCardHorizontalSkeleton({ className }: { className?: string }) {
   return (
     <div className={cn('block min-w-0 shrink-0 w-full', className)}>
-      <div className="overflow-hidden rounded-2xl border border-border/40 shadow-sm">
+      <div className="overflow-hidden rounded-xl border border-border/40 shadow-sm">
         {/* Square image area */}
         <div className="relative aspect-square w-full bg-muted animate-pulse">
           {/* Category pill placeholder */}
@@ -517,9 +468,9 @@ export function QuizCardHorizontalSkeleton({ className }: { className?: string }
 export function QuizCardGridSkeleton({ className }: { className?: string }) {
   return (
     <div className={cn('block', className)}>
-      <div className="rounded-2xl border border-border/50 shadow-md">
+      <div className="rounded-xl border border-border/50 shadow-md">
         {/* Image area — taller than horizontal */}
-        <div className="relative aspect-square w-full overflow-hidden rounded-t-2xl bg-muted animate-pulse">
+        <div className="relative aspect-square w-full overflow-hidden rounded-t-xl bg-muted animate-pulse">
           <div className="absolute left-3 top-3">
             <SkeletonPulse className="h-5 w-16 rounded-full" />
           </div>
@@ -528,7 +479,7 @@ export function QuizCardGridSkeleton({ className }: { className?: string }) {
           </div>
         </div>
         {/* Info section */}
-        <div className="flex flex-col gap-2 rounded-b-2xl bg-card px-4 py-4">
+        <div className="flex flex-col gap-2 rounded-b-xl bg-card px-4 py-4">
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 space-y-2">
               <SkeletonPulse className="h-4 w-full" />

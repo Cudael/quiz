@@ -10,7 +10,7 @@ export function HeroCards({ currentUser }: { currentUser: HomeCurrentUser | null
   return (
     <div className="flex flex-col gap-4">
       {/* Duel Mode */}
-      <div className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card">
+      <div className="group relative overflow-hidden rounded-xl border border-border/50 bg-card">
         {/* Background image */}
         <Image
           src="/duel.png"
@@ -35,11 +35,11 @@ export function HeroCards({ currentUser }: { currentUser: HomeCurrentUser | null
       </div>
 
       {/* Daily Challenge */}
-      <div className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card">
+      <div className="group relative overflow-hidden rounded-xl border border-border/50 bg-card">
         {/* Decorative background */}
-        <div className="absolute inset-0 bg-gradient-to-bl from-amber-500/15 via-orange-500/10 to-yellow-500/5">
-          <div className="absolute -right-6 -top-6 h-36 w-36 rounded-full bg-amber-500/20 blur-2xl" />
-          <div className="absolute -bottom-4 -left-4 h-28 w-28 rounded-full bg-orange-500/15 blur-2xl" />
+        <div className="absolute inset-0 bg-amber-500/5">
+          <div className="absolute -right-6 -top-6 h-36 w-36 rounded-full bg-amber-500/10 blur-2xl" />
+          <div className="absolute -bottom-4 -left-4 h-28 w-28 rounded-full bg-orange-500/8 blur-2xl" />
         </div>
         {/* Decorative icon */}
         <div className="absolute right-4 top-1/2 -translate-y-1/2">
