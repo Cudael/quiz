@@ -16,6 +16,14 @@ export interface HomeCurrentUser {
   streakDays: number
 }
 
+export interface BadgePreview {
+  slug: string
+  name: string
+  description: string
+  emoji: string
+  earnedCount: number
+}
+
 export interface HomePageClientProps {
   categoriesWithQuizzes: CategoryWithQuizzes[]
   popularQuizzes: QuizCardData[]
@@ -24,4 +32,6 @@ export interface HomePageClientProps {
   personalizedQuizzes: QuizCardData[]
   recentlyPlayed: QuizCardData[]
   currentUser: HomeCurrentUser | null
+  badgePreviews: BadgePreview[]
+  totalQuizCount: number
 }

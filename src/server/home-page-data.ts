@@ -6,7 +6,11 @@ import {
   type HomeQuizRecord,
 } from '@/server/home-quiz-cache'
 import type { QuizCardData } from '@/components/ui/quiz-card'
-import type { HomeCurrentUser, CategoryWithQuizzes } from '@/components/home/home-page-client.types'
+import type {
+  HomeCurrentUser,
+  CategoryWithQuizzes,
+  BadgePreview,
+} from '@/components/home/home-page-client.types'
 
 const FALLBACK_CATEGORY_GRADIENT = 'var(--background-image-card-gradient)'
 
@@ -38,6 +42,19 @@ function computeRatingInfo(quiz: {
   return { avgRating, ratingCount }
 }
 
+const BADGE_EMOJIS: Record<string, string> = {
+  'first-win': '🏆',
+  'perfect-score': '💯',
+  'streak-7': '🔥',
+  'streak-30': '🌟',
+  'quiz-author': '✏️',
+  'category-master-science': '🔬',
+  'speed-demon': '⚡',
+  'night-owl': '🦉',
+  centurion: '💎',
+  'daily-devotee': '📅',
+}
+
 export interface HomePageData {
   categoriesWithQuizzes: CategoryWithQuizzes[]
   popularQuizzes: QuizCardData[]
@@ -46,6 +63,8 @@ export interface HomePageData {
   personalizedQuizzes: QuizCardData[]
   recentlyPlayed: QuizCardData[]
   currentUser: HomeCurrentUser | null
+  badgePreviews: BadgePreview[]
+  totalQuizCount: number
 }
 
 function mapQuizCard(quiz: HomeQuizRecord, completedQuizIds?: Set<string>): QuizCardData {
@@ -73,30 +92,55 @@ function mapQuizCard(quiz: HomeQuizRecord, completedQuizIds?: Set<string>): Quiz
 }
 
 export async function getHomePageData(): Promise<HomePageData> {
-  const [session, categories, popularQuizzesRaw, trendingQuizzesRaw, newestQuizzesRaw] =
-    await Promise.all([
-      auth(),
-      prisma.category.findMany({
-        select: {
-          id: true,
-          slug: true,
-          name: true,
-          icon: true,
-          color: true,
-          imageUrl: true,
-          parentSlug: true,
-        },
-        take: 100, // Bounded to prevent unbounded result sets
-      }),
-      getPopularQuizzes(),
-      getTrendingQuizzes(),
-      prisma.quiz.findMany({
-        where: { isPublished: true },
-        orderBy: { createdAt: 'desc' },
-        take: 12,
-        select: QUIZ_CARD_SELECT_WITH_RATINGS,
-      }),
-    ])
+  const [
+    session,
+    categories,
+    popularQuizzesRaw,
+    trendingQuizzesRaw,
+    newestQuizzesRaw,
+    badgesRaw,
+    totalQuizCount,
+  ] = await Promise.all([
+    auth(),
+    prisma.category.findMany({
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        icon: true,
+        color: true,
+        imageUrl: true,
+        parentSlug: true,
+      },
+      take: 100, // Bounded to prevent unbounded result sets
+    }),
+    getPopularQuizzes(),
+    getTrendingQuizzes(),
+    prisma.quiz.findMany({
+      where: { isPublished: true },
+      orderBy: { createdAt: 'desc' },
+      take: 12,
+      select: QUIZ_CARD_SELECT_WITH_RATINGS,
+    }),
+    prisma.badge.findMany({
+      select: {
+        slug: true,
+        name: true,
+        description: true,
+        _count: { select: { awards: true } },
+      },
+      orderBy: { name: 'asc' },
+    }),
+    prisma.quiz.count({ where: { isPublished: true } }),
+  ])
+
+  const badgePreviews: BadgePreview[] = badgesRaw.map((b) => ({
+    slug: b.slug,
+    name: b.name,
+    description: b.description,
+    emoji: BADGE_EMOJIS[b.slug] ?? '🎖️',
+    earnedCount: b._count.awards,
+  }))
 
   const isAuthenticatedUser = Boolean(session?.user?.id && session?.user?.email)
   const currentUser: HomeCurrentUser | null = isAuthenticatedUser
@@ -219,5 +263,7 @@ export async function getHomePageData(): Promise<HomePageData> {
     personalizedQuizzes,
     recentlyPlayed,
     currentUser,
+    badgePreviews,
+    totalQuizCount,
   }
 }

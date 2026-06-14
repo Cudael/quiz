@@ -85,6 +85,8 @@ describe('HomePageClient', () => {
         personalizedQuizzes={[]}
         recentlyPlayed={[]}
         currentUser={null}
+        badgePreviews={[]}
+        totalQuizCount={2500}
       />
     )
 
@@ -98,10 +100,9 @@ describe('HomePageClient', () => {
       'href',
       '/sign-up'
     )
-    expect(screen.getByRole('heading', { name: /Hall of Fame/ })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: /What's Hot Right Now/ })).toBeInTheDocument()
-    expect(screen.getAllByRole('heading', { name: /Fresh Off the Press/ }).length).toBe(1)
-    expect(screen.queryByRole('heading', { name: /Picked Just for You/ })).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Most Popular/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Trending Right Now/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Fresh Off the Press/ })).toBeInTheDocument()
   })
 
   it('renders the authenticated view with Duel and Daily Challenge', () => {
@@ -114,6 +115,8 @@ describe('HomePageClient', () => {
         personalizedQuizzes={personalizedQuizzes}
         recentlyPlayed={[]}
         currentUser={currentUser}
+        badgePreviews={[]}
+        totalQuizCount={2500}
       />
     )
 
@@ -124,7 +127,7 @@ describe('HomePageClient', () => {
       'href',
       '/random-quiz'
     )
-    expect(screen.getByRole('heading', { name: /Picked Just for You/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Most Popular/ })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /Hall of Fame/ })).toBeInTheDocument()
   })
 
@@ -138,10 +141,12 @@ describe('HomePageClient', () => {
         personalizedQuizzes={[]}
         recentlyPlayed={[]}
         currentUser={currentUser}
+        badgePreviews={[]}
+        totalQuizCount={2500}
       />
     )
 
-    expect(screen.getByRole('heading', { name: /Picked Just for You/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Most Popular/ })).toBeInTheDocument()
     expect(screen.getAllByText('World capitals challenge').length).toBeGreaterThan(0)
   })
 })
