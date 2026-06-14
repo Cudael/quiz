@@ -135,7 +135,7 @@ export function CategoryBarClient({ categories }: { categories: CategoryBarItem[
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                     isActive
                       ? 'border-primary/30 bg-primary/15 text-primary'
-                      : 'text-muted-foreground hover:text-foreground hover:[background-color:var(--pill-hover)]'
+                      : 'text-foreground/70 hover:text-foreground hover:[background-color:var(--pill-hover)]'
                   )}
                   style={
                     !isActive ? ({ '--pill-hover': hoverTint } as React.CSSProperties) : undefined
@@ -158,7 +158,7 @@ export function CategoryBarClient({ categories }: { categories: CategoryBarItem[
                   </div>
 
                   <span className="max-w-[110px] truncate">{category.name}</span>
-                  <div className="rounded-full bg-muted/80 px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                  <div className="rounded-full bg-muted/80 px-2 py-0.5 text-[11px] font-semibold text-foreground/60">
                     {category.quizCount}
                   </div>
 

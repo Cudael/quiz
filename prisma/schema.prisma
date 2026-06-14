@@ -98,6 +98,7 @@ model User {
   hostedDuels         Duel[]               @relation("HostedDuels")
   duelParticipations  DuelParticipant[]    @relation("DuelParticipations")
   ratings             Rating[]
+  feedback            Feedback[]
 }
 
 model Category {
@@ -393,4 +394,33 @@ model AdminAction {
 
   @@index([actorId])
   @@index([createdAt])
+}
+
+enum FeedbackType {
+  BUG_REPORT
+  FEATURE_REQUEST
+  GENERAL_FEEDBACK
+  CONTENT_ISSUE
+}
+
+enum FeedbackStatus {
+  PENDING
+  REVIEWED
+  RESOLVED
+}
+
+model Feedback {
+  id           String         @id @default(cuid())
+  userId       String
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type         FeedbackType
+  message      String
+  email        String?
+  status       FeedbackStatus @default(PENDING)
+  createdAt    DateTime       @default(now())
+  reviewedAt   DateTime?
+  reviewedById String?
+
+  @@index([status])
+  @@index([userId])
 }

@@ -80,12 +80,13 @@ export function SiteFooter() {
                 { href: '/privacy', label: 'Privacy Policy' },
                 { href: '/terms', label: 'Terms of Service' },
                 { href: '/contact', label: 'Contact' },
+                { href: '/feedback', label: 'Feedback' },
               ].map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   prefetch={link.href === '/about' ? false : undefined}
-                  className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
+                  className="text-sm text-foreground/70 transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
                 >
                   {link.label}
                 </Link>
@@ -102,19 +103,19 @@ export function SiteFooter() {
               <Link
                 href="/leaderboard"
                 prefetch={false}
-                className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
+                className="text-sm text-foreground/70 transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
               >
                 Leaderboard
               </Link>
               <Link
                 href="/duel"
-                className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
+                className="text-sm text-foreground/70 transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
               >
                 Duel
               </Link>
               <Link
                 href="/about/accessibility"
-                className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
+                className="text-sm text-foreground/70 transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
               >
                 Accessibility
               </Link>

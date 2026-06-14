@@ -66,7 +66,7 @@ export function Navbar() {
                         ? 'text-primary bg-primary/8'
                         : link.highlighted
                           ? 'text-primary font-bold hover:text-primary/80 hover:bg-primary/5'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                          : 'text-foreground/80 hover:text-foreground hover:bg-accent/50'
                     )}
                     aria-current={active ? 'page' : undefined}
                   >
@@ -110,7 +110,7 @@ export function Navbar() {
                 'flex items-center rounded-xl px-4 py-3 text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
                 isActive(link.href)
                   ? 'bg-primary/10 text-primary border-l-4 border-quiz-purple'
-                  : 'text-muted-foreground hover:bg-accent hover:text-foreground border-l-4 border-transparent'
+                  : 'text-foreground/80 hover:bg-accent hover:text-foreground border-l-4 border-transparent'
               )}
               aria-current={isActive(link.href) ? 'page' : undefined}
               onClick={() => setMobileOpen(false)}

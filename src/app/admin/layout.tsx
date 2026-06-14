@@ -2,7 +2,16 @@ import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { BookOpen, Flag, LayoutDashboard, Lightbulb, ScrollText, Tag, Users } from 'lucide-react'
+import {
+  BookOpen,
+  Flag,
+  LayoutDashboard,
+  Lightbulb,
+  MessageSquare,
+  ScrollText,
+  Tag,
+  Users,
+} from 'lucide-react'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
 import { AdminNavLink } from './_components/admin-nav-link'
@@ -10,12 +19,14 @@ import { AdminNavLink } from './_components/admin-nav-link'
 const PATHNAME_HEADER = 'x-quiz-pathname'
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
-  const [session, headerStore, pendingReports, pendingSuggestions] = await Promise.all([
-    auth(),
-    headers(),
-    prisma.report.count({ where: { status: 'PENDING' } }),
-    prisma.categorySuggestion.count({ where: { status: 'PENDING' } }),
-  ])
+  const [session, headerStore, pendingReports, pendingSuggestions, pendingFeedback] =
+    await Promise.all([
+      auth(),
+      headers(),
+      prisma.report.count({ where: { status: 'PENDING' } }),
+      prisma.categorySuggestion.count({ where: { status: 'PENDING' } }),
+      prisma.feedback.count({ where: { status: 'PENDING' } }),
+    ])
 
   const pathname = headerStore.get(PATHNAME_HEADER)
 
@@ -77,6 +88,10 @@ export default async function AdminLayout({ children }: { children: ReactNode })
             <AdminNavLink href="/admin/suggestions" badge={pendingSuggestions}>
               <Lightbulb className="h-4 w-4" />
               <span>Suggestions</span>
+            </AdminNavLink>
+            <AdminNavLink href="/admin/feedback" badge={pendingFeedback}>
+              <MessageSquare className="h-4 w-4" />
+              <span>Feedback</span>
             </AdminNavLink>
           </div>
 

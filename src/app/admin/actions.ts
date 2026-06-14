@@ -150,3 +150,51 @@ export async function resolveReport(formData: FormData): Promise<AdminResult> {
   revalidatePath('/admin')
   return { ok: true }
 }
+
+export async function updateFeedbackStatus(formData: FormData): Promise<AdminResult> {
+  const guard = await assertAdmin()
+  if (!guard.ok) return guard
+
+  const schema = z.object({
+    feedbackId: z.string().cuid(),
+    newStatus: z.enum(['REVIEWED', 'RESOLVED']),
+  })
+  const parsed = schema.safeParse({
+    feedbackId: formData.get('feedbackId'),
+    newStatus: formData.get('newStatus'),
+  })
+  if (!parsed.success) {
+    return { ok: false, error: 'VALIDATION_ERROR', message: 'Invalid feedback action payload.' }
+  }
+
+  const feedback = await prisma.feedback.findUnique({
+    where: { id: parsed.data.feedbackId },
+  })
+  if (!feedback) {
+    return { ok: false, error: 'NOT_FOUND', message: 'Feedback not found.' }
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.feedback.update({
+      where: { id: feedback.id },
+      data: {
+        status: parsed.data.newStatus,
+        reviewedAt: new Date(),
+        reviewedById: guard.userId,
+      },
+    })
+
+    await tx.adminAction.create({
+      data: {
+        actorId: guard.userId,
+        action: `FEEDBACK_${parsed.data.newStatus}`,
+        targetType: 'Feedback',
+        targetId: feedback.id,
+        meta: {},
+      },
+    })
+  })
+
+  revalidatePath('/admin')
+  return { ok: true }
+}

@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Gamepad2, PenLine, Swords, Zap, Trophy, Users, Sparkles } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { prisma } from '@/server/prisma'
 
 export const metadata: Metadata = {
   title: 'About BusQuiz',
@@ -8,66 +11,169 @@ export const metadata: Metadata = {
     'Learn about BusQuiz — the platform where you can play, create, and compete in quizzes across every topic imaginable.',
 }
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const [totalQuizzes, totalUsers, totalCategories] = await Promise.all([
+    prisma.quiz.count({ where: { isPublished: true } }),
+    prisma.user.count(),
+    prisma.category.count(),
+  ])
+
   return (
-    <div className="container mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-3xl font-bold">About BusQuiz</h1>
-      <p className="mt-4 text-muted-foreground leading-relaxed">
-        BusQuiz is the ultimate destination for quiz lovers and knowledge seekers. Play thousands of
-        quizzes across every imaginable category, create your own with our intuitive studio, and
-        compete with friends and the global community on real-time leaderboards.
-      </p>
-
-      <section className="mt-10 space-y-4">
-        <h2 className="text-2xl font-semibold">Play</h2>
-        <p className="text-muted-foreground">
-          Dive into quizzes spanning science, history, pop culture, sports, and more. With
-          text-based multiple choice and image-based multiple choice formats, every quiz feels fresh
-          and challenging.
+    <div className="container mx-auto max-w-4xl px-4 py-10 md:py-16">
+      {/* Hero */}
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">About BusQuiz</h1>
+        <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          The ultimate destination for quiz lovers and knowledge seekers. Play, create, and compete
+          across every topic imaginable.
         </p>
-      </section>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-6 text-sm font-semibold">
+          <span className="flex items-center gap-1.5">
+            <Zap className="h-4 w-4 text-quiz-purple" />
+            {totalQuizzes.toLocaleString()}+ quizzes
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Users className="h-4 w-4 text-quiz-green" />
+            {totalUsers.toLocaleString()}+ players
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Trophy className="h-4 w-4 text-quiz-orange" />
+            {totalCategories} categories
+          </span>
+        </div>
+      </div>
 
-      <section className="mt-8 space-y-4">
-        <h2 className="text-2xl font-semibold">Create</h2>
-        <p className="text-muted-foreground">
-          Our Quiz Studio gives you everything you need to build and publish your own quizzes. Add
-          cover images, set difficulty levels, organize questions, and share your creations with the
-          world.
+      {/* Feature Cards */}
+      <div className="grid gap-5 sm:grid-cols-2 mb-12">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-quiz-purple/10">
+                <Gamepad2 className="h-5 w-5 text-quiz-purple" />
+              </div>
+              <h2 className="text-xl font-bold">Play</h2>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Dive into quizzes spanning science, history, pop culture, sports, and more. With
+              text-based and image-based formats, every quiz feels fresh and challenging. Earn XP,
+              maintain streaks, and collect badges as you learn.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-quiz-green/10">
+                <PenLine className="h-5 w-5 text-quiz-green" />
+              </div>
+              <h2 className="text-xl font-bold">Create</h2>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Our Quiz Studio gives you everything you need to build and publish your own quizzes.
+              Add cover images, set difficulty levels, organize questions, and share your creations
+              with the world.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-quiz-orange/10">
+                <Swords className="h-5 w-5 text-quiz-orange" />
+              </div>
+              <h2 className="text-xl font-bold">Compete</h2>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Challenge friends in real-time head-to-head duels or see how you stack up on global
+              leaderboards. Earn XP, level up, and climb the ranks.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-quiz-yellow/10">
+                <Sparkles className="h-5 w-5 text-quiz-yellow" />
+              </div>
+              <h2 className="text-xl font-bold">Free Forever</h2>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              BusQuiz is free to play, forever. No paywalls, no premium tiers — just pure quiz
+              enjoyment. We believe knowledge should be accessible to everyone.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* How it Works */}
+      <div className="mb-12">
+        <h2 className="text-2xl font-extrabold tracking-tight text-center mb-8">How It Works</h2>
+        <div className="grid gap-4 sm:grid-cols-4">
+          {[
+            {
+              step: '1',
+              title: 'Browse',
+              description: 'Find a quiz that interests you from thousands of options.',
+            },
+            {
+              step: '2',
+              title: 'Play',
+              description: 'Answer questions against the clock. Earn XP for correct answers.',
+            },
+            {
+              step: '3',
+              title: 'Compete',
+              description: 'Challenge friends in duels or climb the global leaderboard.',
+            },
+            {
+              step: '4',
+              title: 'Create',
+              description: 'Build your own quizzes and share them with the community.',
+            },
+          ].map((item) => (
+            <div key={item.step} className="text-center">
+              <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-sm">
+                {item.step}
+              </div>
+              <h3 className="font-bold mb-1">{item.title}</h3>
+              <p className="text-xs text-muted-foreground">{item.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Our Mission */}
+      <div className="rounded-xl border bg-muted/30 p-8 text-center mb-12">
+        <h2 className="text-2xl font-extrabold tracking-tight mb-3">Our Mission</h2>
+        <p className="text-muted-foreground max-w-xl mx-auto leading-relaxed">
+          We believe learning should be fun, social, and accessible. BusQuiz makes it easy to test
+          your knowledge, challenge friends, and discover new topics — all for free.
         </p>
-      </section>
+      </div>
 
-      <section className="mt-8 space-y-4">
-        <h2 className="text-2xl font-semibold">Compete</h2>
-        <p className="text-muted-foreground">
-          Challenge specific friends in head-to-head duels or see how you stack up against the
-          worldwide community on our leaderboards. Earn XP, level up, maintain streaks, and collect
-          badges as you climb the ranks.
-        </p>
-      </section>
-
-      <section className="mt-8 space-y-4">
-        <h2 className="text-2xl font-semibold">Free and Open</h2>
-        <p className="text-muted-foreground">
-          BusQuiz is free to play, forever. No paywalls, no premium tiers — just pure quiz
-          enjoyment. We believe knowledge should be accessible to everyone.
-        </p>
-      </section>
-
-      <div className="mt-10 flex flex-wrap gap-4">
-        <Link
-          href="/categories"
-          className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-        >
-          Browse quizzes
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-        <Link
-          href="/leaderboard"
-          className="inline-flex items-center gap-2 rounded-xl border border-border px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
-        >
-          View leaderboard
-          <ArrowRight className="h-4 w-4" />
-        </Link>
+      {/* CTAs */}
+      <div className="flex flex-wrap justify-center gap-4">
+        <Button asChild size="lg" variant="gradient" className="rounded-xl font-bold">
+          <Link href="/categories">
+            Browse Quizzes
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
+        <Button asChild size="lg" variant="outline" className="rounded-xl font-bold">
+          <Link href="/duel">
+            Start a Duel
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
+        <Button asChild size="lg" variant="outline" className="rounded-xl font-bold">
+          <Link href="/studio">
+            Create a Quiz
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
       </div>
     </div>
   )
