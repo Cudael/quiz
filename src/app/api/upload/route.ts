@@ -14,8 +14,8 @@ const s3 = new S3Client({
 
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024
 
-// Allow each user to upload at most 20 images per hour.
-const UPLOAD_RATE_LIMIT = { limit: 20, windowMs: 60 * 60 * 1000 } as const
+// Allow each user to upload at most 100 images per hour.
+const UPLOAD_RATE_LIMIT = { limit: 100, windowMs: 60 * 60 * 1000 } as const
 
 function isUploadedFile(value: FormDataEntryValue | null): value is File {
   return (

@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -99,45 +100,71 @@ const initialState: QuizCreatorState = {
 // Store
 // ---------------------------------------------------------------------------
 
-export const useQuizCreatorStore = create<QuizCreatorState & QuizCreatorActions>((set) => ({
-  ...initialState,
+const PERSIST_KEY = 'quiz-creator-draft'
 
-  setMeta: (meta) => set((state) => ({ ...state, ...meta })),
+export const useQuizCreatorStore = create<QuizCreatorState & QuizCreatorActions>()(
+  persist(
+    (set) => ({
+      ...initialState,
 
-  setQuizId: (quizId) => set({ quizId }),
+      setMeta: (meta) => set((state) => ({ ...state, ...meta })),
 
-  setQuestions: (questions) => set({ questions }),
+      setQuizId: (quizId) => set({ quizId }),
 
-  addQuestion: (question) => set((state) => ({ questions: [...state.questions, question] })),
+      setQuestions: (questions) => set({ questions }),
 
-  updateQuestion: (localId, updates) =>
-    set((state) => ({
-      questions: state.questions.map((q) => (q.localId === localId ? { ...q, ...updates } : q)),
-    })),
+      addQuestion: (question) => set((state) => ({ questions: [...state.questions, question] })),
 
-  removeQuestion: (localId) =>
-    set((state) => ({
-      questions: state.questions.filter((q) => q.localId !== localId),
-    })),
+      updateQuestion: (localId, updates) =>
+        set((state) => ({
+          questions: state.questions.map((q) => (q.localId === localId ? { ...q, ...updates } : q)),
+        })),
 
-  reorderQuestions: (from, to) =>
-    set((state) => {
-      const questions = [...state.questions]
-      const [moved] = questions.splice(from, 1)
-      questions.splice(to, 0, moved)
-      return { questions }
+      removeQuestion: (localId) =>
+        set((state) => ({
+          questions: state.questions.filter((q) => q.localId !== localId),
+        })),
+
+      reorderQuestions: (from, to) =>
+        set((state) => {
+          const questions = [...state.questions]
+          const [moved] = questions.splice(from, 1)
+          questions.splice(to, 0, moved)
+          return { questions }
+        }),
+
+      setStep: (step) => set({ currentStep: step }),
+
+      setQuizFormat: (format) => set({ quizFormat: format }),
+
+      applyTemplate: (id, format, questions) =>
+        set({ selectedTemplateId: id, quizFormat: format, questions }),
+
+      setSaving: (saving) => set({ saving }),
+
+      setLastSaved: (at) => set({ lastSavedAt: at }),
+
+      reset: () => {
+        set(initialState)
+        useQuizCreatorStore.persist.clearStorage()
+      },
     }),
-
-  setStep: (step) => set({ currentStep: step }),
-
-  setQuizFormat: (format) => set({ quizFormat: format }),
-
-  applyTemplate: (id, format, questions) =>
-    set({ selectedTemplateId: id, quizFormat: format, questions }),
-
-  setSaving: (saving) => set({ saving }),
-
-  setLastSaved: (at) => set({ lastSavedAt: at }),
-
-  reset: () => set(initialState),
-}))
+    {
+      name: PERSIST_KEY,
+      partialize: (state) => ({
+        quizId: state.quizId,
+        title: state.title,
+        description: state.description,
+        categoryId: state.categoryId,
+        difficulty: state.difficulty,
+        imageUrl: state.imageUrl,
+        defaultTimeLimitSec: state.defaultTimeLimitSec,
+        isPublished: state.isPublished,
+        questions: state.questions,
+        currentStep: state.currentStep,
+        selectedTemplateId: state.selectedTemplateId,
+        quizFormat: state.quizFormat,
+      }),
+    }
+  )
+)

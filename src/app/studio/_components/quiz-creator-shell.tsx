@@ -121,11 +121,13 @@ export function QuizCreatorShell({
         }))
         store.setQuestions(questions)
       }
+
+      // Server data is the source of truth — clear any stale localStorage draft
+      useQuizCreatorStore.persist.clearStorage()
     } else if (mode === 'new' && initialQuizId) {
       store.setQuizId(initialQuizId)
-    } else if (mode === 'new' && !initialQuizId) {
-      store.reset()
     }
+    // mode === 'new' && !initialQuizId: keep rehydrated localStorage state (no-op)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -257,6 +259,7 @@ export function QuizCreatorShell({
         // Only navigate if at least some questions saved successfully,
         // or if there were no questions to begin with
         if (questionResults.length === 0 || failedCount < questionResults.length) {
+          useQuizCreatorStore.persist.clearStorage()
           router.push(`/studio/quiz/${result.quizId}/edit`)
         }
       } else if (quizId) {
@@ -356,6 +359,7 @@ export function QuizCreatorShell({
         }
 
         store.setLastSaved(new Date())
+        useQuizCreatorStore.persist.clearStorage()
       }
     } catch (err) {
       setDraftError(err instanceof Error ? err.message : 'Could not save draft.')
