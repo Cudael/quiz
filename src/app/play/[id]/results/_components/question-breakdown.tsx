@@ -1,6 +1,10 @@
+'use client'
+
+import Image from 'next/image'
 import { CheckCircle2, MinusCircle, XCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { copy } from '@/lib/copy'
+import { imageLoader } from '../../play-view.utils'
 import type { ResultAnswer, ResultChoice, ResultQuestion } from '../results.types'
 
 interface QuestionBreakdownProps {
@@ -61,8 +65,10 @@ export function QuestionBreakdown({ questions, answers }: QuestionBreakdownProps
         {questions.map((q, idx) => {
           const correctText = q.choices
             .filter((c) => isChoiceCorrect(c, q.choices, q.type))
-            .map((c) => c.text)
+            .map((c) => c.text || (c.imageUrl ? 'Image' : ''))
+            .filter(Boolean)
             .join(', ')
+          const isImageChoice = q.choices.some((c) => c.imageUrl)
           const displayPrompt = q.prompt
           const answer = answersByQuestionId.get(q.id) ?? null
           const chosenIds = new Set(answer?.chosenIds ?? [])
@@ -110,41 +116,100 @@ export function QuestionBreakdown({ questions, answers }: QuestionBreakdownProps
                   </div>
 
                   {hasAnswerData ? (
-                    <div className="mt-3 space-y-2">
-                      {q.choices.map((choice) => {
-                        const isChosen = chosenIds.has(choice.id)
-                        const correct = isChoiceCorrect(choice, q.choices, q.type)
+                    isImageChoice ? (
+                      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                        {q.choices.map((choice, choiceIdx) => {
+                          const isChosen = chosenIds.has(choice.id)
+                          const correct = isChoiceCorrect(choice, q.choices, q.type)
 
-                        return (
-                          <div
-                            key={choice.id}
-                            className={`flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-xs ${
-                              correct
-                                ? 'border-quiz-green/40 bg-quiz-green/10'
-                                : isChosen
-                                  ? 'border-destructive/40 bg-destructive/10'
-                                  : 'border-border bg-background/80'
-                            }`}
-                          >
-                            <span>{choice.text}</span>
-                            <span className="shrink-0 font-semibold">
-                              {isChosen && correct && (
-                                <span className="text-quiz-green">Selected • Correct</span>
+                          return (
+                            <div
+                              key={choice.id}
+                              className={`relative flex flex-col overflow-hidden rounded-md border text-xs ${
+                                correct
+                                  ? 'border-quiz-green/40 bg-quiz-green/10'
+                                  : isChosen
+                                    ? 'border-destructive/40 bg-destructive/10'
+                                    : 'border-border bg-background/80'
+                              }`}
+                            >
+                              {choice.imageUrl ? (
+                                <Image
+                                  loader={imageLoader}
+                                  unoptimized
+                                  src={choice.imageUrl}
+                                  alt={`Choice ${choiceIdx + 1}`}
+                                  width={200}
+                                  height={150}
+                                  className="aspect-[4/3] w-full object-cover"
+                                />
+                              ) : (
+                                <div className="flex aspect-[4/3] w-full items-center justify-center bg-muted/30">
+                                  <span className="text-muted-foreground">No image</span>
+                                </div>
                               )}
-                              {isChosen && !correct && (
-                                <span className="text-destructive">Wrong</span>
-                              )}
-                              {!isChosen && correct && (
-                                <span className="text-quiz-green">Correct</span>
-                              )}
-                              {!isChosen && !correct && (
-                                <span className="text-muted-foreground">Incorrect</span>
-                              )}
-                            </span>
-                          </div>
-                        )
-                      })}
-                    </div>
+                              <div className="flex items-center justify-between gap-1 px-2 py-1.5">
+                                {choice.text ? (
+                                  <span className="truncate">{choice.text}</span>
+                                ) : (
+                                  <span />
+                                )}
+                                <span className="shrink-0 font-semibold">
+                                  {isChosen && correct && (
+                                    <span className="text-quiz-green">Selected • Correct</span>
+                                  )}
+                                  {isChosen && !correct && (
+                                    <span className="text-destructive">Wrong</span>
+                                  )}
+                                  {!isChosen && correct && (
+                                    <span className="text-quiz-green">Correct</span>
+                                  )}
+                                  {!isChosen && !correct && (
+                                    <span className="text-muted-foreground">Incorrect</span>
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    ) : (
+                      <div className="mt-3 space-y-2">
+                        {q.choices.map((choice) => {
+                          const isChosen = chosenIds.has(choice.id)
+                          const correct = isChoiceCorrect(choice, q.choices, q.type)
+
+                          return (
+                            <div
+                              key={choice.id}
+                              className={`flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-xs ${
+                                correct
+                                  ? 'border-quiz-green/40 bg-quiz-green/10'
+                                  : isChosen
+                                    ? 'border-destructive/40 bg-destructive/10'
+                                    : 'border-border bg-background/80'
+                              }`}
+                            >
+                              <span>{choice.text}</span>
+                              <span className="shrink-0 font-semibold">
+                                {isChosen && correct && (
+                                  <span className="text-quiz-green">Selected • Correct</span>
+                                )}
+                                {isChosen && !correct && (
+                                  <span className="text-destructive">Wrong</span>
+                                )}
+                                {!isChosen && correct && (
+                                  <span className="text-quiz-green">Correct</span>
+                                )}
+                                {!isChosen && !correct && (
+                                  <span className="text-muted-foreground">Incorrect</span>
+                                )}
+                              </span>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )
                   ) : (
                     <p className="mt-2 text-xs text-muted-foreground">
                       Answer details are unavailable for this session.

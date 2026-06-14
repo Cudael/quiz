@@ -1,6 +1,7 @@
 export interface ResultChoice {
   id: string
   text: string
+  imageUrl?: string | null
   isCorrect: boolean
   meta?: unknown
 }
