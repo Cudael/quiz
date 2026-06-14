@@ -42,26 +42,23 @@ export function HomePageClient({
 
   return (
     <motion.div
-      className="container mx-auto space-y-6 px-4 py-6 md:px-6"
+      className="container mx-auto space-y-4 px-4 py-6 md:px-6"
       variants={containerVariants}
       initial="hidden"
       animate="show"
     >
       {/* Hero: Insight box (left) + Duel/Daily cards (right) */}
       <motion.div variants={sectionVariants}>
-        <div className="grid gap-6 lg:grid-cols-5 lg:items-center">
-          <div className="lg:col-span-3">
+        <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
+          <div>
             <HeroInsightBox currentUser={currentUser} totalQuizCount={totalQuizCount} />
           </div>
-          <div className="lg:col-span-2">
+          <div>
             <HeroCards currentUser={currentUser} />
           </div>
         </div>
-      </motion.div>
-
-      {/* Quick links */}
-      <motion.div variants={sectionVariants}>
-        <div className="flex flex-wrap gap-2">
+        {/* Quick links — inside hero section */}
+        <div className="mt-3 flex flex-wrap gap-2">
           {QUICK_LINKS.map((link) => (
             <Link
               key={link.label}

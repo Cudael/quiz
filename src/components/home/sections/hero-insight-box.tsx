@@ -15,12 +15,12 @@ export function HeroInsightBox({ currentUser, totalQuizCount }: HeroInsightBoxPr
       : `${totalQuizCount}+`
 
   return (
-    <div className="flex flex-col justify-center space-y-5 py-2">
+    <div className="flex flex-col space-y-3">
       <div>
         <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
           Free Online Quiz & Trivia Platform
         </h1>
-        <p className="mt-3 text-base leading-relaxed text-muted-foreground">
+        <p className="mt-1.5 text-base leading-relaxed text-muted-foreground">
           {currentUser
             ? `Welcome back, ${currentUser.name ?? 'quiz champion'}! Pick up where you left off or discover something new.`
             : 'Test your knowledge across thousands of quizzes. No sign-up needed — just pick a quiz and play.'}
@@ -41,9 +41,10 @@ export function HeroInsightBox({ currentUser, totalQuizCount }: HeroInsightBoxPr
         </div>
         <button
           type="submit"
-          className="h-11 shrink-0 rounded-r-lg rounded-l-none bg-orange-500 px-5 text-sm font-bold text-white transition-colors hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+          className="h-11 shrink-0 rounded-r-lg rounded-l-none bg-orange-500 px-3 text-sm font-bold text-white transition-colors hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+          aria-label="Search"
         >
-          Search
+          <Search className="h-4 w-4" />
         </button>
       </form>
 
