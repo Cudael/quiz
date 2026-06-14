@@ -88,8 +88,8 @@ describe('HomePageClient', () => {
       />
     )
 
-    expect(screen.getByRole('heading', { name: 'Duel Mode' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Daily Challenge' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Duel Mode/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Daily Challenge/ })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /sign up to duel/i })).toHaveAttribute(
       'href',
       '/sign-up'
@@ -98,10 +98,10 @@ describe('HomePageClient', () => {
       'href',
       '/sign-up'
     )
-    expect(screen.getByRole('heading', { name: 'Most Popular' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Trending Right Now' })).toBeInTheDocument()
-    expect(screen.getAllByRole('heading', { name: 'Freshly Added' }).length).toBe(1)
-    expect(screen.queryByRole('heading', { name: 'For You' })).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Hall of Fame/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /What's Hot Right Now/ })).toBeInTheDocument()
+    expect(screen.getAllByRole('heading', { name: /Fresh Off the Press/ }).length).toBe(1)
+    expect(screen.queryByRole('heading', { name: /Picked Just for You/ })).not.toBeInTheDocument()
   })
 
   it('renders the authenticated view with Duel and Daily Challenge', () => {
@@ -117,15 +117,15 @@ describe('HomePageClient', () => {
       />
     )
 
-    expect(screen.getByRole('heading', { name: 'Duel Mode' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Daily Challenge' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Duel Mode/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Daily Challenge/ })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /start a duel/i })).toHaveAttribute('href', '/duel')
     expect(screen.getByRole('link', { name: /play challenge/i })).toHaveAttribute(
       'href',
       '/random-quiz'
     )
-    expect(screen.getByRole('heading', { name: 'For You' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Most Popular' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Picked Just for You/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Hall of Fame/ })).toBeInTheDocument()
   })
 
   it('falls back to popular quizzes when an authenticated user has no history yet', () => {
@@ -141,7 +141,7 @@ describe('HomePageClient', () => {
       />
     )
 
-    expect(screen.getByRole('heading', { name: 'For You' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Picked Just for You/ })).toBeInTheDocument()
     expect(screen.getAllByText('World capitals challenge').length).toBeGreaterThan(0)
   })
 })

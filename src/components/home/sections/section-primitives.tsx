@@ -33,10 +33,21 @@ export function Divider() {
   return <div className="border-t border-border/30" />
 }
 
-export function SectionHeader({ title, href }: { title: string; href: string }) {
+export function SectionHeader({
+  title,
+  subtitle,
+  href,
+}: {
+  title: string
+  subtitle?: string
+  href: string
+}) {
   return (
     <div className="mb-3 flex items-end justify-between">
-      <h2 className="text-2xl font-black tracking-tight">{title}</h2>
+      <div>
+        <h2 className="text-2xl font-black tracking-tight">{title}</h2>
+        {subtitle && <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>}
+      </div>
       <Link
         href={href}
         className="flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md px-1 transition-colors"

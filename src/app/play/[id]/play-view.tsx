@@ -6,6 +6,7 @@ import { QuestionPanel } from './_components/question-panel'
 import { QuitModal } from './_components/quit-modal'
 import type { PlayViewProps } from './play-view.types'
 import { usePlayRunner } from './use-play-runner'
+import { copy } from '@/lib/copy'
 
 export function PlayView({ quizId }: PlayViewProps) {
   const reduceMotion = useReducedMotion()
@@ -36,7 +37,7 @@ export function PlayView({ quizId }: PlayViewProps) {
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="text-center">
           <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto" />
-          <p className="text-muted-foreground">Loading quiz…</p>
+          <p className="text-muted-foreground">Warming up the neurons…</p>
         </div>
       </div>
     )
@@ -46,7 +47,8 @@ export function PlayView({ quizId }: PlayViewProps) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="text-center">
-          <p className="text-muted-foreground">This quiz has no questions yet.</p>
+          <p className="text-2xl mb-2">🪹</p>
+          <p className="text-muted-foreground">{copy.emptyStates.noQuestions}</p>
         </div>
       </div>
     )

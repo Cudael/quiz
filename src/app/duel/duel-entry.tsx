@@ -38,7 +38,39 @@ export function DuelEntry({ categories }: DuelEntryProps) {
           <Swords className="h-3.5 w-3.5" />
           Duel Mode
         </p>
-        <h1 className="text-3xl font-bold">Challenge your friends</h1>
+        <h1 className="text-3xl font-bold">Challenge your friends ⚔️</h1>
+        <p className="text-sm text-muted-foreground max-w-md mx-auto">
+          Think faster than your opponent. Every second counts. Glory awaits.
+        </p>
+      </div>
+
+      {/* How it Works */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {[
+          {
+            step: '1',
+            title: 'Create',
+            description: 'Pick a category and set your rules',
+            emoji: '🎮',
+          },
+          { step: '2', title: 'Share', description: 'Send the code to your opponent', emoji: '📤' },
+          {
+            step: '3',
+            title: 'Battle',
+            description: 'Answer fast — every second counts',
+            emoji: '⚡',
+          },
+          { step: '4', title: 'Win', description: 'Highest score takes the glory', emoji: '🏆' },
+        ].map((item) => (
+          <div
+            key={item.step}
+            className="rounded-xl border border-border/50 bg-card p-3 text-center"
+          >
+            <p className="text-2xl mb-1">{item.emoji}</p>
+            <p className="text-sm font-bold">{item.title}</p>
+            <p className="text-xs text-muted-foreground">{item.description}</p>
+          </div>
+        ))}
       </div>
 
       <Card>

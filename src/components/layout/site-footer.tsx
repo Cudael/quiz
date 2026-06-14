@@ -21,11 +21,11 @@ export function SiteFooter() {
               <Image src="/logo.png" alt="BusQuiz logo" width={168} height={40} />
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
-              The ultimate destination for quiz lovers and knowledge seekers. Compete, create, and
+              Where curiosity meets competition. And occasionally, humble pie. Compete, create, and
               climb the global leaderboard.
             </p>
             <p className="mt-1 text-xs italic text-muted-foreground/70">
-              Test your knowledge. Challenge your friends.
+              Made with love and trivia ❤️
             </p>
             <div className="flex flex-row items-center gap-2">
               <a

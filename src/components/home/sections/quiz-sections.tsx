@@ -80,7 +80,7 @@ export function QuizScrollerSection({
         </div>
       ) : (
         <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground bg-accent/20">
-          Quizzes will appear here soon.
+          This corner&apos;s quiet… for now. Be the first to shake things up! 🎉
         </div>
       )}
     </section>
@@ -89,11 +89,13 @@ export function QuizScrollerSection({
 
 export function QuizDenseGridSection({
   title,
+  subtitle,
   quizzes,
   maxItems = 12,
   href,
 }: {
   title: string
+  subtitle?: string
   quizzes: QuizCardData[]
   maxItems?: number
   href?: string
@@ -104,7 +106,10 @@ export function QuizDenseGridSection({
     <section>
       <div className="mb-3 border-b border-border/30 pb-2">
         <div className="flex items-end justify-between">
-          <h2 className="text-xl font-black tracking-tight">{title}</h2>
+          <div>
+            <h2 className="text-xl font-black tracking-tight">{title}</h2>
+            {subtitle && <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>}
+          </div>
           <Link
             href={href ?? '/categories'}
             className="text-sm font-semibold text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
@@ -128,7 +133,7 @@ export function QuizDenseGridSection({
         </div>
       ) : (
         <div className="rounded-2xl border border-dashed bg-accent/20 p-8 text-center text-sm text-muted-foreground">
-          Quizzes will appear here soon.
+          This corner&apos;s quiet… for now. Be the first to shake things up! 🎉
         </div>
       )}
     </section>
@@ -166,7 +171,7 @@ export function QuizGridSection({
         </div>
       ) : (
         <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground bg-accent/20">
-          Quizzes will appear here soon.
+          This corner&apos;s quiet… for now. Be the first to shake things up! 🎉
         </div>
       )}
     </section>

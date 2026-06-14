@@ -3,6 +3,14 @@ export const siteConfig = {
   title: 'BusQuiz — Play, Create & Compete',
   description:
     'Test your knowledge across hundreds of categories. Create quizzes, compete on leaderboards, and earn badges.',
+  taglines: [
+    'Play. Learn. Conquer.',
+    'Your daily brain workout.',
+    'Where curiosity meets competition.',
+    'Thousands of quizzes. Zero boredom.',
+    'Flex those brain muscles.',
+    'Knowledge is the ultimate power-up.',
+  ],
 }
 
 export const siteUrl =

@@ -12,6 +12,13 @@ function medal(rank: number) {
   return null
 }
 
+function rankTitle(rank: number) {
+  if (rank === 1) return 'Quiz Champion'
+  if (rank === 2) return 'Trivia Master'
+  if (rank === 3) return 'Knowledge Seeker'
+  return null
+}
+
 interface LeaderboardTableProps {
   pageRows: RankedLeaderboardRow[]
   currentUserId?: string
@@ -43,6 +50,11 @@ export function LeaderboardTable({ pageRows, currentUserId }: LeaderboardTablePr
                   <div className="inline-flex items-center gap-1">
                     <span>#{row.rank}</span>
                     {medal(row.rank)}
+                    {rankTitle(row.rank) && (
+                      <span className="hidden text-xs font-medium text-muted-foreground sm:inline">
+                        {rankTitle(row.rank)}
+                      </span>
+                    )}
                   </div>
                 </td>
                 <td className="px-4 py-3">

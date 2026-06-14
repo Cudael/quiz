@@ -67,11 +67,16 @@ export function SignUpForm({ callbackUrl, googleEnabled, githubEnabled }: SignUp
 
   return (
     <div className="container mx-auto max-w-md px-4 py-12">
+      <div className="mb-6 text-center">
+        <p className="text-2xl font-extrabold tracking-tight">Start your quiz journey 🚀</p>
+        <p className="mt-1 text-sm text-muted-foreground">Thousands of brain teasers await.</p>
+      </div>
       <Card>
         <CardHeader>
           <CardTitle>Create account</CardTitle>
           <CardDescription>
-            Create an account to save XP, levels, streaks, and badges.
+            Save your XP, levels, streaks, and badges. Challenge friends in duels. Climb the
+            leaderboard.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">

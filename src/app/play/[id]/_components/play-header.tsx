@@ -1,5 +1,6 @@
 import { Volume2, VolumeX, X } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { copy } from '@/lib/copy'
 
 interface PlayHeaderProps {
   quizTitle?: string
@@ -22,6 +23,16 @@ export function PlayHeader({
   onToggleSound,
   onOpenQuit,
 }: PlayHeaderProps) {
+  const questionNum = currentIndex + 1
+  const encouragement =
+    progress >= 80
+      ? copy.play.progressEncouragements[4]
+      : progress >= 50
+        ? copy.play.progressEncouragements[0]
+        : progress >= 25
+          ? copy.play.progressEncouragements[2]
+          : null
+
   return (
     <div className="mb-6 flex items-center justify-between gap-2 sm:gap-4">
       <div className="min-w-0 flex-1">
@@ -29,6 +40,9 @@ export function PlayHeader({
           <Badge variant="purple" className="max-w-[8rem] truncate sm:max-w-none">
             {quizTitle}
           </Badge>
+          {questionNum === total && (
+            <span className="text-xs font-semibold text-quiz-yellow">Last one! 🏁</span>
+          )}
         </div>
         <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
           <div
@@ -36,9 +50,13 @@ export function PlayHeader({
             style={{ width: `${progress}%` }}
           />
         </div>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {currentIndex + 1} / {total}
-        </p>
+        <div className="mt-1 flex items-center justify-between">
+          <p className="text-xs text-muted-foreground">
+            {questionNum} / {total}
+            {questionNum === Math.ceil(total / 2) && total > 2 ? ' — halfway there!' : ''}
+          </p>
+          {encouragement && <p className="text-xs font-medium text-quiz-green">{encouragement}</p>}
+        </div>
       </div>
       <div className="text-right">
         <p className="text-base font-bold text-primary sm:text-lg">{score}</p>

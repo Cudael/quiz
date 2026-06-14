@@ -23,15 +23,19 @@ export function HeroCards({ currentUser }: { currentUser: HomeCurrentUser | null
           />
           {/* Content */}
           <div className="relative flex flex-col p-6">
-            <h2 className="text-2xl font-black tracking-tight">Duel Mode</h2>
+            <h2 className="text-2xl font-black tracking-tight">Duel Mode ⚔️</h2>
             <p className="mt-2 text-sm leading-relaxed text-white">
-              Challenge a friend and see who comes out on top!
+              Think you&apos;re smart? Prove it in real-time 1v1 combat. Challenge a friend, share a
+              code, and let the best brain win.
             </p>
             <Button asChild variant="gradient" className="mt-5 w-fit rounded-xl font-bold">
               <Link href={currentUser ? '/duel' : '/sign-up'}>
                 {currentUser ? 'Start a Duel' : 'Sign Up to Duel'}
               </Link>
             </Button>
+            <p className="mt-2 text-xs text-white/60">
+              Takes ~2 minutes · No sign-up needed to try
+            </p>
           </div>
         </div>
 
@@ -48,15 +52,17 @@ export function HeroCards({ currentUser }: { currentUser: HomeCurrentUser | null
           </div>
           {/* Content */}
           <div className="relative flex flex-col p-6 pr-28">
-            <h2 className="text-2xl font-black tracking-tight">Daily Challenge</h2>
+            <h2 className="text-2xl font-black tracking-tight">Daily Challenge 🔥</h2>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Keep your streak alive and earn bonus XP!
+              A fresh brain-buster every 24 hours. Keep your streak alive, earn bonus XP, and
+              bragging rights included.
             </p>
             <Button asChild variant="gradient" className="mt-5 w-fit rounded-xl font-bold">
               <Link href={currentUser ? '/random-quiz' : '/sign-up'}>
                 {currentUser ? 'Play Challenge' : 'Sign Up to Play'}
               </Link>
             </Button>
+            <p className="mt-2 text-xs text-muted-foreground/60">New challenge daily at midnight</p>
           </div>
         </div>
       </div>

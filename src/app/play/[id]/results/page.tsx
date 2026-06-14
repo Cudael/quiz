@@ -9,6 +9,7 @@ import { LevelProgress } from '@/components/ui/level-progress'
 import { auth } from '@/server/auth'
 import { RateQuizForm } from '@/app/quiz/rate-quiz-form'
 import { QuestionBreakdown } from './_components/question-breakdown'
+import { copy } from '@/lib/copy'
 
 export default async function ResultsPage({
   params,
@@ -145,13 +146,21 @@ export default async function ResultsPage({
       />
 
       <div className="mb-8 text-center">
-        <div className="mb-4 text-6xl" aria-hidden="true">
-          {accuracy >= 100 ? '🏆' : accuracy >= 80 ? '⭐' : accuracy >= 60 ? '🎯' : '📚'}
-        </div>
-        <h1 className="mb-2 text-3xl font-extrabold">
-          {accuracy >= 80 ? 'Great job!' : accuracy >= 60 ? 'Nice try!' : 'Keep practicing!'}
-        </h1>
-        <p className="text-muted-foreground">{sessionRow.quiz.title}</p>
+        {(() => {
+          const tier =
+            copy.results.headlines.find((h) => accuracy >= h.min && accuracy <= h.max) ??
+            copy.results.headlines[copy.results.headlines.length - 1]
+          return (
+            <>
+              <div className="mb-4 text-6xl" aria-hidden="true">
+                {tier.emoji}
+              </div>
+              <h1 className="mb-2 text-3xl font-extrabold">{tier.title}</h1>
+              <p className="text-muted-foreground">{tier.subtitle}</p>
+            </>
+          )
+        })()}
+        <p className="mt-2 text-sm text-muted-foreground">{sessionRow.quiz.title}</p>
       </div>
 
       <Card className="mb-6">

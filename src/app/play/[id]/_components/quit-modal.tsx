@@ -1,6 +1,7 @@
 import { AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Modal } from '@/components/ui/modal'
+import { copy } from '@/lib/copy'
 
 interface QuitModalProps {
   open: boolean
@@ -13,16 +14,16 @@ export function QuitModal({ open, onClose, onQuit }: QuitModalProps) {
     <Modal
       open={open}
       onClose={onClose}
-      title="Quit Quiz?"
-      description="Your progress will be lost."
+      title={copy.play.quitTitle}
+      description={copy.play.quitDescription}
       size="sm"
     >
       <div className="flex gap-3 justify-end mt-2">
         <Button variant="ghost" onClick={onClose}>
-          Keep Playing
+          {copy.play.quitCancel}
         </Button>
         <Button variant="destructive" onClick={onQuit}>
-          <AlertTriangle className="h-4 w-4" /> Quit
+          <AlertTriangle className="h-4 w-4" /> {copy.play.quitConfirm}
         </Button>
       </div>
     </Modal>

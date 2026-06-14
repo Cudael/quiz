@@ -86,7 +86,7 @@ export function Navbar() {
               <input
                 type="search"
                 name="q"
-                placeholder="Search quizzes..."
+                placeholder="What do you want to learn today?"
                 className="h-9 w-full rounded-xl border border-border/60 bg-muted/60 pl-9 pr-3 text-sm focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary"
                 aria-label="Search quizzes"
               />
@@ -133,7 +133,7 @@ export function Navbar() {
           <input
             type="search"
             name="q"
-            placeholder="Search quizzes..."
+            placeholder="What do you want to learn today?"
             className="h-9 w-full rounded-xl border border-border/60 bg-muted/60 pl-9 pr-3 text-sm focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary"
             aria-label="Search quizzes"
           />

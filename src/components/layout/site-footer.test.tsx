@@ -81,7 +81,7 @@ describe('SiteFooter', () => {
       'https://www.tiktok.com/@TheBusQuiz'
     )
 
-    expect(screen.getByText('Test your knowledge. Challenge your friends.')).toBeInTheDocument()
+    expect(screen.getByText(/Where curiosity meets competition/)).toBeInTheDocument()
     expect(screen.getByText(/All rights reserved\./)).toBeInTheDocument()
   })
 })
