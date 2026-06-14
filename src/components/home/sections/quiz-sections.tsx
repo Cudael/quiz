@@ -111,7 +111,7 @@ export function QuizDenseGridSection({
             {subtitle && <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>}
           </div>
           <Link
-            href={href ?? '/categories'}
+            href={href ?? '/popular'}
             className="text-sm font-semibold text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             See all →

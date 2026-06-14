@@ -19,10 +19,10 @@ import { Divider } from './sections/section-primitives'
 export type { HomeCurrentUser } from './home-page-client.types'
 
 const QUICK_LINKS = [
-  { label: 'Popular', href: '/categories', icon: TrendingUp },
-  { label: 'Trending', href: '/categories', icon: Trophy },
+  { label: 'Popular', href: '/popular', icon: TrendingUp },
+  { label: 'Trending', href: '/trending', icon: Trophy },
   { label: 'Categories', href: '/categories', icon: Layers },
-  { label: 'Badges', href: '/categories', icon: Award },
+  { label: 'Badges', href: '/badges', icon: Award },
 ]
 
 export function HomePageClient({
@@ -88,7 +88,7 @@ export function HomePageClient({
                   : popularQuizzes
                 : popularQuizzes
             }
-            href="/categories"
+            href="/popular"
           />
         </motion.div>
       )}

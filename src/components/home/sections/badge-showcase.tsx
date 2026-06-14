@@ -21,7 +21,7 @@ export function BadgeShowcase({ badges }: BadgeShowcaseProps) {
           </p>
         </div>
         <Link
-          href="/categories"
+          href="/badges"
           className="flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md px-1 transition-colors"
         >
           View all <Award className="h-3.5 w-3.5" />
