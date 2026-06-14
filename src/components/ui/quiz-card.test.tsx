@@ -75,14 +75,14 @@ describe('QuizCard difficulty overlay', () => {
     const mediumPill = screen.getByText('MEDIUM')
     expect(mediumPill.className).toContain('bottom-3')
     expect(mediumPill.className).toContain('right-3')
-    expect(mediumPill.getAttribute('style')).toContain('rgba(245, 158, 11, 0.267)')
-    expect(mediumPill.getAttribute('style')).toContain('rgba(245, 158, 11, 0.4)')
+    expect(mediumPill.getAttribute('style')).toContain('--color-warning')
+    expect(mediumPill.getAttribute('style')).toContain('color-mix')
 
     const hardPill = screen.getByText('HARD')
     expect(hardPill.className).toContain('bottom-3')
     expect(hardPill.className).toContain('right-3')
-    expect(hardPill.getAttribute('style')).toContain('rgba(239, 68, 68, 0.267)')
-    expect(hardPill.getAttribute('style')).toContain('rgba(239, 68, 68, 0.4)')
+    expect(hardPill.getAttribute('style')).toContain('--color-destructive')
+    expect(hardPill.getAttribute('style')).toContain('color-mix')
 
     expect(container.querySelectorAll('.border-t')).toHaveLength(0)
   })

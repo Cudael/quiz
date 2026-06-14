@@ -232,6 +232,26 @@ export async function reorderQuestions(formData: FormData): Promise<QuestionActi
   const allowed = await assertOwnership(quizIdParsed.data, session.user.id, session.user.role)
   if (!allowed.ok) return allowed
 
+  const idSet = new Set(orderedIds)
+  if (idSet.size !== orderedIds.length) {
+    return { ok: false, error: 'VALIDATION_ERROR', message: 'Duplicate question ids.' }
+  }
+
+  const ownedQuestions = await prisma.question.findMany({
+    where: { quizId: quizIdParsed.data },
+    select: { id: true },
+  })
+  const ownedIds = new Set(ownedQuestions.map((q) => q.id))
+  for (const id of orderedIds) {
+    if (!ownedIds.has(id)) {
+      return {
+        ok: false,
+        error: 'FORBIDDEN',
+        message: 'One or more questions do not belong to this quiz.',
+      }
+    }
+  }
+
   await prisma.$transaction(
     orderedIds.map((id, index) => prisma.question.update({ where: { id }, data: { order: index } }))
   )

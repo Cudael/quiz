@@ -4,7 +4,7 @@ import * as React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import * as LucideIcons from 'lucide-react'
+import { categoryIcons, ChevronLeft, ChevronRight } from '@/lib/category-icons'
 import { cn, withAlphaColor } from '@/lib/utils'
 
 export interface CategoryBarItem {
@@ -20,9 +20,7 @@ const SCROLL_AMOUNT = 200
 const PILL_HOVER_ALPHA = 0.12
 
 function CategoryIcon({ name }: { name: string }) {
-  const Icon = (
-    LucideIcons as unknown as Record<string, React.ComponentType<{ className?: string }>>
-  )[name]
+  const Icon = categoryIcons[name]
   if (Icon) {
     return <Icon className="h-3.5 w-3.5" />
   }
@@ -97,7 +95,7 @@ export function CategoryBarClient({ categories }: { categories: CategoryBarItem[
             className="absolute left-2 top-1/2 z-20 -translate-y-1/2 rounded-full border border-border/60 bg-background/90 p-1.5 shadow-md transition-colors hover:bg-accent/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label="Scroll left"
           >
-            <LucideIcons.ChevronLeft className="h-3.5 w-3.5" />
+            <ChevronLeft className="h-3.5 w-3.5" />
           </button>
         )}
 
@@ -107,7 +105,7 @@ export function CategoryBarClient({ categories }: { categories: CategoryBarItem[
             className="absolute right-2 top-1/2 z-20 -translate-y-1/2 rounded-full border border-border/60 bg-background/90 p-1.5 shadow-md transition-colors hover:bg-accent/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label="Scroll right"
           >
-            <LucideIcons.ChevronRight className="h-3.5 w-3.5" />
+            <ChevronRight className="h-3.5 w-3.5" />
           </button>
         )}
 

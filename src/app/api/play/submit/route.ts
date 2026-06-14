@@ -138,13 +138,6 @@ export async function POST(req: NextRequest) {
       `[submit] No answers were scored for quiz ${quizId}. ` +
         `Submitted ${answers.length} answer(s), quiz has ${quiz.questions.length} question(s).`
     )
-  } else {
-    const correctEvalCount = evaluatedAnswers.filter((a) => a.isCorrect).length
-    console.log(
-      `[submit] Scored ${evaluatedAnswers.length} answers: ` +
-        `${correctEvalCount} correct, ${evaluatedAnswers.length - correctEvalCount} incorrect. ` +
-        `Score: ${score}, XP: ${xpEarned}`
-    )
   }
 
   const now = new Date()

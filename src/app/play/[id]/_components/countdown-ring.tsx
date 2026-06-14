@@ -15,8 +15,12 @@ export function CountdownRing({
   const isUrgent = secs <= 5
 
   return (
-    <div className="relative flex items-center justify-center">
-      <svg width="88" height="88" className="-rotate-90">
+    <div
+      className="relative flex items-center justify-center"
+      role="timer"
+      aria-label={`${secs} seconds remaining`}
+    >
+      <svg width="88" height="88" className="-rotate-90" aria-hidden="true">
         <circle
           cx="44"
           cy="44"

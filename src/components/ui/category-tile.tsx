@@ -17,7 +17,7 @@ interface CategoryTileProps {
   className?: string
 }
 
-export function CategoryTile({
+export const CategoryTile = React.memo(function CategoryTile({
   slug,
   name,
   color,
@@ -60,4 +60,4 @@ export function CategoryTile({
       </Link>
     </motion.div>
   )
-}
+})

@@ -2,8 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import type React from 'react'
-import * as LucideIcons from 'lucide-react'
-import { ArrowRight, Search } from 'lucide-react'
+import { categoryIcons, ArrowRight, Search } from '@/lib/category-icons'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -52,14 +51,7 @@ function DynamicIcon({
   className?: string
   style?: React.CSSProperties
 }) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const Icon = (LucideIcons as any)[name] as
-    | React.ComponentType<{
-        className?: string
-        style?: React.CSSProperties
-        'aria-hidden'?: string
-      }>
-    | undefined
+  const Icon = categoryIcons[name]
   if (!Icon) return null
   return <Icon className={className} style={style} aria-hidden="true" />
 }

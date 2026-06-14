@@ -26,23 +26,23 @@ export interface QuizCardData {
 function getDifficultyPillStyle(difficulty: QuizCardData['difficulty']) {
   if (difficulty === 'EASY') {
     return {
-      backgroundColor: '#22c55e44',
-      border: '1px solid #22c55e66',
+      backgroundColor: 'color-mix(in srgb, var(--color-quiz-green) 27%, transparent)',
+      border: '1px solid color-mix(in srgb, var(--color-quiz-green) 40%, transparent)',
       color: '#fff',
     }
   }
 
   if (difficulty === 'MEDIUM') {
     return {
-      backgroundColor: '#f59e0b44',
-      border: '1px solid #f59e0b66',
+      backgroundColor: 'color-mix(in srgb, var(--color-warning) 27%, transparent)',
+      border: '1px solid color-mix(in srgb, var(--color-warning) 40%, transparent)',
       color: '#fff',
     }
   }
 
   return {
-    backgroundColor: '#ef444444',
-    border: '1px solid #ef444466',
+    backgroundColor: 'color-mix(in srgb, var(--color-destructive) 27%, transparent)',
+    border: '1px solid color-mix(in srgb, var(--color-destructive) 40%, transparent)',
     color: '#fff',
   }
 }
@@ -150,7 +150,10 @@ function DifficultyPill({
   )
 }
 
-export function QuizCardHorizontal({ quiz, className }: QuizCardProps) {
+export const QuizCardHorizontal = React.memo(function QuizCardHorizontal({
+  quiz,
+  className,
+}: QuizCardProps) {
   const [imageFailed, setImageFailed] = React.useState(false)
   const hasCoverImage = isValidImageUrl(quiz.coverImage) && !imageFailed
 
@@ -213,9 +216,9 @@ export function QuizCardHorizontal({ quiz, className }: QuizCardProps) {
       </div>
     </Link>
   )
-}
+})
 
-export function QuizCard({ quiz, className }: QuizCardProps) {
+export const QuizCard = React.memo(function QuizCard({ quiz, className }: QuizCardProps) {
   const shouldReduceMotion = useReducedMotion()
   const [imageFailed, setImageFailed] = React.useState(false)
   const [spotlight, setSpotlight] = React.useState({ x: 0, y: 0, visible: false })
@@ -320,9 +323,12 @@ export function QuizCard({ quiz, className }: QuizCardProps) {
       </motion.div>
     </Link>
   )
-}
+})
 
-export function QuizCardFeatured({ quiz, className }: QuizCardProps) {
+export const QuizCardFeatured = React.memo(function QuizCardFeatured({
+  quiz,
+  className,
+}: QuizCardProps) {
   const shouldReduceMotion = useReducedMotion()
   const [imageFailed, setImageFailed] = React.useState(false)
   const [spotlight, setSpotlight] = React.useState({ x: 0, y: 0, visible: false })
@@ -431,10 +437,13 @@ export function QuizCardFeatured({ quiz, className }: QuizCardProps) {
       </motion.div>
     </Link>
   )
-}
+})
 
 /** Compact card for category rows — ~7 fit on a full-width screen */
-export function QuizCardCompact({ quiz, className }: QuizCardProps) {
+export const QuizCardCompact = React.memo(function QuizCardCompact({
+  quiz,
+  className,
+}: QuizCardProps) {
   return (
     <Link
       href={`/quiz/${quiz.id}`}
@@ -468,7 +477,7 @@ export function QuizCardCompact({ quiz, className }: QuizCardProps) {
       </div>
     </Link>
   )
-}
+})
 
 // ---------------------------------------------------------------------------
 // Skeleton placeholders — match the shape of each card variant

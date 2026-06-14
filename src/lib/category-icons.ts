@@ -1,0 +1,111 @@
+/**
+ * Registry of Lucide icons used by category data.
+ *
+ * Instead of barrel-importing all of `lucide-react` (which defeats
+ * tree-shaking), this file imports only the icons actually referenced in
+ * `prisma/seed-data.ts` and exports them as a lookup map keyed by icon name.
+ *
+ * When adding a new category with a new Lucide icon, add the import and map
+ * entry here.
+ */
+
+import type { ComponentType } from 'react'
+import {
+  Atom,
+  Award,
+  BookOpen,
+  Bot,
+  Brain,
+  Brush,
+  Calculator,
+  CircleDot,
+  Clapperboard,
+  Code,
+  Cpu,
+  Drama,
+  Flag,
+  Flame,
+  FlaskConical,
+  Gamepad2,
+  Globe,
+  Heart,
+  HelpCircle,
+  Landmark,
+  Languages,
+  Laugh,
+  Leaf,
+  MapPin,
+  Moon,
+  Music,
+  Palette,
+  PawPrint,
+  PenLine,
+  Plane,
+  Scroll,
+  Shield,
+  Shirt,
+  Sparkles,
+  Star,
+  TestTube,
+  Timer,
+  TreePine,
+  Trophy,
+  Tv,
+  UtensilsCrossed,
+  Wifi,
+  Zap,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  ArrowRight,
+} from 'lucide-react'
+
+type IconComponent = ComponentType<{ className?: string; style?: React.CSSProperties }>
+
+export const categoryIcons: Record<string, IconComponent> = {
+  Atom,
+  Award,
+  BookOpen,
+  Bot,
+  Brain,
+  Brush,
+  Calculator,
+  CircleDot,
+  Clapperboard,
+  Code,
+  Cpu,
+  Drama,
+  Flag,
+  Flame,
+  FlaskConical,
+  Gamepad2,
+  Globe,
+  Heart,
+  HelpCircle,
+  Landmark,
+  Languages,
+  Laugh,
+  Leaf,
+  MapPin,
+  Moon,
+  Music,
+  Palette,
+  PawPrint,
+  PenLine,
+  Plane,
+  Scroll,
+  Shield,
+  Shirt,
+  Sparkles,
+  Star,
+  TestTube,
+  Timer,
+  TreePine,
+  Trophy,
+  Tv,
+  UtensilsCrossed,
+  Wifi,
+  Zap,
+}
+
+export { ChevronLeft, ChevronRight, Search, ArrowRight }
