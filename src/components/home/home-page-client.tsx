@@ -49,7 +49,7 @@ export function HomePageClient({
     >
       {/* Hero: Insight box (left) + Duel/Daily cards (right) */}
       <motion.div variants={sectionVariants}>
-        <div className="grid gap-6 lg:grid-cols-5">
+        <div className="grid gap-6 lg:grid-cols-5 lg:items-center">
           <div className="lg:col-span-3">
             <HeroInsightBox currentUser={currentUser} totalQuizCount={totalQuizCount} />
           </div>

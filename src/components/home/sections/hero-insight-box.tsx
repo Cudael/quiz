@@ -1,8 +1,6 @@
 'use client'
 
-import Link from 'next/link'
-import { Search, Zap, Trophy, Users, Sparkles } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Search, Zap, Trophy, Users } from 'lucide-react'
 import type { HomeCurrentUser } from '../home-page-client.types'
 
 interface HeroInsightBoxProps {
@@ -29,46 +27,42 @@ export function HeroInsightBox({ currentUser, totalQuizCount }: HeroInsightBoxPr
         </p>
       </div>
 
-      {/* Search bar */}
-      <form action="/categories" method="get" className="relative">
-        <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-        <input
-          type="search"
-          name="q"
-          placeholder="What do you want to learn today?"
-          className="h-12 w-full rounded-xl border border-border/60 bg-muted/40 pl-12 pr-4 text-sm focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-          aria-label="Search quizzes"
-        />
+      {/* Search bar with button */}
+      <form action="/categories" method="get" className="flex">
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-muted-foreground" />
+          <input
+            type="search"
+            name="q"
+            placeholder="What do you want to learn today?"
+            className="h-11 w-full rounded-l-lg rounded-r-none border border-r-0 border-border/60 bg-muted/40 pl-11 pr-4 text-sm focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+            aria-label="Search quizzes"
+          />
+        </div>
+        <button
+          type="submit"
+          className="h-11 shrink-0 rounded-r-lg rounded-l-none bg-orange-500 px-5 text-sm font-bold text-white transition-colors hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+        >
+          Search
+        </button>
       </form>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div className="flex items-center gap-2 rounded-lg border border-border/40 bg-muted/30 px-3 py-2">
+      {/* Stats inline row */}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+        <span className="inline-flex items-center gap-1.5 font-medium">
           <Zap className="h-4 w-4 shrink-0 text-quiz-purple" />
-          <span className="text-sm font-medium">{formattedCount} quizzes</span>
-        </div>
-        <div className="flex items-center gap-2 rounded-lg border border-border/40 bg-muted/30 px-3 py-2">
-          <Sparkles className="h-4 w-4 shrink-0 text-quiz-yellow" />
-          <span className="text-sm font-medium">100% free</span>
-        </div>
-        <div className="flex items-center gap-2 rounded-lg border border-border/40 bg-muted/30 px-3 py-2">
+          {formattedCount} quizzes
+        </span>
+        <span className="text-muted-foreground/40">·</span>
+        <span className="inline-flex items-center gap-1.5 font-medium">
           <Trophy className="h-4 w-4 shrink-0 text-quiz-orange" />
-          <span className="text-sm font-medium">Earn badges & XP</span>
-        </div>
-        <div className="flex items-center gap-2 rounded-lg border border-border/40 bg-muted/30 px-3 py-2">
+          Earn badges & XP
+        </span>
+        <span className="text-muted-foreground/40">·</span>
+        <span className="inline-flex items-center gap-1.5 font-medium">
           <Users className="h-4 w-4 shrink-0 text-quiz-green" />
-          <span className="text-sm font-medium">Climb leaderboards</span>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap gap-3">
-        <Button asChild variant="gradient" size="lg" className="rounded-xl font-bold">
-          <Link href="/categories">Browse Quizzes</Link>
-        </Button>
-        {!currentUser && (
-          <Button asChild variant="outline" size="lg" className="rounded-xl font-bold">
-            <Link href="/sign-up">Sign Up Free</Link>
-          </Button>
-        )}
+          Climb leaderboards
+        </span>
       </div>
     </div>
   )

@@ -25,6 +25,8 @@ const allowlist = new Set([
   'components/home/sections/hero-daily-section.tsx',
   // Hero cards: text-white on dark overlay image — intentional contrast for readability.
   'components/home/sections/hero-cards.tsx',
+  // Hero search button: text-white on bg-orange-500 — intentional contrast for CTA.
+  'components/home/sections/hero-insight-box.tsx',
 ])
 
 async function walk(dir) {
