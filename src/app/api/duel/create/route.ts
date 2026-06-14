@@ -4,10 +4,17 @@ import { auth } from '@/server/auth'
 import { createDuelSchema } from '@/schemas'
 import { generateDuelCode } from '@/server/duel'
 import { prisma } from '@/server/prisma'
+import { checkRateLimit, getClientIp } from '@/server/rate-limit'
 
 const MAX_CODE_GENERATION_ATTEMPTS = 12
+const CREATE_RATE_LIMIT = { limit: 10, windowMs: 5 * 60 * 1000 } as const
 
 export async function POST(req: NextRequest) {
+  const ip = getClientIp(req)
+  if (!(await checkRateLimit(`duel-create:${ip}`, CREATE_RATE_LIMIT))) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
+
   const session = await auth()
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

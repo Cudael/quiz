@@ -3,8 +3,16 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/server/auth'
 import { joinDuelSchema } from '@/schemas'
 import { prisma } from '@/server/prisma'
+import { checkRateLimit, getClientIp } from '@/server/rate-limit'
+
+const JOIN_RATE_LIMIT = { limit: 20, windowMs: 5 * 60 * 1000 } as const
 
 export async function POST(req: NextRequest) {
+  const ip = getClientIp(req)
+  if (!(await checkRateLimit(`duel-join:${ip}`, JOIN_RATE_LIMIT))) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
+
   const session = await auth()
 
   let rawBody: unknown

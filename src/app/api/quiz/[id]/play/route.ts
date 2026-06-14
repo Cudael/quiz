@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/server/prisma'
 import { signPlayToken } from '@/server/play-token'
+import { checkRateLimit, getClientIp } from '@/server/rate-limit'
 
-export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+const PLAY_RATE_LIMIT = { limit: 60, windowMs: 5 * 60 * 1000 } as const
+
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const ip = getClientIp(req)
+  if (!(await checkRateLimit(`quiz-play:${ip}`, PLAY_RATE_LIMIT))) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
+
   const { id } = await params
 
   const quiz = await prisma.quiz.findUnique({

@@ -5,6 +5,9 @@ import { auth } from '@/server/auth'
 import { scoreQuestion } from '@/domain/scoring'
 import { pickDuelQuestionIds } from '@/server/duel'
 import { prisma } from '@/server/prisma'
+import { checkRateLimit, getClientIp } from '@/server/rate-limit'
+
+const SUBMIT_RATE_LIMIT = { limit: 30, windowMs: 5 * 60 * 1000 } as const
 
 const submitDuelSchema = z.object({
   answers: z.array(
@@ -21,6 +24,11 @@ function sanitizeChoiceIds(choiceIds: string[], validChoiceIds: Set<string>) {
 }
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const ip = getClientIp(req)
+  if (!(await checkRateLimit(`duel-submit:${ip}`, SUBMIT_RATE_LIMIT))) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
+
   const session = await auth()
   const cookieStore = await cookies()
   const guestKey = cookieStore.get('qa_guest_id')?.value
