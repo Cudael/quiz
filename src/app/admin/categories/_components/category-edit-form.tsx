@@ -4,12 +4,18 @@ import { Button } from '@/components/ui/button'
 import { updateCategory } from '../actions'
 import type { CategoryRecord } from './category-types'
 
+interface ParentCategory {
+  slug: string
+  name: string
+}
+
 interface CategoryEditFormProps {
   category: CategoryRecord
+  parentCategories: ParentCategory[]
   onCancel: () => void
 }
 
-export function CategoryEditForm({ category, onCancel }: CategoryEditFormProps) {
+export function CategoryEditForm({ category, parentCategories, onCancel }: CategoryEditFormProps) {
   const updateAction = updateCategory as unknown as (formData: FormData) => Promise<void>
 
   return (
@@ -27,6 +33,24 @@ export function CategoryEditForm({ category, onCancel }: CategoryEditFormProps) 
           name="name"
           required
         />
+      </label>
+
+      <label className="space-y-1 text-sm">
+        <span className="text-muted-foreground">Parent category</span>
+        <select
+          name="parentSlug"
+          defaultValue={category.parentSlug ?? ''}
+          className="w-full rounded-lg border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
+        >
+          <option value="">None (top-level)</option>
+          {parentCategories
+            .filter((c) => c.slug !== category.slug)
+            .map((cat) => (
+              <option key={cat.slug} value={cat.slug}>
+                {cat.name}
+              </option>
+            ))}
+        </select>
       </label>
 
       <label className="space-y-1 text-sm">

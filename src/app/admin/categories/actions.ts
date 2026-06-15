@@ -39,6 +39,10 @@ export async function updateCategory(
         .trim()
         .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/),
       imageUrl: imageUrlSchema,
+      parentSlug: z.preprocess(
+        (v) => (typeof v === 'string' && v.trim() === '' ? null : v),
+        z.string().trim().nullable().optional()
+      ),
     })
     .safeParse({
       categoryId: formData.get('categoryId'),
@@ -47,6 +51,7 @@ export async function updateCategory(
       icon: formData.get('icon'),
       color: formData.get('color'),
       imageUrl: formData.get('imageUrl'),
+      parentSlug: formData.get('parentSlug'),
     })
 
   if (!parsed.success) {
@@ -65,6 +70,7 @@ export async function updateCategory(
         icon: parsed.data.icon,
         color: parsed.data.color,
         imageUrl: parsed.data.imageUrl ?? null,
+        parentSlug: parsed.data.parentSlug ?? null,
       },
     })
 
@@ -79,6 +85,7 @@ export async function updateCategory(
           icon: parsed.data.icon,
           color: parsed.data.color,
           imageUrl: parsed.data.imageUrl ?? null,
+          parentSlug: parsed.data.parentSlug ?? null,
         },
       },
     })

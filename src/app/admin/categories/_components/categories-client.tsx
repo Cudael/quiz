@@ -98,7 +98,11 @@ export function CategoriesClient({ categories }: { categories: CategoryRecord[] 
                 </div>
 
                 {isEditing ? (
-                  <CategoryEditForm category={category} onCancel={() => setEditingId(null)} />
+                  <CategoryEditForm
+                    category={category}
+                    parentCategories={topLevelCategories}
+                    onCancel={() => setEditingId(null)}
+                  />
                 ) : null}
               </CardContent>
             </Card>
