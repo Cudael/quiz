@@ -18,10 +18,27 @@ const r2ImageHost = (() => {
 })()
 
 function buildCsp(nonce: string): string {
+  const isGaEnabled = !!process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+  const isCfEnabled = !!process.env.NEXT_PUBLIC_CF_BEACON_TOKEN
+
+  // External script hosts for analytics
+  const extraScriptSrc: string[] = []
+  if (isGaEnabled) extraScriptSrc.push('https://www.googletagmanager.com')
+  if (isCfEnabled) extraScriptSrc.push('https://static.cloudflareinsights.com')
+
   const scriptSrc =
     process.env.NODE_ENV === 'production'
-      ? `script-src 'self' 'nonce-${nonce}'`
-      : `script-src 'self' 'nonce-${nonce}' 'unsafe-eval'`
+      ? `script-src 'self' 'nonce-${nonce}'${extraScriptSrc.length ? ' ' + extraScriptSrc.join(' ') : ''}`
+      : `script-src 'self' 'nonce-${nonce}' 'unsafe-eval'${extraScriptSrc.length ? ' ' + extraScriptSrc.join(' ') : ''}`
+
+  // connect-src hosts for analytics data collection
+  const analyticsConnectSrc: string[] = []
+  if (isGaEnabled) {
+    analyticsConnectSrc.push('https://*.google-analytics.com', 'https://*.googletagmanager.com')
+  }
+  if (isCfEnabled) {
+    analyticsConnectSrc.push('https://static.cloudflareinsights.com')
+  }
 
   const imgSrcHosts = [
     'https://images.unsplash.com',
@@ -55,7 +72,7 @@ function buildCsp(nonce: string): string {
     "style-src 'self' 'unsafe-inline'",
     `img-src 'self' data: blob: ${imgSrcHosts}`,
     "font-src 'self'",
-    `connect-src 'self'${connectSrcHosts}`,
+    `connect-src 'self'${connectSrcHosts}${analyticsConnectSrc.length ? ' ' + analyticsConnectSrc.join(' ') : ''}`,
     // frame-ancestors 'self' supersedes X-Frame-Options in modern browsers;
     // both are kept for backwards compatibility with older clients.
     "frame-ancestors 'self'",

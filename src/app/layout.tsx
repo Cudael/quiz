@@ -50,8 +50,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <Script
               src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
               strategy="afterInteractive"
+              nonce={nonce}
             />
-            <Script id="ga4-init" strategy="afterInteractive">
+            <Script id="ga4-init" strategy="afterInteractive" nonce={nonce}>
               {`
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
@@ -68,6 +69,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             src="https://static.cloudflareinsights.com/beacon.min.js"
             data-cf-beacon={`{"token": "${CF_BEACON_TOKEN}"}`}
             strategy="afterInteractive"
+            nonce={nonce}
           />
         )}
 
