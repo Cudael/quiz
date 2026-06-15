@@ -197,7 +197,6 @@ export async function saveDraft(formData: FormData): Promise<ActionResult> {
     defaultTimeLimitSec: formData.get('defaultTimeLimitSec')
       ? Number(formData.get('defaultTimeLimitSec'))
       : undefined,
-    isPublished: false,
   })
   if (!parsed.success) {
     return { ok: false, error: 'VALIDATION_ERROR', message: 'Invalid quiz input.' }
@@ -208,9 +207,12 @@ export async function saveDraft(formData: FormData): Promise<ActionResult> {
     return allowed
   }
 
+  const { isPublished: _ignored, ...updateFields } = parsed.data
+  void _ignored
+
   const data: Prisma.QuizUncheckedUpdateInput = {
-    ...parsed.data,
-    coverImage: parsed.data.coverImage ?? null,
+    ...updateFields,
+    coverImage: updateFields.coverImage ?? null,
   }
 
   await prisma.quiz.update({

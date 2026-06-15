@@ -461,6 +461,12 @@ export function QuizCreatorShell({
               {savingDraft && <Loader2 className="h-4 w-4 animate-spin" />}
               Save draft
             </Button>
+            {mode === 'edit' && (
+              <Button type="button" onClick={handleSaveDraft} disabled={savingDraft}>
+                {savingDraft && <Loader2 className="h-4 w-4 animate-spin" />}
+                Update
+              </Button>
+            )}
             {currentStep < 4 && (
               <Button type="button" onClick={handleContinue}>
                 Continue →
