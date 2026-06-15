@@ -9,21 +9,19 @@ export function HeroCards({ currentUser }: { currentUser: HomeCurrentUser | null
   return (
     <div className="flex h-full flex-row gap-4">
       {/* Duel Mode */}
-      <div className="group flex flex-1 flex-col justify-between rounded-xl border-2 border-foreground/15 border-l-4 border-l-quiz-purple bg-quiz-purple/5 p-5">
-        <div>
-          <div className="mb-2 flex items-center gap-2">
-            <Swords className="h-5 w-5 text-quiz-purple" />
-            <span className="text-xs font-bold uppercase tracking-wider text-quiz-purple">
-              Multiplayer
-            </span>
-          </div>
+      <div className="group flex flex-1 flex-col items-center justify-between rounded-xl border-2 border-foreground bg-surface-1 p-5 text-center">
+        <div className="flex flex-col items-center">
+          <Swords className="mb-2 h-6 w-6 text-foreground/60" />
           <h2 className="text-xl font-black tracking-tight">Duel Mode</h2>
           <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-            Think you&apos;re smart? Challenge a friend in real-time 1v1 combat. Share a code and
-            let the best brain win.
+            Challenge a friend in real-time 1v1 combat. Share a code and let the best brain win.
           </p>
+          <p className="mt-2 text-xs text-muted-foreground/60">⚡ Average duel: 2 minutes</p>
         </div>
-        <Button asChild variant="gradient" className="mt-4 w-full rounded-lg font-bold">
+        <Button
+          asChild
+          className="mt-4 w-full rounded-lg bg-orange-500 font-bold text-white shadow-lg shadow-orange-500/20 hover:bg-orange-600"
+        >
           <Link href={currentUser ? '/duel' : '/sign-up'}>
             {currentUser ? 'Start a Duel' : 'Sign Up to Duel'}
           </Link>
@@ -31,19 +29,19 @@ export function HeroCards({ currentUser }: { currentUser: HomeCurrentUser | null
       </div>
 
       {/* Daily Challenge */}
-      <div className="group flex flex-1 flex-col justify-between rounded-xl border-2 border-foreground/15 border-l-4 border-l-amber-500 bg-amber-500/5 p-5">
-        <div>
-          <div className="mb-2 flex items-center gap-2">
-            <Flame className="h-5 w-5 text-amber-500" />
-            <span className="text-xs font-bold uppercase tracking-wider text-amber-600">Daily</span>
-          </div>
+      <div className="group flex flex-1 flex-col items-center justify-between rounded-xl border-2 border-foreground bg-surface-1 p-5 text-center">
+        <div className="flex flex-col items-center">
+          <Flame className="mb-2 h-6 w-6 text-foreground/60" />
           <h2 className="text-xl font-black tracking-tight">Daily Challenge</h2>
           <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-            A fresh brain-buster every 24 hours. Keep your streak alive, earn bonus XP, and collect
-            bragging rights.
+            A fresh brain-buster every 24 hours. Keep your streak alive and earn bonus XP.
           </p>
+          <p className="mt-2 text-xs text-muted-foreground/60">🔥 New challenge every 24 hours</p>
         </div>
-        <Button asChild variant="gradient" className="mt-4 w-full rounded-lg font-bold">
+        <Button
+          asChild
+          className="mt-4 w-full rounded-lg bg-orange-500 font-bold text-white shadow-lg shadow-orange-500/20 hover:bg-orange-600"
+        >
           <Link href={currentUser ? '/random-quiz' : '/sign-up'}>
             {currentUser ? 'Play Challenge' : 'Sign Up to Play'}
           </Link>
