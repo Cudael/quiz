@@ -29,7 +29,6 @@ export function HomePageClient({
   popularQuizzes,
   trendingQuizzes,
   newestQuizzes,
-  personalizedQuizzes,
   recentlyPlayed,
   currentUser,
   badgePreviews,
@@ -68,9 +67,7 @@ export function HomePageClient({
           <QuizFeaturedGridSection
             title="⭐ Most Popular"
             subtitle="The all-time crowd favorites"
-            quizzes={
-              currentUser && personalizedQuizzes.length >= 3 ? personalizedQuizzes : popularQuizzes
-            }
+            quizzes={popularQuizzes}
             href="/popular"
           />
         </motion.div>
