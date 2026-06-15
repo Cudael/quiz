@@ -89,7 +89,7 @@ async function callOpenAI(prompt: string): Promise<GeneratedQuiz> {
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: 'gpt-5.5',
+      model: 'gpt-5.4-mini',
       messages: [
         {
           role: 'system',
@@ -98,7 +98,7 @@ async function callOpenAI(prompt: string): Promise<GeneratedQuiz> {
         },
         { role: 'user', content: prompt },
       ],
-      temperature: 0.8,
+      temperature: 0.7,
       response_format: { type: 'json_object' },
     }),
   })
