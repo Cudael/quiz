@@ -69,11 +69,7 @@ export function HomePageClient({
             title="⭐ Most Popular"
             subtitle="The all-time crowd favorites"
             quizzes={
-              currentUser
-                ? personalizedQuizzes.length > 0
-                  ? personalizedQuizzes
-                  : popularQuizzes
-                : popularQuizzes
+              currentUser && personalizedQuizzes.length >= 3 ? personalizedQuizzes : popularQuizzes
             }
             href="/popular"
           />
