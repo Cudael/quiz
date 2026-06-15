@@ -5,6 +5,16 @@ import { checkRateLimit, getClientIp } from '@/server/rate-limit'
 
 const PLAY_RATE_LIMIT = { limit: 60, windowMs: 5 * 60 * 1000 } as const
 
+/** Fisher-Yates shuffle — returns a new array with items in random order. */
+function shuffleArray<T>(arr: T[]): T[] {
+  const shuffled = [...arr]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled
+}
+
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const ip = getClientIp(req)
   if (!(await checkRateLimit(`quiz-play:${ip}`, PLAY_RATE_LIMIT))) {
@@ -54,7 +64,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       imageUrl: q.imageUrl,
       timeLimitSec: q.timeLimitSec,
       order: q.order,
-      choices: q.choices,
+      choices: shuffleArray(q.choices),
     })),
     playToken,
   })
