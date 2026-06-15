@@ -126,8 +126,9 @@ export function QuizCreatorShell({
       useQuizCreatorStore.persist.clearStorage()
     } else if (mode === 'new' && initialQuizId) {
       store.setQuizId(initialQuizId)
+    } else {
+      store.reset()
     }
-    // mode === 'new' && !initialQuizId: keep rehydrated localStorage state (no-op)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
