@@ -259,3 +259,39 @@ export async function reorderQuestions(formData: FormData): Promise<QuestionActi
   revalidatePath(`/studio/quiz/${quizIdParsed.data}/edit`)
   return { ok: true }
 }
+
+export async function deleteRemovedQuestions(
+  quizId: string,
+  keepQuestionIds: string[]
+): Promise<QuestionActionResult> {
+  const session = await auth()
+  if (!session?.user?.id) {
+    return { ok: false, error: 'UNAUTHORIZED', message: 'Please sign in.' }
+  }
+
+  const quizIdParsed = quizIdSchema.safeParse(quizId)
+  if (!quizIdParsed.success) {
+    return { ok: false, error: 'VALIDATION_ERROR', message: 'Invalid quiz id.' }
+  }
+
+  const allowed = await assertOwnership(quizIdParsed.data, session.user.id, session.user.role)
+  if (!allowed.ok) return allowed
+
+  if (keepQuestionIds.length > 0) {
+    const keepSet = new Set(keepQuestionIds.filter((id) => quizIdSchema.safeParse(id).success))
+    await prisma.question.deleteMany({
+      where: {
+        quizId: quizIdParsed.data,
+        id: { notIn: [...keepSet] },
+      },
+    })
+  } else {
+    // No questions to keep — delete all for this quiz
+    await prisma.question.deleteMany({
+      where: { quizId: quizIdParsed.data },
+    })
+  }
+
+  revalidatePath(`/studio/quiz/${quizIdParsed.data}/edit`)
+  return { ok: true }
+}

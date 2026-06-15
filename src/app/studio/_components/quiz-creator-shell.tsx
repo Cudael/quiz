@@ -8,7 +8,11 @@ import { Button } from '@/components/ui/button'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import { createQuizAndReturnId } from '@/app/studio/actions/quiz-meta-actions'
 import { saveDraft } from '@/app/studio/actions'
-import { addQuestion, updateQuestion } from '@/app/studio/actions/question-actions'
+import {
+  addQuestion,
+  updateQuestion,
+  deleteRemovedQuestions,
+} from '@/app/studio/actions/question-actions'
 import { getPendingFile, uploadFileToStorage, clearPendingUpload } from './use-image-upload'
 import { StepMeta } from './step-meta'
 import { StepQuestions } from './step-questions'
@@ -349,6 +353,13 @@ export function QuizCreatorShell({
           )
 
           failedExisting = updateResults.filter((r) => !r.ok).length
+        }
+
+        // Delete questions that were removed from the store
+        const keepIds = resolvedQuestions.map((q) => q.dbId).filter((id): id is string => !!id)
+        const deleteResult = await deleteRemovedQuestions(quizId, keepIds)
+        if (!deleteResult.ok) {
+          setDraftError('Could not delete removed questions.')
         }
 
         // Report any failures
