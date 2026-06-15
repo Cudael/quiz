@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import { motion, useReducedMotion } from 'framer-motion'
 import { TrendingUp, Trophy, Layers, Award } from 'lucide-react'
 import { fadeUp, staggerContainer, withReducedMotion } from '@/lib/motion'
@@ -49,26 +48,17 @@ export function HomePageClient({
     >
       {/* Hero: Insight box (left) + Duel/Daily cards (right) */}
       <motion.div variants={sectionVariants}>
-        <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
+        <div className="grid gap-5 lg:grid-cols-2">
           <div>
-            <HeroInsightBox currentUser={currentUser} totalQuizCount={totalQuizCount} />
+            <HeroInsightBox
+              currentUser={currentUser}
+              totalQuizCount={totalQuizCount}
+              quickLinks={QUICK_LINKS}
+            />
           </div>
           <div>
             <HeroCards currentUser={currentUser} />
           </div>
-        </div>
-        {/* Quick links — inside hero section */}
-        <div className="mt-3 flex flex-wrap gap-2">
-          {QUICK_LINKS.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-card px-4 py-2 text-sm font-semibold transition-colors hover:border-primary/40 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            >
-              <link.icon className="h-3.5 w-3.5" />
-              {link.label}
-            </Link>
-          ))}
         </div>
       </motion.div>
 
