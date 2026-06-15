@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/ui/page-header'
 import { EmptyState } from '@/components/ui/empty-state'
 import { prisma } from '@/server/prisma'
 import { StudioQuizBrowser } from './_components/studio-quiz-browser'
+import { AiGenerateButton } from './_components/ai-generate-button'
 
 export default async function StudioPage({
   searchParams,
@@ -20,25 +21,34 @@ export default async function StudioPage({
   const { tab } = await searchParams
   const activeTab = tab === 'drafts' ? 'drafts' : 'published'
 
-  const quizzes = await prisma.quiz.findMany({
-    where: {
-      authorId: session.user.id,
-      isPublished: activeTab === 'published',
-    },
-    select: {
-      id: true,
-      title: true,
-      coverImage: true,
-      difficulty: true,
-      playCount: true,
-      avgScore: true,
-      updatedAt: true,
-      isPublished: true,
-      category: { select: { name: true, color: true } },
-      questions: { select: { id: true } },
-    },
-    orderBy: { updatedAt: 'desc' },
-  })
+  const [quizzes, categories] = await Promise.all([
+    prisma.quiz.findMany({
+      where: {
+        authorId: session.user.id,
+        isPublished: activeTab === 'published',
+      },
+      select: {
+        id: true,
+        title: true,
+        coverImage: true,
+        difficulty: true,
+        playCount: true,
+        avgScore: true,
+        updatedAt: true,
+        isPublished: true,
+        category: { select: { name: true, color: true } },
+        questions: { select: { id: true } },
+      },
+      orderBy: { updatedAt: 'desc' },
+    }),
+    prisma.category.findMany({
+      where: { parentSlug: null },
+      orderBy: { name: 'asc' },
+      select: { id: true, name: true },
+    }),
+  ])
+
+  const isAdmin = session.user.role === 'ADMIN'
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -54,9 +64,12 @@ export default async function StudioPage({
         <Button variant={activeTab === 'drafts' ? 'default' : 'outline'} asChild>
           <Link href="/studio?tab=drafts">Drafts</Link>
         </Button>
-        <Button asChild className="ml-auto">
-          <Link href="/studio/quiz/new">New Quiz</Link>
-        </Button>
+        <div className="ml-auto flex items-center gap-2">
+          {isAdmin && <AiGenerateButton categories={categories} />}
+          <Button asChild>
+            <Link href="/studio/quiz/new">New Quiz</Link>
+          </Button>
+        </div>
       </div>
 
       {quizzes.length === 0 ? (
