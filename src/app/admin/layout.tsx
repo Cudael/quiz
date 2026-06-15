@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import {
+  BarChart3,
   BookOpen,
   Flag,
   LayoutDashboard,
@@ -102,6 +103,10 @@ export default async function AdminLayout({ children }: { children: ReactNode })
             <AdminNavLink href="/admin/audit-log">
               <ScrollText className="h-4 w-4" />
               <span>Audit Log</span>
+            </AdminNavLink>
+            <AdminNavLink href="/admin/statistics">
+              <BarChart3 className="h-4 w-4" />
+              <span>Statistics</span>
             </AdminNavLink>
           </div>
         </nav>

@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import { headers } from 'next/headers'
+import { Suspense } from 'react'
 import './globals.css'
 import { THEME_INIT_SCRIPT } from '@/lib/theme'
 import { ThemeProvider } from '@/components/theme/theme-provider'
@@ -7,6 +9,10 @@ import { ToastProvider } from '@/components/ui/toast'
 import { AuthProvider } from '@/components/auth/auth-provider'
 import { AppShell } from '@/components/layout/app-shell'
 import { absoluteUrl, siteConfig } from '@/lib/site'
+import { Analytics } from './analytics'
+
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+const CF_BEACON_TOKEN = process.env.NEXT_PUBLIC_CF_BEACON_TOKEN
 
 export const metadata: Metadata = {
   metadataBase: new URL(absoluteUrl()),
@@ -38,6 +44,37 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <script nonce={nonce} dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body className="font-sans antialiased">
+        {/* Google Analytics */}
+        {GA_MEASUREMENT_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga4-init" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GA_MEASUREMENT_ID}', { send_page_view: false });
+              `}
+            </Script>
+          </>
+        )}
+
+        {/* Cloudflare Web Analytics */}
+        {CF_BEACON_TOKEN && (
+          <Script
+            src="https://static.cloudflareinsights.com/beacon.min.js"
+            data-cf-beacon={`{"token": "${CF_BEACON_TOKEN}"}`}
+            strategy="afterInteractive"
+          />
+        )}
+
+        <Suspense fallback={null}>
+          <Analytics />
+        </Suspense>
+
         <AuthProvider>
           <ThemeProvider defaultTheme="system">
             <ToastProvider>
