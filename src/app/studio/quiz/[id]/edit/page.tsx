@@ -40,7 +40,7 @@ export default async function EditQuizPage({ params }: { params: Promise<{ id: s
 
   const categories = await prisma.category.findMany({
     orderBy: [{ parentSlug: 'asc' }, { name: 'asc' }],
-    select: { id: true, name: true, color: true, icon: true, parentSlug: true },
+    select: { id: true, slug: true, name: true, color: true, icon: true, parentSlug: true },
   })
 
   return (

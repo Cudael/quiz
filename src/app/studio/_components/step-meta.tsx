@@ -1,7 +1,6 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { slugify } from '@/lib/slugify'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import { ImageUpload } from './image-upload'
 import { TemplatePicker } from './template-picker'
@@ -10,6 +9,7 @@ import type { DraftQuestion, DraftChoice } from '@/store/quiz-creator-store'
 
 interface Category {
   id: string
+  slug: string
   name: string
   color: string
   parentSlug: string | null
@@ -154,7 +154,7 @@ export function StepMeta({ categories }: StepMetaProps) {
               const parents = categories.filter((c) => c.parentSlug === null)
               const children = categories.filter((c) => c.parentSlug !== null)
               return parents.map((parent) => {
-                const subs = children.filter((c) => c.parentSlug === slugify(parent.name))
+                const subs = children.filter((c) => c.parentSlug === parent.slug)
                 if (subs.length > 0) {
                   return (
                     <optgroup key={parent.id} label={parent.name}>

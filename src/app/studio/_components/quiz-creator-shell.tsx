@@ -23,6 +23,7 @@ import type { QuizFormat } from '@/store/quiz-creator-store'
 
 interface Category {
   id: string
+  slug: string
   name: string
   color: string
   parentSlug: string | null
