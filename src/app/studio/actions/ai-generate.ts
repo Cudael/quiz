@@ -63,6 +63,7 @@ Return a JSON object with this exact structure (no markdown, no code fences, jus
 Rules:
 - Each question must have exactly 4 choices
 - Exactly one choice per question must have isCorrect: true
+- IMPORTANT: The isCorrect flag MUST be on the factually correct answer. Double-check each question before returning. The correct answer text must be the right answer to the prompt.
 - Questions should be factual, clear, and unambiguous
 - Difficulty ${difficulty}: ${
     difficulty === 'EASY'
@@ -71,7 +72,7 @@ Rules:
         ? 'intermediate, requires some thought'
         : 'advanced, challenging, tricky distractors'
   }
-- explanation should be 1-2 sentences
+- explanation should be 1-2 sentences confirming why the correct answer is right
 - timeLimitSec should be 20 for all questions
 - title should be catchy and specific to the topic`
 }

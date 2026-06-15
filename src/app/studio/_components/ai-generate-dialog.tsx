@@ -138,9 +138,10 @@ export function AiGenerateDialog({ open, onClose, categories }: AiGenerateDialog
           </div>
         </div>
 
-        <div className="rounded-lg border border-dashed bg-muted/30 p-3 text-xs text-muted-foreground">
-          The AI will generate a complete quiz with title, description, and {count} multiple-choice
-          questions. You can review and edit everything before publishing.
+        <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-700 dark:text-amber-400">
+          <strong>Review before publishing:</strong> The AI will generate a complete quiz with
+          title, description, and {count} questions. Please review all questions and answers for
+          accuracy before publishing — AI-generated content may contain errors.
         </div>
 
         <div className="flex gap-3 justify-end">
