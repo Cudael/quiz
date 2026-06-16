@@ -71,6 +71,25 @@ function buildTemplateQuestions(template: QuizTemplate): DraftQuestion[] {
       }
     }
 
+    if (template.format === 'MAP_CHOICE') {
+      return {
+        localId: crypto.randomUUID(),
+        dbId: null,
+        type: 'SINGLE' as const,
+        prompt: '',
+        imageUrl: '',
+        explanation: '',
+        timeLimitSec: template.timeLimitSec,
+        choices: [
+          { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: true },
+          { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: false },
+          { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: false },
+          { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: false },
+        ],
+        meta: { mapRegion: '', highlightedId: '' },
+      }
+    }
+
     const textChoice = makeTextChoices()
     return {
       localId: crypto.randomUUID(),

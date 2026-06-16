@@ -45,6 +45,18 @@ export function StepQuestions({ quizId }: StepQuestionsProps) {
     )
   }
 
+  if (quizFormat === 'MAP_CHOICE') {
+    return (
+      <div className="space-y-6">
+        <FormatBanner
+          title="Map Quiz"
+          description="Create questions where a country or region is highlighted on a map. Players see the highlighted area and select the correct name from the choices below."
+        />
+        <ClassicQuestionsEditor quizId={quizId} />
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <FormatBanner
