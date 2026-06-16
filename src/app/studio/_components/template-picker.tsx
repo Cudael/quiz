@@ -18,6 +18,30 @@ function FormatPreview({ format }: { format: QuizFormat }) {
     )
   }
 
+  if (format === 'MAP_CHOICE') {
+    return (
+      <div className="flex h-[72px] items-center justify-center gap-2 rounded-md bg-muted/40 p-2">
+        <div className="h-12 w-16 rounded bg-quiz-orange/20 ring-1 ring-quiz-orange/40 flex items-center justify-center">
+          <svg
+            className="h-6 w-6 text-quiz-orange/60"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+            <circle cx="12" cy="9" r="2.5" />
+          </svg>
+        </div>
+        <div className="flex flex-col gap-1">
+          <div className="h-4 w-16 rounded bg-muted-foreground/15" />
+          <div className="h-3 w-12 rounded bg-muted-foreground/10" />
+        </div>
+      </div>
+    )
+  }
+
+  // IMAGE_CHOICE
   return (
     <div className="flex h-[72px] items-center justify-center gap-1.5 rounded-md bg-muted/40 p-2">
       <div className="h-10 w-10 rounded bg-purple-400/30 ring-1 ring-purple-400/50" />
@@ -54,6 +78,14 @@ export const QUIZ_TEMPLATES: QuizTemplate[] = [
     timeLimitSec: 30,
     questionCount: 5,
   },
+  {
+    id: 'map-choice',
+    format: 'MAP_CHOICE',
+    name: 'Map Quiz',
+    color: 'text-quiz-orange',
+    timeLimitSec: 20,
+    questionCount: 5,
+  },
 ]
 
 interface TemplatePickerProps {
@@ -65,10 +97,11 @@ export function TemplatePicker({ selectedId, onSelect }: TemplatePickerProps) {
   const selectedBorderByTemplateId: Record<string, string> = {
     'text-choice': 'border-primary ring-primary',
     'image-choice': 'border-purple-500 ring-purple-500',
+    'map-choice': 'border-quiz-orange ring-quiz-orange',
   }
 
   return (
-    <div className="grid grid-cols-2 gap-2">
+    <div className="grid grid-cols-3 gap-2">
       {QUIZ_TEMPLATES.map((template) => {
         const isSelected = selectedId === template.id
         return (

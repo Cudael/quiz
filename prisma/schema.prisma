@@ -23,11 +23,13 @@ enum QuestionType {
   SINGLE
   TRUEFALSE
   FILL_BLANK
+  MAP_SELECT
 }
 
 enum QuizFormat {
   TEXT_CHOICE
   IMAGE_CHOICE
+  MAP_CHOICE
 }
 
 

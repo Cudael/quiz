@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700" fill="none">
+  <style>
+    .country { fill: #d4d4d8; stroke: #71717a; stroke-width: 1; cursor: pointer; transition: fill 0.2s; }
+    .country:hover { fill: #a1a1aa; }
+    .country.highlighted { fill: #f97316; stroke: #ea580c; stroke-width: 2; }
+    :root .dark .country { fill: #3f3f46; stroke: #52525b; }
+    :root .dark .country:hover { fill: #52525b; }
+    :root .dark .country.highlighted { fill: #f97316; stroke: #ea580c; }
+  </style>
+  <g id="africa">
+    <path id="morocco" class="country" d="M200,120 L230,115 L245,125 L245,145 L235,160 L220,165 L205,155 L200,140 Z"/>
+    <path id="algeria" class="country" d="M245,110 L280,105 L300,115 L300,145 L295,165 L280,175 L260,175 L245,165 L240,145 L240,125 Z"/>
+    <path id="tunisia" class="country" d="M300,110 L315,105 L320,115 L318,130 L310,138 L300,135 L295,125 Z"/>
+    <path id="libya" class="country" d="M315,105 L355,100 L375,110 L380,135 L375,160 L360,175 L340,180 L320,175 L305,160 L300,140 L300,120 Z"/>
+    <path id="egypt" class="country" d="M375,105 L400,100 L415,110 L420,135 L415,155 L400,165 L385,165 L375,155 L370,135 L370,115 Z"/>
+    <path id="mauritania" class="country" d="M160,170 L195,165 L210,175 L210,200 L205,215 L190,220 L175,215 L165,200 L160,185 Z"/>
+    <path id="mali" class="country" d="M210,165 L240,160 L255,170 L255,200 L250,220 L235,230 L220,225 L210,210 L205,190 Z"/>
+    <path id="niger" class="country" d="M255,160 L290,155 L310,165 L310,195 L305,215 L290,225 L270,225 L255,215 L250,195 L250,175 Z"/>
+    <path id="chad" class="country" d="M310,160 L340,155 L355,165 L355,195 L350,215 L340,225 L325,230 L310,225 L305,210 L305,185 Z"/>
+    <path id="sudan" class="country" d="M355,165 L385,160 L400,170 L405,200 L400,230 L390,250 L375,255 L360,250 L350,235 L345,215 L345,190 Z"/>
+    <path id="senegal" class="country" d="M155,185 L175,180 L185,190 L185,205 L180,215 L165,215 L155,205 L150,195 Z"/>
+    <path id="guinea" class="country" d="M175,200 L195,195 L205,205 L205,220 L195,228 L180,225 L170,215 L170,205 Z"/>
+    <path id="sierra-leone" class="country" d="M170,225 L185,220 L190,230 L185,240 L175,242 L168,235 Z"/>
+    <path id="ivory-coast" class="country" d="M195,215 L215,210 L225,220 L225,245 L218,255 L205,258 L195,250 L190,235 Z"/>
+    <path id="ghana" class="country" d="M225,215 L240,210 L248,220 L248,245 L242,258 L230,260 L222,250 L220,235 Z"/>
+    <path id="nigeria" class="country" d="M248,205 L275,200 L290,210 L290,240 L285,260 L270,268 L255,265 L245,255 L240,235 L240,215 Z"/>
+    <path id="cameroon" class="country" d="M275,255 L295,250 L305,260 L305,285 L298,298 L285,300 L275,295 L270,280 L270,265 Z"/>
+    <path id="ethiopia" class="country" d="M395,220 L420,215 L435,225 L438,245 L430,260 L418,268 L405,265 L395,255 L390,240 Z"/>
+    <path id="somalia" class="country" d="M435,225 L460,220 L475,230 L478,250 L472,270 L460,280 L445,275 L438,260 L435,240 Z"/>
+    <path id="kenya" class="country" d="M395,265 L418,260 L430,270 L432,290 L425,305 L412,310 L400,305 L392,290 L390,275 Z"/>
+    <path id="tanzania" class="country" d="M395,305 L418,300 L430,310 L432,335 L425,350 L412,355 L400,350 L392,335 L390,320 Z"/>
+    <path id="dr-congo" class="country" d="M300,270 L335,265 L355,275 L360,305 L355,335 L340,348 L320,350 L305,345 L295,330 L290,310 L290,290 Z"/>
+    <path id="angola" class="country" d="M270,310 L300,305 L315,315 L318,345 L310,365 L295,370 L280,365 L270,350 L265,330 Z"/>
+    <path id="mozambique" class="country" d="M380,340 L400,335 L410,345 L412,375 L405,395 L392,400 L380,395 L375,380 L375,360 Z"/>
+    <path id="madagascar" class="country" d="M430,355 L445,350 L455,360 L458,385 L450,400 L440,405 L430,395 L425,375 Z"/>
+    <path id="south-africa" class="country" d="M300,380 L340,375 L365,385 L370,410 L365,435 L350,445 L330,448 L310,440 L300,425 L295,405 Z"/>
+    <path id="namibia" class="country" d="M265,370 L295,365 L310,375 L310,405 L305,425 L290,430 L275,425 L265,410 L260,390 Z"/>
+    <path id="botswana" class="country" d="M310,375 L335,370 L350,380 L350,405 L345,425 L330,430 L315,425 L310,410 Z"/>
+    <path id="zimbabwe" class="country" d="M350,350 L370,345 L380,355 L380,375 L375,390 L365,395 L350,390 L345,375 Z"/>
+  </g>
+</svg>

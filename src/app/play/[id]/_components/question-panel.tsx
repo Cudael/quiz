@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 import type { Question } from '../play-view.types'
 import { getQuestionImageSrc, imageLoader } from '../play-view.utils'
 import { CountdownRing } from './countdown-ring'
+import { MapDisplay } from './map-display'
 
 interface QuestionPanelProps {
   currentQuestion: Question
@@ -103,6 +104,43 @@ export function QuestionPanel({
                 placeholder="Type your answer…"
                 className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
               />
+            </div>
+          </div>
+        ) : currentQuestion.type === 'MAP_SELECT' ? (
+          <div className="space-y-4">
+            <MapDisplay
+              mapRegion={(currentQuestion.meta as Record<string, string>)?.mapRegion ?? 'world'}
+              highlightedCountryId={
+                (currentQuestion.meta as Record<string, string>)?.highlightedId ?? ''
+              }
+              className="max-w-lg mx-auto"
+            />
+            <div className="grid gap-3 sm:grid-cols-2">
+              {currentQuestion.choices
+                .filter((c) => !hiddenChoiceIds.includes(c.id))
+                .map((choice) => {
+                  const isSelected = selectedChoiceIds.includes(choice.id)
+                  return (
+                    <button
+                      key={choice.id}
+                      type="button"
+                      onClick={() => onChoiceSelect(choice.id)}
+                      disabled={isAnswered}
+                      className={cn(
+                        'rounded-xl border px-4 py-3 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                        isAnswered
+                          ? isSelected
+                            ? 'border-quiz-purple bg-quiz-purple/20'
+                            : 'border-border bg-muted/30 opacity-60'
+                          : isSelected
+                            ? 'border-primary bg-primary/10'
+                            : 'cursor-pointer border-border bg-card hover:border-primary hover:bg-primary/5'
+                      )}
+                    >
+                      {choice.text}
+                    </button>
+                  )
+                })}
             </div>
           </div>
         ) : isImageChoice ? (
@@ -223,6 +261,7 @@ const TYPE_HINTS: Record<string, string> = {
   SINGLE: 'Choose one answer.',
   TRUEFALSE: 'True or false?',
   FILL_BLANK: 'Type your answer below.',
+  MAP_SELECT: 'Look at the map and choose the correct answer.',
 }
 
 function QuestionTypeHint({ type, isAnswered }: { type: string; isAnswered: boolean }) {

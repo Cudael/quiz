@@ -6,7 +6,7 @@ export const quizSchema = z.object({
   coverImage: z.string().trim().url().optional(),
   categoryId: z.string().cuid(),
   difficulty: z.enum(['EASY', 'MEDIUM', 'HARD']),
-  format: z.enum(['TEXT_CHOICE', 'IMAGE_CHOICE']).default('TEXT_CHOICE'),
+  format: z.enum(['TEXT_CHOICE', 'IMAGE_CHOICE', 'MAP_CHOICE']).default('TEXT_CHOICE'),
   defaultTimeLimitSec: z.number().int().min(60).max(3600).optional(),
   isPublished: z.boolean().default(false),
 })
@@ -18,7 +18,7 @@ export const draftQuizSchema = quizSchema.extend({
 
 export const questionSchema = z
   .object({
-    type: z.enum(['SINGLE']),
+    type: z.enum(['SINGLE', 'MAP_SELECT']),
     prompt: z.string().trim().min(1),
     explanation: z.string().trim().max(500).optional(),
     timeLimitSec: z.number().int().min(5).max(120),

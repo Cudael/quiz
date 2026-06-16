@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none">
+  <style>
+    .country { fill: #d4d4d8; stroke: #71717a; stroke-width: 1; cursor: pointer; transition: fill 0.2s; }
+    .country:hover { fill: #a1a1aa; }
+    .country.highlighted { fill: #f97316; stroke: #ea580c; stroke-width: 2; }
+    :root .dark .country { fill: #3f3f46; stroke: #52525b; }
+    :root .dark .country:hover { fill: #52525b; }
+    :root .dark .country.highlighted { fill: #f97316; stroke: #ea580c; }
+  </style>
+  <g id="europe">
+    <path id="iceland" class="country" d="M120,80 L160,75 L170,85 L165,95 L155,100 L140,98 L125,90 Z"/>
+    <path id="norway" class="country" d="M280,60 L290,50 L300,55 L310,70 L315,90 L320,110 L315,130 L305,140 L295,135 L290,120 L285,100 L280,80 Z"/>
+    <path id="sweden" class="country" d="M305,55 L315,50 L325,55 L330,70 L335,90 L335,120 L330,140 L320,145 L310,140 L305,120 L300,90 L300,70 Z"/>
+    <path id="finland" class="country" d="M340,50 L355,45 L365,55 L370,70 L370,90 L365,110 L355,120 L345,115 L340,100 L335,80 L335,60 Z"/>
+    <path id="united-kingdom" class="country" d="M220,120 L230,115 L235,125 L235,140 L230,155 L225,160 L220,155 L215,140 L215,125 Z"/>
+    <path id="ireland" class="country" d="M200,125 L210,120 L215,130 L215,145 L210,155 L200,150 L195,140 L195,130 Z"/>
+    <path id="france" class="country" d="M240,180 L260,175 L275,180 L280,195 L280,215 L275,230 L265,235 L250,235 L240,225 L235,210 L235,195 Z"/>
+    <path id="spain" class="country" d="M220,240 L245,235 L265,240 L270,255 L265,275 L250,280 L235,280 L220,270 L215,255 Z"/>
+    <path id="portugal" class="country" d="M210,245 L220,240 L220,270 L215,280 L205,275 L200,260 L205,250 Z"/>
+    <path id="germany" class="country" d="M300,160 L320,155 L335,160 L340,175 L340,195 L335,210 L325,215 L310,215 L300,205 L295,190 L295,175 Z"/>
+    <path id="poland" class="country" d="M345,155 L365,150 L380,155 L385,170 L385,190 L380,200 L370,205 L355,205 L345,195 L340,180 L340,165 Z"/>
+    <path id="italy" class="country" d="M310,220 L325,215 L335,225 L340,240 L345,260 L340,280 L330,290 L320,285 L315,270 L310,250 L305,235 Z"/>
+    <path id="netherlands" class="country" d="M280,150 L290,145 L295,150 L295,160 L290,165 L280,165 L275,155 Z"/>
+    <path id="belgium" class="country" d="M275,165 L285,160 L290,165 L290,175 L285,180 L275,180 L270,175 L270,170 Z"/>
+    <path id="switzerland" class="country" d="M290,195 L300,190 L310,195 L310,205 L305,210 L295,210 L285,205 L285,200 Z"/>
+    <path id="austria" class="country" d="M315,190 L335,185 L350,190 L350,200 L345,210 L330,215 L315,210 L310,200 Z"/>
+    <path id="czechia" class="country" d="M320,170 L340,165 L350,170 L350,180 L345,185 L330,190 L320,185 L315,175 Z"/>
+    <path id="romania" class="country" d="M380,195 L400,190 L415,195 L420,210 L415,225 L405,230 L390,230 L380,220 L375,210 L375,200 Z"/>
+    <path id="hungary" class="country" d="M355,190 L375,185 L385,190 L385,205 L380,215 L370,218 L358,215 L350,205 L350,195 Z"/>
+    <path id="greece" class="country" d="M385,260 L400,255 L410,260 L415,275 L410,290 L400,295 L390,290 L385,275 Z"/>
+    <path id="turkey" class="country" d="M430,230 L470,225 L510,230 L530,240 L530,255 L520,265 L500,270 L480,270 L460,265 L440,255 L430,245 Z"/>
+    <path id="ukraine" class="country" d="M390,140 L420,135 L450,140 L465,155 L465,175 L455,185 L440,190 L420,190 L400,185 L385,175 L380,160 L380,150 Z"/>
+    <path id="belarus" class="country" d="M370,115 L395,110 L415,115 L420,130 L415,145 L400,150 L385,150 L370,140 L365,130 Z"/>
+    <path id="russia" class="country" d="M430,50 L500,45 L570,50 L600,65 L610,90 L605,120 L590,145 L570,160 L545,165 L520,160 L500,150 L480,140 L465,125 L455,105 L445,80 L435,60 Z"/>
+    <path id="denmark" class="country" d="M290,130 L300,125 L305,130 L305,140 L300,148 L290,148 L285,140 Z"/>
+    <path id="estonia" class="country" d="M360,90 L370,85 L375,90 L375,100 L370,105 L360,105 L355,95 Z"/>
+    <path id="latvia" class="country" d="M360,105 L375,100 L380,105 L380,115 L375,120 L365,120 L358,115 Z"/>
+    <path id="lithuania" class="country" d="M365,120 L380,115 L390,120 L390,130 L385,135 L375,135 L365,130 Z"/>
+    <path id="serbia" class="country" d="M360,225 L375,220 L385,225 L385,240 L380,250 L370,252 L360,248 L355,235 Z"/>
+    <path id="croatia" class="country" d="M340,210 L355,205 L365,215 L360,230 L350,235 L340,230 L335,220 Z"/>
+    <path id="bulgaria" class="country" d="M395,235 L415,230 L430,235 L430,250 L425,260 L410,262 L395,258 L390,245 Z"/>
+    <path id="norway-north" class="country" d="M285,30 L295,25 L305,30 L310,45 L305,55 L295,55 L285,45 Z"/>
+  </g>
+</svg>

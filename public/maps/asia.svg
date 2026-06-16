@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700" fill="none">
+  <style>
+    .country { fill: #d4d4d8; stroke: #71717a; stroke-width: 1; cursor: pointer; transition: fill 0.2s; }
+    .country:hover { fill: #a1a1aa; }
+    .country.highlighted { fill: #f97316; stroke: #ea580c; stroke-width: 2; }
+    :root .dark .country { fill: #3f3f46; stroke: #52525b; }
+    :root .dark .country:hover { fill: #52525b; }
+    :root .dark .country.highlighted { fill: #f97316; stroke: #ea580c; }
+  </style>
+  <g id="asia">
+    <path id="russia" class="country" d="M300,50 L400,45 L500,50 L580,55 L640,65 L680,80 L690,100 L685,125 L670,145 L650,155 L620,160 L590,155 L560,145 L530,135 L500,125 L470,115 L440,105 L410,95 L380,85 L350,75 L320,65 Z"/>
+    <path id="china" class="country" d="M520,175 L570,170 L610,180 L640,195 L650,220 L645,250 L630,270 L610,280 L585,285 L560,280 L540,270 L525,255 L515,235 L510,215 L510,195 Z"/>
+    <path id="india" class="country" d="M500,290 L530,285 L555,295 L565,320 L560,350 L550,375 L535,390 L515,395 L500,388 L490,370 L485,345 L485,320 Z"/>
+    <path id="japan" class="country" d="M680,170 L695,165 L705,175 L710,195 L705,215 L695,225 L685,220 L680,205 L678,185 Z"/>
+    <path id="south-korea" class="country" d="M650,195 L665,190 L672,200 L672,215 L665,225 L655,222 L648,212 L648,200 Z"/>
+    <path id="north-korea" class="country" d="M645,175 L665,170 L675,180 L675,195 L668,205 L655,208 L645,200 L642,188 Z"/>
+    <path id="mongolia" class="country" d="M550,140 L590,135 L620,145 L625,160 L618,175 L600,182 L580,185 L560,180 L548,168 L545,155 Z"/>
+    <path id="kazakhstan" class="country" d="M400,120 L440,115 L470,125 L475,145 L468,160 L450,168 L430,170 L410,165 L400,150 L395,135 Z"/>
+    <path id="uzbekistan" class="country" d="M420,155 L445,150 L458,160 L458,175 L450,185 L435,188 L422,182 L418,168 Z"/>
+    <path id="iran" class="country" d="M430,200 L460,195 L480,205 L485,225 L480,245 L465,255 L445,258 L430,250 L422,235 L420,218 Z"/>
+    <path id="iraq" class="country" d="M400,210 L425,205 L438,215 L440,235 L432,250 L418,255 L405,248 L398,235 L398,220 Z"/>
+    <path id="saudi-arabia" class="country" d="M410,260 L445,255 L470,265 L480,290 L475,315 L460,330 L440,335 L420,328 L408,315 L402,295 L402,275 Z"/>
+    <path id="turkey" class="country" d="M350,200 L380,195 L400,200 L405,215 L400,230 L390,238 L375,240 L360,235 L350,222 L348,210 Z"/>
+    <path id="pakistan" class="country" d="M480,240 L510,235 L530,245 L535,265 L528,280 L515,288 L500,290 L485,282 L478,265 L478,250 Z"/>
+    <path id="afghanistan" class="country" d="M490,200 L520,195 L535,205 L538,225 L530,240 L515,245 L500,240 L490,228 L488,215 Z"/>
+    <path id="thailand" class="country" d="M580,290 L600,285 L612,295 L615,320 L608,340 L595,348 L582,345 L575,330 L575,310 Z"/>
+    <path id="vietnam" class="country" d="M610,280 L630,275 L640,285 L642,310 L635,330 L622,340 L610,335 L605,318 L605,298 Z"/>
+    <path id="myanmar" class="country" d="M555,275 L575,270 L585,280 L585,305 L578,320 L565,328 L552,322 L548,305 L548,288 Z"/>
+    <path id="indonesia" class="country" d="M560,400 L600,395 L640,400 L680,405 L700,415 L700,430 L680,438 L640,440 L600,438 L570,430 L555,418 Z"/>
+    <path id="philippines" class="country" d="M660,310 L678,305 L688,315 L690,340 L682,355 L670,358 L660,348 L655,330 Z"/>
+    <path id="malaysia" class="country" d="M590,370 L620,365 L640,372 L642,390 L635,400 L618,405 L600,400 L590,388 Z"/>
+    <path id="taiwan" class="country" d="M655,255 L668,250 L675,258 L675,272 L668,280 L658,278 L652,268 Z"/>
+    <path id="bangladesh" class="country" d="M548,285 L565,280 L575,288 L575,305 L568,315 L555,318 L545,310 L542,295 Z"/>
+    <path id="nepal" class="country" d="M530,268 L555,264 L565,270 L565,280 L558,285 L542,288 L530,282 L528,275 Z"/>
+    <path id="sri-lanka" class="country" d="M545,380 L558,376 L565,384 L565,400 L558,408 L548,406 L542,396 Z"/>
+    <path id="israel" class="country" d="M388,248 L398,244 L404,250 L404,262 L398,268 L390,266 L385,258 Z"/>
+    <path id="jordan" class="country" d="M398,260 L415,256 L425,264 L425,280 L418,288 L405,290 L395,282 L392,270 Z"/>
+    <path id="syria" class="country" d="M380,225 L400,220 L415,228 L418,245 L410,255 L395,258 L382,252 L378,238 Z"/>
+  </g>
+</svg>

@@ -13,6 +13,7 @@ export interface Question {
   timeLimitSec: number
   order: number
   choices: Choice[]
+  meta?: Record<string, unknown> | null
 }
 
 export interface QuizData {
