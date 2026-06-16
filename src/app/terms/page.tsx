@@ -1,10 +1,22 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { absoluteUrl } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'Terms of Service | BusQuiz',
   description:
     'Read the terms and conditions for using BusQuiz, including account rules, content guidelines, and limitations.',
+  alternates: { canonical: '/terms' },
+  openGraph: {
+    title: 'Terms of Service | BusQuiz',
+    description: 'Read the terms and conditions for using BusQuiz.',
+    url: absoluteUrl('/terms'),
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Terms of Service | BusQuiz',
+    description: 'Read the terms and conditions for using BusQuiz.',
+  },
 }
 
 export default function TermsPage() {

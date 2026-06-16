@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ArrowLeft, ArrowRight, ChevronRight } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { absoluteUrl } from '@/lib/site'
+import { serializeJsonLd } from '@/lib/seo'
 import { Button } from '@/components/ui/button'
 import { QuizCardHorizontal } from '@/components/ui/quiz-card'
 import type { QuizCardData } from '@/components/ui/quiz-card'
@@ -262,6 +263,42 @@ export default async function CategoryPage({
         <ChevronRight className="h-4 w-4" aria-hidden="true" />
         <span className="font-medium text-foreground">{category.name}</span>
       </nav>
+
+      {/* BreadcrumbList JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Home', item: absoluteUrl('/') },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Categories',
+                item: absoluteUrl('/categories'),
+              },
+              ...(parentCategory
+                ? [
+                    {
+                      '@type': 'ListItem' as const,
+                      position: 3,
+                      name: parentCategory.name,
+                      item: absoluteUrl(`/categories/${parentCategory.slug}`),
+                    },
+                  ]
+                : []),
+              {
+                '@type': 'ListItem',
+                position: parentCategory ? 4 : 3,
+                name: category.name,
+                item: absoluteUrl(`/categories/${category.slug}`),
+              },
+            ],
+          }),
+        }}
+      />
 
       {/* Banner */}
       <section className="rounded-2xl border border-border/50 bg-card p-4 md:p-5">

@@ -61,6 +61,7 @@ export async function generateMetadata({
   const title = `${quiz.title} by ${quiz.author.name} • ${quiz.category.name} | BusQuiz`
   const description = quiz.description || `Take ${quiz.title} and climb the leaderboard on BusQuiz.`
   const url = absoluteUrl(`/quiz/${id}`)
+  const ogImages = quiz.coverImage ? [quiz.coverImage] : ['/og-default.png']
 
   return {
     title,
@@ -68,8 +69,8 @@ export async function generateMetadata({
     alternates: {
       canonical: `/quiz/${id}`,
     },
-    openGraph: { title, description, url },
-    twitter: { card: 'summary_large_image', title, description },
+    openGraph: { title, description, url, images: ogImages },
+    twitter: { card: 'summary_large_image' as const, title, description, images: ogImages },
   }
 }
 
@@ -105,18 +106,32 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
       : quiz.difficulty === 'HARD'
         ? 'advanced'
         : 'intermediate'
+
+  const avgRating = ratingAgg._avg.stars ?? 0
+  const ratingCount = ratingAgg._count.stars
+
   const quizJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Quiz',
     name: quiz.title,
     description: quiz.description || `Take ${quiz.title} and climb the leaderboard on BusQuiz.`,
+    url: absoluteUrl(`/quiz/${id}`),
+    ...(quiz.coverImage ? { image: quiz.coverImage } : {}),
     author: { '@type': 'Person', name: quiz.author.name },
     educationalLevel,
     numberOfQuestions: questionCount,
+    ...(avgRating > 0 && ratingCount > 0
+      ? {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: avgRating.toFixed(1),
+            ratingCount,
+            bestRating: 5,
+            worstRating: 1,
+          },
+        }
+      : {}),
   }
-
-  const avgRating = ratingAgg._avg.stars ?? 0
-  const ratingCount = ratingAgg._count.stars
 
   return (
     <div className="container mx-auto px-4 py-12">

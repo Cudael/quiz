@@ -15,7 +15,10 @@ const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
 export const metadata: Metadata = {
   metadataBase: new URL(absoluteUrl()),
-  title: siteConfig.title,
+  title: {
+    template: '%s | BusQuiz',
+    default: 'BusQuiz — Play, Create & Compete',
+  },
   description: siteConfig.description,
   manifest: '/manifest.webmanifest',
   alternates: {
@@ -25,11 +28,16 @@ export const metadata: Metadata = {
     title: siteConfig.title,
     description: siteConfig.description,
     type: 'website',
+    siteName: 'BusQuiz',
+    locale: 'en_US',
+    images: ['/og-default.png'],
   },
   twitter: {
     card: 'summary_large_image',
     title: siteConfig.title,
     description: siteConfig.description,
+    site: '@PlayBusQuiz',
+    images: ['/og-default.png'],
   },
 }
 

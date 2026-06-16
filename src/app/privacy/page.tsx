@@ -1,10 +1,23 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { absoluteUrl } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy | BusQuiz',
   description:
     'Learn what BusQuiz collects, how it is used, and how to contact us about privacy requests.',
+  alternates: { canonical: '/privacy' },
+  openGraph: {
+    title: 'Privacy Policy | BusQuiz',
+    description:
+      'Learn what BusQuiz collects, how it is used, and how to contact us about privacy requests.',
+    url: absoluteUrl('/privacy'),
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Privacy Policy | BusQuiz',
+    description: 'Learn what BusQuiz collects and how it is used.',
+  },
 }
 
 export default function PrivacyPage() {

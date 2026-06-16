@@ -22,10 +22,16 @@ export const metadata: Metadata = {
   title: 'Earn Badges | BusQuiz',
   description:
     'Play quizzes, build streaks, and unlock achievements. See all available badges on BusQuiz.',
+  alternates: { canonical: '/badges' },
   openGraph: {
     title: 'Earn Badges — BusQuiz',
     description: 'Play quizzes, build streaks, and unlock achievements.',
     url: absoluteUrl('/badges'),
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Earn Badges — BusQuiz',
+    description: 'Play quizzes, build streaks, and unlock achievements.',
   },
 }
 

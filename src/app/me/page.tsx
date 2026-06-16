@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { ShareProfileButton } from './share-profile-button'
@@ -7,6 +8,11 @@ import { Avatar } from '@/components/ui/avatar'
 import { LevelProgress } from '@/components/ui/level-progress'
 import { StreakFlame } from '@/components/ui/streak-flame'
 import { Button } from '@/components/ui/button'
+
+export const metadata: Metadata = {
+  title: 'My Profile',
+  robots: { index: false },
+}
 
 export default async function MePage() {
   const session = await auth()

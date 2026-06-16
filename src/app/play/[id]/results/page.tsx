@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Trophy, RotateCcw, Zap, ChevronRight } from 'lucide-react'
@@ -10,6 +11,11 @@ import { auth } from '@/server/auth'
 import { RateQuizForm } from '@/app/quiz/rate-quiz-form'
 import { QuestionBreakdown } from './_components/question-breakdown'
 import { copy } from '@/lib/copy'
+
+export const metadata: Metadata = {
+  title: 'Quiz Results',
+  robots: { index: false },
+}
 
 export default async function ResultsPage({
   params,

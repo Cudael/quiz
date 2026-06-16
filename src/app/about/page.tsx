@@ -4,11 +4,25 @@ import { ArrowRight, Gamepad2, PenLine, Swords, Zap, Trophy, Users, Sparkles } f
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { prisma } from '@/server/prisma'
+import { absoluteUrl } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'About BusQuiz',
   description:
     'Learn about BusQuiz — the platform where you can play, create, and compete in quizzes across every topic imaginable.',
+  alternates: { canonical: '/about' },
+  openGraph: {
+    title: 'About BusQuiz',
+    description:
+      'Learn about BusQuiz — the platform where you can play, create, and compete in quizzes.',
+    url: absoluteUrl('/about'),
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'About BusQuiz',
+    description:
+      'Learn about BusQuiz — the platform where you can play, create, and compete in quizzes.',
+  },
 }
 
 export default async function AboutPage() {

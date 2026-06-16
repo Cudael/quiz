@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { auth } from '@/server/auth'
@@ -7,6 +8,11 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { prisma } from '@/server/prisma'
 import { StudioQuizBrowser } from './_components/studio-quiz-browser'
 import { AiGenerateButton } from './_components/ai-generate-button'
+
+export const metadata: Metadata = {
+  title: 'Quiz Studio',
+  robots: { index: false },
+}
 
 export default async function StudioPage({
   searchParams,

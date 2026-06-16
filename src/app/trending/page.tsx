@@ -11,10 +11,16 @@ export const metadata: Metadata = {
   title: 'Trending Quizzes | BusQuiz',
   description:
     'The quizzes everyone is playing this week. See what is trending on BusQuiz right now.',
+  alternates: { canonical: '/trending' },
   openGraph: {
     title: 'Trending Quizzes — BusQuiz',
     description: 'The quizzes everyone is playing this week.',
     url: absoluteUrl('/trending'),
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Trending Quizzes — BusQuiz',
+    description: 'The quizzes everyone is playing this week.',
   },
 }
 

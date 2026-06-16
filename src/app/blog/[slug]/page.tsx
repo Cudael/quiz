@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { ArrowLeft, Calendar, Clock, Tag } from 'lucide-react'
 import { getAllBlogPosts, getBlogPost, getRelatedPosts } from '@/content/blog-posts'
 import { absoluteUrl } from '@/lib/site'
+import { serializeJsonLd } from '@/lib/seo'
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>
@@ -21,6 +22,9 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   return {
     title: `${post.title} — BusQuiz Blog`,
     description: post.description,
+    alternates: {
+      canonical: `/blog/${post.slug}`,
+    },
     openGraph: {
       title: post.title,
       description: post.description,
@@ -29,6 +33,11 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       publishedTime: post.date,
       authors: [post.author],
       tags: post.tags,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.description,
     },
   }
 }
@@ -53,6 +62,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     publisher: {
       '@type': 'Organization',
       name: 'BusQuiz',
+      url: absoluteUrl('/'),
     },
     url: absoluteUrl(`/blog/${post.slug}`),
   }
@@ -61,7 +71,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
 
       <article className="container mx-auto px-4 py-10 md:px-6 md:py-16">

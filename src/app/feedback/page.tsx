@@ -1,6 +1,12 @@
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { auth } from '@/server/auth'
 import { FeedbackForm } from './feedback-form'
+
+export const metadata: Metadata = {
+  title: 'Send Feedback',
+  robots: { index: false },
+}
 
 export default async function FeedbackPage() {
   const session = await auth()

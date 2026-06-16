@@ -1,8 +1,21 @@
 import type { Metadata } from 'next'
+import { absoluteUrl } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'Contact | BusQuiz',
   description: 'Get in touch with the BusQuiz team for support, privacy requests, or general help.',
+  alternates: { canonical: '/contact' },
+  openGraph: {
+    title: 'Contact | BusQuiz',
+    description:
+      'Get in touch with the BusQuiz team for support, privacy requests, or general help.',
+    url: absoluteUrl('/contact'),
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Contact | BusQuiz',
+    description: 'Get in touch with the BusQuiz team.',
+  },
 }
 
 export default function ContactPage() {

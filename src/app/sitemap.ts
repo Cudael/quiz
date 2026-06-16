@@ -31,6 +31,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
+      url: absoluteUrl('/popular'),
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.8,
+    },
+    {
+      url: absoluteUrl('/trending'),
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.8,
+    },
+    {
+      url: absoluteUrl('/badges'),
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      url: absoluteUrl('/about'),
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
       url: absoluteUrl('/blog'),
       lastModified: new Date(),
       changeFrequency: 'weekly',
@@ -43,7 +67,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     })),
     ...categories.map((category) => ({
-      url: absoluteUrl(`/categories?category=${category.slug}`),
+      url: absoluteUrl(`/categories/${category.slug}`),
       lastModified: category.createdAt,
       changeFrequency: 'weekly' as const,
       priority: 0.7,

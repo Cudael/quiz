@@ -10,10 +10,16 @@ export const metadata: Metadata = {
   title: 'Most Popular Quizzes | BusQuiz',
   description:
     'The all-time most played quizzes on BusQuiz. See what thousands of players are enjoying.',
+  alternates: { canonical: '/popular' },
   openGraph: {
     title: 'Most Popular Quizzes — BusQuiz',
     description: 'The all-time most played quizzes on BusQuiz.',
     url: absoluteUrl('/popular'),
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Most Popular Quizzes — BusQuiz',
+    description: 'The all-time most played quizzes on BusQuiz.',
   },
 }
 
