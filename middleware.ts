@@ -19,12 +19,10 @@ const r2ImageHost = (() => {
 
 function buildCsp(nonce: string): string {
   const isGaEnabled = !!process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
-  const isCfEnabled = !!process.env.NEXT_PUBLIC_CF_BEACON_TOKEN
 
   // External script hosts for analytics
   const extraScriptSrc: string[] = []
   if (isGaEnabled) extraScriptSrc.push('https://www.googletagmanager.com')
-  if (isCfEnabled) extraScriptSrc.push('https://static.cloudflareinsights.com')
 
   const scriptSrc =
     process.env.NODE_ENV === 'production'
@@ -35,9 +33,6 @@ function buildCsp(nonce: string): string {
   const analyticsConnectSrc: string[] = []
   if (isGaEnabled) {
     analyticsConnectSrc.push('https://*.google-analytics.com', 'https://*.googletagmanager.com')
-  }
-  if (isCfEnabled) {
-    analyticsConnectSrc.push('https://static.cloudflareinsights.com')
   }
 
   const imgSrcHosts = [

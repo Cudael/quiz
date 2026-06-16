@@ -12,7 +12,6 @@ import { absoluteUrl, siteConfig } from '@/lib/site'
 import { Analytics } from './analytics'
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
-const CF_BEACON_TOKEN = process.env.NEXT_PUBLIC_CF_BEACON_TOKEN
 
 export const metadata: Metadata = {
   metadataBase: new URL(absoluteUrl()),
@@ -61,16 +60,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               `}
             </Script>
           </>
-        )}
-
-        {/* Cloudflare Web Analytics */}
-        {CF_BEACON_TOKEN && (
-          <Script
-            src="https://static.cloudflareinsights.com/beacon.min.js"
-            data-cf-beacon={`{"token": "${CF_BEACON_TOKEN}"}`}
-            strategy="afterInteractive"
-            nonce={nonce}
-          />
         )}
 
         <Suspense fallback={null}>
