@@ -75,18 +75,13 @@ function buildTemplateQuestions(template: QuizTemplate): DraftQuestion[] {
       return {
         localId: crypto.randomUUID(),
         dbId: null,
-        type: 'SINGLE' as const,
+        type: 'MAP_SELECT' as const,
         prompt: '',
         imageUrl: '',
         explanation: '',
         timeLimitSec: template.timeLimitSec,
-        choices: [
-          { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: true },
-          { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: false },
-          { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: false },
-          { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: false },
-        ],
-        meta: { mapRegion: '', highlightedId: '' },
+        choices: [],
+        meta: { mapRegion: '', regionId: '', countryName: '' },
       }
     }
 

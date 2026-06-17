@@ -20,12 +20,13 @@ export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD'
 export interface DraftQuestion {
   localId: string
   dbId: string | null
-  type: 'SINGLE'
+  type: 'SINGLE' | 'MAP_SELECT'
   prompt: string
   imageUrl: string
   explanation: string
   timeLimitSec: number
   choices: DraftChoice[]
+  meta?: Record<string, unknown>
 }
 
 export interface QuizCreatorState {

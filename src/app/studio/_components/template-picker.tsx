@@ -84,7 +84,7 @@ export const QUIZ_TEMPLATES: QuizTemplate[] = [
     name: 'Map Quiz',
     color: 'text-quiz-orange',
     timeLimitSec: 20,
-    questionCount: 5,
+    questionCount: 0,
   },
 ]
 
