@@ -1,7 +1,6 @@
 export interface MapRegion {
   id: string
   name: string
-  svgPath: string
   countries: CountryInfo[]
 }
 
@@ -14,7 +13,6 @@ export const MAP_REGIONS: MapRegion[] = [
   {
     id: 'europe',
     name: 'Europe',
-    svgPath: '/maps/europe.svg',
     countries: [
       { id: 'iceland', name: 'Iceland' },
       { id: 'norway', name: 'Norway' },
@@ -52,7 +50,6 @@ export const MAP_REGIONS: MapRegion[] = [
   {
     id: 'africa',
     name: 'Africa',
-    svgPath: '/maps/africa.svg',
     countries: [
       { id: 'morocco', name: 'Morocco' },
       { id: 'algeria', name: 'Algeria' },
@@ -88,7 +85,6 @@ export const MAP_REGIONS: MapRegion[] = [
   {
     id: 'americas',
     name: 'Americas',
-    svgPath: '/maps/americas.svg',
     countries: [
       { id: 'canada', name: 'Canada' },
       { id: 'united-states', name: 'United States' },
@@ -115,7 +111,6 @@ export const MAP_REGIONS: MapRegion[] = [
   {
     id: 'asia',
     name: 'Asia',
-    svgPath: '/maps/asia.svg',
     countries: [
       { id: 'russia', name: 'Russia' },
       { id: 'china', name: 'China' },
@@ -150,7 +145,6 @@ export const MAP_REGIONS: MapRegion[] = [
   {
     id: 'oceania',
     name: 'Oceania',
-    svgPath: '/maps/oceania.svg',
     countries: [
       { id: 'australia', name: 'Australia' },
       { id: 'new-zealand', name: 'New Zealand' },

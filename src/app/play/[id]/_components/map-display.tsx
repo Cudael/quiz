@@ -1,7 +1,18 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { getRegionById } from '@/lib/map-regions'
+import { useCallback } from 'react'
+import { ComposableMap, Geographies, Geography, ZoomableGroup } from 'react-simple-maps'
+
+const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'
+
+const REGION_CONFIG: Record<string, { center: [number, number]; zoom: number }> = {
+  world: { center: [0, 20], zoom: 1 },
+  europe: { center: [15, 50], zoom: 3.5 },
+  africa: { center: [20, 0], zoom: 2.5 },
+  americas: { center: [-80, 10], zoom: 2 },
+  asia: { center: [90, 30], zoom: 2.5 },
+  oceania: { center: [145, -25], zoom: 3 },
+}
 
 interface MapDisplayProps {
   mapRegion: string
@@ -22,110 +33,88 @@ export function MapDisplay({
   onCountryClick,
   className,
 }: MapDisplayProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [svgContent, setSvgContent] = useState<string>('')
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(false)
+  const regionConfig = REGION_CONFIG[mapRegion] ?? REGION_CONFIG.world
 
-  const region = getRegionById(mapRegion)
-
-  const loadMap = useCallback(async () => {
-    if (!region) {
-      setError(true)
-      setLoading(false)
-      return
-    }
-
-    try {
-      const response = await fetch(region.svgPath)
-      if (!response.ok) throw new Error('Failed to load map')
-      const text = await response.text()
-      setSvgContent(text)
-      setLoading(false)
-    } catch {
-      setError(true)
-      setLoading(false)
-    }
-  }, [region])
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- async fetch requires setState in effect
-    loadMap()
-  }, [loadMap])
-
-  useEffect(() => {
-    if (!svgContent || !containerRef.current) return
-
-    // Inject the SVG content
-    containerRef.current.innerHTML = svgContent
-
-    const svg = containerRef.current.querySelector('svg')
-    if (!svg) return
-
-    // Make SVG responsive
-    svg.removeAttribute('width')
-    svg.removeAttribute('height')
-    svg.style.width = '100%'
-    svg.style.height = 'auto'
-    svg.style.maxHeight = '400px'
-
-    // Style all country paths
-    const allPaths = svg.querySelectorAll('.country')
-    allPaths.forEach((el) => {
-      const path = el as SVGPathElement
-      const countryId = path.id
-
-      // Reset classes
-      path.classList.remove('highlighted', 'selected', 'correct', 'incorrect')
-
-      if (showResult && correctCountryId) {
-        // Show results: green for correct, red for incorrect selection
-        if (countryId === correctCountryId) {
-          path.classList.add('correct')
-        } else if (countryId === selectedCountryId) {
-          path.classList.add('incorrect')
-        }
-      } else if (countryId === selectedCountryId) {
-        // Show selection
-        path.classList.add('selected')
-      }
-
-      // Add click handler
+  const handleClick = useCallback(
+    (geoId: string) => {
       if (!disabled && onCountryClick) {
-        path.style.cursor = 'pointer'
-        path.addEventListener('click', () => onCountryClick(countryId))
-      } else {
-        path.style.cursor = 'default'
+        onCountryClick(geoId)
       }
-    })
-  }, [svgContent, selectedCountryId, correctCountryId, showResult, disabled, onCountryClick])
+    },
+    [disabled, onCountryClick]
+  )
 
-  if (loading) {
-    return (
-      <div className={className}>
-        <div className="flex h-64 items-center justify-center rounded-xl border border-border/40 bg-muted/20">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        </div>
-      </div>
-    )
-  }
+  const getFill = useCallback(
+    (geoId: string) => {
+      if (showResult && correctCountryId) {
+        if (geoId === correctCountryId) return '#22c55e'
+        if (geoId === selectedCountryId) return '#ef4444'
+        return '#d4d4d8'
+      }
+      if (geoId === selectedCountryId) return '#f97316'
+      return '#d4d4d8'
+    },
+    [showResult, correctCountryId, selectedCountryId]
+  )
 
-  if (error || !region) {
-    return (
-      <div className={className}>
-        <div className="flex h-64 items-center justify-center rounded-xl border border-border/40 bg-muted/20">
-          <p className="text-sm text-muted-foreground">Could not load map.</p>
-        </div>
-      </div>
-    )
-  }
+  const getStroke = useCallback(
+    (geoId: string) => {
+      if (showResult && correctCountryId && geoId === correctCountryId) return '#16a34a'
+      if (showResult && selectedCountryId && geoId === selectedCountryId) return '#dc2626'
+      if (geoId === selectedCountryId) return '#ea580c'
+      return '#71717a'
+    },
+    [showResult, correctCountryId, selectedCountryId]
+  )
 
   return (
     <div className={className}>
-      <div
-        ref={containerRef}
-        className="rounded-xl border border-border/40 bg-card p-4 [&_svg]:mx-auto"
-      />
+      <div className="overflow-hidden rounded-xl border border-border/40 bg-card">
+        <ComposableMap
+          projection="geoMercator"
+          projectionConfig={{ scale: 100, center: regionConfig.center }}
+          style={{ width: '100%', height: 'auto' }}
+        >
+          <ZoomableGroup center={regionConfig.center} zoom={regionConfig.zoom}>
+            <Geographies geography={GEO_URL}>
+              {({ geographies }) =>
+                geographies.map((geo) => {
+                  const geoId = geo.id as string
+                  return (
+                    <Geography
+                      key={geo.rsmKey}
+                      geography={geo}
+                      onClick={() => handleClick(geoId)}
+                      style={{
+                        default: {
+                          fill: getFill(geoId),
+                          stroke: getStroke(geoId),
+                          strokeWidth: 0.5,
+                          outline: 'none',
+                          cursor: disabled ? 'default' : 'pointer',
+                        },
+                        hover: {
+                          fill: disabled ? getFill(geoId) : '#a1a1aa',
+                          stroke: getStroke(geoId),
+                          strokeWidth: 1,
+                          outline: 'none',
+                          cursor: disabled ? 'default' : 'pointer',
+                        },
+                        pressed: {
+                          fill: '#f97316',
+                          stroke: '#ea580c',
+                          strokeWidth: 1,
+                          outline: 'none',
+                        },
+                      }}
+                    />
+                  )
+                })
+              }
+            </Geographies>
+          </ZoomableGroup>
+        </ComposableMap>
+      </div>
     </div>
   )
 }
