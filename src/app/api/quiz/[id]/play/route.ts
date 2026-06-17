@@ -64,6 +64,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       imageUrl: q.imageUrl,
       timeLimitSec: q.timeLimitSec,
       order: q.order,
+      meta: q.meta,
       choices: shuffleArray(q.choices),
     })),
     playToken,

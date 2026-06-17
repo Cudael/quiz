@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { useState, useCallback } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -46,6 +47,26 @@ export function QuestionPanel({
   const questionImageSrc = getQuestionImageSrc(currentQuestion.imageUrl)
   const showHeaderImage = !!questionImageSrc
   const isImageChoice = currentQuestion.choices.some((c) => c.imageUrl)
+  const isMapQuestion = currentQuestion.type === 'MAP_SELECT'
+
+  const [selectedCountryId, setSelectedCountryId] = useState<string | null>(null)
+
+  const mapRegion = (currentQuestion.meta as Record<string, string>)?.mapRegion ?? 'europe'
+
+  const handleCountryClick = useCallback(
+    (countryId: string) => {
+      if (isAnswered) return
+      setSelectedCountryId(countryId)
+      // Find the choice whose meta.regionId matches the clicked country
+      const matchingChoice = currentQuestion.choices.find(
+        (c) => (c.meta as Record<string, string>)?.regionId === countryId
+      )
+      if (matchingChoice) {
+        onChoiceSelect(matchingChoice.id)
+      }
+    },
+    [isAnswered, currentQuestion.choices, onChoiceSelect]
+  )
 
   return (
     <AnimatePresence mode="wait">
@@ -106,42 +127,25 @@ export function QuestionPanel({
               />
             </div>
           </div>
-        ) : currentQuestion.type === 'MAP_SELECT' ? (
+        ) : isMapQuestion ? (
           <div className="space-y-4">
             <MapDisplay
-              mapRegion={(currentQuestion.meta as Record<string, string>)?.mapRegion ?? 'world'}
-              highlightedCountryId={
-                (currentQuestion.meta as Record<string, string>)?.highlightedId ?? ''
-              }
+              mapRegion={mapRegion}
+              selectedCountryId={selectedCountryId}
+              disabled={isAnswered}
+              onCountryClick={handleCountryClick}
               className="max-w-lg mx-auto"
             />
-            <div className="grid gap-3 sm:grid-cols-2">
-              {currentQuestion.choices
-                .filter((c) => !hiddenChoiceIds.includes(c.id))
-                .map((choice) => {
-                  const isSelected = selectedChoiceIds.includes(choice.id)
-                  return (
-                    <button
-                      key={choice.id}
-                      type="button"
-                      onClick={() => onChoiceSelect(choice.id)}
-                      disabled={isAnswered}
-                      className={cn(
-                        'rounded-xl border px-4 py-3 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                        isAnswered
-                          ? isSelected
-                            ? 'border-quiz-purple bg-quiz-purple/20'
-                            : 'border-border bg-muted/30 opacity-60'
-                          : isSelected
-                            ? 'border-primary bg-primary/10'
-                            : 'cursor-pointer border-border bg-card hover:border-primary hover:bg-primary/5'
-                      )}
-                    >
-                      {choice.text}
-                    </button>
-                  )
-                })}
-            </div>
+            {selectedCountryId && !isAnswered && (
+              <p className="text-center text-sm text-muted-foreground">
+                You selected:{' '}
+                <span className="font-semibold text-foreground">
+                  {currentQuestion.choices.find(
+                    (c) => (c.meta as Record<string, string>)?.regionId === selectedCountryId
+                  )?.text ?? selectedCountryId}
+                </span>
+              </p>
+            )}
           </div>
         ) : isImageChoice ? (
           <div className="grid gap-3 sm:grid-cols-2">

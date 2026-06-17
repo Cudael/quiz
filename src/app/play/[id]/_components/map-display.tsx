@@ -5,11 +5,23 @@ import { getRegionById } from '@/lib/map-regions'
 
 interface MapDisplayProps {
   mapRegion: string
-  highlightedCountryId: string
+  selectedCountryId?: string | null
+  correctCountryId?: string | null
+  showResult?: boolean
+  disabled?: boolean
+  onCountryClick?: (countryId: string) => void
   className?: string
 }
 
-export function MapDisplay({ mapRegion, highlightedCountryId, className }: MapDisplayProps) {
+export function MapDisplay({
+  mapRegion,
+  selectedCountryId,
+  correctCountryId,
+  showResult = false,
+  disabled = false,
+  onCountryClick,
+  className,
+}: MapDisplayProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [svgContent, setSvgContent] = useState<string>('')
   const [loading, setLoading] = useState(true)
@@ -57,24 +69,36 @@ export function MapDisplay({ mapRegion, highlightedCountryId, className }: MapDi
     svg.style.height = 'auto'
     svg.style.maxHeight = '400px'
 
-    // Highlight the target country
-    const targetPath = svg.querySelector(`#${highlightedCountryId}`)
-    if (targetPath) {
-      targetPath.classList.add('highlighted')
-    }
+    // Style all country paths
+    const allPaths = svg.querySelectorAll('.country')
+    allPaths.forEach((el) => {
+      const path = el as SVGPathElement
+      const countryId = path.id
 
-    // Remove hover effects (quiz mode - no interaction)
-    const allCountries = svg.querySelectorAll('.country')
-    allCountries.forEach((el) => {
-      el.classList.remove('country')
-      ;(el as HTMLElement).style.cursor = 'default'
+      // Reset classes
+      path.classList.remove('highlighted', 'selected', 'correct', 'incorrect')
+
+      if (showResult && correctCountryId) {
+        // Show results: green for correct, red for incorrect selection
+        if (countryId === correctCountryId) {
+          path.classList.add('correct')
+        } else if (countryId === selectedCountryId) {
+          path.classList.add('incorrect')
+        }
+      } else if (countryId === selectedCountryId) {
+        // Show selection
+        path.classList.add('selected')
+      }
+
+      // Add click handler
+      if (!disabled && onCountryClick) {
+        path.style.cursor = 'pointer'
+        path.addEventListener('click', () => onCountryClick(countryId))
+      } else {
+        path.style.cursor = 'default'
+      }
     })
-
-    // Re-add the highlight class to target
-    if (targetPath) {
-      targetPath.classList.add('highlighted')
-    }
-  }, [svgContent, highlightedCountryId])
+  }, [svgContent, selectedCountryId, correctCountryId, showResult, disabled, onCountryClick])
 
   if (loading) {
     return (

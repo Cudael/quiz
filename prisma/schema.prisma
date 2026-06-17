@@ -172,6 +172,7 @@ model Question {
   timeLimitSec Int          @default(20)
   points       Int          @default(1)
   order        Int
+  meta         Json?
 
   choices Choice[]
   answers QuestionAnswer[]
