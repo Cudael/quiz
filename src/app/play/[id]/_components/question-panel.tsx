@@ -7,6 +7,8 @@ import type { Question } from '../play-view.types'
 import { getQuestionImageSrc, imageLoader } from '../play-view.utils'
 import { CountdownRing } from './countdown-ring'
 import { MapDisplay } from './map-display'
+import { HotspotDisplay } from './hotspot-display'
+import type { HotspotZone } from './hotspot-display'
 
 interface QuestionPanelProps {
   currentQuestion: Question
@@ -48,8 +50,10 @@ export function QuestionPanel({
   const showHeaderImage = !!questionImageSrc
   const isImageChoice = currentQuestion.choices.some((c) => c.imageUrl)
   const isMapQuestion = currentQuestion.type === 'MAP_SELECT'
+  const isHotspotQuestion = currentQuestion.type === 'HOTSPOT'
 
   const [selectedCountryId, setSelectedCountryId] = useState<string | null>(null)
+  const [selectedHotspotZoneId, setSelectedHotspotZoneId] = useState<string | null>(null)
 
   const mapRegion = (currentQuestion.meta as Record<string, string>)?.mapRegion ?? 'europe'
 
@@ -67,6 +71,26 @@ export function QuestionPanel({
     },
     [isAnswered, currentQuestion.choices, onChoiceSelect]
   )
+
+  const handleHotspotZoneClick = useCallback(
+    (zoneId: string) => {
+      if (isAnswered) return
+      setSelectedHotspotZoneId(zoneId)
+      // Find the choice whose meta.zoneId matches the clicked zone
+      const matchingChoice = currentQuestion.choices.find(
+        (c) => (c.meta as Record<string, string>)?.zoneId === zoneId
+      )
+      if (matchingChoice) {
+        onChoiceSelect(matchingChoice.id)
+      }
+    },
+    [isAnswered, currentQuestion.choices, onChoiceSelect]
+  )
+
+  // Get hotspot zones from question meta
+  const hotspotMeta = currentQuestion.meta as { zones?: HotspotZone[] } | undefined
+  const hotspotZones = hotspotMeta?.zones ?? []
+  const hotspotImageUrl = currentQuestion.imageUrl ?? ''
 
   return (
     <AnimatePresence mode="wait">
@@ -143,6 +167,28 @@ export function QuestionPanel({
                   {currentQuestion.choices.find(
                     (c) => (c.meta as Record<string, string>)?.regionId === selectedCountryId
                   )?.text ?? selectedCountryId}
+                </span>
+              </p>
+            )}
+          </div>
+        ) : isHotspotQuestion ? (
+          <div className="space-y-4">
+            <HotspotDisplay
+              imageUrl={hotspotImageUrl}
+              zones={hotspotZones}
+              correctZoneId={null}
+              selectedZoneId={selectedHotspotZoneId}
+              showResult={isAnswered}
+              disabled={isAnswered}
+              onZoneClick={handleHotspotZoneClick}
+              className="max-w-lg mx-auto"
+            />
+            {selectedHotspotZoneId && !isAnswered && (
+              <p className="text-center text-sm text-muted-foreground">
+                You selected:{' '}
+                <span className="font-semibold text-foreground">
+                  {hotspotZones.find((z) => z.id === selectedHotspotZoneId)?.name ??
+                    selectedHotspotZoneId}
                 </span>
               </p>
             )}
@@ -266,6 +312,7 @@ const TYPE_HINTS: Record<string, string> = {
   TRUEFALSE: 'True or false?',
   FILL_BLANK: 'Type your answer below.',
   MAP_SELECT: 'Look at the map and choose the correct answer.',
+  HOTSPOT: 'Click on the correct area in the image.',
 }
 
 function QuestionTypeHint({ type, isAnswered }: { type: string; isAnswered: boolean }) {

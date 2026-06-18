@@ -13,14 +13,22 @@ export interface DraftChoice {
   meta?: Record<string, unknown>
 }
 
-export type QuestionType = 'SINGLE' | 'MAP_SELECT'
-export type QuizFormat = 'TEXT_CHOICE' | 'IMAGE_CHOICE' | 'MAP_CHOICE'
+export interface HotspotZone {
+  id: string
+  name: string
+  x: number
+  y: number
+  radius: number
+}
+
+export type QuestionType = 'SINGLE' | 'MAP_SELECT' | 'HOTSPOT'
+export type QuizFormat = 'TEXT_CHOICE' | 'IMAGE_CHOICE' | 'MAP_CHOICE' | 'IMAGE_HOTSPOT'
 export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD'
 
 export interface DraftQuestion {
   localId: string
   dbId: string | null
-  type: 'SINGLE' | 'MAP_SELECT'
+  type: 'SINGLE' | 'MAP_SELECT' | 'HOTSPOT'
   prompt: string
   imageUrl: string
   explanation: string
@@ -36,6 +44,7 @@ export interface QuizCreatorState {
   categoryId: string
   difficulty: Difficulty
   imageUrl: string
+  sharedImageUrl: string
   defaultTimeLimitSec: number | null
   isPublished: boolean
   questions: DraftQuestion[]
@@ -57,6 +66,7 @@ export interface QuizCreatorActions {
         | 'categoryId'
         | 'difficulty'
         | 'imageUrl'
+        | 'sharedImageUrl'
         | 'defaultTimeLimitSec'
         | 'isPublished'
         | 'quizFormat'
@@ -72,6 +82,7 @@ export interface QuizCreatorActions {
   setStep: (step: 1 | 2 | 3 | 4) => void
   setQuizFormat: (format: QuizFormat) => void
   setMapRegion: (region: string | null) => void
+  setSharedImageUrl: (url: string) => void
   applyTemplate: (
     id: string,
     format: QuizFormat,
@@ -94,6 +105,7 @@ const initialState: QuizCreatorState = {
   categoryId: '',
   difficulty: 'MEDIUM',
   imageUrl: '',
+  sharedImageUrl: '',
   defaultTimeLimitSec: null,
   isPublished: false,
   questions: [],
@@ -148,6 +160,8 @@ export const useQuizCreatorStore = create<QuizCreatorState & QuizCreatorActions>
 
       setMapRegion: (region) => set({ mapRegion: region }),
 
+      setSharedImageUrl: (url) => set({ sharedImageUrl: url }),
+
       applyTemplate: (id, format, questions, mapRegion) =>
         set({
           selectedTemplateId: id,
@@ -174,6 +188,7 @@ export const useQuizCreatorStore = create<QuizCreatorState & QuizCreatorActions>
         categoryId: state.categoryId,
         difficulty: state.difficulty,
         imageUrl: state.imageUrl,
+        sharedImageUrl: state.sharedImageUrl,
         defaultTimeLimitSec: state.defaultTimeLimitSec,
         isPublished: state.isPublished,
         questions: state.questions,

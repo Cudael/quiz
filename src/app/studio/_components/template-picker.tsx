@@ -1,7 +1,6 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { MAP_REGIONS } from '@/lib/map-regions'
 import type { QuizFormat } from '@/store/quiz-creator-store'
 
 function FormatPreview({ format }: { format: QuizFormat }) {
@@ -19,19 +18,20 @@ function FormatPreview({ format }: { format: QuizFormat }) {
     )
   }
 
-  if (format === 'MAP_CHOICE') {
+  if (format === 'IMAGE_HOTSPOT') {
     return (
       <div className="flex h-[72px] items-center justify-center gap-2 rounded-md bg-muted/40 p-2">
-        <div className="h-12 w-16 rounded bg-quiz-orange/20 ring-1 ring-quiz-orange/40 flex items-center justify-center">
+        <div className="relative h-12 w-16 rounded bg-quiz-orange/20 ring-1 ring-quiz-orange/40 flex items-center justify-center">
           <svg
-            className="h-6 w-6 text-quiz-orange/60"
+            className="h-5 w-5 text-quiz-orange/60"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
             strokeWidth="2"
           >
-            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
-            <circle cx="12" cy="9" r="2.5" />
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.4" />
+            <circle cx="12" cy="12" r="3" />
           </svg>
         </div>
         <div className="flex flex-col gap-1">
@@ -80,69 +80,26 @@ export const QUIZ_TEMPLATES: QuizTemplate[] = [
     questionCount: 5,
   },
   {
-    id: 'map-choice',
-    format: 'MAP_CHOICE',
-    name: 'Map Quiz',
+    id: 'hotspot-choice',
+    format: 'IMAGE_HOTSPOT',
+    name: 'Image Hotspot',
     color: 'text-quiz-orange',
     timeLimitSec: 20,
     questionCount: 0,
   },
 ]
 
-interface RegionPickerProps {
-  selectedRegionId: string | null
-  onSelect: (regionId: string) => void
-}
-
-export function RegionPicker({ selectedRegionId, onSelect }: RegionPickerProps) {
-  return (
-    <div className="space-y-2">
-      <p className="text-xs font-medium text-muted-foreground">Choose a continent</p>
-      <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
-        {MAP_REGIONS.map((region) => {
-          const isSelected = selectedRegionId === region.id
-          return (
-            <button
-              key={region.id}
-              type="button"
-              onClick={() => onSelect(region.id)}
-              className={cn(
-                'rounded-md border px-3 py-1.5 text-xs font-medium transition-all',
-                isSelected
-                  ? 'border-quiz-orange bg-quiz-orange/10 text-quiz-orange ring-1 ring-quiz-orange'
-                  : 'border-border text-muted-foreground hover:border-quiz-orange/50 hover:text-foreground'
-              )}
-            >
-              {region.name}
-              <span className="ml-1 opacity-60">({region.countries.length})</span>
-            </button>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
-
 interface TemplatePickerProps {
   selectedId: string | null
-  selectedRegionId: string | null
   onSelect: (template: QuizTemplate) => void
-  onRegionSelect: (regionId: string) => void
 }
 
-export function TemplatePicker({
-  selectedId,
-  selectedRegionId,
-  onSelect,
-  onRegionSelect,
-}: TemplatePickerProps) {
+export function TemplatePicker({ selectedId, onSelect }: TemplatePickerProps) {
   const selectedBorderByTemplateId: Record<string, string> = {
     'text-choice': 'border-primary ring-primary',
     'image-choice': 'border-purple-500 ring-purple-500',
-    'map-choice': 'border-quiz-orange ring-quiz-orange',
+    'hotspot-choice': 'border-quiz-orange ring-quiz-orange',
   }
-
-  const isMapSelected = selectedId === 'map-choice'
 
   return (
     <div className="space-y-3">
@@ -166,9 +123,6 @@ export function TemplatePicker({
           )
         })}
       </div>
-      {isMapSelected && (
-        <RegionPicker selectedRegionId={selectedRegionId} onSelect={onRegionSelect} />
-      )}
     </div>
   )
 }

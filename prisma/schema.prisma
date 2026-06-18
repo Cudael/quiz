@@ -24,12 +24,14 @@ enum QuestionType {
   TRUEFALSE
   FILL_BLANK
   MAP_SELECT
+  HOTSPOT
 }
 
 enum QuizFormat {
   TEXT_CHOICE
   IMAGE_CHOICE
   MAP_CHOICE
+  IMAGE_HOTSPOT
 }
 
 
