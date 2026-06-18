@@ -47,7 +47,17 @@ export default async function EditQuizPage({ params }: { params: Promise<{ id: s
     <QuizCreatorShell
       mode="edit"
       quizId={quiz.id}
-      initialData={{ quiz, questions: quiz.questions }}
+      initialData={{
+        quiz,
+        questions: quiz.questions.map((q) => ({
+          ...q,
+          meta: q.meta as Record<string, unknown> | null,
+          choices: q.choices.map((c) => ({
+            ...c,
+            meta: c.meta as Record<string, unknown> | null,
+          })),
+        })),
+      }}
       categories={categories}
     />
   )

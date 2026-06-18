@@ -49,6 +49,7 @@ interface InitialQuizQuestion {
   explanation: string | null
   timeLimitSec: number
   order: number
+  meta?: Record<string, unknown> | null
   choices: Array<{ id: string; text: string; isCorrect: boolean; meta?: unknown }>
 }
 
@@ -99,6 +100,11 @@ export function QuizCreatorShell({
       })
       store.setQuizFormat(quizFormat)
 
+      // For IMAGE_HOTSPOT quizzes, derive sharedImageUrl from the first question's imageUrl
+      if (quizFormat === 'IMAGE_HOTSPOT' && initialData.questions.length > 0) {
+        store.setMeta({ sharedImageUrl: initialData.questions[0].imageUrl ?? '' })
+      }
+
       // When redirected from new→edit after choosing a template, the server
       // has no questions yet but the store already holds the template questions.
       // Skip overwriting the store in that case.
@@ -111,6 +117,10 @@ export function QuizCreatorShell({
           imageUrl: q.imageUrl ?? '',
           explanation: q.explanation ?? '',
           timeLimitSec: q.timeLimitSec,
+          meta:
+            typeof q.meta === 'object' && q.meta !== null
+              ? (q.meta as Record<string, unknown>)
+              : undefined,
           choices: q.choices.map(
             (c): DraftChoice => ({
               localId: crypto.randomUUID(),
