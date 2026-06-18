@@ -145,43 +145,49 @@ export function HotspotQuestionEditor() {
 
   const handleZoneNameChange = useCallback(
     (questionId: string, zoneId: string, newName: string) => {
-      const question = questions.find((q) => q.localId === questionId)
-      if (!question) return
-      const meta = question.meta as { zones?: HotspotZone[] } | undefined
-      if (!meta?.zones) return
+      // Update zone name in ALL questions' meta
+      for (const q of questions) {
+        const meta = q.meta as { zones?: HotspotZone[] } | undefined
+        if (!meta?.zones) continue
+        const hasZone = meta.zones.some((z) => z.id === zoneId)
+        if (!hasZone) continue
 
-      const updatedZones = meta.zones.map((z) => (z.id === zoneId ? { ...z, name: newName } : z))
+        const updatedZones = meta.zones.map((z) => (z.id === zoneId ? { ...z, name: newName } : z))
 
-      const updatedChoices = question.choices.map((c) => {
-        const choiceMeta = c.meta as { zoneId?: string } | undefined
-        if (choiceMeta?.zoneId === zoneId) {
-          return { ...c, text: newName }
-        }
-        return c
-      })
+        const updatedChoices = q.choices.map((c) => {
+          const choiceMeta = c.meta as { zoneId?: string } | undefined
+          if (choiceMeta?.zoneId === zoneId) {
+            return { ...c, text: newName }
+          }
+          return c
+        })
 
-      updateQuestion(questionId, {
-        prompt: `Click on ${newName}`,
-        meta: { ...meta, zones: updatedZones },
-        choices: updatedChoices,
-      })
+        updateQuestion(q.localId, {
+          ...(q.localId === questionId ? { prompt: `Click on ${newName}` } : {}),
+          meta: { ...meta, zones: updatedZones },
+          choices: updatedChoices,
+        })
+      }
     },
     [questions, updateQuestion]
   )
 
   const handleRadiusChange = useCallback(
     (questionId: string, zoneId: string, newRadius: number) => {
-      const question = questions.find((q) => q.localId === questionId)
-      if (!question) return
-      const meta = question.meta as { zones?: HotspotZone[] } | undefined
-      if (!meta?.zones) return
+      // Update zone radius in ALL questions' meta
+      for (const q of questions) {
+        const meta = q.meta as { zones?: HotspotZone[] } | undefined
+        if (!meta?.zones) continue
+        const hasZone = meta.zones.some((z) => z.id === zoneId)
+        if (!hasZone) continue
 
-      const updatedZones = meta.zones.map((z) =>
-        z.id === zoneId ? { ...z, radius: newRadius } : z
-      )
-      updateQuestion(questionId, {
-        meta: { ...meta, zones: updatedZones },
-      })
+        const updatedZones = meta.zones.map((z) =>
+          z.id === zoneId ? { ...z, radius: newRadius } : z
+        )
+        updateQuestion(q.localId, {
+          meta: { ...meta, zones: updatedZones },
+        })
+      }
     },
     [questions, updateQuestion]
   )
