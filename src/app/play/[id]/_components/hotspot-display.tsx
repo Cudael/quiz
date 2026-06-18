@@ -79,26 +79,27 @@ export function HotspotDisplay({
         }
       }
 
-      if (zone.id === correctZoneId) {
-        return {
-          border: 'border-green-500',
-          bg: 'bg-green-500/25',
-          text: 'text-green-600',
-        }
+      // Only color the selected zone — don't reveal the correct answer
+      if (zone.id === selectedZoneId) {
+        const isCorrect = selectedZoneId === correctZoneId
+        return isCorrect
+          ? {
+              border: 'border-green-500',
+              bg: 'bg-green-500/25',
+              text: 'text-green-600',
+            }
+          : {
+              border: 'border-red-500',
+              bg: 'bg-red-500/25',
+              text: 'text-red-600',
+            }
       }
 
-      if (zone.id === selectedZoneId && zone.id !== correctZoneId) {
-        return {
-          border: 'border-red-500',
-          bg: 'bg-red-500/25',
-          text: 'text-red-600',
-        }
-      }
-
+      // All other zones stay orange (default)
       return {
-        border: 'border-muted-foreground/30',
-        bg: 'bg-muted/20',
-        text: 'text-muted-foreground',
+        border: 'border-quiz-orange',
+        bg: 'bg-quiz-orange/10',
+        text: 'text-quiz-orange',
       }
     },
     [showResult, correctZoneId, selectedZoneId]
@@ -126,7 +127,7 @@ export function HotspotDisplay({
         {showMarkers &&
           zones.map((zone) => {
             const colors = getZoneColors(zone)
-            const showLabel = showNames || showResult
+            const showLabel = showNames || (showResult && zone.id === selectedZoneId)
             return (
               <div
                 key={zone.id}
