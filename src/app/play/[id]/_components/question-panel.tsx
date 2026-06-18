@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -77,12 +77,10 @@ export function QuestionPanel({
     (zoneId: string) => {
       if (isAnswered) return
       setSelectedHotspotZoneId(zoneId)
-      // Find the choice whose meta.zoneId matches the clicked zone
       const matchingChoice = currentQuestion.choices.find(
         (c) => (c.meta as Record<string, string>)?.zoneId === zoneId
       )
       if (matchingChoice) {
-        // Auto-submit immediately — no need for Submit button
         onAnswer([matchingChoice.id])
       }
     },
@@ -91,8 +89,14 @@ export function QuestionPanel({
 
   // Get hotspot data
   const hotspotMeta = currentQuestion.meta as { zones?: HotspotZone[] } | undefined
-  const hotspotZones = hotspotMeta?.zones ?? []
+  const hotspotZones = useMemo(() => hotspotMeta?.zones ?? [], [hotspotMeta?.zones])
   const hotspotImageUrl = currentQuestion.imageUrl ?? ''
+
+  // Derive effective selected zone — only valid if it exists in current question
+  const effectiveSelectedZoneId = useMemo(() => {
+    if (!selectedHotspotZoneId) return null
+    return hotspotZones.some((z) => z.id === selectedHotspotZoneId) ? selectedHotspotZoneId : null
+  }, [selectedHotspotZoneId, hotspotZones])
 
   // Find the correct zone ID for result display
   const correctChoice = currentQuestion.choices.find((c) => c.isCorrect)
@@ -100,6 +104,69 @@ export function QuestionPanel({
     ? ((correctChoice.meta as Record<string, string>)?.zoneId ?? null)
     : null
 
+  // Hotspot: image stays static, prompt/zones update instantly
+  if (isHotspotQuestion) {
+    return (
+      <div>
+        {/* Static image — stays mounted across questions */}
+        <div className="mb-4">
+          <HotspotDisplay
+            imageUrl={hotspotImageUrl}
+            zones={hotspotZones}
+            correctZoneId={correctZoneId}
+            selectedZoneId={effectiveSelectedZoneId}
+            showResult={isAnswered}
+            showMarkers={true}
+            showNames={false}
+            disabled={isAnswered}
+            onZoneClick={handleHotspotZoneClick}
+            className="mx-auto"
+          />
+        </div>
+
+        {/* Prompt + timer — updates instantly */}
+        <div className="mb-4 space-y-3">
+          <div className="flex items-center gap-4">
+            <CountdownRing
+              timeLimitSec={currentQuestion.timeLimitSec}
+              timeRemainingMs={timeRemainingMs}
+            />
+            <p className="flex-1 text-xl font-semibold leading-snug">{renderedPrompt}</p>
+          </div>
+        </div>
+
+        {/* Zone hint */}
+        {!isAnswered && (
+          <p className="mb-4 text-sm text-muted-foreground">
+            Click on a zone on the image to answer.
+          </p>
+        )}
+
+        {/* Result text */}
+        {effectiveSelectedZoneId && !isAnswered && (
+          <p className="mb-4 text-center text-sm text-muted-foreground">
+            You selected:{' '}
+            <span className="font-semibold text-foreground">
+              {hotspotZones.find((z) => z.id === effectiveSelectedZoneId)?.name ??
+                effectiveSelectedZoneId}
+            </span>
+          </p>
+        )}
+
+        {/* Next/Finish button */}
+        {isAnswered && (
+          <div className="mt-6 flex justify-end">
+            <Button onClick={onNext} variant="gradient" disabled={submitting}>
+              {isLastQuestion ? 'Finish' : 'Next'}
+              <span className="text-xs opacity-70 ml-1">(Enter)</span>
+            </Button>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // Non-hotspot questions: use AnimatePresence as before
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -175,30 +242,6 @@ export function QuestionPanel({
                   {currentQuestion.choices.find(
                     (c) => (c.meta as Record<string, string>)?.regionId === selectedCountryId
                   )?.text ?? selectedCountryId}
-                </span>
-              </p>
-            )}
-          </div>
-        ) : isHotspotQuestion ? (
-          <div className="space-y-4">
-            <HotspotDisplay
-              imageUrl={hotspotImageUrl}
-              zones={hotspotZones}
-              correctZoneId={correctZoneId}
-              selectedZoneId={selectedHotspotZoneId}
-              showResult={isAnswered}
-              showMarkers={true}
-              showNames={false}
-              disabled={isAnswered}
-              onZoneClick={handleHotspotZoneClick}
-              className="mx-auto"
-            />
-            {selectedHotspotZoneId && !isAnswered && (
-              <p className="text-center text-sm text-muted-foreground">
-                You selected:{' '}
-                <span className="font-semibold text-foreground">
-                  {hotspotZones.find((z) => z.id === selectedHotspotZoneId)?.name ??
-                    selectedHotspotZoneId}
                 </span>
               </p>
             )}
@@ -286,9 +329,7 @@ export function QuestionPanel({
         )}
 
         <AnimatePresence>
-          {/* Hotspot: no Submit button, auto-submits on click */}
-          {/* Non-hotspot, not answered: show Submit button */}
-          {!isHotspotQuestion && !isAnswered && (
+          {!isAnswered && (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
@@ -301,7 +342,6 @@ export function QuestionPanel({
             </motion.div>
           )}
 
-          {/* Answered: show Next/Finish button */}
           {isAnswered && (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
