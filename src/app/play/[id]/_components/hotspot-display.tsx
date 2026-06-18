@@ -140,8 +140,8 @@ export function HotspotDisplay({
                 <div
                   className={`rounded-full border-2 ${colors.border} ${colors.bg}`}
                   style={{
-                    width: `${zone.radius * 2}%`,
-                    height: `${zone.radius * 2}%`,
+                    width: `${zone.radius * 20}px`,
+                    height: `${zone.radius * 20}px`,
                   }}
                 />
                 {showLabel && (
@@ -174,8 +174,8 @@ export function HotspotDisplay({
                 <div
                   className={`rounded-full ${isCorrect ? 'bg-green-500/30' : 'bg-red-500/30'}`}
                   style={{
-                    width: `${selectedZone.radius * 2}%`,
-                    height: `${selectedZone.radius * 2}%`,
+                    width: `${selectedZone.radius * 20}px`,
+                    height: `${selectedZone.radius * 20}px`,
                   }}
                 />
               </div>

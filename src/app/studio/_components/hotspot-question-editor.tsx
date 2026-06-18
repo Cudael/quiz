@@ -260,8 +260,8 @@ export function HotspotQuestionEditor() {
                   <div
                     className="rounded-full border-2 border-quiz-orange bg-quiz-orange/10"
                     style={{
-                      width: `${zone.radius * 2}%`,
-                      height: `${zone.radius * 2}%`,
+                      width: `${zone.radius * 20}px`,
+                      height: `${zone.radius * 20}px`,
                     }}
                   />
                   <span className="absolute top-full left-1/2 -translate-x-1/2 mt-0.5 text-xs font-medium text-quiz-orange whitespace-nowrap bg-background/80 px-1 rounded">
@@ -283,8 +283,8 @@ export function HotspotQuestionEditor() {
                   <div
                     className="rounded-full border-2 border-primary bg-primary/30 animate-pulse"
                     style={{
-                      width: `${zoneForm.radius * 2}%`,
-                      height: `${zoneForm.radius * 2}%`,
+                      width: `${zoneForm.radius * 20}px`,
+                      height: `${zoneForm.radius * 20}px`,
                     }}
                   />
                   <Target className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
