@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useRef, useMemo, useEffect } from 'react'
+import { useState, useCallback, useRef, useMemo } from 'react'
 import Image from 'next/image'
 import { PlusCircle, Trash2, Pencil, Target } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -15,30 +15,6 @@ interface ZoneFormState {
   radius: number
 }
 
-function useContainerWidth(ref: React.RefObject<HTMLDivElement | null>) {
-  const [width, setWidth] = useState(0)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-
-    // Fallback: measure immediately with offsetWidth
-    if (el.offsetWidth > 0 && width === 0) {
-      setWidth(el.offsetWidth)
-    }
-
-    const observer = new ResizeObserver((entries) => {
-      const entry = entries[0]
-      if (entry) setWidth(entry.contentRect.width)
-    })
-    observer.observe(el)
-
-    return () => observer.disconnect()
-  }, [ref, width])
-
-  return width
-}
-
 export function HotspotQuestionEditor() {
   const { questions, sharedImageUrl, addQuestion, updateQuestion, removeQuestion, setMeta } =
     useQuizCreatorStore()
@@ -48,7 +24,6 @@ export function HotspotQuestionEditor() {
   const [zoneForm, setZoneForm] = useState<ZoneFormState>({ name: '', radius: 5 })
   const [editingPromptId, setEditingPromptId] = useState<string | null>(null)
   const imageContainerRef = useRef<HTMLDivElement>(null)
-  const containerWidth = useContainerWidth(imageContainerRef)
 
   const allZones = useMemo(() => {
     const zones: Array<HotspotZone & { questionId: string }> = []
@@ -200,13 +175,6 @@ export function HotspotQuestionEditor() {
     [questions, updateQuestion]
   )
 
-  const zoneToPixels = useCallback(
-    (radiusPercent: number) => {
-      return Math.round((radiusPercent / 100) * containerWidth)
-    },
-    [containerWidth]
-  )
-
   return (
     <div className="space-y-4">
       <div className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
@@ -268,31 +236,28 @@ export function HotspotQuestionEditor() {
               />
 
               {/* Existing zones */}
-              {allZones.map((zone) => {
-                const sizePx = zoneToPixels(zone.radius) * 2
-                return (
+              {allZones.map((zone) => (
+                <div
+                  key={zone.id}
+                  className="absolute pointer-events-none"
+                  style={{
+                    left: `${zone.x}%`,
+                    top: `${zone.y}%`,
+                    transform: 'translate(-50%, -50%)',
+                  }}
+                >
                   <div
-                    key={zone.id}
-                    className="absolute pointer-events-none"
+                    className="rounded-full border-2 border-quiz-orange bg-quiz-orange/20"
                     style={{
-                      left: `${zone.x}%`,
-                      top: `${zone.y}%`,
-                      transform: 'translate(-50%, -50%)',
+                      width: `${zone.radius * 2}%`,
+                      height: `${zone.radius * 2}%`,
                     }}
-                  >
-                    <div
-                      className="rounded-full border-2 border-quiz-orange bg-quiz-orange/20"
-                      style={{
-                        width: `${sizePx}px`,
-                        height: `${sizePx}px`,
-                      }}
-                    />
-                    <span className="absolute top-full left-1/2 -translate-x-1/2 mt-0.5 text-xs font-medium text-quiz-orange whitespace-nowrap bg-background/80 px-1 rounded">
-                      {zone.name}
-                    </span>
-                  </div>
-                )
-              })}
+                  />
+                  <span className="absolute top-full left-1/2 -translate-x-1/2 mt-0.5 text-xs font-medium text-quiz-orange whitespace-nowrap bg-background/80 px-1 rounded">
+                    {zone.name}
+                  </span>
+                </div>
+              ))}
 
               {/* Selected placement marker */}
               {selectedZone && (
@@ -307,8 +272,8 @@ export function HotspotQuestionEditor() {
                   <div
                     className="rounded-full border-2 border-primary bg-primary/30 animate-pulse"
                     style={{
-                      width: `${zoneToPixels(zoneForm.radius) * 2}px`,
-                      height: `${zoneToPixels(zoneForm.radius) * 2}px`,
+                      width: `${zoneForm.radius * 2}%`,
+                      height: `${zoneForm.radius * 2}%`,
                     }}
                   />
                   <Target className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
@@ -338,9 +303,7 @@ export function HotspotQuestionEditor() {
                     <label htmlFor="zone-radius" className="text-xs font-medium">
                       Radius
                     </label>
-                    <span className="text-xs text-muted-foreground">
-                      {zoneForm.radius}% ({zoneToPixels(zoneForm.radius)}px)
-                    </span>
+                    <span className="text-xs text-muted-foreground">{zoneForm.radius}%</span>
                   </div>
                   <input
                     id="zone-radius"

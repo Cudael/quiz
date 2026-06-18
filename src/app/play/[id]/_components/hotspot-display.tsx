@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useRef, useState, useEffect } from 'react'
+import { useCallback, useRef } from 'react'
 import Image from 'next/image'
 import { Target } from 'lucide-react'
 
@@ -10,26 +10,6 @@ export interface HotspotZone {
   x: number
   y: number
   radius: number
-}
-
-function useContainerWidth(ref: React.RefObject<HTMLDivElement | null>) {
-  const [width, setWidth] = useState(0)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-
-    const observer = new ResizeObserver((entries) => {
-      const entry = entries[0]
-      if (entry) setWidth(entry.contentRect.width)
-    })
-    observer.observe(el)
-    setWidth(el.clientWidth)
-
-    return () => observer.disconnect()
-  }, [ref])
-
-  return width
 }
 
 interface HotspotDisplayProps {
@@ -58,14 +38,6 @@ export function HotspotDisplay({
   className,
 }: HotspotDisplayProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const containerWidth = useContainerWidth(containerRef)
-
-  const zoneToPixels = useCallback(
-    (radiusPercent: number) => {
-      return Math.round((radiusPercent / 100) * containerWidth)
-    },
-    [containerWidth]
-  )
 
   const handleImageClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -154,7 +126,6 @@ export function HotspotDisplay({
         {showMarkers &&
           zones.map((zone) => {
             const colors = getZoneColors(zone)
-            const sizePx = zoneToPixels(zone.radius) * 2
             const showLabel = showNames || showResult
             return (
               <div
@@ -169,8 +140,8 @@ export function HotspotDisplay({
                 <div
                   className={`rounded-full border-2 ${colors.border} ${colors.bg}`}
                   style={{
-                    width: `${sizePx}px`,
-                    height: `${sizePx}px`,
+                    width: `${zone.radius * 2}%`,
+                    height: `${zone.radius * 2}%`,
                   }}
                 />
                 {showLabel && (
