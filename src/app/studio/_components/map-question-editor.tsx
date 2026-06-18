@@ -23,8 +23,10 @@ const REGION_CONFIG: Record<string, { center: [number, number]; zoom: number }> 
 export function MapQuestionEditor() {
   const { questions, addQuestion, updateQuestion, removeQuestion } = useQuizCreatorStore()
   const defaultTimeLimitSec = useQuizCreatorStore((state) => state.defaultTimeLimitSec)
-
-  const mapRegion = (questions[0]?.meta as Record<string, string>)?.mapRegion || 'europe'
+  const mapRegion =
+    useQuizCreatorStore((state) => state.mapRegion) ??
+    (questions[0]?.meta as Record<string, string>)?.mapRegion ??
+    'europe'
   const region = getRegionById(mapRegion)
   const regionConfig = REGION_CONFIG[mapRegion] ?? REGION_CONFIG.europe
 

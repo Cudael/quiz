@@ -2,8 +2,9 @@
 
 import { cn } from '@/lib/utils'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
+import { getRegionById } from '@/lib/map-regions'
 import { ImageUpload } from './image-upload'
-import { TemplatePicker } from './template-picker'
+import { TemplatePicker, QUIZ_TEMPLATES } from './template-picker'
 import type { QuizTemplate } from './template-picker'
 import type { DraftQuestion, DraftChoice } from '@/store/quiz-creator-store'
 
@@ -41,8 +42,11 @@ const DIFFICULTY_CONFIG: Array<{
   },
 ]
 
-function buildTemplateQuestions(template: QuizTemplate): DraftQuestion[] {
-  if (template.questionCount === 0) return []
+function buildTemplateQuestions(
+  template: QuizTemplate,
+  mapRegionId?: string | null
+): DraftQuestion[] {
+  if (template.questionCount === 0 && template.format !== 'MAP_CHOICE') return []
 
   const makeTextChoices = (): { type: DraftQuestion['type']; choices: DraftChoice[] } => {
     return {
@@ -52,6 +56,38 @@ function buildTemplateQuestions(template: QuizTemplate): DraftQuestion[] {
         { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: false },
       ],
     }
+  }
+
+  if (template.format === 'MAP_CHOICE') {
+    if (!mapRegionId) return []
+    const region = getRegionById(mapRegionId)
+    if (!region) return []
+
+    return region.countries.map((country) => {
+      const choices: DraftChoice[] = region.countries.map((c) => ({
+        localId: crypto.randomUUID(),
+        text: c.name,
+        imageUrl: '',
+        isCorrect: c.id === country.id,
+        meta: { regionId: c.id },
+      }))
+
+      return {
+        localId: crypto.randomUUID(),
+        dbId: null,
+        type: 'MAP_SELECT' as const,
+        prompt: `Find ${country.name}`,
+        imageUrl: '',
+        explanation: '',
+        timeLimitSec: template.timeLimitSec,
+        choices,
+        meta: {
+          mapRegion: region.id,
+          regionId: country.id,
+          countryName: country.name,
+        },
+      }
+    })
   }
 
   return Array.from({ length: template.questionCount }, () => {
@@ -68,20 +104,6 @@ function buildTemplateQuestions(template: QuizTemplate): DraftQuestion[] {
           { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: true },
           { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: false },
         ],
-      }
-    }
-
-    if (template.format === 'MAP_CHOICE') {
-      return {
-        localId: crypto.randomUUID(),
-        dbId: null,
-        type: 'MAP_SELECT' as const,
-        prompt: '',
-        imageUrl: '',
-        explanation: '',
-        timeLimitSec: template.timeLimitSec,
-        choices: [],
-        meta: { mapRegion: '', regionId: '', countryName: '' },
       }
     }
 
@@ -108,7 +130,9 @@ export function StepMeta({ categories }: StepMetaProps) {
     imageUrl,
     defaultTimeLimitSec,
     selectedTemplateId,
+    mapRegion,
     setMeta,
+    setMapRegion,
     applyTemplate,
   } = useQuizCreatorStore()
 
@@ -258,9 +282,23 @@ export function StepMeta({ categories }: StepMetaProps) {
           </div>
           <TemplatePicker
             selectedId={selectedTemplateId}
+            selectedRegionId={mapRegion}
             onSelect={(template) => {
-              const questions = buildTemplateQuestions(template)
-              applyTemplate(template.id, template.format, questions)
+              if (template.format === 'MAP_CHOICE') {
+                // For map quizzes, just select the template; questions are generated when a region is picked
+                applyTemplate(template.id, template.format, [], mapRegion ?? undefined)
+              } else {
+                const questions = buildTemplateQuestions(template)
+                applyTemplate(template.id, template.format, questions)
+              }
+            }}
+            onRegionSelect={(regionId) => {
+              setMapRegion(regionId)
+              const template = QUIZ_TEMPLATES.find((t) => t.id === 'map-choice')
+              if (template) {
+                const questions = buildTemplateQuestions(template, regionId)
+                applyTemplate(template.id, template.format, questions, regionId)
+              }
             }}
           />
           <p className="text-xs text-muted-foreground">You can change this later.</p>

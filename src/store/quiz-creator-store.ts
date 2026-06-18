@@ -42,6 +42,7 @@ export interface QuizCreatorState {
   currentStep: 1 | 2 | 3 | 4
   selectedTemplateId: string | null
   quizFormat: QuizFormat
+  mapRegion: string | null
   saving: boolean
   lastSavedAt: Date | null
 }
@@ -70,7 +71,13 @@ export interface QuizCreatorActions {
   reorderQuestions: (from: number, to: number) => void
   setStep: (step: 1 | 2 | 3 | 4) => void
   setQuizFormat: (format: QuizFormat) => void
-  applyTemplate: (id: string, format: QuizFormat, questions: DraftQuestion[]) => void
+  setMapRegion: (region: string | null) => void
+  applyTemplate: (
+    id: string,
+    format: QuizFormat,
+    questions: DraftQuestion[],
+    mapRegion?: string
+  ) => void
   setSaving: (saving: boolean) => void
   setLastSaved: (at: Date) => void
   reset: () => void
@@ -93,6 +100,7 @@ const initialState: QuizCreatorState = {
   currentStep: 1,
   selectedTemplateId: null,
   quizFormat: 'TEXT_CHOICE',
+  mapRegion: null,
   saving: false,
   lastSavedAt: null,
 }
@@ -138,8 +146,15 @@ export const useQuizCreatorStore = create<QuizCreatorState & QuizCreatorActions>
 
       setQuizFormat: (format) => set({ quizFormat: format }),
 
-      applyTemplate: (id, format, questions) =>
-        set({ selectedTemplateId: id, quizFormat: format, questions }),
+      setMapRegion: (region) => set({ mapRegion: region }),
+
+      applyTemplate: (id, format, questions, mapRegion) =>
+        set({
+          selectedTemplateId: id,
+          quizFormat: format,
+          questions,
+          mapRegion: mapRegion ?? null,
+        }),
 
       setSaving: (saving) => set({ saving }),
 
@@ -165,6 +180,7 @@ export const useQuizCreatorStore = create<QuizCreatorState & QuizCreatorActions>
         currentStep: state.currentStep,
         selectedTemplateId: state.selectedTemplateId,
         quizFormat: state.quizFormat,
+        mapRegion: state.mapRegion,
       }),
     }
   )

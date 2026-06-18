@@ -1,6 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
+import { MAP_REGIONS } from '@/lib/map-regions'
 import type { QuizFormat } from '@/store/quiz-creator-store'
 
 function FormatPreview({ format }: { format: QuizFormat }) {
@@ -88,38 +89,86 @@ export const QUIZ_TEMPLATES: QuizTemplate[] = [
   },
 ]
 
-interface TemplatePickerProps {
-  selectedId: string | null
-  onSelect: (template: QuizTemplate) => void
+interface RegionPickerProps {
+  selectedRegionId: string | null
+  onSelect: (regionId: string) => void
 }
 
-export function TemplatePicker({ selectedId, onSelect }: TemplatePickerProps) {
+export function RegionPicker({ selectedRegionId, onSelect }: RegionPickerProps) {
+  return (
+    <div className="space-y-2">
+      <p className="text-xs font-medium text-muted-foreground">Choose a continent</p>
+      <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+        {MAP_REGIONS.map((region) => {
+          const isSelected = selectedRegionId === region.id
+          return (
+            <button
+              key={region.id}
+              type="button"
+              onClick={() => onSelect(region.id)}
+              className={cn(
+                'rounded-md border px-3 py-1.5 text-xs font-medium transition-all',
+                isSelected
+                  ? 'border-quiz-orange bg-quiz-orange/10 text-quiz-orange ring-1 ring-quiz-orange'
+                  : 'border-border text-muted-foreground hover:border-quiz-orange/50 hover:text-foreground'
+              )}
+            >
+              {region.name}
+              <span className="ml-1 opacity-60">({region.countries.length})</span>
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+interface TemplatePickerProps {
+  selectedId: string | null
+  selectedRegionId: string | null
+  onSelect: (template: QuizTemplate) => void
+  onRegionSelect: (regionId: string) => void
+}
+
+export function TemplatePicker({
+  selectedId,
+  selectedRegionId,
+  onSelect,
+  onRegionSelect,
+}: TemplatePickerProps) {
   const selectedBorderByTemplateId: Record<string, string> = {
     'text-choice': 'border-primary ring-primary',
     'image-choice': 'border-purple-500 ring-purple-500',
     'map-choice': 'border-quiz-orange ring-quiz-orange',
   }
 
+  const isMapSelected = selectedId === 'map-choice'
+
   return (
-    <div className="grid grid-cols-3 gap-2">
-      {QUIZ_TEMPLATES.map((template) => {
-        const isSelected = selectedId === template.id
-        return (
-          <button
-            key={template.id}
-            type="button"
-            onClick={() => onSelect(template)}
-            className={cn(
-              'rounded-lg border p-2 text-left transition-all hover:border-primary/50',
-              isSelected && 'ring-2',
-              isSelected && selectedBorderByTemplateId[template.id]
-            )}
-          >
-            <FormatPreview format={template.format} />
-            <p className={cn('mt-2 text-xs font-semibold', template.color)}>{template.name}</p>
-          </button>
-        )
-      })}
+    <div className="space-y-3">
+      <div className="grid grid-cols-3 gap-2">
+        {QUIZ_TEMPLATES.map((template) => {
+          const isSelected = selectedId === template.id
+          return (
+            <button
+              key={template.id}
+              type="button"
+              onClick={() => onSelect(template)}
+              className={cn(
+                'rounded-lg border p-2 text-left transition-all hover:border-primary/50',
+                isSelected && 'ring-2',
+                isSelected && selectedBorderByTemplateId[template.id]
+              )}
+            >
+              <FormatPreview format={template.format} />
+              <p className={cn('mt-2 text-xs font-semibold', template.color)}>{template.name}</p>
+            </button>
+          )
+        })}
+      </div>
+      {isMapSelected && (
+        <RegionPicker selectedRegionId={selectedRegionId} onSelect={onRegionSelect} />
+      )}
     </div>
   )
 }
