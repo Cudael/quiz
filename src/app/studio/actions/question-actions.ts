@@ -72,11 +72,23 @@ export async function addQuestion(formData: FormData): Promise<QuestionActionRes
     imageUrl: formData.get('imageUrl') || undefined,
     order: formData.get('order') ?? 0,
   })
+
+  let questionMeta: Record<string, unknown> | null = null
+  const metaRaw = formData.get('meta')
+  if (metaRaw) {
+    try {
+      questionMeta = JSON.parse(metaRaw as string) as Record<string, unknown>
+    } catch {
+      // ignore invalid meta
+    }
+  }
+
   const parsedQuestion = questionSchema.safeParse({
     type: formData.get('type'),
     prompt: formData.get('prompt'),
     explanation: formData.get('explanation') || undefined,
     timeLimitSec: Number(formData.get('timeLimitSec')),
+    ...(questionMeta ? { meta: questionMeta } : {}),
     choices,
   })
 
@@ -107,6 +119,9 @@ export async function addQuestion(formData: FormData): Promise<QuestionActionRes
         explanation: parsedQuestion.data.explanation || null,
         timeLimitSec: parsedQuestion.data.timeLimitSec,
         order: parsedMeta.data.order,
+        ...(parsedQuestion.data.meta
+          ? { meta: parsedQuestion.data.meta as Prisma.InputJsonValue }
+          : {}),
         choices: {
           create: mapChoicesForCreate(parsedQuestion.data.choices),
         },
@@ -141,11 +156,23 @@ export async function updateQuestion(formData: FormData): Promise<QuestionAction
     quizId: formData.get('quizId'),
     imageUrl: formData.get('imageUrl') || undefined,
   })
+
+  let questionMeta: Record<string, unknown> | null = null
+  const metaRaw = formData.get('meta')
+  if (metaRaw) {
+    try {
+      questionMeta = JSON.parse(metaRaw as string) as Record<string, unknown>
+    } catch {
+      // ignore invalid meta
+    }
+  }
+
   const parsedQuestion = questionSchema.safeParse({
     type: formData.get('type'),
     prompt: formData.get('prompt'),
     explanation: formData.get('explanation') || undefined,
     timeLimitSec: Number(formData.get('timeLimitSec')),
+    ...(questionMeta ? { meta: questionMeta } : {}),
     choices,
   })
 
@@ -166,6 +193,9 @@ export async function updateQuestion(formData: FormData): Promise<QuestionAction
         imageUrl: parsedMeta.data.imageUrl || null,
         explanation: parsedQuestion.data.explanation || null,
         timeLimitSec: parsedQuestion.data.timeLimitSec,
+        ...(parsedQuestion.data.meta
+          ? { meta: parsedQuestion.data.meta as Prisma.InputJsonValue }
+          : {}),
         choices: {
           create: mapChoicesForCreate(parsedQuestion.data.choices),
         },

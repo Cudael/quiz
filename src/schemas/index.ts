@@ -24,6 +24,7 @@ export const questionSchema = z
     prompt: z.string().trim().min(1),
     explanation: z.string().trim().max(500).optional(),
     timeLimitSec: z.number().int().min(5).max(120),
+    meta: z.record(z.string(), z.unknown()).optional(),
     choices: z.array(
       z
         .object({
