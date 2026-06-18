@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
 import { Target } from 'lucide-react'
 
@@ -10,6 +10,26 @@ export interface HotspotZone {
   x: number
   y: number
   radius: number
+}
+
+function useContainerWidth(ref: React.RefObject<HTMLDivElement | null>) {
+  const [width, setWidth] = useState(0)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0]
+      if (entry) setWidth(entry.contentRect.width)
+    })
+    observer.observe(el)
+    setWidth(el.clientWidth)
+
+    return () => observer.disconnect()
+  }, [ref])
+
+  return width
 }
 
 interface HotspotDisplayProps {
@@ -34,7 +54,15 @@ export function HotspotDisplay({
   className,
 }: HotspotDisplayProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const containerWidth = useContainerWidth(containerRef)
   const [clickPos, setClickPos] = useState<{ x: number; y: number } | null>(null)
+
+  const zoneToPixels = useCallback(
+    (radiusPercent: number) => {
+      return Math.round((radiusPercent / 100) * containerWidth)
+    },
+    [containerWidth]
+  )
 
   const handleImageClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -67,7 +95,7 @@ export function HotspotDisplay({
     [disabled, zones, onZoneClick]
   )
 
-  const getZoneColor = useCallback(
+  const getZoneColors = useCallback(
     (zone: HotspotZone) => {
       if (!showResult) {
         return {
@@ -112,15 +140,16 @@ export function HotspotDisplay({
         <Image
           src={imageUrl}
           alt="Quiz image"
-          width={800}
-          height={450}
+          width={1200}
+          height={675}
           unoptimized
           className="h-auto w-full object-contain"
         />
 
         {/* Zone indicators */}
         {zones.map((zone) => {
-          const colors = getZoneColor(zone)
+          const colors = getZoneColors(zone)
+          const sizePx = zoneToPixels(zone.radius) * 2
           return (
             <div
               key={zone.id}
@@ -134,10 +163,8 @@ export function HotspotDisplay({
               <div
                 className={`rounded-full border-2 ${colors.border} ${colors.bg}`}
                 style={{
-                  width: `${zone.radius * 2}%`,
-                  height: `${zone.radius * 2}%`,
-                  minWidth: '20px',
-                  minHeight: '20px',
+                  width: `${sizePx}px`,
+                  height: `${sizePx}px`,
                 }}
               />
               {showResult && (
@@ -166,18 +193,24 @@ export function HotspotDisplay({
         )}
 
         {/* Result overlay click indicator */}
-        {showResult && selectedZoneId && (
-          <div
-            className="absolute pointer-events-none"
-            style={{
-              left: `${zones.find((z) => z.id === selectedZoneId)?.x ?? 0}%`,
-              top: `${zones.find((z) => z.id === selectedZoneId)?.y ?? 0}%`,
-              transform: 'translate(-50%, -50%)',
-            }}
-          >
-            <Target className="h-6 w-6 text-red-500" />
-          </div>
-        )}
+        {showResult &&
+          selectedZoneId &&
+          (() => {
+            const selectedZone = zones.find((z) => z.id === selectedZoneId)
+            if (!selectedZone) return null
+            return (
+              <div
+                className="absolute pointer-events-none"
+                style={{
+                  left: `${selectedZone.x}%`,
+                  top: `${selectedZone.y}%`,
+                  transform: 'translate(-50%, -50%)',
+                }}
+              >
+                <Target className="h-6 w-6 text-red-500" />
+              </div>
+            )
+          })()}
       </div>
     </div>
   )

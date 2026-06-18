@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useRef, useMemo } from 'react'
+import { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 import Image from 'next/image'
 import { PlusCircle, Trash2, Pencil, Target } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -8,11 +8,31 @@ import { Badge } from '@/components/ui/badge'
 import { ImageUpload } from './image-upload'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import type { HotspotZone } from '@/store/quiz-creator-store'
-import type { DraftQuestion, DraftChoice } from '@/store/quiz-creator-store'
+import type { DraftChoice } from '@/store/quiz-creator-store'
 
 interface ZoneFormState {
   name: string
   radius: number
+}
+
+function useContainerWidth(ref: React.RefObject<HTMLDivElement | null>) {
+  const [width, setWidth] = useState(0)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0]
+      if (entry) setWidth(entry.contentRect.width)
+    })
+    observer.observe(el)
+    setWidth(el.clientWidth)
+
+    return () => observer.disconnect()
+  }, [ref])
+
+  return width
 }
 
 export function HotspotQuestionEditor() {
@@ -24,6 +44,7 @@ export function HotspotQuestionEditor() {
   const [zoneForm, setZoneForm] = useState<ZoneFormState>({ name: '', radius: 5 })
   const [editingPromptId, setEditingPromptId] = useState<string | null>(null)
   const imageContainerRef = useRef<HTMLDivElement>(null)
+  const containerWidth = useContainerWidth(imageContainerRef)
 
   const allZones = useMemo(() => {
     const zones: Array<HotspotZone & { questionId: string }> = []
@@ -58,6 +79,7 @@ export function HotspotQuestionEditor() {
       radius: zoneForm.radius,
     }
 
+    // Build choices from ALL zones (existing + new)
     const allZonesForChoice = [...allZones, newZone]
     const choices: DraftChoice[] = allZonesForChoice.map((z) => ({
       localId: crypto.randomUUID(),
@@ -67,7 +89,8 @@ export function HotspotQuestionEditor() {
       meta: { zoneId: z.id },
     }))
 
-    const newQuestion: DraftQuestion = {
+    // Create new question
+    addQuestion({
       localId: crypto.randomUUID(),
       dbId: null,
       type: 'HOTSPOT',
@@ -81,12 +104,40 @@ export function HotspotQuestionEditor() {
         imageWidth: 0,
         imageHeight: 0,
       },
+    })
+
+    // Backfill: add new zone as a non-correct choice to all existing questions
+    for (const existingQ of questions) {
+      const existingMeta = existingQ.meta as { zones?: HotspotZone[] } | undefined
+      const updatedChoices = [
+        ...existingQ.choices,
+        {
+          localId: crypto.randomUUID(),
+          text: newZone.name,
+          imageUrl: '',
+          isCorrect: false,
+          meta: { zoneId: newZone.id },
+        },
+      ]
+      const updatedZones = [...(existingMeta?.zones ?? []), newZone]
+      updateQuestion(existingQ.localId, {
+        choices: updatedChoices,
+        meta: { ...(existingMeta ?? {}), zones: updatedZones },
+      })
     }
 
-    addQuestion(newQuestion)
     setSelectedZone(null)
     setZoneForm({ name: '', radius: 5 })
-  }, [selectedZone, zoneForm, allZones, sharedImageUrl, defaultTimeLimitSec, addQuestion])
+  }, [
+    selectedZone,
+    zoneForm,
+    allZones,
+    sharedImageUrl,
+    defaultTimeLimitSec,
+    addQuestion,
+    questions,
+    updateQuestion,
+  ])
 
   const handleDeleteZone = useCallback(
     (questionId: string) => {
@@ -110,10 +161,7 @@ export function HotspotQuestionEditor() {
       if (!meta?.zones) return
 
       const updatedZones = meta.zones.map((z) => (z.id === zoneId ? { ...z, name: newName } : z))
-      const zone = updatedZones.find((z) => z.id === zoneId)
-      if (!zone) return
 
-      // Update choices too
       const updatedChoices = question.choices.map((c) => {
         const choiceMeta = c.meta as { zoneId?: string } | undefined
         if (choiceMeta?.zoneId === zoneId) {
@@ -148,6 +196,13 @@ export function HotspotQuestionEditor() {
     [questions, updateQuestion]
   )
 
+  const zoneToPixels = useCallback(
+    (radiusPercent: number) => {
+      return Math.round((radiusPercent / 100) * containerWidth)
+    },
+    [containerWidth]
+  )
+
   return (
     <div className="space-y-4">
       <div className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
@@ -168,21 +223,30 @@ export function HotspotQuestionEditor() {
             aspectRatio="16/9"
           />
           <p className="text-xs text-muted-foreground">
-            This image will be shown for all questions. You can also upload individual images per
-            question later.
+            This image will be shown for all questions.
           </p>
         </div>
       ) : (
-        <div className="grid gap-4 lg:grid-cols-2">
-          {/* Left: Image with zone placement */}
+        <div className="space-y-6">
+          {/* Image section — full width */}
           <div>
             <div className="mb-2 flex items-center justify-between">
               <p className="text-sm font-medium">Click on the image to place a zone</p>
-              {selectedZone && (
-                <Badge variant="secondary" className="text-xs">
-                  Selected: ({selectedZone.x.toFixed(1)}, {selectedZone.y.toFixed(1)})
-                </Badge>
-              )}
+              <div className="flex items-center gap-2">
+                {selectedZone && (
+                  <Badge variant="secondary" className="text-xs">
+                    Selected: ({selectedZone.x.toFixed(1)}, {selectedZone.y.toFixed(1)})
+                  </Badge>
+                )}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setMeta({ sharedImageUrl: '' })}
+                >
+                  Change image
+                </Button>
+              </div>
             </div>
 
             <div
@@ -193,37 +257,38 @@ export function HotspotQuestionEditor() {
               <Image
                 src={sharedImageUrl}
                 alt="Quiz image"
-                width={800}
-                height={450}
+                width={1200}
+                height={675}
                 unoptimized
                 className="h-auto w-full object-contain"
               />
 
               {/* Existing zones */}
-              {allZones.map((zone) => (
-                <div
-                  key={zone.id}
-                  className="absolute pointer-events-none"
-                  style={{
-                    left: `${zone.x}%`,
-                    top: `${zone.y}%`,
-                    transform: 'translate(-50%, -50%)',
-                  }}
-                >
+              {allZones.map((zone) => {
+                const sizePx = zoneToPixels(zone.radius) * 2
+                return (
                   <div
-                    className="rounded-full border-2 border-quiz-orange bg-quiz-orange/20"
+                    key={zone.id}
+                    className="absolute pointer-events-none"
                     style={{
-                      width: `${zone.radius * 2}%`,
-                      height: `${zone.radius * 2}%`,
-                      minWidth: '20px',
-                      minHeight: '20px',
+                      left: `${zone.x}%`,
+                      top: `${zone.y}%`,
+                      transform: 'translate(-50%, -50%)',
                     }}
-                  />
-                  <span className="absolute top-full left-1/2 -translate-x-1/2 mt-0.5 text-xs font-medium text-quiz-orange whitespace-nowrap bg-background/80 px-1 rounded">
-                    {zone.name}
-                  </span>
-                </div>
-              ))}
+                  >
+                    <div
+                      className="rounded-full border-2 border-quiz-orange bg-quiz-orange/20"
+                      style={{
+                        width: `${sizePx}px`,
+                        height: `${sizePx}px`,
+                      }}
+                    />
+                    <span className="absolute top-full left-1/2 -translate-x-1/2 mt-0.5 text-xs font-medium text-quiz-orange whitespace-nowrap bg-background/80 px-1 rounded">
+                      {zone.name}
+                    </span>
+                  </div>
+                )
+              })}
 
               {/* Selected placement marker */}
               {selectedZone && (
@@ -238,10 +303,8 @@ export function HotspotQuestionEditor() {
                   <div
                     className="rounded-full border-2 border-primary bg-primary/30 animate-pulse"
                     style={{
-                      width: `${zoneForm.radius * 2}%`,
-                      height: `${zoneForm.radius * 2}%`,
-                      minWidth: '20px',
-                      minHeight: '20px',
+                      width: `${zoneToPixels(zoneForm.radius) * 2}px`,
+                      height: `${zoneToPixels(zoneForm.radius) * 2}px`,
                     }}
                   />
                   <Target className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
@@ -249,9 +312,9 @@ export function HotspotQuestionEditor() {
               )}
             </div>
 
-            {/* Zone form */}
+            {/* Zone form — below image */}
             {selectedZone && (
-              <div className="mt-3 space-y-3 rounded-lg border border-border/50 bg-card p-3">
+              <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_200px_auto] items-end rounded-lg border border-border/50 bg-card p-3">
                 <div className="space-y-1">
                   <label htmlFor="zone-name" className="text-xs font-medium">
                     Zone name
@@ -263,21 +326,23 @@ export function HotspotQuestionEditor() {
                     onChange={(e) => setZoneForm((f) => ({ ...f, name: e.target.value }))}
                     placeholder="e.g., Latvia"
                     autoFocus
-                    className="w-full rounded border border-input bg-background px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full rounded border border-input bg-background px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
                     <label htmlFor="zone-radius" className="text-xs font-medium">
-                      Zone radius
+                      Radius
                     </label>
-                    <span className="text-xs text-muted-foreground">{zoneForm.radius}%</span>
+                    <span className="text-xs text-muted-foreground">
+                      {zoneForm.radius}% ({zoneToPixels(zoneForm.radius)}px)
+                    </span>
                   </div>
                   <input
                     id="zone-radius"
                     type="range"
                     min={1}
-                    max={20}
+                    max={30}
                     step={0.5}
                     value={zoneForm.radius}
                     onChange={(e) =>
@@ -287,12 +352,7 @@ export function HotspotQuestionEditor() {
                   />
                 </div>
                 <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    onClick={handleAddZone}
-                    disabled={!zoneForm.name.trim()}
-                    className="flex-1"
-                  >
+                  <Button type="button" onClick={handleAddZone} disabled={!zoneForm.name.trim()}>
                     <PlusCircle className="mr-1 h-4 w-4" />
                     Add zone
                   </Button>
@@ -302,19 +362,9 @@ export function HotspotQuestionEditor() {
                 </div>
               </div>
             )}
-
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="mt-2"
-              onClick={() => setMeta({ sharedImageUrl: '' })}
-            >
-              Change image
-            </Button>
           </div>
 
-          {/* Right: Zone list */}
+          {/* Zone list — below image, full width */}
           <div>
             <div className="mb-2 flex items-center justify-between">
               <p className="text-sm font-medium">Zones ({questions.length})</p>
@@ -331,7 +381,7 @@ export function HotspotQuestionEditor() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {questions.map((q, idx) => {
                   const meta = q.meta as { zones?: HotspotZone[] } | undefined
                   const zone = meta?.zones?.[0]
@@ -390,7 +440,7 @@ export function HotspotQuestionEditor() {
                               id={`zone-radius-${q.localId}`}
                               type="range"
                               min={1}
-                              max={20}
+                              max={30}
                               step={0.5}
                               value={zone.radius}
                               onChange={(e) =>
@@ -398,7 +448,7 @@ export function HotspotQuestionEditor() {
                               }
                               className="w-20"
                             />
-                            <span className="text-xs text-muted-foreground w-8">
+                            <span className="text-xs text-muted-foreground w-12">
                               {zone.radius}%
                             </span>
                           </div>

@@ -57,17 +57,29 @@ export function StepPublish({ quizId }: StepPublishProps) {
 
   // ── Question-level validation ──────────────────────────────────────────
   const isImageChoice = quizFormat === 'IMAGE_CHOICE'
+  const isHotspot = quizFormat === 'IMAGE_HOTSPOT'
 
   const emptyPromptCount = questions.filter((q) => !q.prompt.trim()).length
   const noCorrectCount = questions.filter((q) => !q.choices.some((c) => c.isCorrect)).length
-  const tooFewChoicesCount = questions.filter((q) => q.choices.length < 2).length
 
-  // For IMAGE_CHOICE: check empty images. For TEXT_CHOICE: check empty text.
+  // HOTSPOT questions use zones, not traditional choices — skip them from this check
+  const tooFewChoicesCount = isHotspot
+    ? 0
+    : questions.filter((q) => q.type !== 'HOTSPOT' && q.choices.length < 2).length
+
+  // For IMAGE_CHOICE: check empty images. For TEXT_CHOICE: check empty text. Skip HOTSPOT.
   const emptyChoiceCount = questions.filter((q) =>
-    q.choices.some((c) => (isImageChoice ? !c.imageUrl.trim() : !c.text.trim()))
+    q.type === 'HOTSPOT'
+      ? false
+      : q.choices.some((c) => (isImageChoice ? !c.imageUrl.trim() : !c.text.trim()))
   ).length
 
   const completeQuestionCount = questions.filter((q) => {
+    if (q.type === 'HOTSPOT') {
+      // HOTSPOT questions are complete if they have a prompt and at least 1 zone
+      const zones = (q.meta as { zones?: unknown[] } | undefined)?.zones
+      return q.prompt.trim() && Array.isArray(zones) && zones.length > 0
+    }
     return (
       q.prompt.trim() &&
       q.choices.length >= 2 &&
