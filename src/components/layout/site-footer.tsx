@@ -14,9 +14,9 @@ export function SiteFooter() {
 
       <div className="container mx-auto px-4 py-12 md:py-16">
         {/* Main grid */}
-        <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-4">
-          {/* Brand */}
-          <div className="space-y-4 md:col-span-2">
+        <div className="grid gap-8 grid-cols-2 md:grid-cols-4">
+          {/* Brand — full width on mobile */}
+          <div className="space-y-4 col-span-2 md:col-span-2">
             <div className="flex items-center font-bold">
               <Image src="/logo.png" alt="BusQuiz logo" width={168} height={40} />
             </div>

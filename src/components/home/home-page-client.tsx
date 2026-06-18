@@ -4,11 +4,7 @@ import { motion, useReducedMotion } from 'framer-motion'
 import { TrendingUp, Trophy, Layers, Award } from 'lucide-react'
 import { fadeUp, staggerContainer, withReducedMotion } from '@/lib/motion'
 import type { HomePageClientProps } from './home-page-client.types'
-import {
-  QuizDenseGridSection,
-  QuizScrollerSection,
-  CategoryRowSection,
-} from './sections/quiz-sections'
+import { QuizDenseGridSection, CategoryRowSection } from './sections/quiz-sections'
 import { QuizFeaturedGridSection } from './sections/quiz-featured-grid'
 import { HeroInsightBox } from './sections/hero-insight-box'
 import { HeroCards } from './sections/hero-cards'
@@ -40,7 +36,7 @@ export function HomePageClient({
 
   return (
     <motion.div
-      className="container mx-auto space-y-4 px-4 py-6 md:px-6"
+      className="container mx-auto space-y-4 px-4 py-6 md:px-6 overflow-x-hidden"
       variants={containerVariants}
       initial="hidden"
       animate="show"
@@ -77,7 +73,7 @@ export function HomePageClient({
 
       {/* Trending */}
       <motion.div variants={sectionVariants}>
-        <QuizScrollerSection
+        <QuizDenseGridSection
           title="🔥 Trending Right Now"
           subtitle="The quizzes everyone's buzzing about this week"
           quizzes={trendingQuizzes}
@@ -104,17 +100,18 @@ export function HomePageClient({
 
       {/* Fresh Off the Press */}
       <motion.div variants={sectionVariants}>
-        <QuizScrollerSection
+        <QuizDenseGridSection
           title="✨ Fresh Off the Press"
           subtitle="Brand new quizzes, still shiny"
           quizzes={newestQuizzes}
+          href="/newest"
         />
       </motion.div>
 
       {/* Recently Played (authenticated only) */}
       {currentUser && recentlyPlayed.length > 0 && (
         <motion.div variants={sectionVariants}>
-          <QuizScrollerSection
+          <QuizDenseGridSection
             title="Your Recent Conquests"
             subtitle="Pick up where you left off"
             quizzes={recentlyPlayed}

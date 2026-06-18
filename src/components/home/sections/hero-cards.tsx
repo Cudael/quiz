@@ -7,7 +7,7 @@ import type { HomeCurrentUser } from '../home-page-client.types'
 
 export function HeroCards({ currentUser }: { currentUser: HomeCurrentUser | null }) {
   return (
-    <div className="flex h-full flex-row gap-4">
+    <div className="flex h-full flex-col sm:flex-row gap-4">
       {/* Duel Mode */}
       <div className="group flex flex-1 flex-col items-center justify-between rounded-xl border-2 border-foreground bg-surface-1 p-5 text-center">
         <div className="flex flex-col items-center">

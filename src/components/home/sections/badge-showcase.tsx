@@ -27,11 +27,11 @@ export function BadgeShowcase({ badges }: BadgeShowcaseProps) {
           View all <Award className="h-3.5 w-3.5" />
         </Link>
       </div>
-      <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-9">
+      <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {badges.map((badge) => (
           <div
             key={badge.slug}
-            className="group flex flex-col items-center gap-1.5 rounded-xl border border-border/50 bg-card p-3 text-center transition-all duration-200 hover:border-quiz-purple/40 hover:shadow-md"
+            className="group flex flex-col items-center gap-1.5 rounded-xl border border-border/50 bg-card p-3 text-center transition-all duration-200 hover:border-quiz-purple/40 hover:shadow-md snap-start shrink-0 w-[120px]"
           >
             <span className="text-3xl" aria-hidden="true">
               {badge.emoji}
