@@ -92,6 +92,13 @@ export function HotspotQuestionEditor() {
     // Backfill: add new zone as a non-correct choice to all existing questions
     for (const existingQ of questions) {
       const existingMeta = existingQ.meta as { zones?: HotspotZone[] } | undefined
+
+      // Skip if this zone already exists as a choice in the existing question
+      const existingZoneIds = new Set(
+        existingQ.choices.map((c) => (c.meta as { zoneId?: string })?.zoneId)
+      )
+      if (existingZoneIds.has(newZone.id)) continue
+
       const updatedChoices = [
         ...existingQ.choices,
         {
