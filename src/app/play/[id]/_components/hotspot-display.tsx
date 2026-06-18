@@ -2,7 +2,6 @@
 
 import { useCallback, useRef } from 'react'
 import Image from 'next/image'
-import { Target } from 'lucide-react'
 
 export interface HotspotZone {
   id: string
@@ -172,7 +171,13 @@ export function HotspotDisplay({
                   transform: 'translate(-50%, -50%)',
                 }}
               >
-                <Target className={`h-6 w-6 ${isCorrect ? 'text-green-500' : 'text-red-500'}`} />
+                <div
+                  className={`rounded-full ${isCorrect ? 'bg-green-500/30' : 'bg-red-500/30'}`}
+                  style={{
+                    width: `${selectedZone.radius * 2}%`,
+                    height: `${selectedZone.radius * 2}%`,
+                  }}
+                />
               </div>
             )
           })()}
