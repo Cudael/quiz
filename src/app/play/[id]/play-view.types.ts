@@ -2,6 +2,7 @@ export interface Choice {
   id: string
   text: string
   imageUrl?: string | null
+  isCorrect?: boolean
   meta?: Record<string, unknown> | null
 }
 

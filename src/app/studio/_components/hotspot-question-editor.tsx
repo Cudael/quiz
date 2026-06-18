@@ -21,7 +21,7 @@ export function HotspotQuestionEditor() {
   const defaultTimeLimitSec = useQuizCreatorStore((state) => state.defaultTimeLimitSec)
 
   const [selectedZone, setSelectedZone] = useState<{ x: number; y: number } | null>(null)
-  const [zoneForm, setZoneForm] = useState<ZoneFormState>({ name: '', radius: 5 })
+  const [zoneForm, setZoneForm] = useState<ZoneFormState>({ name: '', radius: 1.5 })
   const [editingPromptId, setEditingPromptId] = useState<string | null>(null)
   const imageContainerRef = useRef<HTMLDivElement>(null)
 
@@ -44,7 +44,7 @@ export function HotspotQuestionEditor() {
     const x = ((e.clientX - rect.left) / rect.width) * 100
     const y = ((e.clientY - rect.top) / rect.height) * 100
     setSelectedZone({ x, y })
-    setZoneForm({ name: '', radius: 5 })
+    setZoneForm({ name: '', radius: 1.5 })
   }, [])
 
   const handleAddZone = useCallback(() => {
@@ -106,7 +106,7 @@ export function HotspotQuestionEditor() {
     }
 
     setSelectedZone(null)
-    setZoneForm({ name: '', radius: 5 })
+    setZoneForm({ name: '', radius: 1.5 })
   }, [
     selectedZone,
     zoneForm,
@@ -247,7 +247,7 @@ export function HotspotQuestionEditor() {
                   }}
                 >
                   <div
-                    className="rounded-full border-2 border-quiz-orange bg-quiz-orange/20"
+                    className="rounded-full border-2 border-quiz-orange bg-quiz-orange/10"
                     style={{
                       width: `${zone.radius * 2}%`,
                       height: `${zone.radius * 2}%`,

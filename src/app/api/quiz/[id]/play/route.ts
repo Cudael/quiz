@@ -32,8 +32,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         orderBy: { order: 'asc' },
         include: {
           choices: {
-            select: { id: true, text: true, imageUrl: true, meta: true },
-            // isCorrect is intentionally omitted from select
+            select: { id: true, text: true, imageUrl: true, meta: true, isCorrect: true },
           },
         },
       },

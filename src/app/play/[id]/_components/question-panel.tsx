@@ -94,6 +94,12 @@ export function QuestionPanel({
   const hotspotZones = hotspotMeta?.zones ?? []
   const hotspotImageUrl = currentQuestion.imageUrl ?? ''
 
+  // Find the correct zone ID for result display
+  const correctChoice = currentQuestion.choices.find((c) => c.isCorrect)
+  const correctZoneId = correctChoice
+    ? ((correctChoice.meta as Record<string, string>)?.zoneId ?? null)
+    : null
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -178,7 +184,7 @@ export function QuestionPanel({
             <HotspotDisplay
               imageUrl={hotspotImageUrl}
               zones={hotspotZones}
-              correctZoneId={null}
+              correctZoneId={correctZoneId}
               selectedZoneId={selectedHotspotZoneId}
               showResult={isAnswered}
               showMarkers={true}

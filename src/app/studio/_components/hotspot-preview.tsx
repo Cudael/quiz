@@ -41,7 +41,7 @@ export function HotspotPreview({ imageUrl, zones }: HotspotPreviewProps) {
           }}
         >
           <div
-            className="rounded-full border-2 border-quiz-orange bg-quiz-orange/20"
+            className="rounded-full border-2 border-quiz-orange bg-quiz-orange/10"
             style={{
               width: `${zone.radius * 2}%`,
               height: `${zone.radius * 2}%`,

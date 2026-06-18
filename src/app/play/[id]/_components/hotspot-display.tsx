@@ -74,7 +74,7 @@ export function HotspotDisplay({
       if (!showResult) {
         return {
           border: 'border-quiz-orange',
-          bg: 'bg-quiz-orange/20',
+          bg: 'bg-quiz-orange/10',
           text: 'text-quiz-orange',
         }
       }
