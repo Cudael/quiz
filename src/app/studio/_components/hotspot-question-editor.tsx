@@ -345,13 +345,13 @@ export function HotspotQuestionEditor() {
           {/* Zone list — below image, full width */}
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <p className="text-sm font-medium">Zones ({questions.length})</p>
+              <p className="text-sm font-medium">Zones ({allZones.length})</p>
               <Badge variant="secondary" className="text-xs">
-                {questions.length} zone{questions.length !== 1 ? 's' : ''} placed
+                {allZones.length} zone{allZones.length !== 1 ? 's' : ''} placed
               </Badge>
             </div>
 
-            {questions.length === 0 ? (
+            {allZones.length === 0 ? (
               <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed py-12 text-center">
                 <PlusCircle className="h-10 w-10 text-muted-foreground" />
                 <p className="text-sm text-muted-foreground">
@@ -360,14 +360,14 @@ export function HotspotQuestionEditor() {
               </div>
             ) : (
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                {questions.map((q, idx) => {
-                  const meta = q.meta as { zones?: HotspotZone[] } | undefined
-                  const zone = meta?.zones?.[0]
-                  if (!zone) return null
-                  const isEditing = editingPromptId === q.localId
+                {allZones.map((zone, idx) => {
+                  const question = questions.find((q) => q.localId === zone.questionId)
+                  const prompt = question?.prompt ?? `Click on ${zone.name}`
+                  const questionId = zone.questionId
+                  const isEditing = editingPromptId === questionId
 
                   return (
-                    <div key={q.localId} className="rounded-lg border border-border/50 bg-card p-3">
+                    <div key={zone.id} className="rounded-lg border border-border/50 bg-card p-3">
                       <div className="flex items-start gap-3">
                         <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
                           {idx + 1}
@@ -376,8 +376,8 @@ export function HotspotQuestionEditor() {
                           {isEditing ? (
                             <input
                               type="text"
-                              value={q.prompt}
-                              onChange={(e) => handlePromptChange(q.localId, e.target.value)}
+                              value={prompt}
+                              onChange={(e) => handlePromptChange(questionId, e.target.value)}
                               onBlur={() => setEditingPromptId(null)}
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') setEditingPromptId(null)
@@ -386,22 +386,22 @@ export function HotspotQuestionEditor() {
                               className="w-full rounded border border-input bg-background px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                           ) : (
-                            <p className="text-sm font-medium">{q.prompt || 'No prompt'}</p>
+                            <p className="text-sm font-medium">{prompt || 'No prompt'}</p>
                           )}
 
                           <div className="flex items-center gap-2">
                             <label
-                              htmlFor={`zone-name-${q.localId}`}
+                              htmlFor={`zone-name-${zone.id}`}
                               className="text-xs text-muted-foreground"
                             >
                               Name:
                             </label>
                             <input
-                              id={`zone-name-${q.localId}`}
+                              id={`zone-name-${zone.id}`}
                               type="text"
                               value={zone.name}
                               onChange={(e) =>
-                                handleZoneNameChange(q.localId, zone.id, e.target.value)
+                                handleZoneNameChange(questionId, zone.id, e.target.value)
                               }
                               className="w-24 rounded border border-input bg-background px-1.5 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
                             />
@@ -409,20 +409,20 @@ export function HotspotQuestionEditor() {
 
                           <div className="flex items-center gap-2">
                             <label
-                              htmlFor={`zone-radius-${q.localId}`}
+                              htmlFor={`zone-radius-${zone.id}`}
                               className="text-xs text-muted-foreground"
                             >
                               Radius:
                             </label>
                             <input
-                              id={`zone-radius-${q.localId}`}
+                              id={`zone-radius-${zone.id}`}
                               type="range"
                               min={1}
                               max={30}
                               step={0.5}
                               value={zone.radius}
                               onChange={(e) =>
-                                handleRadiusChange(q.localId, zone.id, parseFloat(e.target.value))
+                                handleRadiusChange(questionId, zone.id, parseFloat(e.target.value))
                               }
                               className="w-20"
                             />
@@ -438,7 +438,7 @@ export function HotspotQuestionEditor() {
                         <div className="flex shrink-0 gap-1">
                           <button
                             type="button"
-                            onClick={() => setEditingPromptId(isEditing ? null : q.localId)}
+                            onClick={() => setEditingPromptId(isEditing ? null : questionId)}
                             className="rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                             aria-label="Edit prompt"
                           >
@@ -446,7 +446,7 @@ export function HotspotQuestionEditor() {
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleDeleteZone(q.localId)}
+                            onClick={() => handleDeleteZone(questionId)}
                             className="rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                             aria-label="Delete zone"
                           >
