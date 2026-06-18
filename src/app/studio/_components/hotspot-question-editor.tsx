@@ -26,12 +26,16 @@ export function HotspotQuestionEditor() {
   const imageContainerRef = useRef<HTMLDivElement>(null)
 
   const allZones = useMemo(() => {
+    const seen = new Set<string>()
     const zones: Array<HotspotZone & { questionId: string }> = []
     for (const q of questions) {
       const meta = q.meta as { zones?: HotspotZone[] } | undefined
       if (meta?.zones) {
         for (const zone of meta.zones) {
-          zones.push({ ...zone, questionId: q.localId })
+          if (!seen.has(zone.id)) {
+            seen.add(zone.id)
+            zones.push({ ...zone, questionId: q.localId })
+          }
         }
       }
     }
