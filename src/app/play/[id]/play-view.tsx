@@ -97,6 +97,7 @@ export function PlayView({ quizId }: PlayViewProps) {
         currentQuestion={currentQuestion}
         reduceMotion={reduceMotion}
         timeRemainingMs={timeRemainingMs}
+        quizTimeLimitSec={quiz?.timeLimitSec}
         selectedChoiceIds={questionUI.selectedChoiceIds}
         hiddenChoiceIds={questionUI.hiddenChoiceIds}
         isAnswered={isAnswered}

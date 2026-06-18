@@ -22,6 +22,7 @@ export interface QuizData {
   title: string
   difficulty: string
   category: { name: string; slug: string }
+  timeLimitSec?: number | null
 }
 
 export interface PlayViewProps {

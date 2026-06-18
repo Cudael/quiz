@@ -55,6 +55,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       author: quiz.author,
       playCount: quiz.playCount,
       avgScore: quiz.avgScore,
+      timeLimitSec: quiz.defaultTimeLimitSec,
     },
     questions: quiz.questions.map((q) => ({
       id: q.id,

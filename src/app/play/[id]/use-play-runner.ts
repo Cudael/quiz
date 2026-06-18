@@ -8,11 +8,6 @@ import { copy } from '@/lib/copy'
 import type { Question, QuizData } from './play-view.types'
 import { getSoundPreference, SOUND_PREFERENCE_STORAGE_KEY } from './play-view.utils'
 
-/**
- * Owns all stateful logic for the quiz runner: data fetching, timers,
- * answer handling and submission. The
- * presentational `PlayView` component consumes the returned state/handlers.
- */
 export function usePlayRunner(quizId: string) {
   const router = useRouter()
   const { addToast } = useToast()
@@ -25,6 +20,7 @@ export function usePlayRunner(quizId: string) {
   const [timeRemainingMs, setTimeRemainingMs] = useState(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const questionStartRef = useRef<number>(0)
+  const quizTimerStartedRef = useRef(false)
   const [questionUI, setQuestionUI] = useState<{
     selectedChoiceIds: string[]
     hiddenChoiceIds: string[]
@@ -32,7 +28,6 @@ export function usePlayRunner(quizId: string) {
   }>({ selectedChoiceIds: [], hiddenChoiceIds: [], textAnswer: '' })
   const [soundEnabled, setSoundEnabled] = useState(getSoundPreference)
   const [showQuitModal, setShowQuitModal] = useState(false)
-  // Ref avoids render loops here; we only need to track previous question id without re-rendering.
   const prevQuestionIdRef = useRef<string | null>(null)
 
   // Stable refs for callbacks used inside effects
@@ -43,6 +38,9 @@ export function usePlayRunner(quizId: string) {
   const currentQuestion = questions[store.currentQuestionIndex]
   const isAnswered = currentQuestion ? !!store.answers[currentQuestion.id] : false
 
+  // Is quiz-level timer active?
+  const hasQuizTimer = quiz?.timeLimitSec != null && quiz.timeLimitSec > 0
+
   const clearTimer = useCallback(() => {
     if (timerRef.current) {
       clearInterval(timerRef.current)
@@ -50,7 +48,7 @@ export function usePlayRunner(quizId: string) {
     }
   }, [])
 
-  // handleFinish — defined first
+  // handleFinish
   const handleFinish = useCallback(async () => {
     if (store.status !== 'playing') return
     clearTimer()
@@ -96,7 +94,7 @@ export function usePlayRunner(quizId: string) {
     onFinishRef.current = handleFinish
   }, [handleFinish])
 
-  // handleNext — needs handleFinish
+  // handleNext
   const handleNext = useCallback(
     (totalQ: number) => {
       if (store.currentQuestionIndex >= totalQ - 1) {
@@ -112,24 +110,46 @@ export function usePlayRunner(quizId: string) {
     onNextRef.current = () => handleNext(questions.length)
   }, [handleNext, questions.length])
 
-  // handleAnswer — needs nothing above that's circular
+  // handleAnswer
   const handleAnswer = useCallback(
     (choiceIds: string[], timeout = false, textAnswer?: string) => {
       if (!currentQuestion || isAnswered) return
-      clearTimer()
+      // Don't clear the quiz-level timer on answer
+      if (!hasQuizTimer) clearTimer()
       const elapsed = Date.now() - questionStartRef.current
       const timeTakenMs = Math.min(elapsed, currentQuestion.timeLimitSec * 1000)
       store.answer(currentQuestion.id, timeout ? [] : choiceIds, timeTakenMs, textAnswer)
       setQuestionUI((prev) => ({ ...prev, selectedChoiceIds: timeout ? [] : choiceIds }))
     },
-    [currentQuestion, isAnswered, clearTimer, store]
+    [currentQuestion, isAnswered, clearTimer, store, hasQuizTimer]
   )
 
   useEffect(() => {
     onAnswerRef.current = handleAnswer
   }, [handleAnswer])
 
+  // Start a per-question timer
   const startQuestionTimer = useCallback(
+    (timeLimitSec: number) => {
+      clearTimer()
+      const limit = timeLimitSec * 1000
+      setTimeRemainingMs(limit)
+      questionStartRef.current = Date.now()
+      timerRef.current = setInterval(() => {
+        setTimeRemainingMs((prev) => {
+          if (prev <= 200) {
+            clearTimer()
+            return 0
+          }
+          return prev - 200
+        })
+      }, 200)
+    },
+    [clearTimer]
+  )
+
+  // Start a quiz-level timer
+  const startQuizTimer = useCallback(
     (timeLimitSec: number) => {
       clearTimer()
       const limit = timeLimitSec * 1000
@@ -150,12 +170,49 @@ export function usePlayRunner(quizId: string) {
 
   // Auto-submit on timeout
   useEffect(() => {
-    if (timeRemainingMs === 0 && currentQuestion && !isAnswered && store.status === 'playing') {
-      addToast(copy.quiz.timeout, 'info')
-      onAnswerRef.current?.([], true)
+    if (timeRemainingMs === 0 && store.status === 'playing') {
+      if (hasQuizTimer) {
+        // Quiz-level timeout: auto-submit current answer (if any) and finish
+        if (currentQuestion && !isAnswered) {
+          addToast(copy.quiz.timeout, 'info')
+          onAnswerRef.current?.([], true)
+        }
+        // Finish the quiz after a short delay to allow the answer to be recorded
+        setTimeout(() => {
+          onFinishRef.current?.()
+        }, 100)
+      } else {
+        // Per-question timeout: auto-submit current answer
+        if (currentQuestion && !isAnswered) {
+          addToast(copy.quiz.timeout, 'info')
+          onAnswerRef.current?.([], true)
+        }
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeRemainingMs])
+
+  // Start timer based on mode
+  useEffect(() => {
+    if (store.status !== 'playing') return
+    if (!currentQuestion) return
+
+    if (hasQuizTimer && !quizTimerStartedRef.current) {
+      // Quiz-level timer: start once at quiz start
+      quizTimerStartedRef.current = true
+      startQuizTimer(quiz!.timeLimitSec!)
+    } else if (!hasQuizTimer) {
+      // Per-question timer: start when question changes
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      startQuestionTimer(currentQuestion.timeLimitSec)
+    }
+
+    return () => {
+      // Only clear per-question timer on cleanup
+      if (!hasQuizTimer) clearTimer()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [store.currentQuestionIndex, store.status, currentQuestion?.id, hasQuizTimer])
 
   useEffect(() => {
     const currentQuestionId = currentQuestion?.id ?? null
@@ -192,7 +249,6 @@ export function usePlayRunner(quizId: string) {
       if (!currentQuestion || isAnswered) return
       const trimmed = text.trim().toLowerCase()
       if (!trimmed) return
-      // Match text answer against choices (case-insensitive)
       const matchedChoice = currentQuestion.choices.find(
         (c) => c.text.trim().toLowerCase() === trimmed
       )
@@ -204,7 +260,6 @@ export function usePlayRunner(quizId: string) {
 
   const handleSubmitSelection = useCallback(() => {
     if (!currentQuestion || isAnswered) return
-
     if (questionUI.selectedChoiceIds.length === 0) return
     handleAnswer(questionUI.selectedChoiceIds)
   }, [currentQuestion, handleAnswer, isAnswered, questionUI.selectedChoiceIds])
@@ -216,22 +271,6 @@ export function usePlayRunner(quizId: string) {
     }
     return ''
   }, [timeRemainingMs])
-
-  // Start per-question timer when question changes.
-  useEffect(() => {
-    if (currentQuestion && store.status === 'playing') {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      startQuestionTimer(currentQuestion.timeLimitSec)
-    }
-    return clearTimer
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    store.currentQuestionIndex,
-    store.status,
-    currentQuestion?.id,
-    startQuestionTimer,
-    clearTimer,
-  ])
 
   // Fetch quiz data
   useEffect(() => {

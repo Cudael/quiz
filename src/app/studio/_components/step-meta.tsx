@@ -207,7 +207,7 @@ export function StepMeta({ categories }: StepMetaProps) {
         />
 
         <div className="space-y-1">
-          <p className="block text-sm font-medium">Quiz time limit</p>
+          <p className="block text-sm font-medium">Total time limit (whole quiz)</p>
           <div className="flex flex-wrap gap-2">
             {[
               { label: '1 min', value: 60 },

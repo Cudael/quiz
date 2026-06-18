@@ -14,6 +14,7 @@ interface QuestionPanelProps {
   currentQuestion: Question
   reduceMotion: boolean | null
   timeRemainingMs: number
+  quizTimeLimitSec?: number | null
   selectedChoiceIds: string[]
   hiddenChoiceIds: string[]
   isAnswered: boolean
@@ -33,6 +34,7 @@ export function QuestionPanel({
   currentQuestion,
   reduceMotion,
   timeRemainingMs,
+  quizTimeLimitSec,
   selectedChoiceIds,
   hiddenChoiceIds,
   isAnswered,
@@ -104,6 +106,9 @@ export function QuestionPanel({
     ? ((correctChoice.meta as Record<string, string>)?.zoneId ?? null)
     : null
 
+  // Use quiz-level time limit if available, otherwise per-question
+  const effectiveTimeLimitSec = quizTimeLimitSec ?? currentQuestion.timeLimitSec
+
   // Hotspot: image stays static, prompt/zones update instantly
   if (isHotspotQuestion) {
     return (
@@ -127,10 +132,7 @@ export function QuestionPanel({
         {/* Prompt + timer — updates instantly */}
         <div className="mb-4 space-y-3">
           <div className="flex items-center gap-4">
-            <CountdownRing
-              timeLimitSec={currentQuestion.timeLimitSec}
-              timeRemainingMs={timeRemainingMs}
-            />
+            <CountdownRing timeLimitSec={effectiveTimeLimitSec} timeRemainingMs={timeRemainingMs} />
             <p className="flex-1 text-xl font-semibold leading-snug">{renderedPrompt}</p>
           </div>
         </div>
@@ -193,10 +195,7 @@ export function QuestionPanel({
           ) : null}
 
           <div className="flex items-center gap-4">
-            <CountdownRing
-              timeLimitSec={currentQuestion.timeLimitSec}
-              timeRemainingMs={timeRemainingMs}
-            />
+            <CountdownRing timeLimitSec={effectiveTimeLimitSec} timeRemainingMs={timeRemainingMs} />
             <p className="flex-1 text-xl font-semibold leading-snug">{renderedPrompt}</p>
           </div>
         </div>
