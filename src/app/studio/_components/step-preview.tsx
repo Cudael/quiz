@@ -5,7 +5,9 @@ import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { QuestionTypeIcon } from './question-type-icon'
+import { HotspotPreview } from './hotspot-preview'
 import { Image as ImageIcon } from 'lucide-react'
+import type { HotspotZone } from '@/store/quiz-creator-store'
 
 interface Category {
   id: string
@@ -25,8 +27,17 @@ const DIFFICULTY_VARIANT: Record<string, 'success' | 'warning' | 'destructive'> 
 }
 
 export function StepPreview({ categories }: StepPreviewProps) {
-  const { title, description, categoryId, difficulty, imageUrl, questions, quizFormat, setStep } =
-    useQuizCreatorStore()
+  const {
+    title,
+    description,
+    categoryId,
+    difficulty,
+    imageUrl,
+    questions,
+    quizFormat,
+    sharedImageUrl,
+    setStep,
+  } = useQuizCreatorStore()
 
   const category = categories.find((c) => c.id === categoryId)
 
@@ -66,8 +77,10 @@ export function StepPreview({ categories }: StepPreviewProps) {
       {/* Questions preview */}
       <div className="space-y-3">
         {questions.map((question, index) => {
+          const isHotspot = question.type === 'HOTSPOT'
           const usesClassicCorrectness = ['SINGLE', 'MULTIPLE'].includes(question.type)
           const hasCorrect = question.choices.some((c) => c.isCorrect)
+
           return (
             <div key={question.localId} className="rounded-xl border bg-card p-4">
               <div className="mb-3 flex items-start gap-3">
@@ -87,7 +100,12 @@ export function StepPreview({ categories }: StepPreviewProps) {
                 </div>
               </div>
 
-              {question.imageUrl && (
+              {isHotspot ? (
+                <HotspotPreview
+                  imageUrl={question.imageUrl || sharedImageUrl}
+                  zones={(question.meta as { zones?: HotspotZone[] })?.zones ?? []}
+                />
+              ) : question.imageUrl ? (
                 <div className="relative mb-3 aspect-video w-full overflow-hidden rounded-lg">
                   <Image
                     src={question.imageUrl}
@@ -98,35 +116,37 @@ export function StepPreview({ categories }: StepPreviewProps) {
                     className="object-cover"
                   />
                 </div>
-              )}
+              ) : null}
 
-              <div
-                className={quizFormat === 'IMAGE_CHOICE' ? 'grid grid-cols-2 gap-2' : 'space-y-1'}
-              >
-                {question.choices.map((choice) => (
-                  <div
-                    key={choice.localId}
-                    className={`rounded-lg border ${
-                      usesClassicCorrectness && choice.isCorrect
-                        ? 'border-quiz-green/50 bg-quiz-green/10 text-quiz-green'
-                        : 'border-border'
-                    } ${quizFormat === 'IMAGE_CHOICE' ? 'flex aspect-square items-center justify-center overflow-hidden p-0' : 'px-3 py-2 text-sm'}`}
-                  >
-                    {quizFormat === 'IMAGE_CHOICE' && choice.imageUrl ? (
-                      <Image
-                        src={choice.imageUrl}
-                        alt={`Choice ${choice.text || 'image'}`}
-                        width={160}
-                        height={160}
-                        unoptimized
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      choice.text || (quizFormat === 'IMAGE_CHOICE' ? 'No image' : '(empty)')
-                    )}
-                  </div>
-                ))}
-              </div>
+              {!isHotspot && (
+                <div
+                  className={quizFormat === 'IMAGE_CHOICE' ? 'grid grid-cols-2 gap-2' : 'space-y-1'}
+                >
+                  {question.choices.map((choice) => (
+                    <div
+                      key={choice.localId}
+                      className={`rounded-lg border ${
+                        usesClassicCorrectness && choice.isCorrect
+                          ? 'border-quiz-green/50 bg-quiz-green/10 text-quiz-green'
+                          : 'border-border'
+                      } ${quizFormat === 'IMAGE_CHOICE' ? 'flex aspect-square items-center justify-center overflow-hidden p-0' : 'px-3 py-2 text-sm'}`}
+                    >
+                      {quizFormat === 'IMAGE_CHOICE' && choice.imageUrl ? (
+                        <Image
+                          src={choice.imageUrl}
+                          alt={`Choice ${choice.text || 'image'}`}
+                          width={160}
+                          height={160}
+                          unoptimized
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        choice.text || (quizFormat === 'IMAGE_CHOICE' ? 'No image' : '(empty)')
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )
         })}

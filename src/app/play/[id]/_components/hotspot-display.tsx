@@ -38,6 +38,8 @@ interface HotspotDisplayProps {
   correctZoneId: string | null
   selectedZoneId?: string | null
   showResult?: boolean
+  showMarkers?: boolean
+  showNames?: boolean
   disabled?: boolean
   onZoneClick?: (zoneId: string) => void
   className?: string
@@ -49,13 +51,14 @@ export function HotspotDisplay({
   correctZoneId,
   selectedZoneId,
   showResult = false,
+  showMarkers = true,
+  showNames = false,
   disabled = false,
   onZoneClick,
   className,
 }: HotspotDisplayProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const containerWidth = useContainerWidth(containerRef)
-  const [clickPos, setClickPos] = useState<{ x: number; y: number } | null>(null)
 
   const zoneToPixels = useCallback(
     (radiusPercent: number) => {
@@ -72,9 +75,7 @@ export function HotspotDisplay({
       const x = ((e.clientX - rect.left) / rect.width) * 100
       const y = ((e.clientY - rect.top) / rect.height) * 100
 
-      setClickPos({ x, y })
-
-      // Find which zone was clicked (if any)
+      // Find which zone was clicked
       let closestZone: HotspotZone | null = null
       let closestDist = Infinity
 
@@ -88,6 +89,7 @@ export function HotspotDisplay({
         }
       }
 
+      // Only submit if a zone was clicked — clicking outside does nothing
       if (closestZone && onZoneClick) {
         onZoneClick(closestZone.id)
       }
@@ -108,7 +110,7 @@ export function HotspotDisplay({
       if (zone.id === correctZoneId) {
         return {
           border: 'border-green-500',
-          bg: 'bg-green-500/20',
+          bg: 'bg-green-500/25',
           text: 'text-green-600',
         }
       }
@@ -116,7 +118,7 @@ export function HotspotDisplay({
       if (zone.id === selectedZoneId && zone.id !== correctZoneId) {
         return {
           border: 'border-red-500',
-          bg: 'bg-red-500/20',
+          bg: 'bg-red-500/25',
           text: 'text-red-600',
         }
       }
@@ -134,7 +136,9 @@ export function HotspotDisplay({
     <div className={className}>
       <div
         ref={containerRef}
-        className="relative overflow-hidden rounded-xl border border-border/40 bg-card cursor-crosshair"
+        className={`relative overflow-hidden rounded-xl border border-border/40 bg-card ${
+          disabled ? 'cursor-default' : 'cursor-crosshair'
+        }`}
         onClick={handleImageClick}
       >
         <Image
@@ -146,58 +150,47 @@ export function HotspotDisplay({
           className="h-auto w-full object-contain"
         />
 
-        {/* Zone indicators */}
-        {zones.map((zone) => {
-          const colors = getZoneColors(zone)
-          const sizePx = zoneToPixels(zone.radius) * 2
-          return (
-            <div
-              key={zone.id}
-              className="absolute pointer-events-none"
-              style={{
-                left: `${zone.x}%`,
-                top: `${zone.y}%`,
-                transform: 'translate(-50%, -50%)',
-              }}
-            >
+        {/* Zone markers */}
+        {showMarkers &&
+          zones.map((zone) => {
+            const colors = getZoneColors(zone)
+            const sizePx = zoneToPixels(zone.radius) * 2
+            const showLabel = showNames || showResult
+            return (
               <div
-                className={`rounded-full border-2 ${colors.border} ${colors.bg}`}
+                key={zone.id}
+                className="absolute pointer-events-none"
                 style={{
-                  width: `${sizePx}px`,
-                  height: `${sizePx}px`,
+                  left: `${zone.x}%`,
+                  top: `${zone.y}%`,
+                  transform: 'translate(-50%, -50%)',
                 }}
-              />
-              {showResult && (
-                <span
-                  className={`absolute top-full left-1/2 -translate-x-1/2 mt-0.5 text-xs font-semibold whitespace-nowrap bg-background/90 px-1.5 py-0.5 rounded ${colors.text}`}
-                >
-                  {zone.name}
-                </span>
-              )}
-            </div>
-          )
-        })}
+              >
+                <div
+                  className={`rounded-full border-2 ${colors.border} ${colors.bg}`}
+                  style={{
+                    width: `${sizePx}px`,
+                    height: `${sizePx}px`,
+                  }}
+                />
+                {showLabel && (
+                  <span
+                    className={`absolute top-full left-1/2 -translate-x-1/2 mt-0.5 text-xs font-semibold whitespace-nowrap bg-background/90 px-1.5 py-0.5 rounded ${colors.text}`}
+                  >
+                    {zone.name}
+                  </span>
+                )}
+              </div>
+            )
+          })}
 
-        {/* Click position indicator */}
-        {clickPos && !showResult && (
-          <div
-            className="absolute pointer-events-none"
-            style={{
-              left: `${clickPos.x}%`,
-              top: `${clickPos.y}%`,
-              transform: 'translate(-50%, -50%)',
-            }}
-          >
-            <Target className="h-6 w-6 text-primary animate-pulse" />
-          </div>
-        )}
-
-        {/* Result overlay click indicator */}
+        {/* Result indicator on selected zone */}
         {showResult &&
           selectedZoneId &&
           (() => {
             const selectedZone = zones.find((z) => z.id === selectedZoneId)
             if (!selectedZone) return null
+            const isCorrect = selectedZoneId === correctZoneId
             return (
               <div
                 className="absolute pointer-events-none"
@@ -207,7 +200,7 @@ export function HotspotDisplay({
                   transform: 'translate(-50%, -50%)',
                 }}
               >
-                <Target className="h-6 w-6 text-red-500" />
+                <Target className={`h-6 w-6 ${isCorrect ? 'text-green-500' : 'text-red-500'}`} />
               </div>
             )
           })()}

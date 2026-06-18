@@ -28,6 +28,7 @@ export function PlayView({ quizId }: PlayViewProps) {
     handleTextChange,
     handleTextSubmit,
     handleSubmitSelection,
+    handleAnswer,
     goNext,
     quitToQuiz,
   } = usePlayRunner(quizId)
@@ -104,6 +105,7 @@ export function PlayView({ quizId }: PlayViewProps) {
         submitting={store.status === 'submitting'}
         onChoiceSelect={handleChoiceSelect}
         onSubmit={handleSubmitSelection}
+        onAnswer={handleAnswer}
         onNext={goNext}
         onTextSubmit={handleTextSubmit}
         textAnswer={questionUI.textAnswer}

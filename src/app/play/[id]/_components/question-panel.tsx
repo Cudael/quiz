@@ -22,6 +22,7 @@ interface QuestionPanelProps {
   submitting: boolean
   onChoiceSelect: (choiceId: string) => void
   onSubmit: () => void
+  onAnswer: (choiceIds: string[], timeout?: boolean, textAnswer?: string) => void
   onNext: () => void
   onTextSubmit?: (text: string) => void
   textAnswer?: string
@@ -40,6 +41,7 @@ export function QuestionPanel({
   submitting,
   onChoiceSelect,
   onSubmit,
+  onAnswer,
   onNext,
   onTextSubmit,
   textAnswer,
@@ -47,7 +49,7 @@ export function QuestionPanel({
 }: QuestionPanelProps) {
   const renderedPrompt = currentQuestion.prompt
   const questionImageSrc = getQuestionImageSrc(currentQuestion.imageUrl)
-  const showHeaderImage = !!questionImageSrc
+  const showHeaderImage = !!questionImageSrc && currentQuestion.type !== 'HOTSPOT'
   const isImageChoice = currentQuestion.choices.some((c) => c.imageUrl)
   const isMapQuestion = currentQuestion.type === 'MAP_SELECT'
   const isHotspotQuestion = currentQuestion.type === 'HOTSPOT'
@@ -61,7 +63,6 @@ export function QuestionPanel({
     (countryId: string) => {
       if (isAnswered) return
       setSelectedCountryId(countryId)
-      // Find the choice whose meta.regionId matches the clicked country
       const matchingChoice = currentQuestion.choices.find(
         (c) => (c.meta as Record<string, string>)?.regionId === countryId
       )
@@ -81,13 +82,14 @@ export function QuestionPanel({
         (c) => (c.meta as Record<string, string>)?.zoneId === zoneId
       )
       if (matchingChoice) {
-        onChoiceSelect(matchingChoice.id)
+        // Auto-submit immediately — no need for Submit button
+        onAnswer([matchingChoice.id])
       }
     },
-    [isAnswered, currentQuestion.choices, onChoiceSelect]
+    [isAnswered, currentQuestion.choices, onAnswer]
   )
 
-  // Get hotspot zones from question meta
+  // Get hotspot data
   const hotspotMeta = currentQuestion.meta as { zones?: HotspotZone[] } | undefined
   const hotspotZones = hotspotMeta?.zones ?? []
   const hotspotImageUrl = currentQuestion.imageUrl ?? ''
@@ -179,9 +181,11 @@ export function QuestionPanel({
               correctZoneId={null}
               selectedZoneId={selectedHotspotZoneId}
               showResult={isAnswered}
+              showMarkers={true}
+              showNames={false}
               disabled={isAnswered}
               onZoneClick={handleHotspotZoneClick}
-              className="max-w-lg mx-auto"
+              className="mx-auto"
             />
             {selectedHotspotZoneId && !isAnswered && (
               <p className="text-center text-sm text-muted-foreground">
@@ -276,7 +280,9 @@ export function QuestionPanel({
         )}
 
         <AnimatePresence>
-          {!isAnswered && (
+          {/* Hotspot: no Submit button, auto-submits on click */}
+          {/* Non-hotspot, not answered: show Submit button */}
+          {!isHotspotQuestion && !isAnswered && (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
@@ -289,6 +295,7 @@ export function QuestionPanel({
             </motion.div>
           )}
 
+          {/* Answered: show Next/Finish button */}
           {isAnswered && (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
@@ -312,7 +319,7 @@ const TYPE_HINTS: Record<string, string> = {
   TRUEFALSE: 'True or false?',
   FILL_BLANK: 'Type your answer below.',
   MAP_SELECT: 'Look at the map and choose the correct answer.',
-  HOTSPOT: 'Click on the correct area in the image.',
+  HOTSPOT: 'Click on a zone on the image to answer.',
 }
 
 function QuestionTypeHint({ type, isAnswered }: { type: string; isAnswered: boolean }) {

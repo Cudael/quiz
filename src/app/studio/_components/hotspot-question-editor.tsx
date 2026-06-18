@@ -22,15 +22,19 @@ function useContainerWidth(ref: React.RefObject<HTMLDivElement | null>) {
     const el = ref.current
     if (!el) return
 
+    // Fallback: measure immediately with offsetWidth
+    if (el.offsetWidth > 0 && width === 0) {
+      setWidth(el.offsetWidth)
+    }
+
     const observer = new ResizeObserver((entries) => {
       const entry = entries[0]
       if (entry) setWidth(entry.contentRect.width)
     })
     observer.observe(el)
-    setWidth(el.clientWidth)
 
     return () => observer.disconnect()
-  }, [ref])
+  }, [ref, width])
 
   return width
 }

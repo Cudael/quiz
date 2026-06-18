@@ -289,6 +289,7 @@ export function usePlayRunner(quizId: string) {
     handleTextChange,
     handleTextSubmit,
     handleSubmitSelection,
+    handleAnswer,
     goNext,
     quitToQuiz,
   }
