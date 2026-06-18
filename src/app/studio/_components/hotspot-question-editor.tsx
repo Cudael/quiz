@@ -26,6 +26,16 @@ export function HotspotQuestionEditor() {
   const imageContainerRef = useRef<HTMLDivElement>(null)
 
   const allZones = useMemo(() => {
+    // Build a map: zoneId → questionId (from the question that owns the zone as correct answer)
+    const zoneOwnerMap = new Map<string, string>()
+    for (const q of questions) {
+      const correctChoice = q.choices.find((c) => c.isCorrect)
+      if (correctChoice) {
+        const zoneId = (correctChoice.meta as { zoneId?: string })?.zoneId
+        if (zoneId) zoneOwnerMap.set(zoneId, q.localId)
+      }
+    }
+
     const seen = new Set<string>()
     const zones: Array<HotspotZone & { questionId: string }> = []
     for (const q of questions) {
@@ -34,7 +44,9 @@ export function HotspotQuestionEditor() {
         for (const zone of meta.zones) {
           if (!seen.has(zone.id)) {
             seen.add(zone.id)
-            zones.push({ ...zone, questionId: q.localId })
+            // Use the question that owns this zone (correct answer), fallback to first containing question
+            const ownerQuestionId = zoneOwnerMap.get(zone.id) ?? q.localId
+            zones.push({ ...zone, questionId: ownerQuestionId })
           }
         }
       }
