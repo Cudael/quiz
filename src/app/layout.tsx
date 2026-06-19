@@ -50,7 +50,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {/* Safe: THEME_INIT_SCRIPT is a static compile-time string with no user-controlled input. */}
         <script nonce={nonce} dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
-      <body className="font-sans antialiased">
+      <body className="font-sans antialiased overflow-x-hidden">
         {/* Google Analytics */}
         {GA_MEASUREMENT_ID && (
           <>

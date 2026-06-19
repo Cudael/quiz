@@ -16,6 +16,7 @@ import {
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
 import { AdminNavLink } from './_components/admin-nav-link'
+import { AdminMobileNav } from './_components/admin-mobile-nav'
 
 const PATHNAME_HEADER = 'x-quiz-pathname'
 
@@ -43,7 +44,8 @@ export default async function AdminLayout({ children }: { children: ReactNode })
 
   return (
     <div className="flex min-h-screen bg-background">
-      <aside className="flex w-64 shrink-0 flex-col border-r border-border bg-card">
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-border bg-card">
         <div className="border-b border-border px-5 py-6">
           <p className="text-lg font-bold tracking-tight">⚡ Admin</p>
           <p className="mt-1 text-sm text-muted-foreground">Dashboard & moderation tools</p>
@@ -122,9 +124,25 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         </div>
       </aside>
 
-      <main className="flex-1">
-        <div className="px-6 py-8 md:px-8">{children}</div>
-      </main>
+      {/* Main content area */}
+      <div className="flex flex-1 flex-col min-w-0">
+        {/* Mobile header */}
+        <header className="lg:hidden flex items-center justify-between border-b border-border bg-card px-4 py-3">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">⚡</span>
+            <p className="text-sm font-bold">Admin</p>
+          </div>
+          <AdminMobileNav
+            pendingReports={pendingReports}
+            pendingSuggestions={pendingSuggestions}
+            pendingFeedback={pendingFeedback}
+          />
+        </header>
+
+        <main className="flex-1">
+          <div className="px-4 py-6 md:px-8">{children}</div>
+        </main>
+      </div>
     </div>
   )
 }

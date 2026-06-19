@@ -38,7 +38,7 @@ export default function QuizDetailLoading() {
             </div>
 
             {/* Stats strip skeleton */}
-            <div className="grid grid-cols-5 border-t">
+            <div className="grid grid-cols-3 sm:grid-cols-5 border-t">
               {Array.from({ length: 5 }).map((_, i) => (
                 <div
                   key={i}

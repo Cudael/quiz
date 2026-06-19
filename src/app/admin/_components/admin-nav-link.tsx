@@ -9,15 +9,17 @@ interface AdminNavLinkProps {
   href: string
   children: ReactNode
   badge?: number
+  onClick?: () => void
 }
 
-export function AdminNavLink({ href, children, badge }: AdminNavLinkProps) {
+export function AdminNavLink({ href, children, badge, onClick }: AdminNavLinkProps) {
   const pathname = usePathname()
   const isActive = pathname === href || pathname.startsWith(`${href}/`)
 
   return (
     <Link
       href={href}
+      onClick={onClick}
       className={cn(
         'flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-colors',
         isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted'

@@ -220,7 +220,7 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
             </div>
 
             {/* Stats strip — below the hero */}
-            <div className="grid grid-cols-5 border-t">
+            <div className="grid grid-cols-3 sm:grid-cols-5 border-t">
               <StatStrip
                 icon={<Users className="h-3.5 w-3.5" />}
                 label="Brave souls"
