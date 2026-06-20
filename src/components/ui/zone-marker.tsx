@@ -71,10 +71,11 @@ export function ZoneMarker({
       onMouseDown={handleMouseDown}
     >
       <div
-        className={`${isSmall ? bgClass.replace(/\/\d+$/, '') : `rounded-full ${borderClass} ${bgClass}`}`}
+        className={isSmall ? '' : `rounded-full ${borderClass} ${bgClass}`}
         style={{
           width: `${sizePx}px`,
           height: `${sizePx}px`,
+          ...(isSmall ? { backgroundColor: '#f97316' } : {}),
         }}
       />
       {showLabel && name && (
