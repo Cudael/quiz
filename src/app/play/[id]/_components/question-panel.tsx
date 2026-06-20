@@ -121,7 +121,7 @@ export function QuestionPanel({
             correctZoneId={correctZoneId}
             selectedZoneId={effectiveSelectedZoneId}
             showResult={isAnswered}
-            showMarkers={true}
+            showMarkers={!isAnswered}
             showNames={false}
             disabled={isAnswered}
             onZoneClick={handleHotspotZoneClick}
