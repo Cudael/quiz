@@ -53,9 +53,7 @@ export function HotspotDisplay({
         const dx = x - zone.x
         const dy = y - zone.y
         const distPercent = Math.sqrt(dx * dx + dy * dy)
-        // Dots have a fixed 24px hit diameter, circles scale with radius
-        const hitPx = zone.style === 'dot' ? 24 : zone.radius * HOTSPOT_RADIUS_SCALE
-        const hitRadiusPercent = (hitPx / rect.width) * 100
+        const hitRadiusPercent = ((zone.radius * HOTSPOT_RADIUS_SCALE) / rect.width) * 100
         if (distPercent <= hitRadiusPercent && distPercent < closestDist) {
           closestDist = distPercent
           closestZone = zone
@@ -144,7 +142,6 @@ export function HotspotDisplay({
                 bgClass={colors.bg}
                 labelClass={colors.text}
                 fading={isFading}
-                style={zone.style}
               />
             )
           })}

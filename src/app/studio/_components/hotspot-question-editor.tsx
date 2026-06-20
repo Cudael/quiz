@@ -14,7 +14,6 @@ import type { DraftChoice } from '@/store/quiz-creator-store'
 interface ZoneFormState {
   name: string
   radius: number
-  style: 'circle' | 'dot'
 }
 
 export function HotspotQuestionEditor() {
@@ -33,7 +32,6 @@ export function HotspotQuestionEditor() {
   const [zoneForm, setZoneForm] = useState<ZoneFormState>({
     name: '',
     radius: 1.5,
-    style: 'circle',
   })
   const [editingPromptId, setEditingPromptId] = useState<string | null>(null)
   const imageContainerRef = useRef<HTMLDivElement>(null)
@@ -71,7 +69,7 @@ export function HotspotQuestionEditor() {
     const x = ((e.clientX - rect.left) / rect.width) * 100
     const y = ((e.clientY - rect.top) / rect.height) * 100
     setSelectedZone({ x, y })
-    setZoneForm({ name: '', radius: 1.5, style: 'circle' })
+    setZoneForm({ name: '', radius: 1.5 })
   }, [])
 
   const handleAddZone = useCallback(() => {
@@ -83,7 +81,6 @@ export function HotspotQuestionEditor() {
       x: selectedZone.x,
       y: selectedZone.y,
       radius: zoneForm.radius,
-      style: zoneForm.style,
     }
 
     const allZonesForChoice = [...allZones, newZone]
@@ -139,7 +136,7 @@ export function HotspotQuestionEditor() {
     }
 
     setSelectedZone(null)
-    setZoneForm({ name: '', radius: 1.5, style: 'circle' })
+    setZoneForm({ name: '', radius: 1.5 })
   }, [
     selectedZone,
     zoneForm,
@@ -228,25 +225,6 @@ export function HotspotQuestionEditor() {
 
           const updatedZones = meta.zones.map((z) =>
             z.id === zoneId ? { ...z, radius: newRadius } : z
-          )
-          return { ...q, meta: { ...meta, zones: updatedZones } }
-        })
-      )
-    },
-    [questions, setQuestions]
-  )
-
-  const handleStyleChange = useCallback(
-    (questionId: string, zoneId: string, newStyle: 'circle' | 'dot') => {
-      setQuestions(
-        questions.map((q) => {
-          const meta = q.meta as { zones?: HotspotZone[] } | undefined
-          if (!meta?.zones) return q
-          const hasZone = meta.zones.some((z) => z.id === zoneId)
-          if (!hasZone) return q
-
-          const updatedZones = meta.zones.map((z) =>
-            z.id === zoneId ? { ...z, style: newStyle } : z
           )
           return { ...q, meta: { ...meta, zones: updatedZones } }
         })
@@ -373,48 +351,23 @@ export function HotspotQuestionEditor() {
                 </div>
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs font-medium">Style</span>
-                    </div>
-                    <div className="flex rounded-md border border-border/50 overflow-hidden">
-                      <button
-                        type="button"
-                        onClick={() => setZoneForm((f) => ({ ...f, style: 'circle' }))}
-                        className={`px-2 py-0.5 text-xs font-medium transition-colors ${zoneForm.style === 'circle' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-                      >
-                        Circle
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setZoneForm((f) => ({ ...f, style: 'dot' }))}
-                        className={`px-2 py-0.5 text-xs font-medium border-l border-border/50 transition-colors ${zoneForm.style === 'dot' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-                      >
-                        Dot
-                      </button>
-                    </div>
+                    <label htmlFor="zone-radius" className="text-xs font-medium">
+                      Radius
+                    </label>
+                    <span className="text-xs text-muted-foreground">{zoneForm.radius}</span>
                   </div>
-                  {zoneForm.style === 'circle' && (
-                    <div className="flex items-center justify-between">
-                      <label htmlFor="zone-radius" className="text-xs text-muted-foreground">
-                        Radius
-                      </label>
-                      <span className="text-xs text-muted-foreground">{zoneForm.radius}</span>
-                    </div>
-                  )}
-                  {zoneForm.style === 'circle' && (
-                    <input
-                      id="zone-radius"
-                      type="range"
-                      min={1}
-                      max={30}
-                      step={0.5}
-                      value={zoneForm.radius}
-                      onChange={(e) =>
-                        setZoneForm((f) => ({ ...f, radius: parseFloat(e.target.value) }))
-                      }
-                      className="w-full"
-                    />
-                  )}
+                  <input
+                    id="zone-radius"
+                    type="range"
+                    min={1}
+                    max={30}
+                    step={0.5}
+                    value={zoneForm.radius}
+                    onChange={(e) =>
+                      setZoneForm((f) => ({ ...f, radius: parseFloat(e.target.value) }))
+                    }
+                    className="w-full"
+                  />
                 </div>
                 <div className="flex gap-2">
                   <Button type="button" onClick={handleAddZone} disabled={!zoneForm.name.trim()}>
@@ -495,54 +448,28 @@ export function HotspotQuestionEditor() {
                           </div>
 
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-muted-foreground">Style:</span>
-                            <div className="flex rounded border border-border/50 overflow-hidden">
-                              <button
-                                type="button"
-                                onClick={() => handleStyleChange(questionId, zone.id, 'circle')}
-                                className={`px-1.5 py-0.5 text-[10px] font-medium transition-colors ${(zone.style ?? 'circle') === 'circle' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-                              >
-                                Circle
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleStyleChange(questionId, zone.id, 'dot')}
-                                className={`px-1.5 py-0.5 text-[10px] font-medium border-l border-border/50 transition-colors ${zone.style === 'dot' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-                              >
-                                Dot
-                              </button>
-                            </div>
+                            <label
+                              htmlFor={`zone-radius-${zone.id}`}
+                              className="text-xs text-muted-foreground"
+                            >
+                              Radius:
+                            </label>
+                            <input
+                              id={`zone-radius-${zone.id}`}
+                              type="range"
+                              min={1}
+                              max={30}
+                              step={0.5}
+                              value={zone.radius}
+                              onChange={(e) =>
+                                handleRadiusChange(questionId, zone.id, parseFloat(e.target.value))
+                              }
+                              className="w-20"
+                            />
+                            <span className="text-xs text-muted-foreground w-12">
+                              {zone.radius}
+                            </span>
                           </div>
-
-                          {(zone.style ?? 'circle') === 'circle' && (
-                            <div className="flex items-center gap-2">
-                              <label
-                                htmlFor={`zone-radius-${zone.id}`}
-                                className="text-xs text-muted-foreground"
-                              >
-                                Radius:
-                              </label>
-                              <input
-                                id={`zone-radius-${zone.id}`}
-                                type="range"
-                                min={1}
-                                max={30}
-                                step={0.5}
-                                value={zone.radius}
-                                onChange={(e) =>
-                                  handleRadiusChange(
-                                    questionId,
-                                    zone.id,
-                                    parseFloat(e.target.value)
-                                  )
-                                }
-                                className="w-20"
-                              />
-                              <span className="text-xs text-muted-foreground w-12">
-                                {zone.radius}
-                              </span>
-                            </div>
-                          )}
 
                           <p className="text-xs text-muted-foreground">
                             Position: ({zone.x.toFixed(1)}, {zone.y.toFixed(1)})
