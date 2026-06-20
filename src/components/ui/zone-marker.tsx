@@ -30,8 +30,8 @@ export function ZoneMarker({
   children,
 }: ZoneMarkerProps) {
   const isSmall = radius <= 1.5
-  // Small: 12px solid filled square | Large: radius * SCALE pixels bordered circle
-  const sizePx = isSmall ? 12 : radius * HOTSPOT_RADIUS_SCALE
+  // Small: radius * 8px solid square | Large: radius * SCALE pixels bordered circle
+  const sizePx = isSmall ? radius * 8 : radius * HOTSPOT_RADIUS_SCALE
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!draggable || !onDragEnd) return
