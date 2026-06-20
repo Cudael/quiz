@@ -18,8 +18,15 @@ interface ZoneFormState {
 }
 
 export function HotspotQuestionEditor() {
-  const { questions, sharedImageUrl, addQuestion, updateQuestion, removeQuestion, setMeta } =
-    useQuizCreatorStore()
+  const {
+    questions,
+    sharedImageUrl,
+    addQuestion,
+    updateQuestion,
+    removeQuestion,
+    setMeta,
+    setQuestions,
+  } = useQuizCreatorStore()
   const defaultTimeLimitSec = useQuizCreatorStore((state) => state.defaultTimeLimitSec)
 
   const [selectedZone, setSelectedZone] = useState<{ x: number; y: number } | null>(null)
@@ -146,21 +153,21 @@ export function HotspotQuestionEditor() {
 
   const handleZoneReposition = useCallback(
     (zoneId: string, newX: number, newY: number) => {
-      for (const q of questions) {
-        const meta = q.meta as { zones?: HotspotZone[] } | undefined
-        if (!meta?.zones) continue
-        const hasZone = meta.zones.some((z) => z.id === zoneId)
-        if (!hasZone) continue
+      setQuestions(
+        questions.map((q) => {
+          const meta = q.meta as { zones?: HotspotZone[] } | undefined
+          if (!meta?.zones) return q
+          const hasZone = meta.zones.some((z) => z.id === zoneId)
+          if (!hasZone) return q
 
-        const updatedZones = meta.zones.map((z) =>
-          z.id === zoneId ? { ...z, x: newX, y: newY } : z
-        )
-        updateQuestion(q.localId, {
-          meta: { ...meta, zones: updatedZones },
+          const updatedZones = meta.zones.map((z) =>
+            z.id === zoneId ? { ...z, x: newX, y: newY } : z
+          )
+          return { ...q, meta: { ...meta, zones: updatedZones } }
         })
-      }
+      )
     },
-    [questions, updateQuestion]
+    [questions, setQuestions]
   )
 
   const handleDeleteZone = useCallback(
@@ -179,68 +186,73 @@ export function HotspotQuestionEditor() {
 
   const handleZoneNameChange = useCallback(
     (questionId: string, zoneId: string, newName: string) => {
-      for (const q of questions) {
-        const meta = q.meta as { zones?: HotspotZone[] } | undefined
-        if (!meta?.zones) continue
-        const hasZone = meta.zones.some((z) => z.id === zoneId)
-        if (!hasZone) continue
+      setQuestions(
+        questions.map((q) => {
+          const meta = q.meta as { zones?: HotspotZone[] } | undefined
+          if (!meta?.zones) return q
+          const hasZone = meta.zones.some((z) => z.id === zoneId)
+          if (!hasZone) return q
 
-        const updatedZones = meta.zones.map((z) => (z.id === zoneId ? { ...z, name: newName } : z))
+          const updatedZones = meta.zones.map((z) =>
+            z.id === zoneId ? { ...z, name: newName } : z
+          )
 
-        const updatedChoices = q.choices.map((c) => {
-          const choiceMeta = c.meta as { zoneId?: string } | undefined
-          if (choiceMeta?.zoneId === zoneId) {
-            return { ...c, text: newName }
+          const updatedChoices = q.choices.map((c) => {
+            const choiceMeta = c.meta as { zoneId?: string } | undefined
+            if (choiceMeta?.zoneId === zoneId) {
+              return { ...c, text: newName }
+            }
+            return c
+          })
+
+          return {
+            ...q,
+            ...(q.localId === questionId ? { prompt: `Click on ${newName}` } : {}),
+            meta: { ...meta, zones: updatedZones },
+            choices: updatedChoices,
           }
-          return c
         })
-
-        updateQuestion(q.localId, {
-          ...(q.localId === questionId ? { prompt: `Click on ${newName}` } : {}),
-          meta: { ...meta, zones: updatedZones },
-          choices: updatedChoices,
-        })
-      }
+      )
     },
-    [questions, updateQuestion]
+    [questions, setQuestions]
   )
 
   const handleRadiusChange = useCallback(
     (questionId: string, zoneId: string, newRadius: number) => {
-      for (const q of questions) {
-        const meta = q.meta as { zones?: HotspotZone[] } | undefined
-        if (!meta?.zones) continue
-        const hasZone = meta.zones.some((z) => z.id === zoneId)
-        if (!hasZone) continue
+      setQuestions(
+        questions.map((q) => {
+          const meta = q.meta as { zones?: HotspotZone[] } | undefined
+          if (!meta?.zones) return q
+          const hasZone = meta.zones.some((z) => z.id === zoneId)
+          if (!hasZone) return q
 
-        const updatedZones = meta.zones.map((z) =>
-          z.id === zoneId ? { ...z, radius: newRadius } : z
-        )
-        updateQuestion(q.localId, {
-          meta: { ...meta, zones: updatedZones },
+          const updatedZones = meta.zones.map((z) =>
+            z.id === zoneId ? { ...z, radius: newRadius } : z
+          )
+          return { ...q, meta: { ...meta, zones: updatedZones } }
         })
-      }
+      )
     },
-    [questions, updateQuestion]
+    [questions, setQuestions]
   )
 
   const handleStyleChange = useCallback(
     (questionId: string, zoneId: string, newStyle: 'circle' | 'dot') => {
-      for (const q of questions) {
-        const meta = q.meta as { zones?: HotspotZone[] } | undefined
-        if (!meta?.zones) continue
-        const hasZone = meta.zones.some((z) => z.id === zoneId)
-        if (!hasZone) continue
+      setQuestions(
+        questions.map((q) => {
+          const meta = q.meta as { zones?: HotspotZone[] } | undefined
+          if (!meta?.zones) return q
+          const hasZone = meta.zones.some((z) => z.id === zoneId)
+          if (!hasZone) return q
 
-        const updatedZones = meta.zones.map((z) =>
-          z.id === zoneId ? { ...z, style: newStyle } : z
-        )
-        updateQuestion(q.localId, {
-          meta: { ...meta, zones: updatedZones },
+          const updatedZones = meta.zones.map((z) =>
+            z.id === zoneId ? { ...z, style: newStyle } : z
+          )
+          return { ...q, meta: { ...meta, zones: updatedZones } }
         })
-      }
+      )
     },
-    [questions, updateQuestion]
+    [questions, setQuestions]
   )
 
   return (
