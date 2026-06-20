@@ -19,6 +19,7 @@ export interface HotspotZone {
   x: number
   y: number
   radius: number
+  style?: 'circle' | 'dot'
 }
 
 export type QuestionType = 'SINGLE' | 'MAP_SELECT' | 'HOTSPOT'

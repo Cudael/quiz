@@ -34,6 +34,7 @@ export function HotspotPreview({ imageUrl, zones }: HotspotPreviewProps) {
           borderClass="border-2 border-quiz-orange"
           bgClass="bg-quiz-orange/10"
           labelClass="text-quiz-orange"
+          style={zone.style}
         />
       ))}
     </div>

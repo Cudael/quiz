@@ -11,6 +11,7 @@ export interface ZoneMarkerProps {
   labelClass?: string
   draggable?: boolean
   fading?: boolean
+  style?: 'circle' | 'dot'
   onDragEnd?: (x: number, y: number) => void
   children?: React.ReactNode
 }
@@ -26,10 +27,14 @@ export function ZoneMarker({
   labelClass = 'text-quiz-orange',
   draggable = false,
   fading = false,
+  style = 'circle',
   onDragEnd,
   children,
 }: ZoneMarkerProps) {
-  const sizePx = radius * HOTSPOT_RADIUS_SCALE
+  const sizePx = style === 'dot' ? 10 : radius * HOTSPOT_RADIUS_SCALE
+  const isDot = style === 'dot'
+  // For dots, use solid color (strip opacity suffix like /10, /25)
+  const dotBgClass = isDot ? bgClass.replace(/\/\d+$/, '') : ''
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!draggable || !onDragEnd) return
@@ -69,7 +74,7 @@ export function ZoneMarker({
       onMouseDown={handleMouseDown}
     >
       <div
-        className={`rounded-full ${borderClass} ${bgClass}`}
+        className={`rounded-full ${isDot ? dotBgClass : `${borderClass} ${bgClass}`}`}
         style={{
           width: `${sizePx}px`,
           height: `${sizePx}px`,
