@@ -1,15 +1,9 @@
 'use client'
 
-import { useCallback, useRef } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import Image from 'next/image'
-
-export interface HotspotZone {
-  id: string
-  name: string
-  x: number
-  y: number
-  radius: number
-}
+import { ZoneMarker, HOTSPOT_RADIUS_SCALE } from '@/components/ui/zone-marker'
+import type { HotspotZone } from '@/store/quiz-creator-store'
 
 interface HotspotDisplayProps {
   imageUrl: string
@@ -24,6 +18,8 @@ interface HotspotDisplayProps {
   className?: string
 }
 
+export type { HotspotZone }
+
 export function HotspotDisplay({
   imageUrl,
   zones,
@@ -37,6 +33,7 @@ export function HotspotDisplay({
   className,
 }: HotspotDisplayProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const [clickOutside, setClickOutside] = useState(false)
 
   const handleImageClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -46,23 +43,29 @@ export function HotspotDisplay({
       const x = ((e.clientX - rect.left) / rect.width) * 100
       const y = ((e.clientY - rect.top) / rect.height) * 100
 
-      // Find which zone was clicked
+      // Scale the distance by the same factor used for display
       let closestZone: HotspotZone | null = null
       let closestDist = Infinity
 
       for (const zone of zones) {
         const dx = x - zone.x
         const dy = y - zone.y
-        const dist = Math.sqrt(dx * dx + dy * dy)
-        if (dist <= zone.radius && dist < closestDist) {
-          closestDist = dist
+        const distPercent = Math.sqrt(dx * dx + dy * dy)
+        // Scale hit-test to match visual size: visual_radius_px = radius * HOTSPOT_RADIUS_SCALE
+        // hit_radius_percent = (visual_radius_px / container_width_px) * 100
+        const hitRadiusPercent = ((zone.radius * HOTSPOT_RADIUS_SCALE) / rect.width) * 100
+        if (distPercent <= hitRadiusPercent && distPercent < closestDist) {
+          closestDist = distPercent
           closestZone = zone
         }
       }
 
-      // Only submit if a zone was clicked — clicking outside does nothing
       if (closestZone && onZoneClick) {
         onZoneClick(closestZone.id)
+      } else if (!closestZone) {
+        // Click outside all zones — show brief feedback
+        setClickOutside(true)
+        setTimeout(() => setClickOutside(false), 400)
       }
     },
     [disabled, zones, onZoneClick]
@@ -78,7 +81,6 @@ export function HotspotDisplay({
         }
       }
 
-      // Only color the selected zone — don't reveal the correct answer
       if (zone.id === selectedZoneId) {
         const isCorrect = selectedZoneId === correctZoneId
         return isCorrect
@@ -94,7 +96,6 @@ export function HotspotDisplay({
             }
       }
 
-      // All other zones stay orange (default)
       return {
         border: 'border-quiz-orange',
         bg: 'bg-quiz-orange/10',
@@ -108,9 +109,10 @@ export function HotspotDisplay({
     <div className={className}>
       <div
         ref={containerRef}
-        className={`relative overflow-hidden rounded-xl border border-border/40 bg-card ${
+        data-zone-container
+        className={`relative overflow-hidden rounded-xl border-2 transition-colors duration-200 bg-card ${
           disabled ? 'cursor-default' : 'cursor-crosshair'
-        }`}
+        } ${clickOutside ? 'border-red-500' : 'border-border/40'}`}
         onClick={handleImageClick}
       >
         <Image
@@ -128,30 +130,17 @@ export function HotspotDisplay({
             const colors = getZoneColors(zone)
             const showLabel = showNames || (showResult && zone.id === selectedZoneId)
             return (
-              <div
+              <ZoneMarker
                 key={zone.id}
-                className="absolute pointer-events-none"
-                style={{
-                  left: `${zone.x}%`,
-                  top: `${zone.y}%`,
-                  transform: 'translate(-50%, -50%)',
-                }}
-              >
-                <div
-                  className={`rounded-full border-2 ${colors.border} ${colors.bg}`}
-                  style={{
-                    width: `${zone.radius * 20}px`,
-                    height: `${zone.radius * 20}px`,
-                  }}
-                />
-                {showLabel && (
-                  <span
-                    className={`absolute top-full left-1/2 -translate-x-1/2 mt-0.5 text-xs font-semibold whitespace-nowrap bg-background/90 px-1.5 py-0.5 rounded ${colors.text}`}
-                  >
-                    {zone.name}
-                  </span>
-                )}
-              </div>
+                x={zone.x}
+                y={zone.y}
+                radius={zone.radius}
+                name={zone.name}
+                showLabel={showLabel}
+                borderClass={`border-2 ${colors.border}`}
+                bgClass={colors.bg}
+                labelClass={colors.text}
+              />
             )
           })}
 
@@ -163,22 +152,12 @@ export function HotspotDisplay({
             if (!selectedZone) return null
             const isCorrect = selectedZoneId === correctZoneId
             return (
-              <div
-                className="absolute pointer-events-none"
-                style={{
-                  left: `${selectedZone.x}%`,
-                  top: `${selectedZone.y}%`,
-                  transform: 'translate(-50%, -50%)',
-                }}
-              >
-                <div
-                  className={`rounded-full ${isCorrect ? 'bg-green-500/30' : 'bg-red-500/30'}`}
-                  style={{
-                    width: `${selectedZone.radius * 20}px`,
-                    height: `${selectedZone.radius * 20}px`,
-                  }}
-                />
-              </div>
+              <ZoneMarker
+                x={selectedZone.x}
+                y={selectedZone.y}
+                radius={selectedZone.radius}
+                bgClass={isCorrect ? 'bg-green-500/30' : 'bg-red-500/30'}
+              />
             )
           })()}
       </div>

@@ -237,6 +237,7 @@ export function QuizCreatorShell({
             qFd.set('order', String(i))
             if (q.imageUrl) qFd.set('imageUrl', q.imageUrl)
             if (q.explanation) qFd.set('explanation', q.explanation)
+            if (q.meta) qFd.set('meta', JSON.stringify(q.meta))
             qFd.set(
               'choices',
               JSON.stringify(

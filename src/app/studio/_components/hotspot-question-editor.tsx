@@ -6,6 +6,7 @@ import { PlusCircle, Trash2, Pencil, Target } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ImageUpload } from './image-upload'
+import { ZoneMarker, HOTSPOT_RADIUS_SCALE } from '@/components/ui/zone-marker'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import type { HotspotZone } from '@/store/quiz-creator-store'
 import type { DraftChoice } from '@/store/quiz-creator-store'
@@ -26,7 +27,6 @@ export function HotspotQuestionEditor() {
   const imageContainerRef = useRef<HTMLDivElement>(null)
 
   const allZones = useMemo(() => {
-    // Build a map: zoneId → questionId (from the question that owns the zone as correct answer)
     const zoneOwnerMap = new Map<string, string>()
     for (const q of questions) {
       const correctChoice = q.choices.find((c) => c.isCorrect)
@@ -44,7 +44,6 @@ export function HotspotQuestionEditor() {
         for (const zone of meta.zones) {
           if (!seen.has(zone.id)) {
             seen.add(zone.id)
-            // Use the question that owns this zone (correct answer), fallback to first containing question
             const ownerQuestionId = zoneOwnerMap.get(zone.id) ?? q.localId
             zones.push({ ...zone, questionId: ownerQuestionId })
           }
@@ -74,7 +73,6 @@ export function HotspotQuestionEditor() {
       radius: zoneForm.radius,
     }
 
-    // Build choices from ALL zones (existing + new)
     const allZonesForChoice = [...allZones, newZone]
     const choices: DraftChoice[] = allZonesForChoice.map((z) => ({
       localId: crypto.randomUUID(),
@@ -84,7 +82,7 @@ export function HotspotQuestionEditor() {
       meta: { zoneId: z.id },
     }))
 
-    // Create new question
+    // Create new question with ALL zones in meta.zones (not just the new one)
     addQuestion({
       localId: crypto.randomUUID(),
       dbId: null,
@@ -95,7 +93,7 @@ export function HotspotQuestionEditor() {
       timeLimitSec: defaultTimeLimitSec ?? 20,
       choices,
       meta: {
-        zones: [newZone],
+        zones: allZonesForChoice,
         imageWidth: 0,
         imageHeight: 0,
       },
@@ -105,7 +103,6 @@ export function HotspotQuestionEditor() {
     for (const existingQ of questions) {
       const existingMeta = existingQ.meta as { zones?: HotspotZone[] } | undefined
 
-      // Skip if this zone already exists as a choice in the existing question
       const existingZoneIds = new Set(
         existingQ.choices.map((c) => (c.meta as { zoneId?: string })?.zoneId)
       )
@@ -141,6 +138,25 @@ export function HotspotQuestionEditor() {
     updateQuestion,
   ])
 
+  const handleZoneReposition = useCallback(
+    (zoneId: string, newX: number, newY: number) => {
+      for (const q of questions) {
+        const meta = q.meta as { zones?: HotspotZone[] } | undefined
+        if (!meta?.zones) continue
+        const hasZone = meta.zones.some((z) => z.id === zoneId)
+        if (!hasZone) continue
+
+        const updatedZones = meta.zones.map((z) =>
+          z.id === zoneId ? { ...z, x: newX, y: newY } : z
+        )
+        updateQuestion(q.localId, {
+          meta: { ...meta, zones: updatedZones },
+        })
+      }
+    },
+    [questions, updateQuestion]
+  )
+
   const handleDeleteZone = useCallback(
     (questionId: string) => {
       removeQuestion(questionId)
@@ -157,7 +173,6 @@ export function HotspotQuestionEditor() {
 
   const handleZoneNameChange = useCallback(
     (questionId: string, zoneId: string, newName: string) => {
-      // Update zone name in ALL questions' meta
       for (const q of questions) {
         const meta = q.meta as { zones?: HotspotZone[] } | undefined
         if (!meta?.zones) continue
@@ -186,7 +201,6 @@ export function HotspotQuestionEditor() {
 
   const handleRadiusChange = useCallback(
     (questionId: string, zoneId: string, newRadius: number) => {
-      // Update zone radius in ALL questions' meta
       for (const q of questions) {
         const meta = q.meta as { zones?: HotspotZone[] } | undefined
         if (!meta?.zones) continue
@@ -209,8 +223,8 @@ export function HotspotQuestionEditor() {
       <div className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
         <p className="text-sm font-semibold text-primary">Image Hotspot Quiz</p>
         <p className="mt-0.5 text-sm text-muted-foreground">
-          Upload an image and click on it to place zones. Each zone becomes a question where players
-          must click that area of the image.
+          Upload an image and click on it to place zones. Drag existing zones to reposition them.
+          Each zone becomes a question where players must click that area of the image.
         </p>
       </div>
 
@@ -232,7 +246,7 @@ export function HotspotQuestionEditor() {
           {/* Image section — full width */}
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <p className="text-sm font-medium">Click on the image to place a zone</p>
+              <p className="text-sm font-medium">Click to place a zone, drag to reposition</p>
               <div className="flex items-center gap-2">
                 {selectedZone && (
                   <Badge variant="secondary" className="text-xs">
@@ -252,6 +266,7 @@ export function HotspotQuestionEditor() {
 
             <div
               ref={imageContainerRef}
+              data-zone-container
               className="relative overflow-hidden rounded-xl border border-border/40 bg-card cursor-crosshair"
               onClick={handleImageClick}
             >
@@ -264,28 +279,20 @@ export function HotspotQuestionEditor() {
                 className="h-auto w-full object-contain"
               />
 
-              {/* Existing zones */}
+              {/* Existing zones — draggable */}
               {allZones.map((zone) => (
-                <div
+                <ZoneMarker
                   key={zone.id}
-                  className="absolute pointer-events-none"
-                  style={{
-                    left: `${zone.x}%`,
-                    top: `${zone.y}%`,
-                    transform: 'translate(-50%, -50%)',
-                  }}
-                >
-                  <div
-                    className="rounded-full border-2 border-quiz-orange bg-quiz-orange/10"
-                    style={{
-                      width: `${zone.radius * 20}px`,
-                      height: `${zone.radius * 20}px`,
-                    }}
-                  />
-                  <span className="absolute top-full left-1/2 -translate-x-1/2 mt-0.5 text-xs font-medium text-quiz-orange whitespace-nowrap bg-background/80 px-1 rounded">
-                    {zone.name}
-                  </span>
-                </div>
+                  x={zone.x}
+                  y={zone.y}
+                  radius={zone.radius}
+                  name={zone.name}
+                  showLabel
+                  borderClass="border-2 border-quiz-orange"
+                  labelClass="text-quiz-orange"
+                  draggable
+                  onDragEnd={(newX, newY) => handleZoneReposition(zone.id, newX, newY)}
+                />
               ))}
 
               {/* Selected placement marker */}
@@ -301,8 +308,8 @@ export function HotspotQuestionEditor() {
                   <div
                     className="rounded-full border-2 border-primary bg-primary/30 animate-pulse"
                     style={{
-                      width: `${zoneForm.radius * 20}px`,
-                      height: `${zoneForm.radius * 20}px`,
+                      width: `${zoneForm.radius * HOTSPOT_RADIUS_SCALE}px`,
+                      height: `${zoneForm.radius * HOTSPOT_RADIUS_SCALE}px`,
                     }}
                   />
                   <Target className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
@@ -332,7 +339,7 @@ export function HotspotQuestionEditor() {
                     <label htmlFor="zone-radius" className="text-xs font-medium">
                       Radius
                     </label>
-                    <span className="text-xs text-muted-foreground">{zoneForm.radius}%</span>
+                    <span className="text-xs text-muted-foreground">{zoneForm.radius}</span>
                   </div>
                   <input
                     id="zone-radius"
@@ -445,7 +452,7 @@ export function HotspotQuestionEditor() {
                               className="w-20"
                             />
                             <span className="text-xs text-muted-foreground w-12">
-                              {zone.radius}%
+                              {zone.radius}
                             </span>
                           </div>
 

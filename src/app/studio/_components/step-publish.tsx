@@ -254,43 +254,42 @@ export function StepPublish({ quizId }: StepPublishProps) {
         return
       }
 
-      // ── Existing quiz — save only unsaved questions in parallel, then publish ──
-      const unsavedQuestions = resolvedQuestions
-        .map((q, i) => ({ q, i }))
-        .filter(({ q }) => !q.dbId)
-
-      if (unsavedQuestions.length > 0) {
-        const questionResults = await Promise.all(
-          unsavedQuestions.map(async ({ q, i }) => {
-            const qFd = new FormData()
-            qFd.set('quizId', quizId)
-            qFd.set('type', q.type)
-            qFd.set('prompt', q.prompt)
-            qFd.set('timeLimitSec', String(q.timeLimitSec))
-            qFd.set('order', String(i))
-            if (q.imageUrl) qFd.set('imageUrl', q.imageUrl)
-            if (q.explanation) qFd.set('explanation', q.explanation)
-            if (q.meta) qFd.set('meta', JSON.stringify(q.meta))
-            qFd.set(
-              'choices',
-              JSON.stringify(
-                q.choices.map((c) => ({
-                  text: c.text,
-                  imageUrl: c.imageUrl || undefined,
-                  isCorrect: c.isCorrect,
-                  ...(c.meta ? { meta: c.meta } : {}),
-                }))
-              )
+      // ── Existing quiz — save/update ALL questions, then publish ──
+      const questionResults = await Promise.all(
+        resolvedQuestions.map(async (q, i) => {
+          const qFd = new FormData()
+          qFd.set('quizId', quizId)
+          qFd.set('type', q.type)
+          qFd.set('prompt', q.prompt)
+          qFd.set('timeLimitSec', String(q.timeLimitSec))
+          qFd.set('order', String(i))
+          if (q.imageUrl) qFd.set('imageUrl', q.imageUrl)
+          if (q.explanation) qFd.set('explanation', q.explanation)
+          if (q.meta) qFd.set('meta', JSON.stringify(q.meta))
+          qFd.set(
+            'choices',
+            JSON.stringify(
+              q.choices.map((c) => ({
+                text: c.text,
+                imageUrl: c.imageUrl || undefined,
+                isCorrect: c.isCorrect,
+                ...(c.meta ? { meta: c.meta } : {}),
+              }))
             )
-            return addQuestion(qFd)
-          })
-        )
+          )
 
-        const failedQuestion = questionResults.find((r) => !r.ok)
-        if (failedQuestion && !failedQuestion.ok) {
-          addToast(failedQuestion.message || 'Could not save a question.', 'error')
-          return
-        }
+          if (q.dbId) {
+            qFd.set('questionId', q.dbId)
+            return updateQuestion(qFd)
+          }
+          return addQuestion(qFd)
+        })
+      )
+
+      const failedQuestion = questionResults.find((r) => !r.ok)
+      if (failedQuestion && !failedQuestion.ok) {
+        addToast(failedQuestion.message || 'Could not save a question.', 'error')
+        return
       }
 
       // Update quiz metadata + publish in one call
