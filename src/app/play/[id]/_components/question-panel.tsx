@@ -58,6 +58,7 @@ export function QuestionPanel({
 
   const [selectedCountryId, setSelectedCountryId] = useState<string | null>(null)
   const [selectedHotspotZoneId, setSelectedHotspotZoneId] = useState<string | null>(null)
+  const [completedZoneIds, setCompletedZoneIds] = useState<string[]>([])
 
   const mapRegion = (currentQuestion.meta as Record<string, string>)?.mapRegion ?? 'europe'
 
@@ -84,14 +85,22 @@ export function QuestionPanel({
       )
       if (matchingChoice) {
         onAnswer([matchingChoice.id])
+        // If correct, mark zone as completed so it disappears from the map
+        if (matchingChoice.isCorrect) {
+          setCompletedZoneIds((prev) => (prev.includes(zoneId) ? prev : [...prev, zoneId]))
+        }
       }
     },
     [isAnswered, currentQuestion.choices, onAnswer]
   )
 
-  // Get hotspot data
+  // Get hotspot data — exclude completed zones
   const hotspotMeta = currentQuestion.meta as { zones?: HotspotZone[] } | undefined
-  const hotspotZones = useMemo(() => hotspotMeta?.zones ?? [], [hotspotMeta?.zones])
+  const allHotspotZones = useMemo(() => hotspotMeta?.zones ?? [], [hotspotMeta?.zones])
+  const hotspotZones = useMemo(
+    () => allHotspotZones.filter((z) => !completedZoneIds.includes(z.id)),
+    [allHotspotZones, completedZoneIds]
+  )
   const hotspotImageUrl = currentQuestion.imageUrl ?? ''
 
   // Derive effective selected zone — only valid if it exists in current question
@@ -121,7 +130,7 @@ export function QuestionPanel({
             correctZoneId={correctZoneId}
             selectedZoneId={effectiveSelectedZoneId}
             showResult={isAnswered}
-            showMarkers={!isAnswered}
+            showMarkers={true}
             showNames={false}
             disabled={isAnswered}
             onZoneClick={handleHotspotZoneClick}
