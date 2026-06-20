@@ -58,7 +58,7 @@ export function HeroInsightBox({ currentUser, totalQuizCount, quickLinks }: Hero
         </form>
 
         {/* Stats inline row */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+        <div className="flex items-center gap-x-2 gap-y-1 text-xs sm:text-sm sm:gap-x-4 whitespace-nowrap overflow-x-auto">
           <span className="inline-flex items-center gap-1.5 font-medium">
             <Zap className="h-4 w-4 shrink-0 text-quiz-purple" />
             {formattedCount} quizzes
