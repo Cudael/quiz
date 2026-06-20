@@ -12,7 +12,6 @@ import { BadgeShowcase } from './sections/badge-showcase'
 import { Divider } from './sections/section-primitives'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { QuizOfTheDay } from './sections/quiz-of-the-day'
 
 export type { HomeCurrentUser } from './home-page-client.types'
 
@@ -123,13 +122,6 @@ export function HomePageClient({
       )}
 
       <Divider />
-
-      <Divider />
-
-      {/* Quiz of the Day */}
-      <motion.div variants={sectionVariants}>
-        <QuizOfTheDay />
-      </motion.div>
 
       <Divider />
 
