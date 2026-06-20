@@ -7,6 +7,7 @@ import { serializeJsonLd } from '@/lib/seo'
 import { Button } from '@/components/ui/button'
 import { QuizCardHorizontal } from '@/components/ui/quiz-card'
 import type { QuizCardData } from '@/components/ui/quiz-card'
+import { getDisplayAuthorName } from '@/lib/author-display'
 import { prisma } from '@/server/prisma'
 import { auth } from '@/server/auth'
 
@@ -139,7 +140,7 @@ export default async function CategoryPage({
     coverImage: true,
     difficulty: true,
     playCount: true,
-    author: { select: { name: true } },
+    author: { select: { name: true, role: true } },
     category: { select: { name: true, color: true } },
     _count: { select: { ratings: true } },
     ratings: { select: { stars: true } },
@@ -164,7 +165,7 @@ export default async function CategoryPage({
       playCount: quiz.playCount,
       avgRating,
       ratingCount,
-      authorName: quiz.author?.name ?? undefined,
+      authorName: quiz.author ? getDisplayAuthorName(quiz.author) : undefined,
       completed: playedQuizIds.has(quiz.id) || undefined,
     }
   }

@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/ui/page-header'
 import { cn } from '@/lib/utils'
 import { prisma } from '@/server/prisma'
 import { resolveReport } from '../actions'
+import { getDisplayAuthorName } from '@/lib/author-display'
 
 const STATUS_OPTIONS = ['ALL', 'PENDING', 'DISMISSED', 'ACTIONED'] as const
 
@@ -37,7 +38,7 @@ export default async function AdminReportsPage({
           select: {
             id: true,
             title: true,
-            author: { select: { name: true, username: true } },
+            author: { select: { name: true, username: true, role: true } },
           },
         },
         reporter: { select: { name: true, username: true } },
@@ -124,10 +125,10 @@ export default async function AdminReportsPage({
                         className="transition-colors hover:text-foreground"
                         href={`/u/${report.quiz.author.username}`}
                       >
-                        {report.quiz.author.name}
+                        {getDisplayAuthorName(report.quiz.author)}
                       </Link>
                     ) : (
-                      report.quiz.author.name
+                      getDisplayAuthorName(report.quiz.author)
                     )}
                   </div>
                 </div>

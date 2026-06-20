@@ -6,6 +6,7 @@ import { QuizCardHorizontal, type QuizCardData } from '@/components/ui/quiz-card
 import { prisma } from '@/server/prisma'
 import { absoluteUrl } from '@/lib/site'
 import { WEEK_IN_MS } from '@/lib/time'
+import { getDisplayAuthorName } from '@/lib/author-display'
 
 export const metadata: Metadata = {
   title: 'Trending Quizzes | BusQuiz',
@@ -51,7 +52,7 @@ export default async function TrendingQuizzesPage() {
         difficulty: true,
         playCount: true,
         avgScore: true,
-        author: { select: { name: true } },
+        author: { select: { name: true, role: true } },
         category: { select: { slug: true, name: true, icon: true, color: true } },
         _count: { select: { ratings: true } },
         ratings: { select: { stars: true } },
@@ -83,7 +84,7 @@ export default async function TrendingQuizzesPage() {
           avgScore: quiz.avgScore ?? undefined,
           avgRating,
           ratingCount,
-          authorName: quiz.author?.name ?? undefined,
+          authorName: quiz.author ? getDisplayAuthorName(quiz.author) : undefined,
         }
       })
   }

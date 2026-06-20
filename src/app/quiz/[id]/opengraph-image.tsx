@@ -1,7 +1,9 @@
 import { ImageResponse } from 'next/og'
 import { prisma } from '@/server/prisma'
+import { getDisplayAuthorName } from '@/lib/author-display'
 
 export const alt = 'Quiz card'
+
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 export const runtime = 'nodejs'
@@ -53,7 +55,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
       title: true,
       difficulty: true,
       category: { select: { name: true } },
-      author: { select: { name: true } },
+      author: { select: { name: true, role: true } },
     },
   })
 
@@ -61,7 +63,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
     title: quiz?.title ?? 'BusQuiz quiz',
     category: quiz?.category.name ?? 'Category',
     difficulty: quiz?.difficulty ?? 'MEDIUM',
-    author: quiz?.author.name ?? 'BusQuiz',
+    author: quiz?.author ? getDisplayAuthorName(quiz.author) : 'BusQuiz',
   })
 
   return new ImageResponse(card, size)

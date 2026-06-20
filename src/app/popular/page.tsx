@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { QuizCardHorizontal, type QuizCardData } from '@/components/ui/quiz-card'
 import { prisma } from '@/server/prisma'
 import { absoluteUrl } from '@/lib/site'
+import { getDisplayAuthorName } from '@/lib/author-display'
 
 export const metadata: Metadata = {
   title: 'Most Popular Quizzes | BusQuiz',
@@ -35,7 +36,7 @@ export default async function PopularQuizzesPage() {
       difficulty: true,
       playCount: true,
       avgScore: true,
-      author: { select: { name: true } },
+      author: { select: { name: true, role: true } },
       category: { select: { slug: true, name: true, icon: true, color: true } },
       _count: { select: { ratings: true } },
       ratings: { select: { stars: true } },
@@ -60,7 +61,7 @@ export default async function PopularQuizzesPage() {
       avgScore: quiz.avgScore ?? undefined,
       avgRating,
       ratingCount,
-      authorName: quiz.author?.name ?? undefined,
+      authorName: quiz.author ? getDisplayAuthorName(quiz.author) : undefined,
     }
   })
 

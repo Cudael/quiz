@@ -16,6 +16,7 @@ export const HOME_QUIZ_SELECT = {
   author: {
     select: {
       name: true,
+      role: true,
     },
   },
   category: {

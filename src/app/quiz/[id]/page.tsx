@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { Avatar } from '@/components/ui/avatar'
 import { serializeJsonLd } from '@/lib/seo'
+import { getDisplayAuthorName } from '@/lib/author-display'
 import { prisma } from '@/server/prisma'
 import { auth } from '@/server/auth'
 import { ReportQuizForm } from '../report-quiz-form'
@@ -31,7 +32,7 @@ const QUIZ_META_SELECT = {
   playCount: true,
   avgScore: true,
   category: true,
-  author: { select: { id: true, name: true, image: true } },
+  author: { select: { id: true, name: true, image: true, role: true } },
   questions: { select: { id: true } },
 } as const
 
@@ -58,7 +59,7 @@ export async function generateMetadata({
     }
   }
 
-  const title = `${quiz.title} by ${quiz.author.name} • ${quiz.category.name} | BusQuiz`
+  const title = `${quiz.title} by ${getDisplayAuthorName(quiz.author)} • ${quiz.category.name} | BusQuiz`
   const description = quiz.description || `Take ${quiz.title} and climb the leaderboard on BusQuiz.`
   const url = absoluteUrl(`/quiz/${id}`)
   const ogImages = quiz.coverImage ? [quiz.coverImage] : ['/og-default.png']
@@ -117,7 +118,7 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
     description: quiz.description || `Take ${quiz.title} and climb the leaderboard on BusQuiz.`,
     url: absoluteUrl(`/quiz/${id}`),
     ...(quiz.coverImage ? { image: quiz.coverImage } : {}),
-    author: { '@type': 'Person', name: quiz.author.name },
+    author: { '@type': 'Person', name: getDisplayAuthorName(quiz.author) },
     educationalLevel,
     numberOfQuestions: questionCount,
     ...(avgRating > 0 && ratingCount > 0
@@ -192,8 +193,14 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
 
                   {/* Author */}
                   <div className="mt-1.5 flex items-center gap-2">
-                    <Avatar src={quiz.author.image} fallback={quiz.author.name} size="sm" />
-                    <span className="text-xs text-muted-foreground">by {quiz.author.name}</span>
+                    <Avatar
+                      src={quiz.author.role === 'ADMIN' ? null : quiz.author.image}
+                      fallback={getDisplayAuthorName(quiz.author)}
+                      size="sm"
+                    />
+                    <span className="text-xs text-muted-foreground">
+                      by {getDisplayAuthorName(quiz.author)}
+                    </span>
                   </div>
 
                   {/* Description */}

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader } from '@/components/ui/page-header'
 import { cn } from '@/lib/utils'
+import { getDisplayAuthorName } from '@/lib/author-display'
 import { AdminQuizActions } from './_components/quiz-actions'
 
 const PAGE_SIZE = 25
@@ -73,7 +74,7 @@ export default async function AdminQuizzesPage({
       where,
       include: {
         category: { select: { name: true, slug: true, color: true } },
-        author: { select: { name: true, username: true } },
+        author: { select: { name: true, username: true, role: true } },
         _count: { select: { questions: true, sessions: true } },
       },
       orderBy: { createdAt: 'desc' },
@@ -183,10 +184,10 @@ export default async function AdminQuizzesPage({
                             className="transition-colors hover:text-primary"
                             href={`/u/${quiz.author.username}`}
                           >
-                            {quiz.author.name}
+                            {getDisplayAuthorName(quiz.author)}
                           </Link>
                         ) : (
-                          <span>{quiz.author.name}</span>
+                          <span>{getDisplayAuthorName(quiz.author)}</span>
                         )}
                       </td>
                       <td className="px-4 py-3">

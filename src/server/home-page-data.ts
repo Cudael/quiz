@@ -5,6 +5,7 @@ import {
   getTrendingQuizzes,
   type HomeQuizRecord,
 } from '@/server/home-quiz-cache'
+import { getDisplayAuthorName } from '@/lib/author-display'
 import type { QuizCardData } from '@/components/ui/quiz-card'
 import type {
   HomeCurrentUser,
@@ -21,7 +22,7 @@ const QUIZ_CARD_SELECT_WITH_RATINGS = {
   difficulty: true,
   playCount: true,
   avgScore: true,
-  author: { select: { name: true } },
+  author: { select: { name: true, role: true } },
   category: {
     select: { slug: true, name: true, icon: true, color: true },
   },
@@ -86,7 +87,7 @@ function mapQuizCard(quiz: HomeQuizRecord, completedQuizIds?: Set<string>): Quiz
     avgScore: quiz.avgScore ?? undefined,
     avgRating,
     ratingCount,
-    authorName: quiz.author?.name ?? undefined,
+    authorName: quiz.author ? getDisplayAuthorName(quiz.author) : undefined,
     completed: completedQuizIds?.has(quiz.id) ?? undefined,
   }
 }
