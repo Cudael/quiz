@@ -287,7 +287,7 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
 
         {/* Sidebar — Recommended Quizzes */}
         <div className="lg:col-span-1">
-          <div className="lg:sticky lg:top-20">
+          <div>
             <div className="mb-4 flex items-center gap-2">
               <Compass className="h-5 w-5 text-quiz-purple-light" />
               <h2 className="text-lg font-bold">Recommended</h2>
