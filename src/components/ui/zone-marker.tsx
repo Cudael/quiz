@@ -1,4 +1,4 @@
-export const HOTSPOT_RADIUS_SCALE = 20
+export const HOTSPOT_RADIUS_SCALE = 10
 
 export interface ZoneMarkerProps {
   x: number
@@ -30,8 +30,8 @@ export function ZoneMarker({
   children,
 }: ZoneMarkerProps) {
   const isSmall = radius <= 1.5
-  // Small: 8px solid filled marker | Large: radius * SCALE pixels bordered circle
-  const sizePx = isSmall ? 8 : radius * HOTSPOT_RADIUS_SCALE
+  // Small: 12px solid filled square | Large: radius * SCALE pixels bordered circle
+  const sizePx = isSmall ? 12 : radius * HOTSPOT_RADIUS_SCALE
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!draggable || !onDragEnd) return
@@ -71,7 +71,7 @@ export function ZoneMarker({
       onMouseDown={handleMouseDown}
     >
       <div
-        className={`rounded-full ${isSmall ? bgClass.replace(/\/\d+$/, '') : `${borderClass} ${bgClass}`}`}
+        className={`${isSmall ? bgClass.replace(/\/\d+$/, '') : `rounded-full ${borderClass} ${bgClass}`}`}
         style={{
           width: `${sizePx}px`,
           height: `${sizePx}px`,
