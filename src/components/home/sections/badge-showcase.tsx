@@ -1,14 +1,15 @@
 'use client'
 
 import Link from 'next/link'
-import { Award } from 'lucide-react'
-import type { BadgePreview } from '../home-page-client.types'
+import { Award, User } from 'lucide-react'
+import type { BadgePreview, HomeCurrentUser } from '../home-page-client.types'
 
 interface BadgeShowcaseProps {
   badges: BadgePreview[]
+  currentUser: HomeCurrentUser | null
 }
 
-export function BadgeShowcase({ badges }: BadgeShowcaseProps) {
+export function BadgeShowcase({ badges, currentUser }: BadgeShowcaseProps) {
   if (badges.length === 0) return null
 
   return (
@@ -20,12 +21,22 @@ export function BadgeShowcase({ badges }: BadgeShowcaseProps) {
             Play quizzes, build streaks, and unlock achievements
           </p>
         </div>
-        <Link
-          href="/badges"
-          className="flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md px-1 transition-colors"
-        >
-          View all <Award className="h-3.5 w-3.5" />
-        </Link>
+        <div className="flex items-center gap-3">
+          {currentUser && (
+            <Link
+              href="/me/badges"
+              className="flex items-center gap-1 text-sm font-semibold text-quiz-purple hover:text-quiz-purple/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md px-1 transition-colors"
+            >
+              My Badges <User className="h-3.5 w-3.5" />
+            </Link>
+          )}
+          <Link
+            href="/badges"
+            className="flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md px-1 transition-colors"
+          >
+            View all <Award className="h-3.5 w-3.5" />
+          </Link>
+        </div>
       </div>
       <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {badges.map((badge) => (

@@ -15,6 +15,7 @@ import { auth } from '@/server/auth'
 import { ReportQuizForm } from '../report-quiz-form'
 import { RateQuizForm } from '../rate-quiz-form'
 import { RecommendedQuizzes, RecommendedQuizzesSkeleton } from './_components/recommended-quizzes'
+import { YouMightAlsoLike } from './_components/you-might-also-like'
 import { absoluteUrl } from '@/lib/site'
 
 const difficultyVariant: Record<string, 'success' | 'warning' | 'destructive'> = {
@@ -305,6 +306,15 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
           </div>
         </div>
       </div>
+
+      {/* You Might Also Like */}
+      <Suspense fallback={null}>
+        <YouMightAlsoLike
+          currentQuizId={quiz.id}
+          categorySlug={quiz.category.slug}
+          categoryName={quiz.category.name}
+        />
+      </Suspense>
     </div>
   )
 }

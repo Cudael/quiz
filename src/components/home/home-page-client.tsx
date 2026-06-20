@@ -1,7 +1,7 @@
 'use client'
 
 import { motion, useReducedMotion } from 'framer-motion'
-import { TrendingUp, Trophy, Layers, Award } from 'lucide-react'
+import { TrendingUp, Trophy, Layers, Award, PenLine } from 'lucide-react'
 import { fadeUp, staggerContainer, withReducedMotion } from '@/lib/motion'
 import type { HomePageClientProps } from './home-page-client.types'
 import { QuizDenseGridSection, CategoryRowSection } from './sections/quiz-sections'
@@ -10,6 +10,9 @@ import { HeroInsightBox } from './sections/hero-insight-box'
 import { HeroCards } from './sections/hero-cards'
 import { BadgeShowcase } from './sections/badge-showcase'
 import { Divider } from './sections/section-primitives'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { QuizOfTheDay } from './sections/quiz-of-the-day'
 
 export type { HomeCurrentUser } from './home-page-client.types'
 
@@ -83,7 +86,7 @@ export function HomePageClient({
       {/* Badge showcase */}
       {badgePreviews.length > 0 && (
         <motion.div variants={sectionVariants}>
-          <BadgeShowcase badges={badgePreviews} />
+          <BadgeShowcase badges={badgePreviews} currentUser={currentUser} />
         </motion.div>
       )}
 
@@ -121,6 +124,15 @@ export function HomePageClient({
 
       <Divider />
 
+      <Divider />
+
+      {/* Quiz of the Day */}
+      <motion.div variants={sectionVariants}>
+        <QuizOfTheDay />
+      </motion.div>
+
+      <Divider />
+
       {/* Hall of Fame */}
       <motion.div variants={sectionVariants}>
         <QuizDenseGridSection
@@ -129,6 +141,30 @@ export function HomePageClient({
           quizzes={popularQuizzes}
           maxItems={12}
         />
+      </motion.div>
+
+      <Divider />
+
+      {/* CTA Banner */}
+      <motion.div variants={sectionVariants}>
+        <div className="rounded-2xl bg-gradient-to-r from-quiz-purple to-quiz-purple/70 p-8 md:p-10 text-center text-white">
+          <PenLine className="mx-auto mb-4 h-10 w-10 opacity-80" />
+          <h2 className="text-2xl font-extrabold tracking-tight md:text-3xl">Got a quiz idea?</h2>
+          <p className="mx-auto mt-3 max-w-lg text-base text-white/80">
+            Our Quiz Studio makes it easy to create and publish your own quizzes. Share your
+            knowledge with the world — it only takes a few minutes.
+          </p>
+          <Button
+            asChild
+            size="lg"
+            className="mt-6 rounded-xl bg-white px-8 font-bold text-quiz-purple hover:bg-white/90"
+          >
+            <Link href="/studio">
+              <PenLine className="mr-2 h-5 w-5" />
+              Create a Quiz
+            </Link>
+          </Button>
+        </div>
       </motion.div>
     </motion.div>
   )
