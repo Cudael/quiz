@@ -145,11 +145,8 @@ export function HomePageClient({
               Share your knowledge — create a quiz in minutes.
             </p>
           </div>
-          <Button asChild size="sm" className="shrink-0 rounded-xl">
-            <Link href="/studio">
-              <PenLine className="mr-1.5 h-4 w-4" />
-              Create a Quiz
-            </Link>
+          <Button asChild size="sm" className="shrink-0 rounded-xl text-sm font-bold">
+            <Link href="/studio">Create a Quiz</Link>
           </Button>
         </div>
       </motion.div>
