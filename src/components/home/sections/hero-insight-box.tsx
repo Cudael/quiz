@@ -26,10 +26,10 @@ export function HeroInsightBox({ currentUser, totalQuizCount, quickLinks }: Hero
     <div className="flex h-full flex-col justify-between space-y-4">
       <div className="space-y-4">
         <div>
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
+          <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl">
             Free Online Quiz & Trivia Platform
           </h1>
-          <p className="mt-2 text-lg leading-relaxed text-muted-foreground">
+          <p className="mt-2 text-base leading-relaxed text-muted-foreground sm:text-lg">
             {currentUser
               ? `Welcome back, ${currentUser.name ?? 'quiz champion'}! Pick up where you left off or discover something new.`
               : 'Test your knowledge across thousands of quizzes. No sign-up needed — just pick a quiz and play.'}
@@ -58,19 +58,19 @@ export function HeroInsightBox({ currentUser, totalQuizCount, quickLinks }: Hero
         </form>
 
         {/* Stats inline row */}
-        <div className="flex items-center gap-x-2 gap-y-1 text-xs sm:text-sm sm:gap-x-4 whitespace-nowrap overflow-x-auto">
-          <span className="inline-flex items-center gap-1.5 font-medium">
-            <Zap className="h-4 w-4 shrink-0 text-quiz-purple" />
+        <div className="flex items-center gap-x-2 gap-y-1 text-xs sm:text-sm sm:gap-x-4">
+          <span className="inline-flex items-center gap-1.5 font-medium whitespace-nowrap">
+            <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 text-quiz-purple" />
             {formattedCount} quizzes
           </span>
-          <span className="text-muted-foreground/40">·</span>
-          <span className="inline-flex items-center gap-1.5 font-medium">
-            <Trophy className="h-4 w-4 shrink-0 text-quiz-orange" />
+          <span className="text-muted-foreground/40 shrink-0">·</span>
+          <span className="inline-flex items-center gap-1.5 font-medium whitespace-nowrap">
+            <Trophy className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 text-quiz-orange" />
             Earn badges & XP
           </span>
-          <span className="text-muted-foreground/40">·</span>
-          <span className="inline-flex items-center gap-1.5 font-medium">
-            <Users className="h-4 w-4 shrink-0 text-quiz-green" />
+          <span className="text-muted-foreground/40 shrink-0">·</span>
+          <span className="inline-flex items-center gap-1.5 font-medium whitespace-nowrap">
+            <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 text-quiz-green" />
             Climb leaderboards
           </span>
         </div>
