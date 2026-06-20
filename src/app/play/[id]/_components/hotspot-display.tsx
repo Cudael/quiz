@@ -13,6 +13,7 @@ interface HotspotDisplayProps {
   showResult?: boolean
   showMarkers?: boolean
   showNames?: boolean
+  fadingZoneIds?: string[]
   disabled?: boolean
   onZoneClick?: (zoneId: string) => void
   className?: string
@@ -28,6 +29,7 @@ export function HotspotDisplay({
   showResult = false,
   showMarkers = true,
   showNames = false,
+  fadingZoneIds = [],
   disabled = false,
   onZoneClick,
   className,
@@ -129,6 +131,7 @@ export function HotspotDisplay({
           zones.map((zone) => {
             const colors = getZoneColors(zone)
             const showLabel = showNames || (showResult && zone.id === selectedZoneId)
+            const isFading = fadingZoneIds.includes(zone.id)
             return (
               <ZoneMarker
                 key={zone.id}
@@ -140,6 +143,7 @@ export function HotspotDisplay({
                 borderClass={`border-2 ${colors.border}`}
                 bgClass={colors.bg}
                 labelClass={colors.text}
+                fading={isFading}
               />
             )
           })}

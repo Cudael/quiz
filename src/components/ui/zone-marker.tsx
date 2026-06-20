@@ -10,6 +10,7 @@ export interface ZoneMarkerProps {
   bgClass?: string
   labelClass?: string
   draggable?: boolean
+  fading?: boolean
   onDragEnd?: (x: number, y: number) => void
   children?: React.ReactNode
 }
@@ -24,6 +25,7 @@ export function ZoneMarker({
   bgClass = 'bg-quiz-orange/10',
   labelClass = 'text-quiz-orange',
   draggable = false,
+  fading = false,
   onDragEnd,
   children,
 }: ZoneMarkerProps) {
@@ -58,7 +60,7 @@ export function ZoneMarker({
 
   return (
     <div
-      className={`absolute ${draggable ? 'pointer-events-auto cursor-grab active:cursor-grabbing' : 'pointer-events-none'}`}
+      className={`absolute ${draggable ? 'pointer-events-auto cursor-grab active:cursor-grabbing' : 'pointer-events-none'} transition-opacity duration-700 ${fading ? 'opacity-0' : 'opacity-100'}`}
       style={{
         left: `${x}%`,
         top: `${y}%`,

@@ -59,6 +59,7 @@ export function QuestionPanel({
   const [selectedCountryId, setSelectedCountryId] = useState<string | null>(null)
   const [selectedHotspotZoneId, setSelectedHotspotZoneId] = useState<string | null>(null)
   const [completedZoneIds, setCompletedZoneIds] = useState<string[]>([])
+  const [fadingZoneIds, setFadingZoneIds] = useState<string[]>([])
 
   const mapRegion = (currentQuestion.meta as Record<string, string>)?.mapRegion ?? 'europe'
 
@@ -85,16 +86,20 @@ export function QuestionPanel({
       )
       if (matchingChoice) {
         onAnswer([matchingChoice.id])
-        // If correct, mark zone as completed so it disappears from the map
+        // If correct, start fade-out then mark zone as completed
         if (matchingChoice.isCorrect) {
-          setCompletedZoneIds((prev) => (prev.includes(zoneId) ? prev : [...prev, zoneId]))
+          setFadingZoneIds((prev) => (prev.includes(zoneId) ? prev : [...prev, zoneId]))
+          setTimeout(() => {
+            setFadingZoneIds((prev) => prev.filter((id) => id !== zoneId))
+            setCompletedZoneIds((prev) => (prev.includes(zoneId) ? prev : [...prev, zoneId]))
+          }, 800)
         }
       }
     },
     [isAnswered, currentQuestion.choices, onAnswer]
   )
 
-  // Get hotspot data — exclude completed zones
+  // Get hotspot data — exclude completed zones (fading zones are still visible)
   const hotspotMeta = currentQuestion.meta as { zones?: HotspotZone[] } | undefined
   const allHotspotZones = useMemo(() => hotspotMeta?.zones ?? [], [hotspotMeta?.zones])
   const hotspotZones = useMemo(
@@ -132,6 +137,7 @@ export function QuestionPanel({
             showResult={isAnswered}
             showMarkers={true}
             showNames={false}
+            fadingZoneIds={fadingZoneIds}
             disabled={isAnswered}
             onZoneClick={handleHotspotZoneClick}
             className="mx-auto"
