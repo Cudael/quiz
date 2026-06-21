@@ -5,6 +5,7 @@ import type { Prisma } from '@prisma/client'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
 import { draftQuizSchema } from '@/schemas'
+import { evaluateBadges } from '@/domain/badges'
 
 export type QuizMetaActionResult =
   | { ok: true; quizId: string }
@@ -51,6 +52,13 @@ export async function createQuizAndReturnId(formData: FormData): Promise<QuizMet
   }
 
   const quiz = await prisma.quiz.create({ data })
+
+  // Award badges for quiz-related achievements (e.g. Quiz Author)
+  if (quiz.isPublished) {
+    evaluateBadges(session.user.id, quiz.id).catch(() => {
+      // Fire-and-forget — badge award failures shouldn't block quiz creation
+    })
+  }
 
   revalidatePath('/studio')
   return { ok: true, quizId: quiz.id }
