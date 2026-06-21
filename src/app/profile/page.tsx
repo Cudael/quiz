@@ -1,7 +1,6 @@
-import type { Metadata } from 'next'
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { Award, BarChart3, Flame, PenLine, Play, Settings, Share2, Trophy, Zap } from 'lucide-react'
+import Link from 'next/link'
+import { Award, BarChart3, Flame, PenLine, Play, Share2, Zap } from 'lucide-react'
 import { ShareProfileButton } from './share-profile-button'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
@@ -10,11 +9,6 @@ import { LevelProgress } from '@/components/ui/level-progress'
 import { StreakFlame } from '@/components/ui/streak-flame'
 import { Button } from '@/components/ui/button'
 import { xpProgress, xpForLevel, xpForNextLevel } from '@/domain/leveling'
-
-export const metadata: Metadata = {
-  title: 'My Profile',
-  robots: { index: false },
-}
 
 export default async function ProfilePage() {
   const session = await auth()
@@ -73,7 +67,7 @@ export default async function ProfilePage() {
       : null
 
   return (
-    <div className="container mx-auto max-w-4xl space-y-6 px-4 py-8">
+    <div className="space-y-6">
       {/* ── Header ── */}
       <section className="flex flex-col gap-5 rounded-2xl border bg-card p-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
@@ -94,27 +88,8 @@ export default async function ProfilePage() {
         </div>
         <div className="flex items-center gap-2">
           <ShareProfileButton username={user.username} />
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/profile/settings">
-              <Settings className="mr-1.5 h-4 w-4" />
-              Edit
-            </Link>
-          </Button>
         </div>
       </section>
-
-      {/* ── Quick Nav ── */}
-      <div className="flex flex-wrap gap-2">
-        <QuickNav href="/profile" active>
-          <Trophy className="h-4 w-4" /> Overview
-        </QuickNav>
-        <QuickNav href="/profile/badges">
-          <Award className="h-4 w-4" /> Badges
-        </QuickNav>
-        <QuickNav href="/profile/settings">
-          <Settings className="h-4 w-4" /> Settings
-        </QuickNav>
-      </div>
 
       {/* ── Stats Grid ── */}
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -163,20 +138,20 @@ export default async function ProfilePage() {
       {/* ── Quick Actions ── */}
       <section className="grid gap-3 sm:grid-cols-3">
         <Button asChild variant="gradient" size="lg" className="rounded-xl">
-          <Link href="/random-quiz">
-            <Zap className="mr-2 h-5 w-5" />
+          <Link href="/random-quiz" className="inline-flex items-center justify-center">
+            <Zap className="mr-2 h-5 w-5 shrink-0" />
             Play Random Quiz
           </Link>
         </Button>
         <Button asChild variant="outline" size="lg" className="rounded-xl">
-          <Link href="/studio">
-            <PenLine className="mr-2 h-5 w-5" />
+          <Link href="/studio" className="inline-flex items-center justify-center">
+            <PenLine className="mr-2 h-5 w-5 shrink-0" />
             Create a Quiz
           </Link>
         </Button>
         <Button asChild variant="outline" size="lg" className="rounded-xl">
-          <Link href={`/u/${user.username}`}>
-            <Share2 className="mr-2 h-5 w-5" />
+          <Link href={`/u/${user.username}`} className="inline-flex items-center justify-center">
+            <Share2 className="mr-2 h-5 w-5 shrink-0" />
             Public Profile
           </Link>
         </Button>
@@ -269,29 +244,6 @@ export default async function ProfilePage() {
         )}
       </section>
     </div>
-  )
-}
-
-function QuickNav({
-  href,
-  active,
-  children,
-}: {
-  href: string
-  active?: boolean
-  children: React.ReactNode
-}) {
-  return (
-    <Link
-      href={href}
-      className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors ${
-        active
-          ? 'border-quiz-purple/40 bg-quiz-purple/10 text-quiz-purple'
-          : 'border-border/50 bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground'
-      }`}
-    >
-      {children}
-    </Link>
   )
 }
 

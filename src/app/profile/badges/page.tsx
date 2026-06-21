@@ -1,15 +1,8 @@
-import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { ArrowLeft, Lock, CheckCircle2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Lock, CheckCircle2 } from 'lucide-react'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
-
-export const metadata: Metadata = {
-  title: 'My Badges',
-  robots: { index: false },
-}
 
 export default async function ProfileBadgesPage() {
   const session = await auth()
@@ -44,14 +37,8 @@ export default async function ProfileBadgesPage() {
   const totalCount = allBadges.length
 
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-10 md:py-16">
+    <div className="max-w-4xl py-10 md:py-16">
       <div className="mb-8">
-        <Button variant="ghost" asChild className="mb-4 -ml-2">
-          <Link href="/profile">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Profile
-          </Link>
-        </Button>
         <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">My Badges</h1>
         <p className="mt-2 text-muted-foreground">
           You&apos;ve earned{' '}
