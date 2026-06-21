@@ -4,6 +4,19 @@ import { Lock, CheckCircle2 } from 'lucide-react'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
 
+const BADGE_EMOJIS: Record<string, string> = {
+  'first-win': '🏆',
+  'perfect-score': '💯',
+  'streak-7': '🔥',
+  'streak-30': '🌟',
+  'quiz-author': '✏️',
+  'category-master-science': '🔬',
+  'speed-demon': '⚡',
+  'night-owl': '🦉',
+  centurion: '💎',
+  'daily-devotee': '📅',
+}
+
 export default async function ProfileBadgesPage() {
   const session = await auth()
   if (!session?.user?.id) {
@@ -79,7 +92,7 @@ export default async function ProfileBadgesPage() {
                   className="group flex items-start gap-4 rounded-xl border border-quiz-green/30 bg-quiz-green/5 p-4 transition-shadow hover:shadow-md"
                 >
                   <span className="text-3xl shrink-0" aria-hidden="true">
-                    {badge.icon}
+                    {BADGE_EMOJIS[badge.slug] ?? '🎖️'}
                   </span>
                   <div className="min-w-0 flex-1">
                     <h3 className="font-bold">{badge.name}</h3>
@@ -117,7 +130,7 @@ export default async function ProfileBadgesPage() {
                 className="flex items-start gap-4 rounded-xl border border-border/40 bg-muted/20 p-4 opacity-70 transition-opacity hover:opacity-100"
               >
                 <span className="text-3xl shrink-0 grayscale" aria-hidden="true">
-                  {badge.icon}
+                  {BADGE_EMOJIS[badge.slug] ?? '🎖️'}
                 </span>
                 <div className="min-w-0 flex-1">
                   <h3 className="font-bold">{badge.name}</h3>
