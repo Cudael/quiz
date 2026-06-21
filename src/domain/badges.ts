@@ -125,6 +125,10 @@ async function collectStats(client: PrismaLike, userId: string): Promise<BadgeSt
 
   const playedHours = snapshots.map((session) => session.createdAt.getUTCHours())
 
+  console.log(
+    `[badges] collectStats for user ${userId}: ${snapshots.length} sessions, ${wins} wins, perfect=${hasPerfectScore}, streak=${user?.streakDays ?? 0}, authored=${quizzesAuthored}`
+  )
+
   return {
     wins,
     hasPerfectScore,

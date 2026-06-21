@@ -5,7 +5,7 @@ import { prisma } from '@/server/prisma'
 import { verifyPlayToken } from '@/server/play-token'
 import { scoreQuestion } from '@/domain/scoring'
 import { auth } from '@/server/auth'
-import { evaluateBadgesWithClient } from '@/domain/badges'
+import { evaluateBadgesWithClient, evaluateBadges } from '@/domain/badges'
 import { levelForXp } from '@/domain/leveling'
 import { computeStreak } from '@/domain/streak'
 import { HOME_POPULAR_QUIZZES_TAG, HOME_TRENDING_QUIZZES_TAG } from '@/server/home-quiz-cache'
@@ -243,6 +243,18 @@ export async function POST(req: NextRequest) {
   revalidateTag(HOME_TRENDING_QUIZZES_TAG, 'max')
   revalidateTag(HOME_POPULAR_QUIZZES_TAG, 'max')
   revalidateTag(LEADERBOARD_TAG, 'max')
+
+  // Safety net: re-evaluate badges outside the transaction in case
+  // transaction isolation prevented collectStats from seeing the new session.
+  if (authSession?.user?.id && result.newlyAwardedBadges.length === 0) {
+    const safetyBadges = await evaluateBadges(authSession.user.id, result.sessionId)
+    if (safetyBadges.length > 0) {
+      console.log(
+        `[badges] Awarded post-tx for user ${authSession.user.id}: ${safetyBadges.map((b) => b.slug).join(', ')}`
+      )
+      return NextResponse.json({ ...result, newlyAwardedBadges: safetyBadges })
+    }
+  }
 
   return NextResponse.json(result)
 }
