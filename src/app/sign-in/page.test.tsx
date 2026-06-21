@@ -18,7 +18,7 @@ vi.mock('next/navigation', () => ({
 }))
 
 describe('SignInPage', () => {
-  it('redirects authenticated users to callbackUrl (default /me)', async () => {
+  it('redirects authenticated users to callbackUrl (default /profile)', async () => {
     const authMock = vi.mocked(auth as unknown as () => Promise<unknown>)
     authMock.mockResolvedValueOnce({
       user: { id: 'user-1' },
@@ -26,10 +26,10 @@ describe('SignInPage', () => {
 
     await expect(
       SignInPage({
-        searchParams: Promise.resolve({ callbackUrl: '/me' }),
+        searchParams: Promise.resolve({ callbackUrl: '/profile' }),
       })
     ).rejects.toThrow('NEXT_REDIRECT')
 
-    expect(redirect).toHaveBeenCalledWith('/me')
+    expect(redirect).toHaveBeenCalledWith('/profile')
   })
 })

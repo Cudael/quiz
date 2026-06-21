@@ -40,7 +40,7 @@ export function DangerZoneSection({ username }: DangerZoneSectionProps) {
           className="space-y-3"
           onSubmit={async (event) => {
             event.preventDefault()
-            const response = await fetch('/api/me', {
+            const response = await fetch('/api/profile', {
               method: 'DELETE',
               headers: { 'content-type': 'application/json' },
               body: JSON.stringify({ confirmUsername }),

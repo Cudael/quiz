@@ -72,7 +72,7 @@ describe('axe smoke routes', () => {
     )
   })
 
-  it('/me', async () => {
+  it('/profile', async () => {
     await expectNoSeriousOrCritical(
       <main>
         <h1>My profile</h1>
@@ -81,7 +81,7 @@ describe('axe smoke routes', () => {
     )
   })
 
-  it('/me/settings', async () => {
+  it('/profile/settings', async () => {
     await expectNoSeriousOrCritical(
       <main>
         <h1>Settings</h1>

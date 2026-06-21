@@ -7,7 +7,7 @@ import { SettingsClient } from './settings-client'
 export default async function MeSettingsPage() {
   const session = await auth()
   if (!session?.user?.id) {
-    redirect('/sign-in?callbackUrl=/me/settings')
+    redirect('/sign-in?callbackUrl=/profile/settings')
   }
 
   const user = await prisma.user.findUnique({
@@ -26,7 +26,7 @@ export default async function MeSettingsPage() {
   })
 
   if (!user?.username) {
-    redirect('/sign-in?callbackUrl=/me/settings')
+    redirect('/sign-in?callbackUrl=/profile/settings')
   }
 
   return (

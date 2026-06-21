@@ -24,7 +24,7 @@ export function BadgeShowcase({ badges, currentUser }: BadgeShowcaseProps) {
         <div className="flex items-center gap-3">
           {currentUser && (
             <Link
-              href="/me/badges"
+              href="/profile/badges"
               className="flex items-center gap-1 text-sm font-semibold text-quiz-purple hover:text-quiz-purple/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md px-1 transition-colors"
             >
               My Badges <User className="h-3.5 w-3.5" />

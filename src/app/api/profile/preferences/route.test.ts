@@ -13,17 +13,17 @@ const { authMock, prismaMock } = vi.hoisted(() => ({
 vi.mock('@/server/auth', () => ({ auth: authMock }))
 vi.mock('@/server/prisma', () => ({ prisma: prismaMock }))
 
-import { PATCH } from '@/app/api/me/preferences/route'
+import { PATCH } from '@/app/api/profile/preferences/route'
 
 function createRequest(body: unknown) {
-  return new Request('http://localhost/api/me/preferences', {
+  return new Request('http://localhost/api/profile/preferences', {
     method: 'PATCH',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body),
   })
 }
 
-describe('PATCH /api/me/preferences', () => {
+describe('PATCH /api/profile/preferences', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })

@@ -19,19 +19,19 @@ import { SignUpForm } from '@/components/auth/sign-up-form'
 
 describe('SignUpForm', () => {
   it('uses create account title', () => {
-    render(<SignUpForm callbackUrl="/me" googleEnabled={false} githubEnabled={false} />)
+    render(<SignUpForm callbackUrl="/profile" googleEnabled={false} githubEnabled={false} />)
 
     expect(screen.getByRole('heading', { name: 'Create account' })).toBeInTheDocument()
   })
 
   it('shows oauth divider only when oauth is enabled', () => {
     const { rerender } = render(
-      <SignUpForm callbackUrl="/me" googleEnabled={true} githubEnabled={false} />
+      <SignUpForm callbackUrl="/profile" googleEnabled={true} githubEnabled={false} />
     )
 
     expect(screen.getByText('or')).toBeInTheDocument()
 
-    rerender(<SignUpForm callbackUrl="/me" googleEnabled={false} githubEnabled={false} />)
+    rerender(<SignUpForm callbackUrl="/profile" googleEnabled={false} githubEnabled={false} />)
     expect(screen.queryByText('or')).not.toBeInTheDocument()
   })
 })

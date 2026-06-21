@@ -16,17 +16,17 @@ vi.mock('@/server/auth', () => ({ auth: authMock }))
 vi.mock('@/server/prisma', () => ({ prisma: prismaMock }))
 vi.mock('next/cache', () => ({ revalidatePath: revalidatePathMock }))
 
-import { PATCH } from '@/app/api/me/profile/route'
+import { PATCH } from '@/app/api/profile/profile/route'
 
 function createRequest(body: unknown) {
-  return new Request('http://localhost/api/me/profile', {
+  return new Request('http://localhost/api/profile/profile', {
     method: 'PATCH',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body),
   })
 }
 
-describe('PATCH /api/me/profile', () => {
+describe('PATCH /api/profile/profile', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })

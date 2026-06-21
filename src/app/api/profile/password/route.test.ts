@@ -25,17 +25,17 @@ vi.mock('@/server/rate-limit', () => ({
   getClientIp: vi.fn().mockReturnValue('127.0.0.1'),
 }))
 
-import { POST } from '@/app/api/me/password/route'
+import { POST } from '@/app/api/profile/password/route'
 
 function createRequest(body: unknown) {
-  return new Request('http://localhost/api/me/password', {
+  return new Request('http://localhost/api/profile/password', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body),
   })
 }
 
-describe('POST /api/me/password', () => {
+describe('POST /api/profile/password', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })

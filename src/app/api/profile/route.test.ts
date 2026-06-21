@@ -17,17 +17,17 @@ vi.mock('@/server/auth', () => ({ auth: authMock }))
 vi.mock('@/server/prisma', () => ({ prisma: prismaMock }))
 vi.mock('next/headers', () => ({ cookies: vi.fn().mockResolvedValue(cookiesMock) }))
 
-import { DELETE } from '@/app/api/me/route'
+import { DELETE } from '@/app/api/profile/route'
 
 function createRequest(body: unknown) {
-  return new Request('http://localhost/api/me', {
+  return new Request('http://localhost/api/profile', {
     method: 'DELETE',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body),
   })
 }
 
-describe('DELETE /api/me', () => {
+describe('DELETE /api/profile', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })

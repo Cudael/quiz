@@ -10,7 +10,7 @@
 export function safeCallbackUrl(callbackUrl: string | undefined, defaultUrl: string): string {
   if (!callbackUrl) return defaultUrl
 
-  // Allow relative paths (e.g. "/me", "/quiz/123") but not protocol-relative
+  // Allow relative paths (e.g. "/profile", "/quiz/123") but not protocol-relative
   // URLs like "//evil.com" which browsers resolve as "https://evil.com".
   if (callbackUrl.startsWith('/') && !callbackUrl.startsWith('//')) {
     return callbackUrl

@@ -66,7 +66,7 @@ function parseMeta(meta: Record<string, unknown> | null): Record<string, unknown
 
 function getNotificationHref(notification: NotificationItem) {
   if (notification.type === 'BADGE_EARNED') {
-    return '/me'
+    return '/profile'
   }
 
   const meta = parseMeta(notification.meta)

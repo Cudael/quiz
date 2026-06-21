@@ -66,7 +66,7 @@ export async function PATCH(request: Request) {
     revalidatePath(`/u/${currentUser.username}`)
   }
   revalidatePath(`/u/${username}`)
-  revalidatePath('/me')
+  revalidatePath('/profile')
 
   return NextResponse.json({ ok: true, username })
 }

@@ -43,7 +43,7 @@ export function AccountSection({ email, hasPassword, providers }: AccountSection
               return
             }
 
-            const response = await fetch('/api/me/password', {
+            const response = await fetch('/api/profile/password', {
               method: 'POST',
               headers: { 'content-type': 'application/json' },
               body: JSON.stringify({

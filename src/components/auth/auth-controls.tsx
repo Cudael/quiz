@@ -71,10 +71,12 @@ export function AuthControls() {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end" className="w-52">
-          <DropdownMenuItem onSelect={() => router.push('/me')}>
+          <DropdownMenuItem onSelect={() => router.push('/profile')}>
             Profile (@{username})
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => router.push('/me/settings')}>Settings</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => router.push('/profile/settings')}>
+            Settings
+          </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => router.push('/studio')}>Studio</DropdownMenuItem>
           {session.user.role === 'ADMIN' && (
             <DropdownMenuItem onSelect={() => router.push('/admin')}>Admin</DropdownMenuItem>

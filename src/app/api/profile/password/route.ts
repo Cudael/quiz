@@ -8,7 +8,12 @@ import { checkRateLimit, getClientIp } from '@/server/rate-limit'
 const GENERIC_ERROR = 'Unable to change password.'
 
 export async function POST(request: Request) {
-  if (!(await checkRateLimit(`password:${getClientIp(request)}`, { limit: 5, windowMs: 15 * 60 * 1000 }))) {
+  if (
+    !(await checkRateLimit(`password:${getClientIp(request)}`, {
+      limit: 5,
+      windowMs: 15 * 60 * 1000,
+    }))
+  ) {
     return NextResponse.json(
       { error: 'Too many requests. Please try again later.' },
       { status: 429 }

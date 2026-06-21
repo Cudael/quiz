@@ -80,10 +80,10 @@ export const authConfig: NextAuthConfig = {
               return callbackDestination.toString()
             }
           } catch {
-            // Ignore invalid callbackUrl and fall back to /me.
+            // Ignore invalid callbackUrl and fall back to /profile.
           }
         }
-        return new URL('/me', baseUrl).toString()
+        return new URL('/profile', baseUrl).toString()
       }
 
       return destination.toString()

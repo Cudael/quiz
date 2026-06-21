@@ -69,7 +69,7 @@ describe('AuthControls', () => {
     fireEvent.pointerDown(trigger)
     expect(await screen.findByRole('menuitem', { name: /Settings/ })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('menuitem', { name: 'Settings' }))
-    expect(pushMock).toHaveBeenCalledWith('/me/settings')
+    expect(pushMock).toHaveBeenCalledWith('/profile/settings')
 
     fireEvent.pointerDown(trigger)
     expect(await screen.findByRole('menuitem', { name: /Studio/ })).toBeInTheDocument()

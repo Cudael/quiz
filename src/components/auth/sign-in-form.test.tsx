@@ -20,11 +20,11 @@ import { SignInForm } from '@/components/auth/sign-in-form'
 describe('SignInForm', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    signInMock.mockResolvedValue({ url: '/me' })
+    signInMock.mockResolvedValue({ url: '/profile' })
   })
 
   it('uses updated log in copy', () => {
-    render(<SignInForm callbackUrl="/me" googleEnabled={false} githubEnabled={false} />)
+    render(<SignInForm callbackUrl="/profile" googleEnabled={false} githubEnabled={false} />)
 
     expect(screen.getByRole('heading', { name: 'Log in' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Log in' })).toBeInTheDocument()
@@ -32,12 +32,12 @@ describe('SignInForm', () => {
 
   it('shows oauth divider only when oauth is enabled', () => {
     const { rerender } = render(
-      <SignInForm callbackUrl="/me" googleEnabled={true} githubEnabled={false} />
+      <SignInForm callbackUrl="/profile" googleEnabled={true} githubEnabled={false} />
     )
 
     expect(screen.getByText('or')).toBeInTheDocument()
 
-    rerender(<SignInForm callbackUrl="/me" googleEnabled={false} githubEnabled={false} />)
+    rerender(<SignInForm callbackUrl="/profile" googleEnabled={false} githubEnabled={false} />)
     expect(screen.queryByText('or')).not.toBeInTheDocument()
   })
 
@@ -48,16 +48,16 @@ describe('SignInForm', () => {
         resolveSignIn = resolve
       })
     )
-    render(<SignInForm callbackUrl="/me" googleEnabled={false} githubEnabled={false} />)
+    render(<SignInForm callbackUrl="/profile" googleEnabled={false} githubEnabled={false} />)
 
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'player@example.com' } })
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'Password123!' } })
     fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
 
     expect(await screen.findByText('Logging in…')).toBeInTheDocument()
-    resolveSignIn({ url: '/me' })
+    resolveSignIn({ url: '/profile' })
     await waitFor(() => {
-      expect(pushMock).toHaveBeenCalledWith('/me')
+      expect(pushMock).toHaveBeenCalledWith('/profile')
     })
   })
 })

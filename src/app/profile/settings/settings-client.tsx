@@ -32,7 +32,7 @@ export function SettingsClient({
   })
 
   const savePreferences = async () => {
-    const response = await fetch('/api/me/preferences', {
+    const response = await fetch('/api/profile/preferences', {
       method: 'PATCH',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({

@@ -7,15 +7,15 @@ describe('safeCallbackUrl', () => {
   })
 
   it('returns defaultUrl when callbackUrl is undefined', () => {
-    expect(safeCallbackUrl(undefined, '/me')).toBe('/me')
+    expect(safeCallbackUrl(undefined, '/profile')).toBe('/profile')
   })
 
   it('returns defaultUrl when callbackUrl is empty', () => {
-    expect(safeCallbackUrl('', '/me')).toBe('/me')
+    expect(safeCallbackUrl('', '/profile')).toBe('/profile')
   })
 
   it('allows a simple relative path', () => {
-    expect(safeCallbackUrl('/me', '/fallback')).toBe('/me')
+    expect(safeCallbackUrl('/profile', '/fallback')).toBe('/profile')
   })
 
   it('allows a relative path with query string', () => {
@@ -23,16 +23,18 @@ describe('safeCallbackUrl', () => {
   })
 
   it('rejects protocol-relative URL (//evil.com)', () => {
-    expect(safeCallbackUrl('//evil.com', '/me')).toBe('/me')
+    expect(safeCallbackUrl('//evil.com', '/profile')).toBe('/profile')
   })
 
   it('rejects an absolute external URL', () => {
-    expect(safeCallbackUrl('https://evil.com/steal', '/me')).toBe('/me')
+    expect(safeCallbackUrl('https://evil.com/steal', '/profile')).toBe('/profile')
   })
 
   it('allows an absolute URL matching NEXTAUTH_URL origin', () => {
     process.env.NEXTAUTH_URL = 'https://busquiz.com'
-    expect(safeCallbackUrl('https://busquiz.com/me', '/fallback')).toBe('https://busquiz.com/me')
+    expect(safeCallbackUrl('https://busquiz.com/profile', '/fallback')).toBe(
+      'https://busquiz.com/profile'
+    )
   })
 
   it('rejects an absolute URL with different origin even when NEXTAUTH_URL is set', () => {

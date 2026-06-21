@@ -48,14 +48,14 @@ describe('authConfig edge callbacks', () => {
     if (!redirectCallback) throw new Error('Missing redirect callback')
 
     const result = await redirectCallback({
-      url: 'https://quiz.example/sign-in?callbackUrl=%2Fme',
+      url: 'https://quiz.example/sign-in?callbackUrl=%2Fprofile',
       baseUrl: 'https://quiz.example',
     } as RedirectParams)
 
-    expect(result).toBe('https://quiz.example/me')
+    expect(result).toBe('https://quiz.example/profile')
   })
 
-  it('falls back to /me for auth-page redirects without a callbackUrl', async () => {
+  it('falls back to /profile for auth-page redirects without a callbackUrl', async () => {
     const redirectCallback = authConfig.callbacks?.redirect
     if (!redirectCallback) throw new Error('Missing redirect callback')
 
@@ -64,6 +64,6 @@ describe('authConfig edge callbacks', () => {
       baseUrl: 'https://quiz.example',
     } as RedirectParams)
 
-    expect(result).toBe('https://quiz.example/me')
+    expect(result).toBe('https://quiz.example/profile')
   })
 })

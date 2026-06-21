@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 export default async function MePage() {
   const session = await auth()
-  const signInPath = '/sign-in?callbackUrl=/me'
+  const signInPath = '/sign-in?callbackUrl=/profile'
 
   if (!session?.user?.id) {
     redirect(signInPath)
@@ -67,7 +67,7 @@ export default async function MePage() {
           <div className="flex items-center gap-2">
             <ShareProfileButton username={user.username} />
             <Button variant="outline" asChild>
-              <Link href="/me/settings">Settings</Link>
+              <Link href="/profile/settings">Settings</Link>
             </Button>
           </div>
         </div>
