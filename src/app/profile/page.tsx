@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { Award, BarChart3, Flame, PenLine, Play, Settings, Share2, Trophy, Zap } from 'lucide-react'
 import { ShareProfileButton } from './share-profile-button'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
@@ -8,144 +9,313 @@ import { Avatar } from '@/components/ui/avatar'
 import { LevelProgress } from '@/components/ui/level-progress'
 import { StreakFlame } from '@/components/ui/streak-flame'
 import { Button } from '@/components/ui/button'
+import { xpProgress, xpForLevel, xpForNextLevel } from '@/domain/leveling'
 
 export const metadata: Metadata = {
   title: 'My Profile',
   robots: { index: false },
 }
 
-export default async function MePage() {
+export default async function ProfilePage() {
   const session = await auth()
-  const signInPath = '/sign-in?callbackUrl=/profile'
-
   if (!session?.user?.id) {
-    redirect(signInPath)
+    redirect('/sign-in?callbackUrl=/profile')
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    include: {
-      badges: {
-        include: { badge: true },
-        orderBy: { awardedAt: 'desc' },
-        take: 12,
+  const [user, authoredCount, totalBadges] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: session.user.id },
+      include: {
+        badges: {
+          include: { badge: true },
+          orderBy: { awardedAt: 'desc' },
+          take: 6,
+        },
+        sessions: {
+          orderBy: { createdAt: 'desc' },
+          take: 8,
+          include: { quiz: { select: { id: true, title: true } } },
+        },
       },
-      sessions: {
-        orderBy: { createdAt: 'desc' },
-        take: 10,
-        include: { quiz: { select: { id: true, title: true } } },
-      },
-    },
-  })
+    }),
+    prisma.quiz.count({ where: { authorId: session.user.id } }),
+    prisma.badge.count(),
+  ])
 
   if (!user?.username) {
-    redirect(signInPath)
+    redirect('/sign-in?callbackUrl=/profile')
   }
 
-  const stats = await prisma.playSession.aggregate({
-    where: { userId: user.id },
-    _count: { _all: true },
-    _avg: { score: true },
-    _sum: { correctCount: true },
-  })
+  const progress = xpProgress(user.xp)
+  const nextLevelXp = xpForNextLevel(progress.level)
+  const currentLevelXp = xpForLevel(progress.level)
+  const xpNeeded = nextLevelXp - currentLevelXp
+  const xpInto = user.xp - currentLevelXp
+
+  const [stats, accuracyAgg] = await Promise.all([
+    prisma.playSession.aggregate({
+      where: { userId: user.id },
+      _count: { _all: true },
+      _avg: { score: true },
+      _sum: { correctCount: true, totalCount: true },
+    }),
+    prisma.playSession.aggregate({
+      where: { userId: user.id },
+      _sum: { correctCount: true, totalCount: true },
+    }),
+  ])
+
+  const accuracy =
+    (accuracyAgg._sum.totalCount ?? 0) > 0
+      ? Math.round(
+          ((accuracyAgg._sum.correctCount ?? 0) / (accuracyAgg._sum.totalCount ?? 1)) * 100
+        )
+      : null
 
   return (
-    <div className="container mx-auto space-y-6 px-4 py-8">
-      <section className="rounded-xl border border-border bg-card p-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <Avatar src={user.image} fallback={user.name} size="xl" />
-            <div>
+    <div className="container mx-auto max-w-4xl space-y-6 px-4 py-8">
+      {/* ── Header ── */}
+      <section className="flex flex-col gap-5 rounded-2xl border bg-card p-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          <Avatar src={user.image} fallback={user.name} size="xl" />
+          <div>
+            <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold">{user.name}</h1>
-              <p className="text-sm text-muted-foreground">@{user.username}</p>
-              <p className="text-xs text-muted-foreground">
-                Member since{' '}
-                {new Intl.DateTimeFormat('en', { dateStyle: 'medium' }).format(user.createdAt)}
-              </p>
+              <span className="rounded-full bg-quiz-purple/10 px-2.5 py-0.5 text-xs font-bold text-quiz-purple">
+                Lv. {progress.level}
+              </span>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <ShareProfileButton username={user.username} />
-            <Button variant="outline" asChild>
-              <Link href="/profile/settings">Settings</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      <section className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground">XP</p>
-          <p className="text-2xl font-bold">{user.xp}</p>
-          <div className="mt-2">
-            <LevelProgress xp={user.xp} size="sm" />
-          </div>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground">Current streak</p>
-          <StreakFlame value={user.streakDays} best={user.bestStreak} size="sm" />
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground">Quizzes played</p>
-          <p className="text-2xl font-bold">{stats._count._all}</p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground">Average score</p>
-          <p className="text-2xl font-bold">{Math.round(stats._avg.score ?? 0)}</p>
-          <p className="text-xs text-muted-foreground">
-            Total correct: {stats._sum.correctCount ?? 0}
-          </p>
-        </div>
-      </section>
-
-      <section className="rounded-xl border border-border bg-card p-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Recent activity</h2>
-        </div>
-        <div className="space-y-2">
-          {user.sessions.map((sessionRow) => (
-            <div key={sessionRow.id} className="rounded-lg border border-border p-3 text-sm">
-              <p className="font-medium">{sessionRow.quiz.title}</p>
-              <p className="text-xs text-muted-foreground">
-                {sessionRow.score} pts •{' '}
-                {new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short' }).format(
-                  sessionRow.createdAt
-                )}
-              </p>
-            </div>
-          ))}
-          {user.sessions.length === 0 && (
-            <p className="text-sm text-muted-foreground">
-              No sessions yet. Play a quiz to get started.
+            <p className="text-sm text-muted-foreground">@{user.username}</p>
+            <p className="text-xs text-muted-foreground">
+              Member since{' '}
+              {new Intl.DateTimeFormat('en', { dateStyle: 'medium' }).format(user.createdAt)}
             </p>
-          )}
+          </div>
         </div>
-      </section>
-
-      <section className="rounded-xl border border-border bg-card p-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Earned badges</h2>
+        <div className="flex items-center gap-2">
+          <ShareProfileButton username={user.username} />
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/u/${user.username}`}>View public profile</Link>
+            <Link href="/profile/settings">
+              <Settings className="mr-1.5 h-4 w-4" />
+              Edit
+            </Link>
           </Button>
         </div>
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {user.badges.map((userBadge) => (
-            <div key={userBadge.badgeId} className="rounded-lg border border-border p-3 text-sm">
-              <p className="font-medium">
-                <span aria-hidden="true">{userBadge.badge.icon} </span>
-                {userBadge.badge.name}
-              </p>
-              <p className="text-xs text-muted-foreground">{userBadge.badge.description}</p>
-            </div>
-          ))}
-          {user.badges.length === 0 && (
-            <p className="text-sm text-muted-foreground">
-              No badges yet — keep playing to unlock some.
-            </p>
+      </section>
+
+      {/* ── Quick Nav ── */}
+      <div className="flex flex-wrap gap-2">
+        <QuickNav href="/profile" active>
+          <Trophy className="h-4 w-4" /> Overview
+        </QuickNav>
+        <QuickNav href="/profile/badges">
+          <Award className="h-4 w-4" /> Badges
+        </QuickNav>
+        <QuickNav href="/profile/settings">
+          <Settings className="h-4 w-4" /> Settings
+        </QuickNav>
+      </div>
+
+      {/* ── Stats Grid ── */}
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-xl border bg-card p-5">
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            Level {progress.level}
+          </p>
+          <div className="mt-1 flex items-center justify-center">
+            <LevelProgress xp={user.xp} size="sm" />
+          </div>
+          <p className="mt-2 text-center text-xs text-muted-foreground">
+            {xpInto.toLocaleString()} / {xpNeeded.toLocaleString()} XP to next level
+          </p>
+        </div>
+
+        <StatCard
+          icon={<Flame className="h-4 w-4 text-quiz-orange" />}
+          label="Streak"
+          value={<StreakFlame value={user.streakDays} best={user.bestStreak} size="sm" />}
+          sub={
+            user.bestStreak > 0
+              ? `Best: ${user.bestStreak} day${user.bestStreak > 1 ? 's' : ''}`
+              : undefined
+          }
+        />
+
+        <StatCard
+          icon={<Play className="h-4 w-4 text-quiz-green" />}
+          label="Quizzes Played"
+          value={stats._count._all.toLocaleString()}
+          sub={accuracy !== null ? `${accuracy}% accuracy` : undefined}
+        />
+
+        <StatCard
+          icon={<BarChart3 className="h-4 w-4 text-quiz-purple" />}
+          label="Avg Score"
+          value={`${Math.round(stats._avg.score ?? 0)}%`}
+          sub={
+            (stats._sum.correctCount ?? 0) > 0
+              ? `${stats._sum.correctCount} correct answers`
+              : undefined
+          }
+        />
+      </section>
+
+      {/* ── Quick Actions ── */}
+      <section className="grid gap-3 sm:grid-cols-3">
+        <Button asChild variant="gradient" size="lg" className="rounded-xl">
+          <Link href="/random-quiz">
+            <Zap className="mr-2 h-5 w-5" />
+            Play Random Quiz
+          </Link>
+        </Button>
+        <Button asChild variant="outline" size="lg" className="rounded-xl">
+          <Link href="/studio">
+            <PenLine className="mr-2 h-5 w-5" />
+            Create a Quiz
+          </Link>
+        </Button>
+        <Button asChild variant="outline" size="lg" className="rounded-xl">
+          <Link href={`/u/${user.username}`}>
+            <Share2 className="mr-2 h-5 w-5" />
+            Public Profile
+          </Link>
+        </Button>
+      </section>
+
+      {/* ── Recent Activity ── */}
+      <section className="rounded-xl border bg-card p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-bold">Recent Activity</h2>
+          {authoredCount > 0 && (
+            <span className="text-xs text-muted-foreground">
+              {authoredCount} quiz{authoredCount > 1 ? 'es' : ''} created
+            </span>
           )}
         </div>
+        {user.sessions.length === 0 ? (
+          <div className="rounded-lg border border-dashed bg-muted/30 p-8 text-center">
+            <Play className="mx-auto mb-2 h-8 w-8 text-muted-foreground/50" />
+            <p className="text-sm text-muted-foreground">
+              No sessions yet.{' '}
+              <Link href="/categories" className="font-semibold text-primary hover:underline">
+                Play your first quiz
+              </Link>
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {user.sessions.map((s) => (
+              <Link
+                key={s.id}
+                href={`/quiz/${s.quiz.id}`}
+                className="flex items-center justify-between rounded-lg border px-4 py-3 text-sm transition-colors hover:bg-accent/50"
+              >
+                <p className="truncate font-medium">{s.quiz.title}</p>
+                <div className="ml-4 flex shrink-0 items-center gap-3 text-xs text-muted-foreground">
+                  <span>{s.score} pts</span>
+                  <span>
+                    {new Intl.DateTimeFormat('en', {
+                      month: 'short',
+                      day: 'numeric',
+                    }).format(s.createdAt)}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
+
+      {/* ── Badges ── */}
+      <section className="rounded-xl border bg-card p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-bold">Badges</h2>
+            <p className="text-xs text-muted-foreground">
+              {user.badges.length} of {totalBadges} earned
+            </p>
+          </div>
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/profile/badges">
+              <Award className="mr-1.5 h-4 w-4" />
+              View All
+            </Link>
+          </Button>
+        </div>
+        {user.badges.length === 0 ? (
+          <div className="rounded-lg border border-dashed bg-muted/30 p-6 text-center">
+            <Award className="mx-auto mb-2 h-8 w-8 text-muted-foreground/50" />
+            <p className="text-sm text-muted-foreground">
+              No badges yet — keep playing to unlock some!
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {user.badges.map((ub) => (
+              <div
+                key={ub.badgeId}
+                className="flex items-center gap-3 rounded-lg border border-quiz-green/20 bg-quiz-green/5 px-4 py-3"
+              >
+                <span className="text-xl" aria-hidden="true">
+                  {ub.badge.icon}
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold">{ub.badge.name}</p>
+                  <p className="text-xs text-muted-foreground">{ub.badge.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
+  )
+}
+
+function QuickNav({
+  href,
+  active,
+  children,
+}: {
+  href: string
+  active?: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <Link
+      href={href}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors ${
+        active
+          ? 'border-quiz-purple/40 bg-quiz-purple/10 text-quiz-purple'
+          : 'border-border/50 bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground'
+      }`}
+    >
+      {children}
+    </Link>
+  )
+}
+
+function StatCard({
+  icon,
+  label,
+  value,
+  sub,
+}: {
+  icon: React.ReactNode
+  label: string
+  value: React.ReactNode
+  sub?: string
+}) {
+  return (
+    <div className="flex flex-col justify-between rounded-xl border bg-card p-5">
+      <div className="mb-2 flex items-center gap-1.5">
+        {icon}
+        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          {label}
+        </span>
+      </div>
+      <div className="text-2xl font-bold">{value}</div>
+      {sub && <p className="mt-1 text-xs text-muted-foreground">{sub}</p>}
     </div>
   )
 }
