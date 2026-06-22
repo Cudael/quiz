@@ -244,6 +244,9 @@ function QuizActions({
       <Button variant="outline" size="sm" asChild>
         <Link href={`/quiz/${quiz.id}`}>Preview</Link>
       </Button>
+      <Button variant="outline" size="sm" asChild>
+        <Link href={`/studio/quiz/${quiz.id}/analytics`}>Analytics</Link>
+      </Button>
       <Button
         type="button"
         variant="outline"

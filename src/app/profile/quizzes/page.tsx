@@ -132,9 +132,9 @@ export default async function MyQuizzesPage() {
                       </Link>
                     </Button>
                     <Button variant="outline" size="sm" asChild>
-                      <Link href="/studio">
+                      <Link href={`/studio/quiz/${quiz.id}/analytics`}>
                         <BarChart3 className="mr-1.5 h-4 w-4" />
-                        Studio
+                        Analytics
                       </Link>
                     </Button>
                   </div>

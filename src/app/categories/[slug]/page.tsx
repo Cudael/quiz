@@ -58,6 +58,23 @@ const COMPLETION_LABELS: Record<CompletionFilter, string> = {
   completed: 'Completed',
 }
 
+function getCategoryFaq(categoryName: string, totalCount: number) {
+  return [
+    {
+      question: `What are ${categoryName} quizzes?`,
+      answer: `${categoryName} quizzes are short trivia challenges focused on ${categoryName.toLowerCase()} topics. They can include quick recall, visual questions, map questions, and timed rounds depending on the quiz creator.`,
+    },
+    {
+      question: `How many ${categoryName} quizzes are available?`,
+      answer: `This category currently has ${totalCount.toLocaleString()} published ${totalCount === 1 ? 'quiz' : 'quizzes'} available on BusQuiz.`,
+    },
+    {
+      question: `How should I choose a ${categoryName} quiz?`,
+      answer: `Start with Easy or Medium if you are warming up, sort by popularity to find proven favorites, or use Completed and Not played filters when signed in to track your progress.`,
+    },
+  ]
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -269,6 +286,7 @@ export default async function CategoryPage({
   const categorySlug = category.slug
   const resultStart = totalCount === 0 ? 0 : (page - 1) * PAGE_SIZE + 1
   const resultEnd = Math.min(page * PAGE_SIZE, totalCount)
+  const faqItems = getCategoryFaq(category.name, totalCount)
 
   function buildUrl(p: number, s: SortOption, d = difficulty, c = completion) {
     const params = new URLSearchParams()
@@ -341,6 +359,24 @@ export default async function CategoryPage({
                 item: absoluteUrl(`/categories/${category.slug}`),
               },
             ],
+          }),
+        }}
+      />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd({
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: faqItems.map((item) => ({
+              '@type': 'Question',
+              name: item.question,
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: item.answer,
+              },
+            })),
           }),
         }}
       />
@@ -497,6 +533,32 @@ export default async function CategoryPage({
           ) : null}
         </nav>
       ) : null}
+
+      <section className="grid gap-4 rounded-2xl border bg-card p-5 lg:grid-cols-[1.2fr_1fr]">
+        <div>
+          <h2 className="text-xl font-black tracking-tight">About {category.name} Quizzes</h2>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            {category.description} Use the filters above to find a comfortable difficulty, return to
+            unfinished topics, or replay favorites when you want to improve your score.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button size="sm" asChild className="rounded-xl">
+              <Link href="/random-quiz">Play Random Quiz</Link>
+            </Button>
+            <Button size="sm" variant="outline" asChild className="rounded-xl">
+              <Link href="/studio/quiz/new">Create a Quiz</Link>
+            </Button>
+          </div>
+        </div>
+        <div className="space-y-3">
+          {faqItems.map((item) => (
+            <details key={item.question} className="rounded-xl border bg-background p-3">
+              <summary className="cursor-pointer text-sm font-bold">{item.question}</summary>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.answer}</p>
+            </details>
+          ))}
+        </div>
+      </section>
     </div>
   )
 }
