@@ -73,6 +73,7 @@ export function SiteFooter() {
             <nav className="flex flex-col gap-2.5" aria-label="Footer navigation">
               {[
                 { href: '/categories', label: 'Browse Categories' },
+                { href: '/collections', label: 'Collections' },
                 { href: '/studio', label: 'Quiz Studio' },
                 { href: '/random-quiz', label: 'Play Now' },
                 { href: '/blog', label: 'Blog' },

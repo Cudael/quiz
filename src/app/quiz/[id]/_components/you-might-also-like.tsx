@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { unstable_cache } from 'next/cache'
 import { prisma } from '@/server/prisma'
-import { Badge } from '@/components/ui/badge'
 import { QuizCardHorizontal, type QuizCardData } from '@/components/ui/quiz-card'
 import { ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'

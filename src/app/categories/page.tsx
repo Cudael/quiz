@@ -47,7 +47,13 @@ export default async function CategoriesPage({
     const raw = await prisma.quiz.findMany({
       where: {
         isPublished: true,
-        title: { contains: query, mode: 'insensitive' },
+        OR: [
+          { title: { contains: query, mode: 'insensitive' } },
+          { description: { contains: query, mode: 'insensitive' } },
+          { category: { name: { contains: query, mode: 'insensitive' } } },
+          { author: { name: { contains: query, mode: 'insensitive' } } },
+          { author: { username: { contains: query, mode: 'insensitive' } } },
+        ],
       },
       orderBy: [{ playCount: 'desc' }, { createdAt: 'desc' }],
       take: 50,

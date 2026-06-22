@@ -9,6 +9,7 @@ import { LevelProgress } from '@/components/ui/level-progress'
 import { StreakFlame } from '@/components/ui/streak-flame'
 import { Button } from '@/components/ui/button'
 import { xpProgress, xpForLevel, xpForNextLevel } from '@/domain/leveling'
+import { getBadgeEmoji } from '@/lib/badge-display'
 
 export default async function ProfilePage() {
   const session = await auth()
@@ -232,7 +233,7 @@ export default async function ProfilePage() {
                 className="flex items-center gap-3 rounded-lg border border-quiz-green/20 bg-quiz-green/5 px-4 py-3"
               >
                 <span className="text-xl" aria-hidden="true">
-                  {ub.badge.icon}
+                  {getBadgeEmoji(ub.badge.slug)}
                 </span>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold">{ub.badge.name}</p>

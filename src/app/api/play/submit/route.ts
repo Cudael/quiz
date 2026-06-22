@@ -249,9 +249,6 @@ export async function POST(req: NextRequest) {
   if (authSession?.user?.id && result.newlyAwardedBadges.length === 0) {
     const safetyBadges = await evaluateBadges(authSession.user.id, result.sessionId)
     if (safetyBadges.length > 0) {
-      console.log(
-        `[badges] Awarded post-tx for user ${authSession.user.id}: ${safetyBadges.map((b) => b.slug).join(', ')}`
-      )
       return NextResponse.json({ ...result, newlyAwardedBadges: safetyBadges })
     }
   }

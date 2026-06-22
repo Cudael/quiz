@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Image from 'next/image'
 import { CheckCircle2, MinusCircle, XCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -54,15 +55,50 @@ function isChoiceCorrect(
 }
 
 export function QuestionBreakdown({ questions, answers }: QuestionBreakdownProps) {
+  const [filter, setFilter] = useState<'all' | 'incorrect'>('all')
   const answersByQuestionId = new Map(answers.map((answer) => [answer.questionId, answer]))
+  const incorrectCount = questions.filter((question) => {
+    const answer = answersByQuestionId.get(question.id)
+    return answer && !answer.isCorrect
+  }).length
+  const visibleQuestions =
+    filter === 'incorrect'
+      ? questions.filter((question) => {
+          const answer = answersByQuestionId.get(question.id)
+          return answer && !answer.isCorrect
+        })
+      : questions
 
   return (
     <Card className="mb-8">
-      <CardHeader>
+      <CardHeader className="gap-3 sm:flex-row sm:items-center sm:justify-between">
         <CardTitle>Question Breakdown</CardTitle>
+        {incorrectCount > 0 && (
+          <div className="flex rounded-xl border bg-background p-0.5 text-xs font-semibold">
+            <button
+              type="button"
+              onClick={() => setFilter('all')}
+              className={`rounded-lg px-3 py-1.5 transition-colors ${
+                filter === 'all' ? 'bg-foreground text-background' : 'text-muted-foreground'
+              }`}
+            >
+              All
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilter('incorrect')}
+              className={`rounded-lg px-3 py-1.5 transition-colors ${
+                filter === 'incorrect' ? 'bg-foreground text-background' : 'text-muted-foreground'
+              }`}
+            >
+              Incorrect ({incorrectCount})
+            </button>
+          </div>
+        )}
       </CardHeader>
       <CardContent className="space-y-3">
-        {questions.map((q, idx) => {
+        {visibleQuestions.map((q) => {
+          const idx = questions.findIndex((question) => question.id === q.id)
           const correctText = q.choices
             .filter((c) => isChoiceCorrect(c, q.choices, q.type))
             .map((c) => c.text || (c.imageUrl ? 'Image' : ''))

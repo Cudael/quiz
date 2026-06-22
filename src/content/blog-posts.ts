@@ -145,6 +145,81 @@ const blogPosts: BlogPost[] = [
 `,
   },
   {
+    slug: 'how-to-learn-faster-with-short-quizzes',
+    title: 'How to Learn Faster With Short Quizzes',
+    description:
+      'Short quizzes can improve recall, confidence, and consistency when you use them with the right rhythm.',
+    date: '2026-06-22',
+    author: 'BusQuiz Team',
+    tags: ['learning', 'study', 'tips'],
+    content: `
+<p>Short quizzes work because they ask your brain to retrieve information, not just recognize it. That little bit of effort is what makes the memory stronger.</p>
+
+<h2>Start With a Small Set</h2>
+<p>A five-minute quiz is easier to begin than a long study session. Try a quick round from our <a href="/collections/five-minute-quiz-break">5 Minute Quiz Break</a> collection when you want momentum without pressure.</p>
+
+<h2>Review Mistakes Immediately</h2>
+<p>The best learning happens right after you miss something. On BusQuiz, use the result breakdown to review wrong answers while the question is still fresh.</p>
+
+<h2>Repeat the Same Topic Later</h2>
+<p>Retaking a quiz later in the week helps turn short-term recognition into long-term recall. Browse <a href="/categories">categories</a> and pick a topic you want to strengthen over time.</p>
+
+<h2>Use Streaks for Consistency</h2>
+<p>A daily quiz habit is small enough to keep, but powerful enough to compound. Your profile tracks XP, streaks, completed quizzes, and badges so progress feels visible.</p>
+`,
+  },
+  {
+    slug: 'best-geography-quiz-topics-for-beginners',
+    title: 'Best Geography Quiz Topics for Beginners',
+    description:
+      'A beginner-friendly guide to geography quiz topics, from capitals and flags to maps and landmarks.',
+    date: '2026-06-21',
+    author: 'BusQuiz Team',
+    tags: ['geography', 'beginners', 'recommendations'],
+    content: `
+<p>Geography is one of the easiest quiz categories to start with because it mixes memory, visuals, and real-world context. You do not need to know everything to have fun.</p>
+
+<h2>Capitals</h2>
+<p>Capital city quizzes are a classic starting point. They are concrete, repeatable, and satisfying when names start to click.</p>
+
+<h2>Flags</h2>
+<p>Flag quizzes are visual and fast. They help beginners build pattern recognition while still feeling playful.</p>
+
+<h2>Maps</h2>
+<p>Map-select quizzes are especially useful because they connect names to actual places. Start with easier rounds in the <a href="/collections/geography-starter-pack">Geography Starter Pack</a>.</p>
+
+<h2>Landmarks</h2>
+<p>Landmark quizzes are great for casual players because they combine travel, history, and visual clues.</p>
+
+<h2>Build Your Own Geography Quiz</h2>
+<p>If you know a region well, create a focused quiz in the <a href="/studio">Quiz Studio</a>. Smaller themes like Nordic capitals or Balkan flags usually work better than huge general quizzes.</p>
+`,
+  },
+  {
+    slug: 'why-timed-quizzes-feel-exciting',
+    title: 'Why Timed Quizzes Feel More Exciting',
+    description:
+      'Timed quizzes add focus, tension, and replay value when the timer supports the question instead of overwhelming it.',
+    date: '2026-06-20',
+    author: 'BusQuiz Team',
+    tags: ['game-design', 'timed-quizzes', 'quiz-creation'],
+    content: `
+<p>A timer changes the feeling of a quiz. It turns a static question into a quick decision, and that makes every answer feel a little more alive.</p>
+
+<h2>Good Timers Create Focus</h2>
+<p>The goal is not to panic the player. A good timer removes distraction and gives the round rhythm. Simple recall questions can use shorter limits, while visual or map questions need more breathing room.</p>
+
+<h2>Speed Should Not Replace Clarity</h2>
+<p>If players miss a question because it is confusing, the timer will feel unfair. Keep prompts short, answer choices distinct, and explanations useful.</p>
+
+<h2>Timed Quizzes Invite Retakes</h2>
+<p>Players often return to improve their score, accuracy, or personal best. That is why result pages, review tools, and follow-up recommendations matter.</p>
+
+<h2>Try a Challenge</h2>
+<p>For a quick round, browse <a href="/collections/hard-trivia-challenge">Hard Trivia Challenge</a> or jump into a <a href="/random-quiz">random quiz</a>.</p>
+`,
+  },
+  {
     slug: 'welcome-to-busquiz',
     title: 'Welcome to BusQuiz — The Ultimate Quiz Platform',
     description:

@@ -9,6 +9,7 @@ import { QuizFeaturedGridSection } from './sections/quiz-featured-grid'
 import { HeroInsightBox } from './sections/hero-insight-box'
 import { HeroCards } from './sections/hero-cards'
 import { BadgeShowcase } from './sections/badge-showcase'
+import { ContinueStreakStrip } from './sections/continue-streak-strip'
 import { Divider } from './sections/section-primitives'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -27,10 +28,12 @@ export function HomePageClient({
   popularQuizzes,
   trendingQuizzes,
   newestQuizzes,
+  personalizedQuizzes,
   recentlyPlayed,
   currentUser,
   badgePreviews,
   totalQuizCount,
+  todayChallenge,
 }: HomePageClientProps) {
   const shouldReduce = useReducedMotion()
   const containerVariants = withReducedMotion(staggerContainer(0.06), shouldReduce)
@@ -54,10 +57,30 @@ export function HomePageClient({
             />
           </div>
           <div>
-            <HeroCards currentUser={currentUser} />
+            <HeroCards currentUser={currentUser} todayChallenge={todayChallenge} />
           </div>
         </div>
       </motion.div>
+
+      {currentUser && (
+        <motion.div variants={sectionVariants}>
+          <ContinueStreakStrip
+            currentUser={currentUser}
+            recommendedQuiz={personalizedQuizzes[0] ?? trendingQuizzes[0] ?? popularQuizzes[0]}
+          />
+        </motion.div>
+      )}
+
+      {currentUser && personalizedQuizzes.length > 0 && (
+        <motion.div variants={sectionVariants}>
+          <QuizDenseGridSection
+            title="Picked for You"
+            subtitle="Based on the categories you keep coming back to"
+            quizzes={personalizedQuizzes}
+            href="/categories"
+          />
+        </motion.div>
+      )}
 
       {/* Most Popular — featured layout with large + grid */}
       {popularQuizzes.length > 0 && (

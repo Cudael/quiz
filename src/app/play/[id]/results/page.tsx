@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { Trophy, RotateCcw, Zap, ChevronRight } from 'lucide-react'
+import { Trophy, RotateCcw, Zap, ChevronRight, Award, Medal, Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { prisma } from '@/server/prisma'
@@ -73,14 +73,25 @@ export default async function ResultsPage({
       ? Math.round((sessionRow.correctCount / sessionRow.totalCount) * 100)
       : 0
 
-  const harderQuiz = await prisma.quiz.findFirst({
+  const targetDifficulty =
+    accuracy >= 85 ? 'HARD' : accuracy < 60 ? 'EASY' : sessionRow.quiz.difficulty
+  const nextQuizzes = await prisma.quiz.findMany({
     where: {
       categoryId: sessionRow.quiz.categoryId,
-      difficulty: 'HARD',
+      difficulty: targetDifficulty,
       id: { not: id },
       isPublished: true,
     },
     orderBy: { playCount: 'desc' },
+    take: 3,
+    select: {
+      id: true,
+      title: true,
+      difficulty: true,
+      playCount: true,
+      category: { select: { name: true } },
+      questions: { select: { id: true } },
+    },
   })
 
   const userStats = authSession?.user?.id
@@ -118,6 +129,7 @@ export default async function ResultsPage({
       : Promise.resolve(false)
 
   const isPersonalBest = await personalBest
+  const hasMistakes = sessionRow.correctCount < sessionRow.totalCount
 
   // Fetch rating data for this quiz + user's existing rating
   const [ratingAgg, userRating] = await Promise.all([
@@ -184,6 +196,38 @@ export default async function ResultsPage({
         </CardContent>
       </Card>
 
+      {(newBadgeNames.length > 0 || leveledUp || isPersonalBest || accuracy === 100) && (
+        <Card className="mb-6 border-quiz-green/30 bg-quiz-green/5">
+          <CardContent className="pt-6">
+            <div className="mb-4 flex items-center gap-2">
+              <Medal className="h-5 w-5 text-quiz-green" />
+              <h2 className="font-bold">Run Highlights</h2>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {accuracy === 100 && (
+                <HighlightPill icon={<Star className="h-4 w-4" />} title="Perfect score" />
+              )}
+              {isPersonalBest && (
+                <HighlightPill icon={<Trophy className="h-4 w-4" />} title="New personal best" />
+              )}
+              {leveledUp && (
+                <HighlightPill
+                  icon={<Zap className="h-4 w-4" />}
+                  title={`Leveled up to ${newLevel}`}
+                />
+              )}
+              {newBadgeNames.map((badgeName) => (
+                <HighlightPill
+                  key={badgeName}
+                  icon={<Award className="h-4 w-4" />}
+                  title={`Badge unlocked: ${badgeName}`}
+                />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="mb-8 grid grid-cols-3 gap-4">
         <Card className="text-center">
           <CardContent className="pb-4 pt-6">
@@ -213,7 +257,17 @@ export default async function ResultsPage({
         </Card>
       </div>
 
-      <QuestionBreakdown questions={sessionRow.quiz.questions} answers={sessionRow.answers} />
+      {hasMistakes && (
+        <div className="mb-6 text-center">
+          <Button variant="outline" asChild>
+            <Link href="#question-breakdown">Review Mistakes</Link>
+          </Button>
+        </div>
+      )}
+
+      <div id="question-breakdown" className="scroll-mt-24">
+        <QuestionBreakdown questions={sessionRow.quiz.questions} answers={sessionRow.answers} />
+      </div>
 
       {/* Rating */}
       <div className="mt-8 mb-8 rounded-lg border p-4">
@@ -225,23 +279,74 @@ export default async function ResultsPage({
         />
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <Button variant="gradient" size="lg" asChild className="flex-1">
-          <Link href={`/play/${id}`}>
-            <RotateCcw className="h-4 w-4" />
-            Play Again
-          </Link>
-        </Button>
-
-        {harderQuiz && (
-          <Button variant="outline" size="lg" asChild className="flex-1">
-            <Link href={`/quiz/${harderQuiz.id}`}>
-              Try a Harder One
-              <ChevronRight className="h-4 w-4" />
-            </Link>
-          </Button>
-        )}
-      </div>
+      <section className="mt-8 grid gap-3 sm:grid-cols-3">
+        <NextStepCard
+          title="Play Again"
+          description="Retake this quiz and chase a better run."
+          href={`/play/${id}`}
+          icon={<RotateCcw className="h-5 w-5" />}
+          primary
+        />
+        {nextQuizzes.slice(0, 2).map((quiz, index) => (
+          <NextStepCard
+            key={quiz.id}
+            title={
+              index === 0
+                ? accuracy >= 85
+                  ? 'Try a Harder One'
+                  : accuracy < 60
+                    ? 'Build Confidence'
+                    : 'Keep Practicing'
+                : 'Similar Quiz'
+            }
+            description={`${quiz.title} · ${quiz.questions.length} questions`}
+            href={`/quiz/${quiz.id}`}
+            icon={<ChevronRight className="h-5 w-5" />}
+          />
+        ))}
+      </section>
     </div>
+  )
+}
+
+function HighlightPill({ icon, title }: { icon: React.ReactNode; title: string }) {
+  return (
+    <div className="flex items-center gap-2 rounded-xl border border-quiz-green/25 bg-background/80 px-3 py-2 text-sm font-semibold text-quiz-green">
+      {icon}
+      <span>{title}</span>
+    </div>
+  )
+}
+
+function NextStepCard({
+  title,
+  description,
+  href,
+  icon,
+  primary = false,
+}: {
+  title: string
+  description: string
+  href: string
+  icon: React.ReactNode
+  primary?: boolean
+}) {
+  return (
+    <Link
+      href={href}
+      className={`rounded-2xl border p-4 transition-colors hover:border-primary/40 hover:bg-primary/5 ${
+        primary ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-card'
+      }`}
+    >
+      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-background/80 text-primary">
+        {icon}
+      </div>
+      <h2 className="font-bold">{title}</h2>
+      <p
+        className={`mt-1 text-sm ${primary ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}
+      >
+        {description}
+      </p>
+    </Link>
   )
 }

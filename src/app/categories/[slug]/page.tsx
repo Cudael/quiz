@@ -14,16 +14,28 @@ import { auth } from '@/server/auth'
 const PAGE_SIZE = 20
 
 type SortOption = 'popular' | 'newest' | 'name' | 'rating'
+type DifficultyFilter = 'all' | 'EASY' | 'MEDIUM' | 'HARD'
+type CompletionFilter = 'all' | 'unplayed' | 'completed'
 
 function parseSearchParams(sp: Record<string, string | string[] | undefined>): {
   page: number
   sort: SortOption
+  difficulty: DifficultyFilter
+  completion: CompletionFilter
 } {
   const page = Math.max(1, Number(sp.page ?? '1'))
   const sortRaw = Array.isArray(sp.sort) ? sp.sort[0] : sp.sort
   const sort: SortOption =
     sortRaw === 'newest' || sortRaw === 'name' || sortRaw === 'rating' ? sortRaw : 'popular'
-  return { page, sort }
+  const difficultyRaw = Array.isArray(sp.difficulty) ? sp.difficulty[0] : sp.difficulty
+  const difficulty: DifficultyFilter =
+    difficultyRaw === 'EASY' || difficultyRaw === 'MEDIUM' || difficultyRaw === 'HARD'
+      ? difficultyRaw
+      : 'all'
+  const completionRaw = Array.isArray(sp.completion) ? sp.completion[0] : sp.completion
+  const completion: CompletionFilter =
+    completionRaw === 'unplayed' || completionRaw === 'completed' ? completionRaw : 'all'
+  return { page, sort, difficulty, completion }
 }
 
 const SORT_LABELS: Record<SortOption, string> = {
@@ -31,6 +43,19 @@ const SORT_LABELS: Record<SortOption, string> = {
   newest: 'Newest',
   name: 'A–Z',
   rating: 'Highest Rated',
+}
+
+const DIFFICULTY_LABELS: Record<DifficultyFilter, string> = {
+  all: 'All levels',
+  EASY: 'Easy',
+  MEDIUM: 'Medium',
+  HARD: 'Hard',
+}
+
+const COMPLETION_LABELS: Record<CompletionFilter, string> = {
+  all: 'All quizzes',
+  unplayed: 'Not played',
+  completed: 'Completed',
 }
 
 export async function generateMetadata({
@@ -89,7 +114,7 @@ export default async function CategoryPage({
 
   if (!category) notFound()
 
-  const { page, sort } = parseSearchParams(await searchParams)
+  const { page, sort, difficulty, completion } = parseSearchParams(await searchParams)
 
   // Cross-reference user's played quizzes to show completion badge
   const session = await auth()
@@ -134,6 +159,21 @@ export default async function CategoryPage({
 
   const allCategoryIds = [category.id, ...childCategoryIds]
 
+  const completionFilter = (() => {
+    if (!session?.user?.id || completion === 'all') return {}
+    const ids = [...playedQuizIds]
+    if (completion === 'completed') return { id: { in: ids } }
+    if (ids.length === 0) return {}
+    return { id: { notIn: ids } }
+  })()
+
+  const quizWhere = {
+    categoryId: { in: allCategoryIds },
+    isPublished: true,
+    ...(difficulty !== 'all' ? { difficulty } : {}),
+    ...completionFilter,
+  }
+
   const selectFields = {
     id: true,
     title: true,
@@ -176,14 +216,14 @@ export default async function CategoryPage({
   ): Promise<{ quizCards: QuizCardData[]; totalCount: number }> {
     const [quizzes, totalCount] = await Promise.all([
       prisma.quiz.findMany({
-        where: { categoryId: { in: allCategoryIds }, isPublished: true },
+        where: quizWhere,
         orderBy,
         skip,
         take: PAGE_SIZE,
         select: selectFields,
       }),
       prisma.quiz.count({
-        where: { categoryId: { in: allCategoryIds }, isPublished: true },
+        where: quizWhere,
       }),
     ])
     return { quizCards: quizzes.map(toQuizCard), totalCount }
@@ -195,7 +235,7 @@ export default async function CategoryPage({
   if (sort === 'rating') {
     // Fetch all quizzes, compute avg rating in-memory, then paginate
     const allQuizzes = await prisma.quiz.findMany({
-      where: { categoryId: { in: allCategoryIds }, isPublished: true },
+      where: quizWhere,
       select: selectFields,
     })
 
@@ -227,11 +267,15 @@ export default async function CategoryPage({
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
 
   const categorySlug = category.slug
+  const resultStart = totalCount === 0 ? 0 : (page - 1) * PAGE_SIZE + 1
+  const resultEnd = Math.min(page * PAGE_SIZE, totalCount)
 
-  function buildUrl(p: number, s: SortOption) {
+  function buildUrl(p: number, s: SortOption, d = difficulty, c = completion) {
     const params = new URLSearchParams()
     if (p > 1) params.set('page', String(p))
     if (s !== 'popular') params.set('sort', s)
+    if (d !== 'all') params.set('difficulty', d)
+    if (c !== 'all') params.set('completion', c)
     const qs = params.toString()
     return `/categories/${categorySlug}${qs ? `?${qs}` : ''}`
   }
@@ -349,26 +393,59 @@ export default async function CategoryPage({
         </div>
       ) : null}
 
-      {/* Sort + Results count */}
+      {/* Filters + Results count */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
-          Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, totalCount)} of{' '}
-          {totalCount.toLocaleString()} results
+          Showing {resultStart}–{resultEnd} of {totalCount.toLocaleString()} results
         </p>
-        <div className="flex items-center rounded-xl border border-border/50 bg-card p-0.5 text-sm">
-          {(Object.keys(SORT_LABELS) as SortOption[]).map((key) => (
-            <Link
-              key={key}
-              href={buildUrl(1, key)}
-              className={`rounded-lg px-3 py-1 font-medium transition-colors ${
-                sort === key
-                  ? 'bg-foreground text-background'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {SORT_LABELS[key]}
-            </Link>
-          ))}
+        <div className="flex flex-wrap gap-2">
+          <div className="flex items-center rounded-xl border border-border/50 bg-card p-0.5 text-sm">
+            {(Object.keys(DIFFICULTY_LABELS) as DifficultyFilter[]).map((key) => (
+              <Link
+                key={key}
+                href={buildUrl(1, sort, key, completion)}
+                className={`rounded-lg px-3 py-1 font-medium transition-colors ${
+                  difficulty === key
+                    ? 'bg-foreground text-background'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {DIFFICULTY_LABELS[key]}
+              </Link>
+            ))}
+          </div>
+          {session?.user?.id && (
+            <div className="flex items-center rounded-xl border border-border/50 bg-card p-0.5 text-sm">
+              {(Object.keys(COMPLETION_LABELS) as CompletionFilter[]).map((key) => (
+                <Link
+                  key={key}
+                  href={buildUrl(1, sort, difficulty, key)}
+                  className={`rounded-lg px-3 py-1 font-medium transition-colors ${
+                    completion === key
+                      ? 'bg-foreground text-background'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {COMPLETION_LABELS[key]}
+                </Link>
+              ))}
+            </div>
+          )}
+          <div className="flex items-center rounded-xl border border-border/50 bg-card p-0.5 text-sm">
+            {(Object.keys(SORT_LABELS) as SortOption[]).map((key) => (
+              <Link
+                key={key}
+                href={buildUrl(1, key)}
+                className={`rounded-lg px-3 py-1 font-medium transition-colors ${
+                  sort === key
+                    ? 'bg-foreground text-background'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {SORT_LABELS[key]}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
 

@@ -3,9 +3,15 @@
 import Link from 'next/link'
 import { Swords, Flame } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import type { HomeCurrentUser } from '../home-page-client.types'
+import type { HomeCurrentUser, TodayChallengeQuiz } from '../home-page-client.types'
 
-export function HeroCards({ currentUser }: { currentUser: HomeCurrentUser | null }) {
+export function HeroCards({
+  currentUser,
+  todayChallenge,
+}: {
+  currentUser: HomeCurrentUser | null
+  todayChallenge: TodayChallengeQuiz | null
+}) {
   return (
     <div className="flex h-full flex-col sm:flex-row gap-4">
       {/* Duel Mode */}
@@ -34,15 +40,29 @@ export function HeroCards({ currentUser }: { currentUser: HomeCurrentUser | null
           <Flame className="mb-2 h-6 w-6 text-foreground/60" />
           <h2 className="text-xl font-black tracking-tight">Daily Challenge</h2>
           <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-            A fresh brain-buster every 24 hours. Keep your streak alive and earn bonus XP.
+            {todayChallenge
+              ? todayChallenge.title
+              : 'A fresh brain-buster every 24 hours. Keep your streak alive.'}
           </p>
-          <p className="mt-2 text-xs text-muted-foreground/60">🔥 New challenge every 24 hours</p>
+          <p className="mt-2 text-xs text-muted-foreground/60">
+            {todayChallenge
+              ? `${todayChallenge.categoryName} · ${todayChallenge.questionCount} questions · ${todayChallenge.difficulty}`
+              : '🔥 New challenge every 24 hours'}
+          </p>
         </div>
         <Button
           asChild
           className="mt-4 w-full rounded-lg bg-orange-500 font-bold text-white shadow-lg shadow-orange-500/20 hover:bg-orange-600"
         >
-          <Link href={currentUser ? '/random-quiz' : '/sign-up'}>
+          <Link
+            href={
+              todayChallenge
+                ? `/play/${todayChallenge.id}`
+                : currentUser
+                  ? '/random-quiz'
+                  : '/sign-up'
+            }
+          >
             {currentUser ? 'Play Challenge' : 'Sign Up to Play'}
           </Link>
         </Button>

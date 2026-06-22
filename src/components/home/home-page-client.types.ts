@@ -24,6 +24,14 @@ export interface BadgePreview {
   earnedCount: number
 }
 
+export interface TodayChallengeQuiz {
+  id: string
+  title: string
+  difficulty: 'EASY' | 'MEDIUM' | 'HARD'
+  categoryName: string
+  questionCount: number
+}
+
 export interface HomePageClientProps {
   categoriesWithQuizzes: CategoryWithQuizzes[]
   popularQuizzes: QuizCardData[]
@@ -34,4 +42,5 @@ export interface HomePageClientProps {
   currentUser: HomeCurrentUser | null
   badgePreviews: BadgePreview[]
   totalQuizCount: number
+  todayChallenge: TodayChallengeQuiz | null
 }

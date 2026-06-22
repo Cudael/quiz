@@ -87,6 +87,7 @@ describe('HomePageClient', () => {
         currentUser={null}
         badgePreviews={[]}
         totalQuizCount={2500}
+        todayChallenge={null}
       />
     )
 
@@ -117,6 +118,7 @@ describe('HomePageClient', () => {
         currentUser={currentUser}
         badgePreviews={[]}
         totalQuizCount={2500}
+        todayChallenge={null}
       />
     )
 
@@ -143,6 +145,7 @@ describe('HomePageClient', () => {
         currentUser={currentUser}
         badgePreviews={[]}
         totalQuizCount={2500}
+        todayChallenge={null}
       />
     )
 

@@ -11,7 +11,9 @@ import type {
   HomeCurrentUser,
   CategoryWithQuizzes,
   BadgePreview,
+  TodayChallengeQuiz,
 } from '@/components/home/home-page-client.types'
+import { getBadgeEmoji } from '@/lib/badge-display'
 
 const FALLBACK_CATEGORY_GRADIENT = 'var(--background-image-card-gradient)'
 
@@ -43,19 +45,6 @@ function computeRatingInfo(quiz: {
   return { avgRating, ratingCount }
 }
 
-const BADGE_EMOJIS: Record<string, string> = {
-  'first-win': '🏆',
-  'perfect-score': '💯',
-  'streak-7': '🔥',
-  'streak-30': '🌟',
-  'quiz-author': '✏️',
-  'category-master-science': '🔬',
-  'speed-demon': '⚡',
-  'night-owl': '🦉',
-  centurion: '💎',
-  'daily-devotee': '📅',
-}
-
 export interface HomePageData {
   categoriesWithQuizzes: CategoryWithQuizzes[]
   popularQuizzes: QuizCardData[]
@@ -66,6 +55,7 @@ export interface HomePageData {
   currentUser: HomeCurrentUser | null
   badgePreviews: BadgePreview[]
   totalQuizCount: number
+  todayChallenge: TodayChallengeQuiz | null
 }
 
 function mapQuizCard(quiz: HomeQuizRecord, completedQuizIds?: Set<string>): QuizCardData {
@@ -139,9 +129,36 @@ export async function getHomePageData(): Promise<HomePageData> {
     slug: b.slug,
     name: b.name,
     description: b.description,
-    emoji: BADGE_EMOJIS[b.slug] ?? '🎖️',
+    emoji: getBadgeEmoji(b.slug),
     earnedCount: b._count.awards,
   }))
+
+  const dayIndex = Math.floor(Date.now() / 86_400_000)
+  const todayChallengeRaw =
+    totalQuizCount > 0
+      ? await prisma.quiz.findFirst({
+          where: { isPublished: true },
+          orderBy: { createdAt: 'asc' },
+          skip: dayIndex % totalQuizCount,
+          select: {
+            id: true,
+            title: true,
+            difficulty: true,
+            category: { select: { name: true } },
+            _count: { select: { questions: true } },
+          },
+        })
+      : null
+
+  const todayChallenge: TodayChallengeQuiz | null = todayChallengeRaw
+    ? {
+        id: todayChallengeRaw.id,
+        title: todayChallengeRaw.title,
+        difficulty: todayChallengeRaw.difficulty,
+        categoryName: todayChallengeRaw.category.name,
+        questionCount: todayChallengeRaw._count.questions,
+      }
+    : null
 
   const isAuthenticatedUser = Boolean(session?.user?.id && session?.user?.email)
   const currentUser: HomeCurrentUser | null = isAuthenticatedUser
@@ -266,5 +283,6 @@ export async function getHomePageData(): Promise<HomePageData> {
     currentUser,
     badgePreviews,
     totalQuizCount,
+    todayChallenge,
   }
 }
