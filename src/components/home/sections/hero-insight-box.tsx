@@ -1,7 +1,8 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
-import { Search, Zap, Trophy, Users, type LucideIcon } from 'lucide-react'
+import { Search, Zap, Trophy, Users, X, type LucideIcon } from 'lucide-react'
 import type { HomeCurrentUser } from '../home-page-client.types'
 
 interface QuickLink {
@@ -17,6 +18,7 @@ interface HeroInsightBoxProps {
 }
 
 export function HeroInsightBox({ currentUser, totalQuizCount, quickLinks }: HeroInsightBoxProps) {
+  const [query, setQuery] = useState('')
   const formattedCount =
     totalQuizCount >= 1000
       ? `${(totalQuizCount / 1000).toFixed(1).replace(/\.0$/, '')}K+`
@@ -43,10 +45,22 @@ export function HeroInsightBox({ currentUser, totalQuizCount, quickLinks }: Hero
             <input
               type="search"
               name="q"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
               placeholder="What do you want to learn today?"
-              className="h-11 w-full rounded-l-lg rounded-r-none border border-r-0 border-border/60 bg-muted/40 pl-11 pr-4 text-sm focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+              className="h-11 w-full rounded-l-lg rounded-r-none border border-r-0 border-border/60 bg-muted/40 pl-11 pr-10 text-sm focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary"
               aria-label="Search quizzes"
             />
+            {query.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-muted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                aria-label="Clear search"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
           <button
             type="submit"

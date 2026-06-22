@@ -23,28 +23,10 @@ export interface QuizCardData {
   completed?: boolean
 }
 
-function getDifficultyPillStyle(difficulty: QuizCardData['difficulty']) {
-  if (difficulty === 'EASY') {
-    return {
-      backgroundColor: 'color-mix(in srgb, var(--color-quiz-green) 27%, transparent)',
-      border: '1px solid color-mix(in srgb, var(--color-quiz-green) 40%, transparent)',
-      color: '#fff',
-    }
-  }
-
-  if (difficulty === 'MEDIUM') {
-    return {
-      backgroundColor: 'color-mix(in srgb, var(--color-warning) 27%, transparent)',
-      border: '1px solid color-mix(in srgb, var(--color-warning) 40%, transparent)',
-      color: '#fff',
-    }
-  }
-
-  return {
-    backgroundColor: 'color-mix(in srgb, var(--color-destructive) 27%, transparent)',
-    border: '1px solid color-mix(in srgb, var(--color-destructive) 40%, transparent)',
-    color: '#fff',
-  }
+const DIFFICULTY_CONFIG = {
+  EASY: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30',
+  MEDIUM: 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30',
+  HARD: 'bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30',
 }
 
 function getFallbackGradient(color: string) {
@@ -141,9 +123,9 @@ function DifficultyPill({
     <span
       className={cn(
         'absolute inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md',
+        DIFFICULTY_CONFIG[difficulty],
         className
       )}
-      style={getDifficultyPillStyle(difficulty)}
     >
       {difficulty}
     </span>

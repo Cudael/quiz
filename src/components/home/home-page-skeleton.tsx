@@ -8,8 +8,14 @@ import {
 export function HomePageSkeleton() {
   return (
     <div className="container mx-auto space-y-8 px-4 py-8 md:px-6">
-      {/* Hero */}
-      <Skeleton className="h-72 w-full rounded-3xl md:h-80" />
+      {/* Hero: Matches the 2-column layout to prevent layout shifts */}
+      <div className="grid gap-5 lg:grid-cols-2">
+        <Skeleton className="h-72 w-full rounded-2xl md:h-80" />
+        <div className="flex flex-col sm:flex-row gap-4 h-full">
+          <Skeleton className="h-[21rem] sm:h-auto flex-1 rounded-2xl" />
+          <Skeleton className="h-[21rem] sm:h-auto flex-1 rounded-2xl" />
+        </div>
+      </div>
 
       {/* Quiz grid — 2 cols mobile, 3 cols lg */}
       <div className="space-y-3">

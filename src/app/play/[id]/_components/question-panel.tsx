@@ -266,6 +266,7 @@ export function QuestionPanel({
               .filter((c) => !hiddenChoiceIds.includes(c.id))
               .map((choice, idx) => {
                 const isSelected = selectedChoiceIds.includes(choice.id)
+                const isCorrect = choice.isCorrect === true
                 return (
                   <button
                     key={choice.id}
@@ -276,8 +277,12 @@ export function QuestionPanel({
                       'relative flex flex-col items-center gap-2 overflow-hidden rounded-xl border p-2 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                       isAnswered
                         ? isSelected
-                          ? 'border-quiz-purple bg-quiz-purple/20'
-                          : 'border-border bg-muted/30 opacity-60'
+                          ? isCorrect
+                            ? 'border-emerald-500 bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 font-semibold'
+                            : 'border-destructive bg-destructive/15 text-destructive font-semibold'
+                          : isCorrect
+                            ? 'border-emerald-500/70 border-dashed bg-emerald-500/5 text-emerald-700 dark:text-emerald-400 font-semibold'
+                            : 'border-border bg-muted/40 opacity-40 text-muted-foreground'
                         : isSelected
                           ? 'border-primary bg-primary/10'
                           : 'cursor-pointer border-border bg-card hover:border-primary hover:bg-primary/5'
@@ -313,6 +318,7 @@ export function QuestionPanel({
               .filter((c) => !hiddenChoiceIds.includes(c.id))
               .map((choice, idx) => {
                 const isSelected = selectedChoiceIds.includes(choice.id)
+                const isCorrect = choice.isCorrect === true
                 return (
                   <button
                     key={choice.id}
@@ -323,8 +329,12 @@ export function QuestionPanel({
                       'flex min-h-[56px] items-center gap-3 rounded-xl border p-4 text-left text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                       isAnswered
                         ? isSelected
-                          ? 'border-quiz-purple bg-quiz-purple/20 text-foreground'
-                          : 'border-border bg-muted/30 text-muted-foreground opacity-60'
+                          ? isCorrect
+                            ? 'border-emerald-500 bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 font-semibold'
+                            : 'border-destructive bg-destructive/15 text-destructive font-semibold'
+                          : isCorrect
+                            ? 'border-emerald-500/70 border-dashed bg-emerald-500/5 text-emerald-700 dark:text-emerald-400 font-semibold'
+                            : 'border-border bg-muted/40 text-muted-foreground opacity-40'
                         : isSelected
                           ? 'border-primary bg-primary/10 text-foreground'
                           : 'cursor-pointer border-border bg-card hover:border-primary hover:bg-primary/5'
@@ -332,7 +342,22 @@ export function QuestionPanel({
                     aria-label={`Choice ${idx + 1}: ${choice.text}`}
                     aria-pressed={isSelected}
                   >
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-bold">
+                    <span
+                      className={cn(
+                        'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-bold transition-colors',
+                        isAnswered
+                          ? isSelected
+                            ? isCorrect
+                              ? 'border-emerald-500 bg-emerald-500 text-primary-foreground'
+                              : 'border-destructive bg-destructive text-destructive-foreground'
+                            : isCorrect
+                              ? 'border-emerald-500/70 text-emerald-600 dark:text-emerald-400'
+                              : 'border-border text-muted-foreground'
+                          : isSelected
+                            ? 'border-primary bg-primary text-primary-foreground'
+                            : 'border-border'
+                      )}
+                    >
                       {idx + 1}
                     </span>
                     {choice.text}
