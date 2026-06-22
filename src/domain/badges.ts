@@ -37,7 +37,18 @@ interface SessionSnapshot {
 }
 
 function parseCriterion(criteria: unknown): BadgeCriterion | null {
-  if (criteria == null || typeof criteria !== 'object' || Array.isArray(criteria)) return null
+  if (criteria == null) return null
+
+  // Handle criteria stored as a raw JSON string (legacy seed bug)
+  if (typeof criteria === 'string') {
+    try {
+      criteria = JSON.parse(criteria)
+    } catch {
+      return null
+    }
+  }
+
+  if (typeof criteria !== 'object' || Array.isArray(criteria)) return null
   return criteria as BadgeCriterion
 }
 

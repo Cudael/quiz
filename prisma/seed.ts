@@ -88,7 +88,7 @@ async function main() {
         name: b.name,
         description: b.description,
         icon: b.icon,
-        criteria: JSON.stringify(b.criteria),
+        criteria: b.criteria,
       },
     })
     badgeMap[b.slug] = created.id
