@@ -1,10 +1,8 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Award, BarChart3, Flame, PenLine, Play, Share2, Zap } from 'lucide-react'
-import { ShareProfileButton } from './share-profile-button'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
-import { Avatar } from '@/components/ui/avatar'
 import { LevelProgress } from '@/components/ui/level-progress'
 import { StreakFlame } from '@/components/ui/streak-flame'
 import { Button } from '@/components/ui/button'
@@ -69,29 +67,6 @@ export default async function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      {/* ── Header ── */}
-      <section className="flex flex-col gap-5 rounded-2xl border bg-card p-6 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-4">
-          <Avatar src={user.image} fallback={user.name} size="xl" />
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold">{user.name}</h1>
-              <span className="rounded-full bg-quiz-purple/10 px-2.5 py-0.5 text-xs font-bold text-quiz-purple">
-                Lv. {progress.level}
-              </span>
-            </div>
-            <p className="text-sm text-muted-foreground">@{user.username}</p>
-            <p className="text-xs text-muted-foreground">
-              Member since{' '}
-              {new Intl.DateTimeFormat('en', { dateStyle: 'medium' }).format(user.createdAt)}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <ShareProfileButton username={user.username} />
-        </div>
-      </section>
-
       {/* ── Stats Grid ── */}
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-xl border bg-card p-5">
