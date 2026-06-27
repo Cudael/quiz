@@ -40,7 +40,7 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 w-full">
-      <div className="relative bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 border-b border-border/40 shadow-sm">
+      <div className="bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 border-b border-border/40 shadow-sm">
         <div className="container mx-auto flex h-14 items-center justify-between px-4 md:px-6">
           {/* Left: hamburger + Logo */}
           <div className="flex items-center gap-1">
@@ -108,10 +108,10 @@ export function Navbar() {
             </Button>
           </div>
         </div>
-
-        {/* Desktop dropdown navigation */}
-        <NavDropdown open={dropdownOpen} onClose={() => setDropdownOpen(false)} />
       </div>
+
+      {/* Desktop dropdown navigation */}
+      <NavDropdown open={dropdownOpen} onClose={() => setDropdownOpen(false)} />
 
       {/* Mobile slide-out navigation menu */}
       <LeftMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />

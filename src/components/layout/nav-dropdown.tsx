@@ -98,7 +98,7 @@ export function NavDropdown({ open, onClose }: NavDropdownProps) {
       <div className="fixed inset-0 z-40" onClick={onClose} aria-hidden="true" />
 
       {/* Dropdown panel */}
-      <div className="absolute left-0 top-full z-50 mt-1 w-[480px] max-w-[calc(100vw-1rem)] animate-in fade-in slide-in-from-top-2 duration-200">
+      <div className="fixed top-14 left-0 z-50 mt-1 w-[480px] max-w-[calc(100vw-1rem)] animate-in fade-in slide-in-from-top-2 duration-200">
         <div className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-2xl ring-1 ring-black/5">
           <div className="grid grid-cols-2 gap-1 p-3">
             {/* Column 1: Explore + Play */}
