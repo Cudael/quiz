@@ -18,7 +18,7 @@ export function SiteFooter() {
           {/* Brand — full width on mobile */}
           <div className="space-y-4 col-span-2 md:col-span-2">
             <div className="flex items-center font-bold">
-              <Image src="/logo.png" alt="BusQuiz logo" width={168} height={40} />
+              <Image src="/logo.svg" alt="BusQuiz logo" width={168} height={40} />
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
               Where curiosity meets competition. And occasionally, humble pie. Compete, create, and
