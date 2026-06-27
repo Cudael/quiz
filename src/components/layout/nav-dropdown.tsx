@@ -114,9 +114,9 @@ export function NavDropdown({ open, onClose }: NavDropdownProps) {
       <div className="fixed inset-0 z-40" onClick={onClose} aria-hidden="true" />
 
       {/* Container-width dropdown panel */}
-      <div className="fixed top-14 left-1/2 -translate-x-1/2 z-50 w-full max-w-7xl px-4 md:px-6 animate-in fade-in slide-in-from-top-2 duration-200">
-        <div className="rounded-b-2xl border-x border-b border-border/40 bg-card shadow-2xl">
-          <div className="py-6">
+      <div className="absolute top-14 left-0 right-0 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="rounded-2xl border border-border/40 bg-card shadow-2xl">
+          <div className="p-6 md:p-8">
             <div className="grid grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-3 lg:grid-cols-6">
               {SECTIONS.map((section) => {
                 const SectionIcon = section.icon

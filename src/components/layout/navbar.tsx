@@ -39,79 +39,77 @@ export function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-40 w-full">
-      <div className="bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 border-b border-border/40 shadow-sm">
-        <div className="container mx-auto flex h-14 items-center justify-between px-4 md:px-6">
-          {/* Left: hamburger + Logo */}
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-xl"
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              aria-label="Open navigation menu"
-              aria-expanded={dropdownOpen}
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-            <Link
-              href="/"
-              className="flex items-center transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
-            >
-              <Logo className="h-9 w-auto" />
-            </Link>
-          </div>
-
-          <div className="hidden flex-1 items-center justify-center gap-4 px-4 md:flex">
-            <nav className="flex items-center gap-1" aria-label="Main navigation">
-              {navLinks.map((link) => {
-                const active = isActive(link.href)
-
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    prefetch={link.prefetch}
-                    className={cn(
-                      'relative rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-                      active
-                        ? 'text-primary bg-primary/8'
-                        : link.highlighted
-                          ? 'text-primary font-bold hover:text-primary/80 hover:bg-primary/5'
-                          : 'text-foreground/80 hover:text-foreground hover:bg-accent/50'
-                    )}
-                    aria-current={active ? 'page' : undefined}
-                  >
-                    {link.icon ? <link.icon className="mr-1 inline-flex h-3.5 w-3.5" /> : null}
-                    {link.label}
-                    {active && (
-                      <span className="absolute inset-x-3 bottom-0.5 h-0.5 rounded-full bg-primary" />
-                    )}
-                  </Link>
-                )
-              })}
-            </nav>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {session?.user ? <NotificationBell /> : null}
-            <AuthControls />
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden rounded-xl"
-              onClick={() => setMobileOpen(true)}
-              aria-label="Open menu"
-              aria-expanded={mobileOpen}
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-          </div>
+    <header className="sticky top-0 z-40 w-full bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 border-b border-border/40 shadow-sm">
+      <div className="container mx-auto relative flex h-14 items-center justify-between px-4 md:px-6">
+        {/* Left: hamburger + Logo */}
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-xl"
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            aria-label="Open navigation menu"
+            aria-expanded={dropdownOpen}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+          <Link
+            href="/"
+            className="flex items-center transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
+          >
+            <Logo className="h-9 w-auto" />
+          </Link>
         </div>
-      </div>
 
-      {/* Desktop dropdown navigation */}
-      <NavDropdown open={dropdownOpen} onClose={() => setDropdownOpen(false)} />
+        <div className="hidden flex-1 items-center justify-center gap-4 px-4 md:flex">
+          <nav className="flex items-center gap-1" aria-label="Main navigation">
+            {navLinks.map((link) => {
+              const active = isActive(link.href)
+
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  prefetch={link.prefetch}
+                  className={cn(
+                    'relative rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                    active
+                      ? 'text-primary bg-primary/8'
+                      : link.highlighted
+                        ? 'text-primary font-bold hover:text-primary/80 hover:bg-primary/5'
+                        : 'text-foreground/80 hover:text-foreground hover:bg-accent/50'
+                  )}
+                  aria-current={active ? 'page' : undefined}
+                >
+                  {link.icon ? <link.icon className="mr-1 inline-flex h-3.5 w-3.5" /> : null}
+                  {link.label}
+                  {active && (
+                    <span className="absolute inset-x-3 bottom-0.5 h-0.5 rounded-full bg-primary" />
+                  )}
+                </Link>
+              )
+            })}
+          </nav>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {session?.user ? <NotificationBell /> : null}
+          <AuthControls />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden rounded-xl"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open menu"
+            aria-expanded={mobileOpen}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+        </div>
+
+        {/* Desktop dropdown navigation */}
+        <NavDropdown open={dropdownOpen} onClose={() => setDropdownOpen(false)} />
+      </div>
 
       {/* Mobile slide-out navigation menu */}
       <LeftMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />
