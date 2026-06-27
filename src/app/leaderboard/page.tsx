@@ -4,6 +4,7 @@ import { Trophy } from 'lucide-react'
 import { EmptyState } from '@/components/ui/empty-state'
 import { copy } from '@/lib/copy'
 import { absoluteUrl } from '@/lib/site'
+import { getQuizPath } from '@/lib/quiz-url'
 import { auth } from '@/server/auth'
 import { getLeaderboardRows } from '@/server/leaderboard'
 import { prisma } from '@/server/prisma'
@@ -102,7 +103,7 @@ export default async function LeaderboardPage({
         </div>
         {quiz ? (
           <Link
-            href={`/quiz/${quiz.id}`}
+            href={getQuizPath(quiz)}
             className="rounded-md border border-border px-3 py-2 text-sm"
           >
             Back to quiz

@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button'
 import { QuizCardHorizontal, type QuizCardData } from '@/components/ui/quiz-card'
 import { getDisplayAuthorName } from '@/lib/author-display'
 import { absoluteUrl } from '@/lib/site'
+import { serializeJsonLd } from '@/lib/seo'
+import { getQuizPath } from '@/lib/quiz-url'
 import { getQuizCollection, quizCollections } from '@/content/collections'
 import { prisma } from '@/server/prisma'
 
@@ -89,8 +91,29 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
     }
   })
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: collection.title,
+    description: collection.description,
+    url: absoluteUrl(`/collections/${collection.slug}`),
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: quizzes.map((quiz, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: quiz.title,
+        url: absoluteUrl(getQuizPath(quiz)),
+      })),
+    },
+  }
+
   return (
     <div className="container mx-auto space-y-8 px-4 py-12 md:px-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
+      />
       <div>
         <Button variant="ghost" asChild className="mb-4 -ml-2">
           <Link href="/collections">

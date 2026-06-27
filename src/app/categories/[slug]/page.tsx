@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { QuizCardHorizontal } from '@/components/ui/quiz-card'
 import type { QuizCardData } from '@/components/ui/quiz-card'
 import { getDisplayAuthorName } from '@/lib/author-display'
+import { getQuizPath } from '@/lib/quiz-url'
 import { prisma } from '@/server/prisma'
 import { auth } from '@/server/auth'
 
@@ -376,6 +377,24 @@ export default async function CategoryPage({
                 '@type': 'Answer',
                 text: item.answer,
               },
+            })),
+          }),
+        }}
+      />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd({
+            '@context': 'https://schema.org',
+            '@type': 'ItemList',
+            name: `${category.name} quizzes`,
+            numberOfItems: quizCards.length,
+            itemListElement: quizCards.map((quiz, index) => ({
+              '@type': 'ListItem',
+              position: resultStart + index,
+              name: quiz.title,
+              url: absoluteUrl(getQuizPath(quiz)),
             })),
           }),
         }}

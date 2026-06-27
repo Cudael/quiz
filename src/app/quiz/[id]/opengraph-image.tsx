@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og'
 import { prisma } from '@/server/prisma'
 import { getDisplayAuthorName } from '@/lib/author-display'
+import { getQuizIdFromParam } from '@/lib/quiz-url'
 
 export const alt = 'Quiz card'
 
@@ -48,7 +49,8 @@ export function renderQuizOgCard(data: {
 }
 
 export default async function Image({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
+  const { id: idParam } = await params
+  const id = getQuizIdFromParam(idParam)
   const quiz = await prisma.quiz.findUnique({
     where: { id, isPublished: true },
     select: {

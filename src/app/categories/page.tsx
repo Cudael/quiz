@@ -7,6 +7,7 @@ import { prisma } from '@/server/prisma'
 import { absoluteUrl } from '@/lib/site'
 import { cn } from '@/lib/utils'
 import { getDisplayAuthorName } from '@/lib/author-display'
+import { getQuizPath } from '@/lib/quiz-url'
 
 export const metadata: Metadata = {
   title: 'Categories | BusQuiz',
@@ -256,7 +257,7 @@ function CategoryCard({ category }: { category: CategoryWithQuizzes }) {
             {category.topQuizzes.map((quiz, i) => (
               <li key={quiz.id}>
                 <Link
-                  href={`/quiz/${quiz.id}`}
+                  href={getQuizPath(quiz)}
                   className={cn(
                     'flex items-center justify-between gap-3 px-4 py-2.5 transition-colors hover:bg-accent/60',
                     i % 2 === 0 ? 'bg-background/40' : 'bg-transparent'

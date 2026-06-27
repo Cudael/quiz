@@ -26,19 +26,32 @@ export const metadata: Metadata = {
 export default function HomePage() {
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: 'BusQuiz',
-    url: absoluteUrl('/'),
-    description:
-      'Test your knowledge across hundreds of categories. Create quizzes, compete on leaderboards, and earn badges.',
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: `${absoluteUrl('/categories')}?q={search_term_string}`,
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': absoluteUrl('/#organization'),
+        name: 'BusQuiz',
+        url: absoluteUrl('/'),
+        sameAs: ['https://x.com/PlayBusQuiz'],
       },
-      'query-input': 'required name=search_term_string',
-    },
+      {
+        '@type': 'WebSite',
+        '@id': absoluteUrl('/#website'),
+        name: 'BusQuiz',
+        url: absoluteUrl('/'),
+        publisher: { '@id': absoluteUrl('/#organization') },
+        description:
+          'Test your knowledge across hundreds of categories. Create quizzes, compete on leaderboards, and earn badges.',
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: `${absoluteUrl('/categories')}?q={search_term_string}`,
+          },
+          'query-input': 'required name=search_term_string',
+        },
+      },
+    ],
   }
 
   return (

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { cache, Suspense } from 'react'
 import Image from 'next/image'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Clock, BarChart3, Compass, Users, BookOpen, Star, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -17,6 +17,7 @@ import { RateQuizForm } from '../rate-quiz-form'
 import { RecommendedQuizzes, RecommendedQuizzesSkeleton } from './_components/recommended-quizzes'
 import { YouMightAlsoLike } from './_components/you-might-also-like'
 import { absoluteUrl } from '@/lib/site'
+import { getQuizIdFromParam, getQuizPath } from '@/lib/quiz-url'
 
 const difficultyVariant: Record<string, 'success' | 'warning' | 'destructive'> = {
   EASY: 'success',
@@ -50,7 +51,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ id: string }>
 }): Promise<Metadata> {
-  const { id } = await params
+  const { id: idParam } = await params
+  const id = getQuizIdFromParam(idParam)
   const quiz = await getQuiz(id)
 
   if (!quiz) {
@@ -62,14 +64,15 @@ export async function generateMetadata({
 
   const title = `${quiz.title} by ${getDisplayAuthorName(quiz.author)} • ${quiz.category.name} | BusQuiz`
   const description = quiz.description || `Take ${quiz.title} and climb the leaderboard on BusQuiz.`
-  const url = absoluteUrl(`/quiz/${id}`)
+  const path = getQuizPath(quiz)
+  const url = absoluteUrl(path)
   const ogImages = quiz.coverImage ? [quiz.coverImage] : ['/og-default.png']
 
   return {
     title,
     description,
     alternates: {
-      canonical: `/quiz/${id}`,
+      canonical: path,
     },
     openGraph: { title, description, url, images: ogImages },
     twitter: { card: 'summary_large_image' as const, title, description, images: ogImages },
@@ -77,7 +80,8 @@ export async function generateMetadata({
 }
 
 export default async function QuizDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
+  const { id: idParam } = await params
+  const id = getQuizIdFromParam(idParam)
   const session = await auth()
 
   const [quiz, ratingAgg, userRating] = await Promise.all([
@@ -101,6 +105,11 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
     notFound()
   }
 
+  const quizPath = getQuizPath(quiz)
+  if (idParam !== quizPath.replace('/quiz/', '')) {
+    permanentRedirect(quizPath)
+  }
+
   const questionCount = quiz.questions.length
   const educationalLevel =
     quiz.difficulty === 'EASY'
@@ -117,7 +126,7 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
     '@type': 'Quiz',
     name: quiz.title,
     description: quiz.description || `Take ${quiz.title} and climb the leaderboard on BusQuiz.`,
-    url: absoluteUrl(`/quiz/${id}`),
+    url: absoluteUrl(quizPath),
     ...(quiz.coverImage ? { image: quiz.coverImage } : {}),
     author: { '@type': 'Person', name: getDisplayAuthorName(quiz.author) },
     educationalLevel,
@@ -140,6 +149,25 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(quizJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Home', item: absoluteUrl('/') },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: quiz.category.name,
+                item: absoluteUrl(`/categories/${quiz.category.slug}`),
+              },
+              { '@type': 'ListItem', position: 3, name: quiz.title, item: absoluteUrl(quizPath) },
+            ],
+          }),
+        }}
       />
       {/* Back */}
       <div className="mb-6">

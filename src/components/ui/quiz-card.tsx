@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, useReducedMotion } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { getQuizPath } from '@/lib/quiz-url'
 
 export interface QuizCardData {
   id: string
@@ -140,10 +141,7 @@ export const QuizCardHorizontal = React.memo(function QuizCardHorizontal({
   const hasCoverImage = isValidImageUrl(quiz.coverImage) && !imageFailed
 
   return (
-    <Link
-      href={`/quiz/${quiz.id}`}
-      className={cn('group block min-w-0 shrink-0 w-full', className)}
-    >
+    <Link href={getQuizPath(quiz)} className={cn('group block min-w-0 shrink-0 w-full', className)}>
       <div className="overflow-hidden rounded-xl border border-border/40 shadow-sm transition-shadow duration-200 group-hover:shadow-md">
         {/* Square image area */}
         <div className="relative aspect-square w-full">
@@ -217,7 +215,7 @@ export const QuizCard = React.memo(function QuizCard({ quiz, className }: QuizCa
   }
 
   return (
-    <Link href={`/quiz/${quiz.id}`} className={cn('group block', className)}>
+    <Link href={getQuizPath(quiz)} className={cn('group block', className)}>
       <motion.div
         whileHover={shouldReduceMotion ? undefined : { y: -3, scale: 1.01 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
@@ -315,7 +313,7 @@ export const QuizCardFeatured = React.memo(function QuizCardFeatured({
   const hasCoverImage = isValidImageUrl(quiz.coverImage) && !imageFailed
 
   return (
-    <Link href={`/quiz/${quiz.id}`} className={cn('group block min-w-0 w-full h-full', className)}>
+    <Link href={getQuizPath(quiz)} className={cn('group block min-w-0 w-full h-full', className)}>
       <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border/40 shadow-sm transition-shadow duration-200 group-hover:shadow-md">
         {/* Square image area */}
         <div className="relative aspect-square w-full">
@@ -379,7 +377,7 @@ export const QuizCardCompact = React.memo(function QuizCardCompact({
 }: QuizCardProps) {
   return (
     <Link
-      href={`/quiz/${quiz.id}`}
+      href={getQuizPath(quiz)}
       className={cn(
         'group flex w-36 shrink-0 flex-col overflow-hidden rounded-lg border border-border/50 bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md',
         className

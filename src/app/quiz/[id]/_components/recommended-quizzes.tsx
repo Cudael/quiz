@@ -4,6 +4,7 @@ import { prisma } from '@/server/prisma'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { BarChart3, Play, Star } from 'lucide-react'
+import { getQuizPath } from '@/lib/quiz-url'
 
 const difficultyVariant: Record<string, 'success' | 'warning' | 'destructive'> = {
   EASY: 'success',
@@ -110,7 +111,7 @@ export async function RecommendedQuizzes({
         return (
           <Link
             key={quiz.id}
-            href={`/quiz/${quiz.id}`}
+            href={getQuizPath(quiz)}
             className="group flex items-center gap-3 px-4 py-3 transition-colors hover:bg-accent/60"
           >
             {/* Category color dot */}

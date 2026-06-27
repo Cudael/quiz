@@ -7,6 +7,7 @@ import { LevelProgress } from '@/components/ui/level-progress'
 import { StreakFlame } from '@/components/ui/streak-flame'
 import { BadgesGrid } from '@/components/ui/badges-grid'
 import { absoluteUrl } from '@/lib/site'
+import { serializeJsonLd } from '@/lib/seo'
 import { toggleFollowAction } from './follow-actions'
 import { PublishedQuizzes } from './_components/published-quizzes'
 import { RecentSessions } from './_components/recent-sessions'
@@ -91,6 +92,19 @@ export default async function UserProfilePage({
     notFound()
   }
   const profileUsername = user.username
+  const profileJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ProfilePage',
+    name: `${user.name} on BusQuiz`,
+    url: absoluteUrl(`/u/${profileUsername}`),
+    mainEntity: {
+      '@type': 'Person',
+      name: user.name,
+      alternateName: profileUsername,
+      image: user.image ?? undefined,
+      url: absoluteUrl(`/u/${profileUsername}`),
+    },
+  }
 
   const [rawBadges, badgeLeaders, isFollowing] = await Promise.all([
     prisma.badge.findMany({
@@ -142,6 +156,10 @@ export default async function UserProfilePage({
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(profileJsonLd) }}
+      />
       <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
         <section className="rounded-xl border border-border bg-card p-6">
           {user.bannerImage ? (

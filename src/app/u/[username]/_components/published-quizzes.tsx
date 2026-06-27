@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { copy } from '@/lib/copy'
+import { getQuizPath } from '@/lib/quiz-url'
 
 interface PublishedQuiz {
   id: string
@@ -20,7 +21,7 @@ export function PublishedQuizzes({ quizzes }: PublishedQuizzesProps) {
         {quizzes.map((quiz) => (
           <Link
             key={quiz.id}
-            href={`/quiz/${quiz.id}`}
+            href={getQuizPath(quiz)}
             className="rounded-lg border border-border p-3 transition-colors hover:bg-muted/40"
           >
             <p className="font-medium">{quiz.title}</p>
