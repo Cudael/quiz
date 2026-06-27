@@ -214,4 +214,8 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Only show focus rings on keyboard (Tab) navigation, not mouse clicks */
+  :focus:not(:focus-visible) {
+    @apply outline-none ring-0 ring-offset-0;
+  }
 }
