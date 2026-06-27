@@ -237,19 +237,19 @@ function QuizActions({
 
   return (
     <div className="flex items-center gap-1.5">
-      <Button variant="outline" size="xs" asChild className="text-[11px] px-2">
+      <Button variant="outline" size="sm" asChild className="text-[11px] px-2">
         <Link href={`/studio/quiz/${quiz.id}/edit`}>Edit</Link>
       </Button>
-      <Button variant="outline" size="xs" asChild className="text-[11px] px-2">
+      <Button variant="outline" size="sm" asChild className="text-[11px] px-2">
         <Link href={`/quiz/${quiz.id}`}>Preview</Link>
       </Button>
-      <Button variant="outline" size="xs" asChild className="text-[11px] px-2">
+      <Button variant="outline" size="sm" asChild className="text-[11px] px-2">
         <Link href={`/studio/quiz/${quiz.id}/analytics`}>Analytics</Link>
       </Button>
       <Button
         type="button"
         variant="outline"
-        size="xs"
+        size="sm"
         className="text-[11px] px-2"
         onClick={() => void onDuplicate(quiz.id)}
         disabled={duplicatingQuizId === quiz.id}
@@ -265,7 +265,7 @@ function QuizActions({
         }}
       >
         <input type="hidden" name="quizId" value={quiz.id} />
-        <Button variant="outline" size="xs" type="submit" className="text-[11px] px-2">
+        <Button variant="outline" size="sm" type="submit" className="text-[11px] px-2">
           {quiz.isPublished ? 'Unpublish' : 'Publish'}
         </Button>
       </form>
