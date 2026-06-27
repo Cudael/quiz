@@ -1,14 +1,14 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { AlertTriangle, BarChart3, Eye, FileText, Star } from 'lucide-react'
+import { AlertTriangle, BarChart3, Eye, FileText, Star, Plus } from 'lucide-react'
 import { auth } from '@/server/auth'
 import { Button } from '@/components/ui/button'
-import { PageHeader } from '@/components/ui/page-header'
 import { EmptyState } from '@/components/ui/empty-state'
 import { prisma } from '@/server/prisma'
 import { StudioQuizBrowser } from './_components/studio-quiz-browser'
 import { AiGenerateButton } from './_components/ai-generate-button'
+import { cn } from '@/lib/utils'
 
 export const metadata: Metadata = {
   title: 'Quiz Studio',
@@ -80,60 +80,109 @@ export default async function StudioPage({
   })
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <PageHeader
-        title="Quiz Studio"
-        description="Manage your drafts and published quizzes in one place."
-      />
+    <div className="container mx-auto max-w-6xl px-4 py-8 md:py-12">
+      {/* Premium Dashboard Header Banner Card */}
+      <section className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 md:p-8 shadow-sm transition-all hover:shadow-md mb-8">
+        <div className="absolute -right-16 -top-16 h-36 w-36 rounded-full bg-quiz-purple/5 blur-3xl" />
+        <div className="absolute -left-16 -bottom-16 h-36 w-36 rounded-full bg-quiz-orange/5 blur-3xl" />
 
-      <section className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-center sm:text-left">
+            <h1 className="text-3xl font-black tracking-tight">Quiz Studio</h1>
+            <p className="mt-2 text-sm text-muted-foreground max-w-md leading-relaxed">
+              Create, curate, and optimize your quizzes. Check analytics, manage drafts, and keep
+              your content top-tier.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-2.5">
+            {isAdmin && <AiGenerateButton categories={categories} />}
+            <Button
+              asChild
+              size="lg"
+              className="rounded-xl shadow-sm font-bold bg-quiz-purple hover:bg-quiz-purple/90 text-white"
+            >
+              <Link href="/studio/quiz/new">
+                <Plus className="mr-1.5 h-5 w-5 shrink-0" />
+                New Quiz
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      <section className="mb-8 grid gap-4 grid-cols-2 lg:grid-cols-4">
         <StudioStat
-          icon={<FileText className="h-4 w-4" />}
+          icon={<FileText className="h-5 w-5 text-quiz-purple" />}
           label="Published"
           value={publishedCount}
+          bg="bg-quiz-purple/5 border-quiz-purple/10"
         />
-        <StudioStat icon={<BarChart3 className="h-4 w-4" />} label="Drafts" value={draftCount} />
-        <StudioStat icon={<Eye className="h-4 w-4" />} label="Total plays" value={totalPlays} />
         <StudioStat
-          icon={<Star className="h-4 w-4" />}
+          icon={<BarChart3 className="h-5 w-5 text-quiz-orange" />}
+          label="Drafts"
+          value={draftCount}
+          bg="bg-quiz-orange/5 border-quiz-orange/10"
+        />
+        <StudioStat
+          icon={<Eye className="h-5 w-5 text-quiz-green" />}
+          label="Total plays"
+          value={totalPlays.toLocaleString()}
+          bg="bg-quiz-green/5 border-quiz-green/10"
+        />
+        <StudioStat
+          icon={<Star className="h-5 w-5 text-quiz-blue" />}
           label="Avg rating"
           value={averageRating ? averageRating.toFixed(1) : '—'}
+          bg="bg-quiz-blue/5 border-quiz-blue/10"
         />
       </section>
 
       {needsAttention.length > 0 && (
-        <section className="mb-6 rounded-2xl border border-quiz-orange/30 bg-quiz-orange/5 p-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <section className="mb-8 rounded-2xl border border-quiz-orange/30 bg-quiz-orange/5 p-5 shadow-sm transition-all hover:shadow-md">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-3">
-              <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-quiz-orange" />
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-quiz-orange/10 text-quiz-orange">
+                <AlertTriangle className="h-5 w-5" />
+              </span>
               <div>
-                <h2 className="font-bold">
+                <h2 className="font-bold text-sm sm:text-base">
                   {needsAttention.length} quiz{needsAttention.length === 1 ? '' : 'zes'} need
                   attention
                 </h2>
-                <p className="text-sm text-muted-foreground">
-                  Add cover images, more questions, or tune quizzes with low scores and ratings.
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mt-0.5">
+                  Complete questions, add beautiful cover images, or fine-tune difficulty settings
+                  for low-performing quizzes.
                 </p>
               </div>
             </div>
-            <Button variant="outline" size="sm" asChild className="rounded-xl">
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              className="rounded-xl shadow-sm self-center shrink-0"
+            >
               <Link href={`/studio/quiz/${needsAttention[0].id}/edit`}>Fix First Quiz</Link>
             </Button>
           </div>
         </section>
       )}
 
-      <div className="mb-6 flex items-center gap-2">
-        <Button variant={activeTab === 'published' ? 'default' : 'outline'} asChild>
-          <Link href="/studio?tab=published">Published</Link>
-        </Button>
-        <Button variant={activeTab === 'drafts' ? 'default' : 'outline'} asChild>
-          <Link href="/studio?tab=drafts">Drafts</Link>
-        </Button>
-        <div className="ml-auto flex items-center gap-2">
-          {isAdmin && <AiGenerateButton categories={categories} />}
-          <Button asChild>
-            <Link href="/studio/quiz/new">New Quiz</Link>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-border/40 pb-px">
+        <div className="flex gap-1.5 pb-2">
+          <Button
+            className="rounded-xl font-bold shadow-sm"
+            variant={activeTab === 'published' ? 'default' : 'outline'}
+            asChild
+          >
+            <Link href="/studio?tab=published">Published</Link>
+          </Button>
+          <Button
+            className="rounded-xl font-bold shadow-sm"
+            variant={activeTab === 'drafts' ? 'default' : 'outline'}
+            asChild
+          >
+            <Link href="/studio?tab=drafts">Drafts</Link>
           </Button>
         </div>
       </div>
@@ -170,18 +219,25 @@ function StudioStat({
   icon,
   label,
   value,
+  bg,
 }: {
   icon: React.ReactNode
   label: string
   value: string | number
+  bg?: string
 }) {
   return (
-    <div className="rounded-xl border bg-card p-4">
-      <div className="mb-2 flex items-center gap-2 text-muted-foreground">
+    <div
+      className={cn(
+        'flex flex-col justify-between rounded-xl border bg-card p-5 transition-all hover:-translate-y-1 hover:shadow-md',
+        bg
+      )}
+    >
+      <div className="mb-2 flex items-center gap-1.5 text-muted-foreground">
         {icon}
-        <span className="text-xs font-semibold uppercase tracking-wider">{label}</span>
+        <span className="text-xs font-bold uppercase tracking-wider">{label}</span>
       </div>
-      <p className="text-2xl font-black">{value}</p>
+      <p className="text-2xl font-black leading-none">{value}</p>
     </div>
   )
 }
