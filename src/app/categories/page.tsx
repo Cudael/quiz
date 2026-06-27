@@ -10,19 +10,19 @@ import { getDisplayAuthorName } from '@/lib/author-display'
 import { getQuizPath } from '@/lib/quiz-url'
 
 export const metadata: Metadata = {
-  title: 'Categories | BusQuiz',
+  title: 'Quiz Categories | BusQuiz',
   description: 'Browse quiz categories and jump into your next challenge.',
   alternates: {
     canonical: '/categories',
   },
   openGraph: {
-    title: 'BusQuiz Categories',
+    title: 'BusQuiz Quiz Categories',
     description: 'Browse quiz categories and discover new challenges.',
     url: absoluteUrl('/categories'),
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'BusQuiz Categories',
+    title: 'BusQuiz Quiz Categories',
     description: 'Browse quiz categories and discover new challenges.',
   },
 }
@@ -206,7 +206,7 @@ export default async function CategoriesPage({
           </Link>
         </Button>
         <h1 className="text-3xl font-extrabold md:text-4xl">
-          Browse <span className="text-primary">Categories</span>
+          Browse <span className="text-primary">Quiz Categories</span>
         </h1>
         <p className="mt-2 text-muted-foreground">
           {allWithQuizzes.length} categories · {totalQuizzes} quizzes

@@ -74,7 +74,7 @@ export function HomePageClient({
       {currentUser && personalizedQuizzes.length > 0 && (
         <motion.div variants={sectionVariants}>
           <QuizDenseGridSection
-            title="Picked for You"
+            title="Picked for You Quizzes"
             subtitle="Based on the categories you keep coming back to"
             quizzes={personalizedQuizzes}
             href="/categories"
@@ -86,7 +86,7 @@ export function HomePageClient({
       {popularQuizzes.length > 0 && (
         <motion.div variants={sectionVariants}>
           <QuizFeaturedGridSection
-            title="⭐ Most Popular"
+            title="⭐ Most Popular Quizzes"
             subtitle="The all-time crowd favorites"
             quizzes={popularQuizzes}
             href="/popular"
@@ -99,7 +99,7 @@ export function HomePageClient({
       {/* Trending */}
       <motion.div variants={sectionVariants}>
         <QuizDenseGridSection
-          title="🔥 Trending Right Now"
+          title="🔥 Trending Right Now Quizzes"
           subtitle="The quizzes everyone's buzzing about this week"
           quizzes={trendingQuizzes}
         />
@@ -126,7 +126,7 @@ export function HomePageClient({
       {/* Fresh Off the Press */}
       <motion.div variants={sectionVariants}>
         <QuizDenseGridSection
-          title="✨ Fresh Off the Press"
+          title="✨ Fresh Off the Press Quizzes"
           subtitle="Brand new quizzes, still shiny"
           quizzes={newestQuizzes}
           href="/newest"
@@ -137,7 +137,7 @@ export function HomePageClient({
       {currentUser && recentlyPlayed.length > 0 && (
         <motion.div variants={sectionVariants}>
           <QuizDenseGridSection
-            title="Your Recent Conquests"
+            title="Your Recent Conquests Quizzes"
             subtitle="Pick up where you left off"
             quizzes={recentlyPlayed}
           />
@@ -149,7 +149,7 @@ export function HomePageClient({
       {/* Hall of Fame */}
       <motion.div variants={sectionVariants}>
         <QuizDenseGridSection
-          title="🏅 Hall of Fame"
+          title="🏅 Hall of Fame Quizzes"
           subtitle="The greatest quizzes of all time"
           quizzes={popularQuizzes}
           maxItems={12}

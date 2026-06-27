@@ -98,7 +98,9 @@ export default async function TrendingQuizzesPage() {
             Back to Home
           </Link>
         </Button>
-        <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Trending Right Now</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+          Trending Right Now Quizzes
+        </h1>
         <p className="mt-2 text-muted-foreground">
           The quizzes everyone is playing this week — ranked by recent plays.
         </p>

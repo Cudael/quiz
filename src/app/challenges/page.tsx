@@ -7,7 +7,7 @@ import { absoluteUrl } from '@/lib/site'
 import { auth } from '@/server/auth'
 
 export const metadata: Metadata = {
-  title: 'Challenges | BusQuiz',
+  title: 'Quiz Challenges | BusQuiz',
   description:
     'Daily, weekly, and monthly quiz challenges. Keep your streak alive and climb the leaderboard.',
   alternates: { canonical: '/challenges' },
@@ -80,7 +80,7 @@ export default async function ChallengesPage() {
           <Trophy className="h-3.5 w-3.5" />
           Challenges await
         </div>
-        <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">Challenges</h1>
+        <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">Quiz Challenges</h1>
         <p className="mt-3 text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
           Push your limits with daily, weekly, and monthly challenges. Build streaks, earn badges,
           and prove you&apos;re the ultimate quiz champion.

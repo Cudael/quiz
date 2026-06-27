@@ -202,7 +202,7 @@ export function CategoryRowSection({ category }: { category: CategoryWithQuizzes
     <section>
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h2 className="text-xl font-black tracking-tight">{category.name}</h2>
+          <h2 className="text-xl font-black tracking-tight">{category.name} Quizzes</h2>
         </div>
         <div className="flex items-center gap-2">
           <Link
