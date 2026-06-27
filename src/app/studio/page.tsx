@@ -8,7 +8,6 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { prisma } from '@/server/prisma'
 import { StudioQuizBrowser } from './_components/studio-quiz-browser'
 import { AiGenerateButton } from './_components/ai-generate-button'
-import { cn } from '@/lib/utils'
 
 export const metadata: Metadata = {
   title: 'Quiz Studio',
@@ -80,7 +79,7 @@ export default async function StudioPage({
   })
 
   return (
-    <div className="container mx-auto max-w-6xl px-4 py-8 md:py-12">
+    <div className="container mx-auto max-w-7xl px-4 py-8 md:py-12">
       {/* Premium Dashboard Header Banner Card */}
       <section className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 md:p-8 shadow-sm transition-all hover:shadow-md mb-8">
         <div className="absolute -right-16 -top-16 h-36 w-36 rounded-full bg-quiz-purple/5 blur-3xl" />
@@ -219,20 +218,13 @@ function StudioStat({
   icon,
   label,
   value,
-  bg,
 }: {
   icon: React.ReactNode
   label: string
   value: string | number
-  bg?: string
 }) {
   return (
-    <div
-      className={cn(
-        'flex flex-col justify-between rounded-xl border bg-card p-5 transition-all hover:-translate-y-1 hover:shadow-md',
-        bg
-      )}
-    >
+    <div className="flex flex-col justify-between rounded-xl border bg-card p-5 transition-all hover:-translate-y-1 hover:shadow-md">
       <div className="mb-2 flex items-center gap-1.5 text-muted-foreground">
         {icon}
         <span className="text-xs font-bold uppercase tracking-wider">{label}</span>

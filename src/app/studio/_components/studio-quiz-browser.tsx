@@ -9,7 +9,6 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/components/ui/toast'
-import { cn } from '@/lib/utils'
 
 const STORAGE_KEY = 'studio-quiz-layout'
 
@@ -237,25 +236,25 @@ function QuizActions({
   }
 
   return (
-    <div className={cn('flex flex-wrap gap-2')}>
-      <Button variant="outline" size="sm" asChild>
+    <div className="flex items-center gap-1.5">
+      <Button variant="outline" size="xs" asChild className="text-[11px] px-2">
         <Link href={`/studio/quiz/${quiz.id}/edit`}>Edit</Link>
       </Button>
-      <Button variant="outline" size="sm" asChild>
+      <Button variant="outline" size="xs" asChild className="text-[11px] px-2">
         <Link href={`/quiz/${quiz.id}`}>Preview</Link>
       </Button>
-      <Button variant="outline" size="sm" asChild>
+      <Button variant="outline" size="xs" asChild className="text-[11px] px-2">
         <Link href={`/studio/quiz/${quiz.id}/analytics`}>Analytics</Link>
       </Button>
       <Button
         type="button"
         variant="outline"
-        size="sm"
+        size="xs"
+        className="text-[11px] px-2"
         onClick={() => void onDuplicate(quiz.id)}
         disabled={duplicatingQuizId === quiz.id}
       >
-        <Copy className="mr-2 h-4 w-4" />
-        {duplicatingQuizId === quiz.id ? 'Duplicating…' : 'Duplicate'}
+        <Copy className="h-3 w-3" />
       </Button>
       <form
         action={togglePublish as unknown as (formData: FormData) => Promise<void>}
@@ -266,7 +265,7 @@ function QuizActions({
         }}
       >
         <input type="hidden" name="quizId" value={quiz.id} />
-        <Button variant="outline" size="sm" type="submit">
+        <Button variant="outline" size="xs" type="submit" className="text-[11px] px-2">
           {quiz.isPublished ? 'Unpublish' : 'Publish'}
         </Button>
       </form>
