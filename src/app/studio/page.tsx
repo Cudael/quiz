@@ -112,28 +112,20 @@ export default async function StudioPage({
 
       <section className="mb-8 grid gap-4 grid-cols-2 lg:grid-cols-4">
         <StudioStat
-          icon={<FileText className="h-5 w-5 text-quiz-purple" />}
+          icon={<FileText className="h-5 w-5" />}
           label="Published"
           value={publishedCount}
-          bg="bg-quiz-purple/5 border-quiz-purple/10"
         />
+        <StudioStat icon={<BarChart3 className="h-5 w-5" />} label="Drafts" value={draftCount} />
         <StudioStat
-          icon={<BarChart3 className="h-5 w-5 text-quiz-orange" />}
-          label="Drafts"
-          value={draftCount}
-          bg="bg-quiz-orange/5 border-quiz-orange/10"
-        />
-        <StudioStat
-          icon={<Eye className="h-5 w-5 text-quiz-green" />}
+          icon={<Eye className="h-5 w-5" />}
           label="Total plays"
           value={totalPlays.toLocaleString()}
-          bg="bg-quiz-green/5 border-quiz-green/10"
         />
         <StudioStat
-          icon={<Star className="h-5 w-5 text-quiz-blue" />}
+          icon={<Star className="h-5 w-5" />}
           label="Avg rating"
           value={averageRating ? averageRating.toFixed(1) : '—'}
-          bg="bg-quiz-blue/5 border-quiz-blue/10"
         />
       </section>
 
