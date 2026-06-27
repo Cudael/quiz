@@ -5,6 +5,40 @@ import { ArrowUp, Instagram, Twitter } from 'lucide-react'
 import { Logo } from '@/components/ui/logo'
 import { ThemeToggle } from '@/components/theme/theme-toggle'
 
+const EXPLORE_LINKS = [
+  { href: '/categories', label: 'Categories' },
+  { href: '/popular', label: 'Popular' },
+  { href: '/trending', label: 'Trending' },
+  { href: '/collections', label: 'Collections' },
+  { href: '/random-quiz', label: 'Random Quiz' },
+]
+
+const PLAY_LINKS = [
+  { href: '/duel', label: 'Duel Mode' },
+  { href: '/challenges', label: 'Challenges' },
+  { href: '/leaderboard', label: 'Leaderboard' },
+]
+
+const CREATE_LEARN_LINKS = [
+  { href: '/studio', label: 'Quiz Studio' },
+  { href: '/learn', label: 'Learn Hub' },
+  { href: '/trivia-facts', label: 'Trivia Facts' },
+  { href: '/blog', label: 'Blog & Articles' },
+]
+
+const COMMUNITY_LINKS = [
+  { href: '/badges', label: 'Badges' },
+  { href: '/stats', label: 'Platform Stats' },
+]
+
+const BUSQUIZ_LINKS = [
+  { href: '/about', label: 'About Us' },
+  { href: '/contact', label: 'Contact' },
+  { href: '/feedback', label: 'Send Feedback' },
+  { href: '/privacy', label: 'Privacy Policy' },
+  { href: '/terms', label: 'Terms of Service' },
+]
+
 export function SiteFooter() {
   return (
     <footer className="mt-24 bg-surface-1">
@@ -14,18 +48,14 @@ export function SiteFooter() {
 
       <div className="container mx-auto px-4 py-12 md:py-16">
         {/* Main grid */}
-        <div className="grid gap-8 grid-cols-2 md:grid-cols-4">
+        <div className="grid gap-8 grid-cols-2 md:grid-cols-3 lg:grid-cols-7">
           {/* Brand — full width on mobile */}
-          <div className="space-y-4 col-span-2 md:col-span-2">
+          <div className="space-y-4 col-span-2 md:col-span-3 lg:col-span-2">
             <div className="flex items-center font-bold">
               <Logo className="h-10 w-auto" />
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
-              Where curiosity meets competition. And occasionally, humble pie. Compete, create, and
-              climb the global leaderboard.
-            </p>
-            <p className="mt-1 text-xs italic text-muted-foreground/70">
-              Made with love and trivia ❤️
+              Where curiosity meets competition. Compete, create, and climb the global leaderboard.
             </p>
             <div className="flex flex-row items-center gap-2">
               <a
@@ -67,27 +97,15 @@ export function SiteFooter() {
             </div>
           </div>
 
-          {/* Quick links */}
-          <div className="space-y-4">
+          {/* Explore */}
+          <div className="space-y-4 col-span-1">
             <p className="text-xs font-black uppercase tracking-widest text-foreground">Explore</p>
-            <nav className="flex flex-col gap-2.5" aria-label="Footer navigation">
-              {[
-                { href: '/categories', label: 'Browse Categories' },
-                { href: '/collections', label: 'Collections' },
-                { href: '/studio', label: 'Quiz Studio' },
-                { href: '/random-quiz', label: 'Play Now' },
-                { href: '/blog', label: 'Blog' },
-                { href: '/about', label: 'About' },
-                { href: '/privacy', label: 'Privacy Policy' },
-                { href: '/terms', label: 'Terms of Service' },
-                { href: '/contact', label: 'Contact' },
-                { href: '/feedback', label: 'Feedback' },
-              ].map((link) => (
+            <nav className="flex flex-col gap-2.5" aria-label="Explore navigation">
+              {EXPLORE_LINKS.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  prefetch={link.href === '/about' ? false : undefined}
-                  className="text-sm text-foreground/70 transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
+                  className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none"
                 >
                   {link.label}
                 </Link>
@@ -95,32 +113,72 @@ export function SiteFooter() {
             </nav>
           </div>
 
-          {/* Meta / Tools */}
-          <div className="space-y-4">
+          {/* Play */}
+          <div className="space-y-4 col-span-1">
+            <p className="text-xs font-black uppercase tracking-widest text-foreground">Play</p>
+            <nav className="flex flex-col gap-2.5" aria-label="Play navigation">
+              {PLAY_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          {/* Create & Learn */}
+          <div className="space-y-4 col-span-1">
+            <p className="text-xs font-black uppercase tracking-widest text-foreground">
+              Create & Learn
+            </p>
+            <nav className="flex flex-col gap-2.5" aria-label="Create & Learn navigation">
+              {CREATE_LEARN_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          {/* Community */}
+          <div className="space-y-4 col-span-1">
             <p className="text-xs font-black uppercase tracking-widest text-foreground">
               Community
             </p>
-            <div className="flex flex-col gap-2.5">
-              <Link
-                href="/leaderboard"
-                prefetch={false}
-                className="text-sm text-foreground/70 transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
-              >
-                Leaderboard
-              </Link>
-              <Link
-                href="/duel"
-                className="text-sm text-foreground/70 transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
-              >
-                Duel
-              </Link>
-              <Link
-                href="/about/accessibility"
-                className="text-sm text-foreground/70 transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md w-fit"
-              >
-                Accessibility
-              </Link>
-            </div>
+            <nav className="flex flex-col gap-2.5" aria-label="Community navigation">
+              {COMMUNITY_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          {/* BusQuiz / Company */}
+          <div className="space-y-4 col-span-1">
+            <p className="text-xs font-black uppercase tracking-widest text-foreground">BusQuiz</p>
+            <nav className="flex flex-col gap-2.5" aria-label="Company navigation">
+              {BUSQUIZ_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
           </div>
         </div>
 
