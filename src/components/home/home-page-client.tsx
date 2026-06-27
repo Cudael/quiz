@@ -9,7 +9,6 @@ import { QuizFeaturedGridSection } from './sections/quiz-featured-grid'
 import { HeroInsightBox } from './sections/hero-insight-box'
 import { HeroCards } from './sections/hero-cards'
 import { BadgeShowcase } from './sections/badge-showcase'
-import { ContinueStreakStrip } from './sections/continue-streak-strip'
 import { Divider } from './sections/section-primitives'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -61,15 +60,6 @@ export function HomePageClient({
           </div>
         </div>
       </motion.div>
-
-      {currentUser && (
-        <motion.div variants={sectionVariants}>
-          <ContinueStreakStrip
-            currentUser={currentUser}
-            recommendedQuiz={personalizedQuizzes[0] ?? trendingQuizzes[0] ?? popularQuizzes[0]}
-          />
-        </motion.div>
-      )}
 
       {currentUser && personalizedQuizzes.length > 0 && (
         <motion.div variants={sectionVariants}>
