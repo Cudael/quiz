@@ -10,6 +10,7 @@ import {
   Info,
   Twitter,
   Instagram,
+  ArrowRight,
   type LucideIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -23,14 +24,31 @@ interface MenuSection {
   title: string
   icon: LucideIcon
   items: { href: string; label: string; highlighted?: boolean }[]
+  footer?: { href: string; label: string }
 }
 
+const POPULAR_CATEGORIES = [
+  { href: '/categories/science', label: 'Science' },
+  { href: '/categories/history', label: 'History' },
+  { href: '/categories/arts-culture', label: 'Arts & Culture' },
+  { href: '/categories/geography', label: 'Geography' },
+  { href: '/categories/sports', label: 'Sports' },
+  { href: '/categories/technology', label: 'Technology' },
+  { href: '/categories/music', label: 'Music' },
+  { href: '/categories/movies', label: 'Movies' },
+]
+
 const SECTIONS: MenuSection[] = [
+  {
+    title: 'Categories',
+    icon: Layers,
+    items: POPULAR_CATEGORIES,
+    footer: { href: '/categories', label: 'View all categories' },
+  },
   {
     title: 'Explore',
     icon: Layers,
     items: [
-      { href: '/categories', label: 'Categories' },
       { href: '/popular', label: 'Popular' },
       { href: '/trending', label: 'Trending' },
       { href: '/collections', label: 'Collections' },
@@ -95,11 +113,11 @@ export function NavDropdown({ open, onClose }: NavDropdownProps) {
       {/* Backdrop */}
       <div className="fixed inset-0 z-40" onClick={onClose} aria-hidden="true" />
 
-      {/* Full-width dropdown panel */}
-      <div className="fixed top-14 left-0 right-0 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-        <div className="border-b border-border/40 bg-card shadow-2xl">
-          <div className="container mx-auto px-4 md:px-6 py-6">
-            <div className="grid grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-3 lg:grid-cols-5">
+      {/* Container-width dropdown panel */}
+      <div className="fixed top-14 left-1/2 -translate-x-1/2 z-50 w-full max-w-7xl px-4 md:px-6 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="rounded-b-2xl border-x border-b border-border/40 bg-card shadow-2xl">
+          <div className="py-6">
+            <div className="grid grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-3 lg:grid-cols-6">
               {SECTIONS.map((section) => {
                 const SectionIcon = section.icon
                 return (
@@ -131,6 +149,16 @@ export function NavDropdown({ open, onClose }: NavDropdownProps) {
                         )
                       })}
                     </ul>
+                    {section.footer && (
+                      <Link
+                        href={section.footer.href}
+                        onClick={onClose}
+                        className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        {section.footer.label}
+                        <ArrowRight className="h-3 w-3" />
+                      </Link>
+                    )}
                   </div>
                 )
               })}
