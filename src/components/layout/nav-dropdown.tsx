@@ -192,7 +192,7 @@ export function NavDropdown({ open, onClose }: NavDropdownProps) {
                   onClick={onClose}
                   className="mt-2 flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-foreground/70 hover:bg-accent hover:text-foreground transition-colors"
                 >
-                  <Avatar src={session.user.image} fallback={session.user.name || 'U'} size="xs" />
+                  <Avatar src={session.user.image} fallback={session.user.name || 'U'} size="sm" />
                   <div className="min-w-0">
                     <span className="truncate text-xs font-bold">
                       {session.user.name || 'Player'}
