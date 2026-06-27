@@ -39,16 +39,16 @@ export function HeroInsightBox({ currentUser, totalQuizCount, quickLinks }: Hero
         </div>
 
         {/* Search bar with button */}
-        <form action="/categories" method="get" className="flex">
+        <form action="/categories" method="get" className="flex items-center gap-2">
           <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-muted-foreground" />
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-muted-foreground" />
             <input
               type="search"
               name="q"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="What do you want to learn today?"
-              className="h-11 w-full rounded-l-lg rounded-r-none border border-r-0 border-border/60 bg-muted/40 pl-11 pr-10 text-sm focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+              className="h-12 w-full rounded-2xl border border-border/60 bg-muted/30 pl-11 pr-10 text-sm transition-all focus:bg-background focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20"
               aria-label="Search quizzes"
             />
             {query.length > 0 && (
@@ -64,42 +64,41 @@ export function HeroInsightBox({ currentUser, totalQuizCount, quickLinks }: Hero
           </div>
           <button
             type="submit"
-            className="h-11 shrink-0 rounded-r-lg rounded-l-none bg-orange-500 px-3 text-sm font-bold text-white transition-colors hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+            className="h-12 rounded-2xl bg-orange-500 px-5 text-sm font-black text-white hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 active:scale-95 transition-all inline-flex items-center justify-center"
             aria-label="Search"
           >
-            <Search className="h-4 w-4" />
+            <span className="hidden sm:inline">Search</span>
+            <Search className="h-4 w-4 sm:hidden" />
           </button>
         </form>
 
         {/* Stats inline row */}
-        <div className="flex items-center gap-x-2 gap-y-1 text-xs sm:text-sm sm:gap-x-4">
-          <span className="inline-flex items-center gap-1.5 font-medium whitespace-nowrap">
-            <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 text-quiz-purple" />
+        <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-quiz-purple/5 px-2.5 py-1 font-semibold text-quiz-purple whitespace-nowrap border border-quiz-purple/10">
+            <Zap className="h-3.5 w-3.5 shrink-0" />
             {formattedCount} quizzes
           </span>
-          <span className="text-muted-foreground/40 shrink-0">·</span>
-          <span className="inline-flex items-center gap-1.5 font-medium whitespace-nowrap">
-            <Trophy className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 text-quiz-orange" />
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-quiz-orange/5 px-2.5 py-1 font-semibold text-quiz-orange whitespace-nowrap border border-quiz-orange/10">
+            <Trophy className="h-3.5 w-3.5 shrink-0" />
             Earn badges & XP
           </span>
-          <span className="text-muted-foreground/40 shrink-0">·</span>
-          <span className="inline-flex items-center gap-1.5 font-medium whitespace-nowrap">
-            <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 text-quiz-green" />
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-quiz-green/5 px-2.5 py-1 font-semibold text-quiz-green whitespace-nowrap border border-quiz-green/10">
+            <Users className="h-3.5 w-3.5 shrink-0" />
             Climb leaderboards
           </span>
         </div>
       </div>
 
       {/* Quick links */}
-      <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-2">
         {quickLinks.map((link) => (
           <Link
             key={link.label}
             href={link.href}
-            className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-card px-4 py-2 text-sm font-semibold transition-colors hover:border-primary/40 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="inline-flex items-center justify-center sm:justify-start gap-1.5 rounded-xl border border-border/50 bg-card p-3 sm:px-4 sm:py-2 text-sm font-bold transition-all hover:border-primary/40 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-sm active:scale-95"
           >
-            <link.icon className="h-3.5 w-3.5" />
-            {link.label}
+            <link.icon className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
+            <span>{link.label}</span>
           </Link>
         ))}
       </div>
