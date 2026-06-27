@@ -61,17 +61,6 @@ export function HomePageClient({
         </div>
       </motion.div>
 
-      {currentUser && personalizedQuizzes.length > 0 && (
-        <motion.div variants={sectionVariants}>
-          <QuizDenseGridSection
-            title="Picked for You Quizzes"
-            subtitle="Based on the categories you keep coming back to"
-            quizzes={personalizedQuizzes}
-            href="/categories"
-          />
-        </motion.div>
-      )}
-
       {/* Most Popular — featured layout with large + grid */}
       {popularQuizzes.length > 0 && (
         <motion.div variants={sectionVariants}>
@@ -84,15 +73,22 @@ export function HomePageClient({
         </motion.div>
       )}
 
-      <Divider />
-
-      {/* Trending */}
+      {/* Picked for You (logged in) / Trending Right Now (logged out) */}
       <motion.div variants={sectionVariants}>
-        <QuizDenseGridSection
-          title="🔥 Trending Right Now Quizzes"
-          subtitle="The quizzes everyone's buzzing about this week"
-          quizzes={trendingQuizzes}
-        />
+        {currentUser ? (
+          <QuizDenseGridSection
+            title="Picked for You Quizzes"
+            subtitle="Based on the categories you keep coming back to"
+            quizzes={personalizedQuizzes.length > 0 ? personalizedQuizzes : trendingQuizzes}
+            href="/categories"
+          />
+        ) : (
+          <QuizDenseGridSection
+            title="🔥 Trending Right Now Quizzes"
+            subtitle="The quizzes everyone's buzzing about this week"
+            quizzes={trendingQuizzes}
+          />
+        )}
       </motion.div>
 
       {/* Badge showcase */}
