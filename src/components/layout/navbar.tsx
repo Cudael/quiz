@@ -3,8 +3,8 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Menu, Swords, Zap } from 'lucide-react'
-import Image from 'next/image'
 import { useState } from 'react'
+import { Logo } from '@/components/ui/logo'
 import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Sheet } from '@/components/ui/sheet'
@@ -47,7 +47,7 @@ export function Navbar() {
             href="/"
             className="flex items-center transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
           >
-            <Image src="/logo.svg" alt="BusQuiz logo" width={151} height={36} priority />
+            <Logo className="h-9 w-auto" />
           </Link>
 
           <div className="hidden flex-1 items-center justify-center gap-4 px-4 md:flex">

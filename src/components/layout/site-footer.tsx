@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { ArrowUp, Instagram, Twitter } from 'lucide-react'
+import { Logo } from '@/components/ui/logo'
 import { ThemeToggle } from '@/components/theme/theme-toggle'
 
 export function SiteFooter() {
@@ -18,7 +18,7 @@ export function SiteFooter() {
           {/* Brand — full width on mobile */}
           <div className="space-y-4 col-span-2 md:col-span-2">
             <div className="flex items-center font-bold">
-              <Image src="/logo.svg" alt="BusQuiz logo" width={168} height={40} />
+              <Logo className="h-10 w-auto" />
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
               Where curiosity meets competition. And occasionally, humble pie. Compete, create, and
