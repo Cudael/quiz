@@ -7,7 +7,6 @@ import { useState } from 'react'
 import { Logo } from '@/components/ui/logo'
 import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
-import { LeftMenu } from '@/components/layout/left-menu'
 import { NavDropdown } from '@/components/layout/nav-dropdown'
 import { AuthControls } from '@/components/auth/auth-controls'
 import { NotificationBell } from '@/components/notifications/notification-bell'
@@ -29,7 +28,6 @@ const navLinks: NavLink[] = [
 ]
 
 export function Navbar() {
-  const [mobileOpen, setMobileOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const pathname = usePathname()
   const { data: session } = useSession()
@@ -95,24 +93,10 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           {session?.user ? <NotificationBell /> : null}
           <AuthControls />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden rounded-xl"
-            onClick={() => setMobileOpen(true)}
-            aria-label="Open menu"
-            aria-expanded={mobileOpen}
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
         </div>
 
-        {/* Desktop dropdown navigation */}
         <NavDropdown open={dropdownOpen} onClose={() => setDropdownOpen(false)} />
       </div>
-
-      {/* Mobile slide-out navigation menu */}
-      <LeftMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />
     </header>
   )
 }
