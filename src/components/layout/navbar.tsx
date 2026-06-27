@@ -8,6 +8,7 @@ import { Logo } from '@/components/ui/logo'
 import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { LeftMenu } from '@/components/layout/left-menu'
+import { NavDropdown } from '@/components/layout/nav-dropdown'
 import { AuthControls } from '@/components/auth/auth-controls'
 import { NotificationBell } from '@/components/notifications/notification-bell'
 import { cn } from '@/lib/utils'
@@ -29,6 +30,7 @@ const navLinks: NavLink[] = [
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
   const pathname = usePathname()
   const { data: session } = useSession()
 
@@ -38,15 +40,27 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 w-full">
-      <div className="bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 border-b border-border/40 shadow-sm">
+      <div className="relative bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 border-b border-border/40 shadow-sm">
         <div className="container mx-auto flex h-14 items-center justify-between px-4 md:px-6">
-          {/* Logo */}
-          <Link
-            href="/"
-            className="flex items-center transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
-          >
-            <Logo className="h-9 w-auto" />
-          </Link>
+          {/* Left: hamburger + Logo */}
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-xl"
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              aria-label="Open navigation menu"
+              aria-expanded={dropdownOpen}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            <Link
+              href="/"
+              className="flex items-center transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
+            >
+              <Logo className="h-9 w-auto" />
+            </Link>
+          </div>
 
           <div className="hidden flex-1 items-center justify-center gap-4 px-4 md:flex">
             <nav className="flex items-center gap-1" aria-label="Main navigation">
@@ -94,9 +108,12 @@ export function Navbar() {
             </Button>
           </div>
         </div>
+
+        {/* Desktop dropdown navigation */}
+        <NavDropdown open={dropdownOpen} onClose={() => setDropdownOpen(false)} />
       </div>
 
-      {/* Left slide-out navigation menu */}
+      {/* Mobile slide-out navigation menu */}
       <LeftMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />
     </header>
   )
