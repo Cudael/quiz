@@ -2,12 +2,12 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, Swords, Zap } from 'lucide-react'
+import { Menu, Swords } from 'lucide-react'
 import { useState } from 'react'
 import { Logo } from '@/components/ui/logo'
 import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
-import { Sheet } from '@/components/ui/sheet'
+import { LeftMenu } from '@/components/layout/left-menu'
 import { AuthControls } from '@/components/auth/auth-controls'
 import { NotificationBell } from '@/components/notifications/notification-bell'
 import { cn } from '@/lib/utils'
@@ -96,51 +96,8 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Mobile navigation sheet */}
-      <Sheet open={mobileOpen} onClose={() => setMobileOpen(false)} side="right" title="Menu">
-        <nav className="flex flex-col gap-1.5 px-2 py-6" aria-label="Mobile navigation">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              prefetch={link.prefetch}
-              className={cn(
-                'flex items-center rounded-xl px-4 py-3 text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-                isActive(link.href)
-                  ? 'bg-primary/10 text-primary border-l-4 border-quiz-purple'
-                  : 'text-foreground/80 hover:bg-accent hover:text-foreground border-l-4 border-transparent'
-              )}
-              aria-current={isActive(link.href) ? 'page' : undefined}
-              onClick={() => setMobileOpen(false)}
-            >
-              {link.icon ? <link.icon className="mr-2 h-4 w-4" /> : null}
-              {link.label}
-            </Link>
-          ))}
-          {!session?.user && (
-            <div className="mt-3 space-y-2 px-2">
-              <Button asChild variant="outline" className="w-full rounded-xl">
-                <Link href="/sign-in" onClick={() => setMobileOpen(false)}>
-                  Sign in
-                </Link>
-              </Button>
-              <Button asChild variant="gradient" className="w-full rounded-xl font-bold">
-                <Link href="/sign-up" onClick={() => setMobileOpen(false)}>
-                  Register
-                </Link>
-              </Button>
-            </div>
-          )}
-          <div className="mt-3 px-2">
-            <Button asChild size="lg" variant="gradient" className="w-full rounded-xl font-bold">
-              <Link href="/random-quiz" onClick={() => setMobileOpen(false)}>
-                <Zap className="h-4 w-4" />
-                Play Now
-              </Link>
-            </Button>
-          </div>
-        </nav>
-      </Sheet>
+      {/* Left slide-out navigation menu */}
+      <LeftMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />
     </header>
   )
 }
