@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
-import { HomePage as HomePageContent, HomePageSkeleton } from '@/components/home/home-page'
+import { HomePage as HomePageContent } from '@/components/home/home-page'
 import { CategoryBar } from '@/components/layout/category-bar'
 import { absoluteUrl } from '@/lib/site'
 import { serializeJsonLd } from '@/lib/seo'
@@ -63,7 +63,7 @@ export default function HomePage() {
       <Suspense fallback={null}>
         <CategoryBar />
       </Suspense>
-      <Suspense fallback={<HomePageSkeleton />}>
+      <Suspense>
         <HomePageContent />
       </Suspense>
     </>

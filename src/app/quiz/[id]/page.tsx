@@ -14,7 +14,7 @@ import { prisma } from '@/server/prisma'
 import { auth } from '@/server/auth'
 import { ReportQuizForm } from '../report-quiz-form'
 import { RateQuizForm } from '../rate-quiz-form'
-import { RecommendedQuizzes, RecommendedQuizzesSkeleton } from './_components/recommended-quizzes'
+import { RecommendedQuizzes } from './_components/recommended-quizzes'
 import { YouMightAlsoLike } from './_components/you-might-also-like'
 import { absoluteUrl } from '@/lib/site'
 import { getQuizIdFromParam, getQuizPath } from '@/lib/quiz-url'
@@ -322,7 +322,7 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
               <h2 className="text-lg font-bold">Recommended</h2>
             </div>
             <Card className="overflow-hidden">
-              <Suspense fallback={<RecommendedQuizzesSkeleton />}>
+              <Suspense>
                 <RecommendedQuizzes currentQuizId={quiz.id} categorySlug={quiz.category.slug} />
               </Suspense>
             </Card>

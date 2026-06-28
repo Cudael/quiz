@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { Award, Bell, PlayCircle, UserPlus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { EmptyState } from '@/components/ui/empty-state'
-import { Skeleton } from '@/components/ui/skeleton'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -218,22 +217,7 @@ export function NotificationBell() {
         </div>
 
         <div className="max-h-96 overflow-y-auto p-1">
-          {loading ? (
-            <div className="space-y-2 p-2">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <div key={index} className="rounded-md border border-border p-3">
-                  <div className="flex items-start gap-3">
-                    <Skeleton className="h-8 w-8 shrink-0 rounded-md" />
-                    <div className="w-full space-y-1.5">
-                      <Skeleton className="h-3.5 w-3/4" />
-                      <Skeleton className="h-3 w-full" />
-                      <Skeleton className="h-3 w-1/3" />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : notifications.length === 0 ? (
+          {loading ? null : notifications.length === 0 ? (
             <EmptyState
               icon={<Bell className="h-6 w-6 text-muted-foreground" />}
               title="No notifications yet"

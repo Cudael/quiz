@@ -1,7 +1,6 @@
 'use client'
 
 import { useReducedMotion } from 'framer-motion'
-import { Skeleton } from '@/components/ui/skeleton'
 import { PlayHeader } from './_components/play-header'
 import { QuestionPanel } from './_components/question-panel'
 import { QuitModal } from './_components/quit-modal'
@@ -35,25 +34,7 @@ export function PlayView({ quizId }: PlayViewProps) {
   } = usePlayRunner(quizId)
 
   if (loading) {
-    return (
-      <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-8 w-32" />
-          <Skeleton className="h-8 w-24" />
-        </div>
-        <Skeleton className="h-2 w-full rounded-full" />
-        <div className="space-y-4">
-          <Skeleton className="h-6 w-3/4" />
-          <Skeleton className="aspect-video w-full rounded-xl" />
-          <div className="grid grid-cols-2 gap-3">
-            <Skeleton className="h-14 rounded-xl" />
-            <Skeleton className="h-14 rounded-xl" />
-            <Skeleton className="h-14 rounded-xl" />
-            <Skeleton className="h-14 rounded-xl" />
-          </div>
-        </div>
-      </div>
-    )
+    return null
   }
 
   if (!loading && questions.length === 0) {
@@ -68,13 +49,7 @@ export function PlayView({ quizId }: PlayViewProps) {
   }
 
   if (!currentQuestion) {
-    return (
-      <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
-        <Skeleton className="h-8 w-32" />
-        <Skeleton className="h-2 w-full rounded-full" />
-        <Skeleton className="aspect-video w-full rounded-xl" />
-      </div>
-    )
+    return null
   }
 
   const progress = ((store.currentQuestionIndex + (isAnswered ? 1 : 0)) / questions.length) * 100

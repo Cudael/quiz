@@ -6,7 +6,6 @@ import Link from 'next/link'
 import { motion, useReducedMotion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { getQuizPath } from '@/lib/quiz-url'
-import { Skeleton } from '@/components/ui/skeleton'
 
 export interface QuizCardData {
   id: string
@@ -407,99 +406,3 @@ export const QuizCardCompact = React.memo(function QuizCardCompact({
     </Link>
   )
 })
-
-// ---------------------------------------------------------------------------
-// Skeleton placeholders — match the shape of each card variant
-// ---------------------------------------------------------------------------
-
-function SkeletonPulse({ className }: { className?: string }) {
-  return <Skeleton className={className} />
-}
-
-/** Skeleton matching QuizCardHorizontal: square image area + info bar */
-export function QuizCardHorizontalSkeleton({ className }: { className?: string }) {
-  return (
-    <div className={cn('block min-w-0 shrink-0 w-full', className)}>
-      <div className="overflow-hidden rounded-xl border border-border/40 shadow-sm">
-        {/* Square image area */}
-        <div className="relative aspect-square w-full bg-muted animate-pulse">
-          {/* Category pill placeholder */}
-          <div className="absolute left-2 top-2">
-            <SkeletonPulse className="h-5 w-14 rounded-full" />
-          </div>
-        </div>
-        {/* Info bar */}
-        <div className="flex flex-col gap-2 bg-card px-3 py-2.5">
-          <SkeletonPulse className="h-3.5 w-3/4" />
-          <div className="flex items-center gap-1.5">
-            <SkeletonPulse className="h-2.5 w-10" />
-            <SkeletonPulse className="h-2.5 w-14" />
-            <SkeletonPulse className="h-2.5 w-12" />
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-/** Skeleton matching QuizCard: taller image + info section */
-export function QuizCardGridSkeleton({ className }: { className?: string }) {
-  return (
-    <div className={cn('block', className)}>
-      <div className="rounded-xl border border-border/50 shadow-md">
-        {/* Image area — taller than horizontal */}
-        <div className="relative aspect-square w-full overflow-hidden rounded-t-xl bg-muted animate-pulse">
-          <div className="absolute left-3 top-3">
-            <SkeletonPulse className="h-5 w-16 rounded-full" />
-          </div>
-          <div className="absolute bottom-3 right-3">
-            <SkeletonPulse className="h-5 w-16 rounded-full" />
-          </div>
-        </div>
-        {/* Info section */}
-        <div className="flex flex-col gap-2 rounded-b-xl bg-card px-4 py-4">
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex-1 space-y-2">
-              <SkeletonPulse className="h-4 w-full" />
-              <SkeletonPulse className="h-4 w-2/3" />
-            </div>
-            <SkeletonPulse className="h-10 w-10 rounded-full" />
-          </div>
-          <div className="flex items-center gap-1.5">
-            <SkeletonPulse className="h-3 w-10" />
-            <SkeletonPulse className="h-3 w-16" />
-            <SkeletonPulse className="h-3 w-14" />
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-/**
- * Renders a row of `count` QuizCardHorizontalSkeleton placeholders
- * matching the home-page scroller layout.
- */
-export function QuizCardScrollerSkeleton({ count = 6 }: { count?: number }) {
-  return (
-    <div className="grid grid-flow-col auto-cols-[calc((100%_-_3.75rem)_/_6)] snap-x gap-3 overflow-hidden pb-3">
-      {Array.from({ length: count }).map((_, i) => (
-        <QuizCardHorizontalSkeleton key={i} className="snap-start" />
-      ))}
-    </div>
-  )
-}
-
-/**
- * Renders a responsive grid of QuizCardHorizontalSkeleton placeholders
- * matching the category-row scroller layout.
- */
-export function QuizCardCategoryRowSkeleton({ count = 12 }: { count?: number }) {
-  return (
-    <div className="grid grid-flow-col auto-cols-[calc((100%_-_0.75rem)_/_2)] sm:auto-cols-[calc((100%_-_1.5rem)_/_3)] md:auto-cols-[calc((100%_-_2.25rem)_/_4)] lg:auto-cols-[calc((100%_-_3rem)_/_5)] xl:auto-cols-[calc((100%_-_3.75rem)_/_6)] snap-x gap-3 overflow-hidden pb-3">
-      {Array.from({ length: count }).map((_, i) => (
-        <QuizCardHorizontalSkeleton key={i} className="snap-start" />
-      ))}
-    </div>
-  )
-}

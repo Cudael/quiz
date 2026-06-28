@@ -6,7 +6,6 @@ import { ChevronDown, LogOut } from 'lucide-react'
 import { useSession, signOut } from 'next-auth/react'
 import { Avatar } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
 import { StreakFlame } from '@/components/ui/streak-flame'
 import { useTheme } from '@/components/theme/theme-provider'
 import {
@@ -28,7 +27,7 @@ export function AuthControls() {
   const router = useRouter()
 
   if (status === 'loading') {
-    return <Skeleton className="h-8 w-20 rounded-md" />
+    return null
   }
 
   if (!session?.user) {

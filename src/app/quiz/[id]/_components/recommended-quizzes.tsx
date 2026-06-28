@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { unstable_cache } from 'next/cache'
 import { prisma } from '@/server/prisma'
 import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
 import { BarChart3, Play, Star } from 'lucide-react'
 import { getQuizPath } from '@/lib/quiz-url'
 
@@ -157,22 +156,6 @@ export async function RecommendedQuizzes({
           </Link>
         )
       })}
-    </div>
-  )
-}
-
-export function RecommendedQuizzesSkeleton() {
-  return (
-    <div className="divide-y divide-border">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="flex items-center gap-3 px-4 py-3">
-          <Skeleton className="h-2.5 w-2.5 shrink-0 rounded-full" />
-          <div className="flex-1 space-y-1.5">
-            <Skeleton className="h-4 w-3/4" />
-            <Skeleton className="h-3 w-1/2" />
-          </div>
-        </div>
-      ))}
     </div>
   )
 }
