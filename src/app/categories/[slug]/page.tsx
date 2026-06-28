@@ -11,6 +11,7 @@ import { getDisplayAuthorName } from '@/lib/author-display'
 import { getQuizPath } from '@/lib/quiz-url'
 import { prisma } from '@/server/prisma'
 import { auth } from '@/server/auth'
+import { categoryIcons } from '@/lib/category-icons'
 
 const PAGE_SIZE = 20
 
@@ -304,18 +305,18 @@ export default async function CategoryPage({
       {/* Breadcrumb */}
       <nav
         aria-label="Breadcrumb"
-        className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground"
+        className="flex flex-wrap items-center gap-1.5 text-xs font-semibold text-muted-foreground/80"
       >
         <Link href="/" className="transition-colors hover:text-foreground">
           Home
         </Link>
-        <ChevronRight className="h-4 w-4" aria-hidden="true" />
+        <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
         <Link href="/categories" className="transition-colors hover:text-foreground">
           Categories
         </Link>
         {parentCategory ? (
           <>
-            <ChevronRight className="h-4 w-4" aria-hidden="true" />
+            <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
             <Link
               href={`/categories/${parentCategory.slug}`}
               className="transition-colors hover:text-foreground"
@@ -324,8 +325,8 @@ export default async function CategoryPage({
             </Link>
           </>
         ) : null}
-        <ChevronRight className="h-4 w-4" aria-hidden="true" />
-        <span className="font-medium text-foreground">{category.name}</span>
+        <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+        <span className="font-semibold text-foreground/90">{category.name}</span>
       </nav>
 
       {/* BreadcrumbList JSON-LD */}
@@ -401,37 +402,74 @@ export default async function CategoryPage({
       />
 
       {/* Banner */}
-      <section className="rounded-md border border-border/50 bg-card p-4 md:p-5">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <Button variant="ghost" size="sm" asChild className="-ml-2 mb-1 h-7 px-2 text-xs">
+      <section className="relative overflow-hidden rounded-md border border-border/50 bg-card/65 backdrop-blur-sm p-6 md:p-8">
+        <div
+          className="absolute top-0 right-0 -mr-16 -mt-16 h-64 w-64 rounded-full blur-3xl pointer-events-none opacity-20 animate-pulse-slow"
+          style={{ backgroundColor: category.color || 'var(--color-quiz-blue)' }}
+        />
+        <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+              className="-ml-2 h-8 px-2 text-xs text-muted-foreground hover:text-foreground"
+            >
               <Link href="/categories">
-                <ArrowLeft className="mr-1 h-3 w-3" />
+                <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
                 All Categories
               </Link>
             </Button>
-            <h1 className="text-2xl font-extrabold tracking-tight">{category.name}</h1>
-            <p className="mt-1 max-w-xl text-sm leading-relaxed text-muted-foreground">
-              {category.description}
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-3">
+              {category.icon
+                ? (() => {
+                    const Icon = categoryIcons[category.icon] || categoryIcons['HelpCircle']
+                    return (
+                      <span
+                        className="flex h-10 w-10 items-center justify-center rounded-md"
+                        style={{
+                          backgroundColor: (category.color || '#3b82f6') + '22',
+                          color: category.color || '#3b82f6',
+                        }}
+                      >
+                        <Icon className="h-5 w-5" />
+                      </span>
+                    )
+                  })()
+                : null}
+              <span>
+                {category.name}{' '}
+                <span className="text-muted-foreground/50 font-normal">Quizzes</span>
+              </span>
+            </h1>
+            <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
+              {category.description || `Test your knowledge in our ${category.name} quizzes.`}
             </p>
           </div>
-          <div className="flex shrink-0 items-center gap-1.5 rounded-md border border-border/50 bg-background px-3 py-1 text-sm">
-            <span className="font-bold tabular-nums">{totalCount.toLocaleString()}</span>
-            <span className="text-muted-foreground">{totalCount === 1 ? 'quiz' : 'quizzes'}</span>
+          <div
+            className="flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-semibold shadow-sm backdrop-blur-sm"
+            style={{
+              backgroundColor: (category.color || '#3b82f6') + '0d',
+              borderColor: (category.color || '#3b82f6') + '2d',
+              color: category.color || 'inherit',
+            }}
+          >
+            <span className="font-bold tabular-nums">{(totalCount || 0).toLocaleString()}</span>
+            <span className="opacity-80">{totalCount === 1 ? 'quiz' : 'quizzes'}</span>
           </div>
         </div>
       </section>
 
       {/* Subcategory pills */}
       {subcategories.length > 0 ? (
-        <div className="rounded-md border border-border/50 bg-card p-4">
-          <p className="mb-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <div className="rounded-md border border-border/50 bg-card/65 backdrop-blur-sm p-4">
+          <p className="mb-2.5 text-xs font-bold uppercase tracking-wider text-muted-foreground/90">
             Want to dig deeper?
           </p>
           <div className="flex flex-wrap gap-2">
             <Link
               href={`/categories/${category.slug}`}
-              className="rounded-md border border-foreground/20 bg-foreground/10 px-3 py-1 text-sm font-semibold transition-colors hover:bg-foreground/15"
+              className="rounded-md border border-foreground/20 bg-foreground/10 px-3 py-1.5 text-xs font-bold transition-all hover:bg-foreground/15 text-foreground"
             >
               All
             </Link>
@@ -439,9 +477,22 @@ export default async function CategoryPage({
               <Link
                 key={sub.slug}
                 href={`/categories/${sub.slug}`}
-                className="rounded-md border border-border/50 px-3 py-1 text-sm font-medium text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground"
+                className="rounded-md border border-border/50 bg-background/30 px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-all hover:border-foreground/20 hover:text-foreground hover:bg-background/80"
+                style={
+                  {
+                    '--sub-hover': sub.color + '14',
+                    '--sub-border': sub.color + '33',
+                    '--sub-text': sub.color,
+                  } as React.CSSProperties
+                }
               >
-                {sub.name}
+                <span className="flex items-center gap-1.5">
+                  <span
+                    className="h-1.5 w-1.5 rounded-full"
+                    style={{ backgroundColor: sub.color }}
+                  />
+                  {sub.name}
+                </span>
               </Link>
             ))}
           </div>
@@ -449,17 +500,22 @@ export default async function CategoryPage({
       ) : null}
 
       {/* Filters + Results count */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">
-          Showing {resultStart}–{resultEnd} of {totalCount.toLocaleString()} results
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/30 pb-3">
+        <p className="text-xs font-bold text-muted-foreground/80 lowercase">
+          Showing{' '}
+          <span className="text-foreground font-semibold">
+            {resultStart}–{resultEnd}
+          </span>{' '}
+          of <span className="text-foreground font-semibold">{totalCount.toLocaleString()}</span>{' '}
+          quizzes
         </p>
         <div className="flex flex-wrap gap-2">
-          <div className="flex items-center rounded-md border border-border/50 bg-card p-0.5 text-sm">
+          <div className="flex items-center rounded-md border border-border/50 bg-card p-0.5 text-xs shadow-sm">
             {(Object.keys(DIFFICULTY_LABELS) as DifficultyFilter[]).map((key) => (
               <Link
                 key={key}
                 href={buildUrl(1, sort, key, completion)}
-                className={`rounded-md px-3 py-1 font-medium transition-colors ${
+                className={`rounded-md px-3 py-1 font-bold transition-all ${
                   difficulty === key
                     ? 'bg-foreground text-background'
                     : 'text-muted-foreground hover:text-foreground'
@@ -470,12 +526,12 @@ export default async function CategoryPage({
             ))}
           </div>
           {session?.user?.id && (
-            <div className="flex items-center rounded-md border border-border/50 bg-card p-0.5 text-sm">
+            <div className="flex items-center rounded-md border border-border/50 bg-card p-0.5 text-xs shadow-sm">
               {(Object.keys(COMPLETION_LABELS) as CompletionFilter[]).map((key) => (
                 <Link
                   key={key}
                   href={buildUrl(1, sort, difficulty, key)}
-                  className={`rounded-md px-3 py-1 font-medium transition-colors ${
+                  className={`rounded-md px-3 py-1 font-bold transition-all ${
                     completion === key
                       ? 'bg-foreground text-background'
                       : 'text-muted-foreground hover:text-foreground'
@@ -486,12 +542,12 @@ export default async function CategoryPage({
               ))}
             </div>
           )}
-          <div className="flex items-center rounded-md border border-border/50 bg-card p-0.5 text-sm">
+          <div className="flex items-center rounded-md border border-border/50 bg-card p-0.5 text-xs shadow-sm">
             {(Object.keys(SORT_LABELS) as SortOption[]).map((key) => (
               <Link
                 key={key}
                 href={buildUrl(1, key)}
-                className={`rounded-md px-3 py-1 font-medium transition-colors ${
+                className={`rounded-md px-3 py-1 font-bold transition-all ${
                   sort === key
                     ? 'bg-foreground text-background'
                     : 'text-muted-foreground hover:text-foreground'
@@ -553,27 +609,46 @@ export default async function CategoryPage({
         </nav>
       ) : null}
 
-      <section className="grid gap-4 rounded-md border bg-card p-5 lg:grid-cols-[1.2fr_1fr]">
-        <div>
-          <h2 className="text-xl font-extrabold tracking-tight">About {category.name} Quizzes</h2>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            {category.description} Use the filters above to find a comfortable difficulty, return to
-            unfinished topics, or replay favorites when you want to improve your score.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Button size="sm" asChild className="rounded-md">
+      <section className="grid gap-6 rounded-md border border-border/50 bg-card/65 backdrop-blur-sm p-6 lg:grid-cols-[1.2fr_1fr]">
+        <div className="flex flex-col justify-between">
+          <div>
+            <h2 className="text-xl font-extrabold tracking-tight text-foreground">
+              About {category.name} Quizzes
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              {category.description ||
+                `Delve into our curated collection of ${category.name} quizzes.`}{' '}
+              Use the interactive filter dashboard above to target specific difficulty ranges, track
+              your completion stats, or organize quizzes by play counts and ratings.
+            </p>
+          </div>
+          <div className="mt-6 flex flex-wrap gap-2.5">
+            <Button size="sm" asChild className="rounded-md font-bold px-4">
               <Link href="/random-quiz">Play Random Quiz</Link>
             </Button>
-            <Button size="sm" variant="outline" asChild className="rounded-md">
+            <Button
+              size="sm"
+              variant="outline"
+              asChild
+              className="rounded-md font-bold px-4 border-border/60 bg-background/50 hover:bg-background"
+            >
               <Link href="/studio/quiz/new">Create a Quiz</Link>
             </Button>
           </div>
         </div>
         <div className="space-y-3">
           {faqItems.map((item) => (
-            <details key={item.question} className="rounded-md border bg-background p-3">
-              <summary className="cursor-pointer text-sm font-bold">{item.question}</summary>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.answer}</p>
+            <details
+              key={item.question}
+              className="rounded-md border border-border/40 bg-background/45 p-3.5 transition-all duration-300 hover:border-border/80 group [&_summary]:open:border-b [&_summary]:open:pb-2.5 [&_summary]:open:mb-2"
+            >
+              <summary className="cursor-pointer text-sm font-bold text-foreground/90 transition-colors hover:text-foreground list-none flex items-center justify-between">
+                <span>{item.question}</span>
+                <span className="text-[10px] font-bold text-muted-foreground/60 transition-transform duration-200 group-open:rotate-180">
+                  ▼
+                </span>
+              </summary>
+              <p className="text-xs leading-relaxed text-muted-foreground mt-2">{item.answer}</p>
             </details>
           ))}
         </div>
