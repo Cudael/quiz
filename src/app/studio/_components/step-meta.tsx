@@ -125,7 +125,7 @@ export function StepMeta({ categories }: StepMetaProps) {
       replaceQuestions = true
     }
 
-    applyTemplate(template.id, template.format, templateQuestions, template.mapRegion, {
+    applyTemplate(template.id, template.format, templateQuestions, {
       replaceQuestions,
     })
   }

@@ -24,7 +24,6 @@ import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/components/ui/toast'
 import { DEFAULT_TIME_LIMIT_SEC } from '@/domain/quiz-constants'
 import { QuestionCard, makeDefaultChoices } from './question-card'
-import { MapQuestionEditor } from './map-question-editor'
 import { HotspotQuestionEditor } from './hotspot-question-editor'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 
@@ -45,10 +44,6 @@ export function StepQuestions({ quizId }: StepQuestionsProps) {
         <ClassicQuestionsEditor quizId={quizId} />
       </div>
     )
-  }
-
-  if (quizFormat === 'MAP_CHOICE') {
-    return <MapQuestionEditor />
   }
 
   if (quizFormat === 'IMAGE_HOTSPOT') {

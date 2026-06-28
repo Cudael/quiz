@@ -1,6 +1,6 @@
 'use client'
 
-import { CircleDot, Map, Target } from 'lucide-react'
+import { CircleDot, Target } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { QuestionType } from '@/store/quiz-creator-store'
 
@@ -15,7 +15,6 @@ const TYPE_CONFIG: Record<
   { icon: React.ComponentType<{ className?: string }>; label: string; colorClass: string }
 > = {
   SINGLE: { icon: CircleDot, label: 'Single', colorClass: 'text-quiz-purple' },
-  MAP_SELECT: { icon: Map, label: 'Map', colorClass: 'text-quiz-orange' },
   HOTSPOT: { icon: Target, label: 'Hotspot', colorClass: 'text-quiz-orange' },
 }
 

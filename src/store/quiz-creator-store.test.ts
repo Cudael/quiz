@@ -132,7 +132,7 @@ describe('applyTemplate', () => {
 
     useQuizCreatorStore
       .getState()
-      .applyTemplate('image-choice', 'IMAGE_CHOICE', templateQuestions, undefined, {
+      .applyTemplate('image-choice', 'IMAGE_CHOICE', templateQuestions, {
         replaceQuestions: false,
       })
 
@@ -145,21 +145,13 @@ describe('applyTemplate', () => {
   it('replaces existing questions only when explicitly requested', () => {
     useQuizCreatorStore.getState().setQuestions([makeQuestion('existing')])
 
-    useQuizCreatorStore.getState().applyTemplate('hotspot-choice', 'IMAGE_HOTSPOT', [], undefined, {
+    useQuizCreatorStore.getState().applyTemplate('hotspot-choice', 'IMAGE_HOTSPOT', [], {
       replaceQuestions: true,
     })
 
     const state = useQuizCreatorStore.getState()
     expect(state.quizFormat).toBe('IMAGE_HOTSPOT')
     expect(state.questions).toHaveLength(0)
-  })
-
-  it('sets the map region for map templates', () => {
-    useQuizCreatorStore.getState().applyTemplate('map-choice', 'MAP_CHOICE', [], 'europe')
-
-    const state = useQuizCreatorStore.getState()
-    expect(state.quizFormat).toBe('MAP_CHOICE')
-    expect(state.mapRegion).toBe('europe')
   })
 })
 

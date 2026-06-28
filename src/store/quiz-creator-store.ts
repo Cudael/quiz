@@ -21,14 +21,14 @@ export interface HotspotZone {
   radius: number
 }
 
-export type QuestionType = 'SINGLE' | 'MAP_SELECT' | 'HOTSPOT'
-export type QuizFormat = 'TEXT_CHOICE' | 'IMAGE_CHOICE' | 'MAP_CHOICE' | 'IMAGE_HOTSPOT'
+export type QuestionType = 'SINGLE' | 'HOTSPOT'
+export type QuizFormat = 'TEXT_CHOICE' | 'IMAGE_CHOICE' | 'IMAGE_HOTSPOT'
 export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD'
 
 export interface DraftQuestion {
   localId: string
   dbId: string | null
-  type: 'SINGLE' | 'MAP_SELECT' | 'HOTSPOT'
+  type: QuestionType
   prompt: string
   imageUrl: string
   explanation: string
@@ -51,7 +51,6 @@ export interface QuizCreatorState {
   currentStep: 1 | 2 | 3 | 4
   selectedTemplateId: string | null
   quizFormat: QuizFormat
-  mapRegion: string | null
   saving: boolean
   lastSavedAt: Date | null
 }
@@ -81,13 +80,11 @@ export interface QuizCreatorActions {
   reorderQuestions: (from: number, to: number) => void
   setStep: (step: 1 | 2 | 3 | 4) => void
   setQuizFormat: (format: QuizFormat) => void
-  setMapRegion: (region: string | null) => void
   setSharedImageUrl: (url: string) => void
   applyTemplate: (
     id: string,
     format: QuizFormat,
     questions: DraftQuestion[],
-    mapRegion?: string,
     options?: { replaceQuestions?: boolean }
   ) => void
   setSaving: (saving: boolean) => void
@@ -113,7 +110,6 @@ const initialState: QuizCreatorState = {
   currentStep: 1,
   selectedTemplateId: null,
   quizFormat: 'TEXT_CHOICE',
-  mapRegion: null,
   saving: false,
   lastSavedAt: null,
 }
@@ -159,18 +155,15 @@ export const useQuizCreatorStore = create<QuizCreatorState & QuizCreatorActions>
 
       setQuizFormat: (format) => set({ quizFormat: format }),
 
-      setMapRegion: (region) => set({ mapRegion: region }),
-
       setSharedImageUrl: (url) => set({ sharedImageUrl: url }),
 
-      applyTemplate: (id, format, questions, mapRegion, options) =>
+      applyTemplate: (id, format, questions, options) =>
         set((state) => {
           const replaceQuestions = options?.replaceQuestions ?? state.questions.length === 0
           return {
             selectedTemplateId: id,
             quizFormat: format,
             questions: replaceQuestions ? questions : state.questions,
-            mapRegion: format === 'MAP_CHOICE' ? (mapRegion ?? state.mapRegion ?? 'europe') : null,
           }
         }),
 
@@ -199,7 +192,6 @@ export const useQuizCreatorStore = create<QuizCreatorState & QuizCreatorActions>
         currentStep: state.currentStep,
         selectedTemplateId: state.selectedTemplateId,
         quizFormat: state.quizFormat,
-        mapRegion: state.mapRegion,
       }),
     }
   )
