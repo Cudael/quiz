@@ -156,7 +156,7 @@ export const QuizCardHorizontal = React.memo(function QuizCardHorizontal({
               fill
               unoptimized
               sizes="176px"
-              className="object-cover transition-all duration-500 group-hover:brightness-110"
+              className="object-cover"
               onError={() => setImageFailed(true)}
             />
           ) : null}
@@ -233,7 +233,7 @@ export const QuizCard = React.memo(function QuizCard({ quiz, className }: QuizCa
               fill
               unoptimized
               sizes="(max-width: 768px) 100vw, 256px"
-              className="object-cover transition-all duration-500 group-hover:brightness-110"
+              className="object-cover"
               onError={() => setImageFailed(true)}
             />
           ) : null}
@@ -322,7 +322,7 @@ export const QuizCardFeatured = React.memo(function QuizCardFeatured({
               fill
               unoptimized
               sizes="(max-width: 1024px) 50vw, 33vw"
-              className="object-cover transition-all duration-500 group-hover:brightness-110"
+              className="object-cover"
               onError={() => setImageFailed(true)}
             />
           ) : null}
