@@ -21,7 +21,7 @@ export function HeroCards({
           <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-quiz-purple/10 text-quiz-purple">
             <Swords className="h-5 w-5" />
           </div>
-          <h2 className="text-lg font-black tracking-tight sm:text-xl">Duel Mode</h2>
+          <h2 className="text-lg font-extrabold tracking-tight sm:text-xl">Duel Mode</h2>
           <p className="mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
             Challenge a friend in real-time 1v1 combat. Share a code and let the best brain win.
           </p>
@@ -46,7 +46,7 @@ export function HeroCards({
           <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-quiz-orange/10 text-quiz-orange">
             <Flame className="h-5 w-5" />
           </div>
-          <h2 className="text-lg font-black tracking-tight sm:text-xl">Daily Challenge</h2>
+          <h2 className="text-lg font-extrabold tracking-tight sm:text-xl">Daily Challenge</h2>
           <p className="mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm line-clamp-2">
             {todayChallenge
               ? todayChallenge.title

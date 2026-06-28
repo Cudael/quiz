@@ -36,7 +36,7 @@
   --color-quiz-purple: #7c3aed;
   --color-quiz-purple-light: #a78bfa;
   --color-quiz-green: #22c55e;
-  --color-quiz-green-light: #4ade80;
+
   --color-quiz-orange: #f97316;
   --color-quiz-pink: #ec4899;
   --color-quiz-blue: #3b82f6;
@@ -162,7 +162,7 @@
   --ring: 24 95% 53%;
   --radius: 0.75rem;
 
-  --warning: 24 95% 53%;
+  --warning: 38 92% 50%;
   --warning-foreground: 0 0% 100%;
 
   --surface-1: 0 0% 98%;
@@ -195,7 +195,7 @@
   --input: 0 0% 20%;
   --ring: 24 95% 57%;
 
-  --warning: 24 95% 57%;
+  --warning: 38 92% 55%;
   --warning-foreground: 0 0% 10%;
 
   --surface-1: 0 0% 11%;

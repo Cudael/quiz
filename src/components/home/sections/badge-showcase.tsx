@@ -16,7 +16,7 @@ export function BadgeShowcase({ badges, currentUser }: BadgeShowcaseProps) {
     <section>
       <div className="mb-3 flex items-end justify-between">
         <div>
-          <h2 className="text-2xl font-black tracking-tight">Earn Badges</h2>
+          <h2 className="text-2xl font-extrabold tracking-tight">Earn Badges</h2>
           <p className="mt-0.5 text-sm text-muted-foreground">
             Play quizzes, build streaks, and unlock achievements
           </p>

@@ -1,6 +1,7 @@
 import type { Prisma } from '@prisma/client'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader } from '@/components/ui/page-header'
 import { prisma } from '@/server/prisma'
@@ -9,13 +10,13 @@ const PAGE_SIZE = 25
 
 function actionBadgeClass(action: string) {
   if (action.startsWith('REPORT_')) {
-    return 'bg-red-500/15 text-red-400 border-red-500/20'
+    return 'bg-destructive/15 text-destructive border-destructive/20'
   }
   if (action.startsWith('CATEGORY_')) {
-    return 'bg-blue-500/15 text-blue-400 border-blue-500/20'
+    return 'bg-quiz-blue/15 text-quiz-blue border-quiz-blue/20'
   }
   if (action.startsWith('USER_') || action.startsWith('ROLE_')) {
-    return 'bg-amber-500/15 text-amber-400 border-amber-500/20'
+    return 'bg-quiz-orange/15 text-quiz-orange border-quiz-orange/20'
   }
   if (action.startsWith('QUIZ_')) {
     return 'bg-quiz-green/15 text-quiz-green border-quiz-green/20'
@@ -79,25 +80,22 @@ export default async function AdminAuditLogPage({
         <CardContent className="space-y-6 pt-6">
           <form className="grid gap-3 rounded-xl border border-border bg-muted/20 p-4 md:grid-cols-[1fr_1fr_auto_auto]">
             <input
-              className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="rounded-lg border border-input bg-background px-3 py-2 text-sm"
               type="search"
               name="actor"
               placeholder="Filter by actor"
               defaultValue={actorFilter}
             />
             <input
-              className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="rounded-lg border border-input bg-background px-3 py-2 text-sm"
               type="search"
               name="action"
               placeholder="Filter by action type"
               defaultValue={actionFilter}
             />
-            <button
-              type="submit"
-              className="rounded-md border border-border px-3 py-2 text-sm transition-colors hover:bg-muted"
-            >
+            <Button type="submit" variant="outline">
               Apply
-            </button>
+            </Button>
             {hasFilters ? (
               <Link
                 href="/admin/audit-log"

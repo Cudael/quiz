@@ -28,7 +28,7 @@ export function ContinueStreakStrip({ currentUser, recommendedQuiz }: ContinueSt
             <Flame className="h-6 w-6" />
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-black">
+            <p className="text-sm font-extrabold">
               {currentUser.streakDays > 0
                 ? `${currentUser.streakDays}-day streak is active`
                 : 'Start a streak today'}

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { motion, useReducedMotion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { getQuizPath } from '@/lib/quiz-url'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export interface QuizCardData {
   id: string
@@ -163,10 +164,9 @@ export const QuizCardHorizontal = React.memo(function QuizCardHorizontal({
           {/* Category pill over image */}
           <div className="absolute left-2 top-2">
             <span
-              className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider backdrop-blur-md"
+              className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white backdrop-blur-md"
               style={{
                 backgroundColor: `${quiz.category.color}44`,
-                color: '#fff',
                 border: `1px solid ${quiz.category.color}66`,
               }}
             >
@@ -256,10 +256,9 @@ export const QuizCard = React.memo(function QuizCard({ quiz, className }: QuizCa
           {/* Category pill */}
           <div className="absolute left-3 top-3">
             <span
-              className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md"
+              className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-md"
               style={{
                 backgroundColor: `${quiz.category.color}44`,
-                color: '#fff',
                 border: `1px solid ${quiz.category.color}66`,
               }}
             >
@@ -278,7 +277,7 @@ export const QuizCard = React.memo(function QuizCard({ quiz, className }: QuizCa
         {/* Info section — more vertical space */}
         <div className="flex flex-col gap-2 rounded-b-xl bg-card px-4 py-4">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="line-clamp-2 flex-1 text-sm font-black leading-tight text-foreground">
+            <h3 className="line-clamp-2 flex-1 text-sm font-extrabold leading-tight text-foreground">
               {quiz.title}
             </h3>
             <div className="shrink-0">
@@ -335,10 +334,9 @@ export const QuizCardFeatured = React.memo(function QuizCardFeatured({
           {/* Category pill over image */}
           <div className="absolute left-2 top-2">
             <span
-              className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider backdrop-blur-md"
+              className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white backdrop-blur-md"
               style={{
                 backgroundColor: `${quiz.category.color}44`,
-                color: '#fff',
                 border: `1px solid ${quiz.category.color}66`,
               }}
             >
@@ -415,7 +413,7 @@ export const QuizCardCompact = React.memo(function QuizCardCompact({
 // ---------------------------------------------------------------------------
 
 function SkeletonPulse({ className }: { className?: string }) {
-  return <div className={cn('animate-pulse rounded-md bg-muted', className)} />
+  return <Skeleton className={className} />
 }
 
 /** Skeleton matching QuizCardHorizontal: square image area + info bar */

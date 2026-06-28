@@ -180,7 +180,7 @@ export default function TriviaFactsPage() {
 
       {/* Fact grid */}
       <div className="mb-10">
-        <h2 className="mb-5 text-2xl font-black tracking-tight">Explore All Facts</h2>
+        <h2 className="mb-5 text-2xl font-extrabold tracking-tight">Explore All Facts</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {TRIVIA_FACTS.map((item, i) => (
             <div
@@ -202,7 +202,7 @@ export default function TriviaFactsPage() {
 
       {/* CTA */}
       <div className="rounded-2xl border border-border/40 bg-card p-6 text-center md:p-8">
-        <h2 className="text-xl font-black">Think you know your trivia?</h2>
+        <h2 className="text-xl font-extrabold">Think you know your trivia?</h2>
         <p className="mt-2 text-muted-foreground">
           Put your knowledge to the test with thousands of quizzes.
         </p>

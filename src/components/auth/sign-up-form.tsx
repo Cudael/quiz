@@ -66,7 +66,7 @@ export function SignUpForm({ callbackUrl, googleEnabled, githubEnabled }: SignUp
   }
 
   return (
-    <div className="container mx-auto max-w-md px-4 py-12">
+    <div className="container mx-auto max-w-md px-4 py-14">
       <div className="mb-6 text-center">
         <p className="text-2xl font-extrabold tracking-tight">Start your quiz journey 🚀</p>
         <p className="mt-1 text-sm text-muted-foreground">Thousands of brain teasers await.</p>

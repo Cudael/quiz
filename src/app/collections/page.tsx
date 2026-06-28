@@ -62,7 +62,7 @@ export default function CollectionsPage() {
             className="group flex min-h-56 flex-col justify-between rounded-2xl border bg-card p-5 transition-colors hover:border-primary/40 hover:bg-primary/5"
           >
             <div>
-              <h2 className="text-xl font-black tracking-tight">{collection.title}</h2>
+              <h2 className="text-xl font-extrabold tracking-tight">{collection.title}</h2>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {collection.description}
               </p>

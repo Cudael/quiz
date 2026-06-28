@@ -1,3 +1,5 @@
+'use client'
+
 export const HOTSPOT_RADIUS_SCALE = 10
 
 export interface ZoneMarkerProps {
@@ -75,7 +77,7 @@ export function ZoneMarker({
         style={{
           width: `${sizePx}px`,
           height: `${sizePx}px`,
-          ...(isSmall ? { backgroundColor: '#f97316' } : {}),
+          ...(isSmall ? { backgroundColor: 'hsl(var(--primary))' } : {}),
         }}
       />
       {showLabel && name && (

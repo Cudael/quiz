@@ -85,6 +85,6 @@ describe('Navbar', () => {
     expect(duelLink).toHaveClass('text-primary', 'font-bold')
     expect(leaderboardLink).toHaveAttribute('data-prefetch', 'false')
     expect(categoriesLink).not.toHaveAttribute('data-prefetch')
-    expect(screen.getByRole('button', { name: /open menu/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /open.*menu/i })).toBeInTheDocument()
   })
 })

@@ -37,7 +37,7 @@ function buildQuizzesHref({
 
 function difficultyBadgeClass(difficulty: string) {
   if (difficulty === 'EASY') return 'bg-quiz-green/15 text-quiz-green'
-  if (difficulty === 'HARD') return 'bg-red-500/15 text-red-400'
+  if (difficulty === 'HARD') return 'bg-destructive/15 text-destructive'
   return 'bg-quiz-orange/15 text-quiz-orange'
 }
 

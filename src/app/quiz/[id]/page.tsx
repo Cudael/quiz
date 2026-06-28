@@ -200,7 +200,7 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
                   <div
                     className="h-full w-full"
                     style={{
-                      background: `linear-gradient(135deg, ${quiz.category.color} 0%, #111827 100%)`,
+                      background: `linear-gradient(135deg, ${quiz.category.color} 0%, hsl(var(--foreground)) 100%)`,
                     }}
                   />
                 )}

@@ -8,13 +8,13 @@ import { prisma } from '@/server/prisma'
 
 function actionBadgeClass(action: string) {
   if (action.startsWith('REPORT_')) {
-    return 'bg-red-500/15 text-red-400 border-red-500/20'
+    return 'bg-destructive/15 text-destructive border-destructive/20'
   }
   if (action.startsWith('CATEGORY_')) {
-    return 'bg-blue-500/15 text-blue-400 border-blue-500/20'
+    return 'bg-quiz-blue/15 text-quiz-blue border-quiz-blue/20'
   }
   if (action.startsWith('USER_') || action.startsWith('ROLE_')) {
-    return 'bg-amber-500/15 text-amber-400 border-amber-500/20'
+    return 'bg-quiz-orange/15 text-quiz-orange border-quiz-orange/20'
   }
   if (action.startsWith('QUIZ_')) {
     return 'bg-primary/10 text-primary'
@@ -83,19 +83,19 @@ export default async function AdminDashboardPage() {
       label: 'Pending Reports',
       value: pendingReports,
       Icon: Flag,
-      iconClass: 'bg-red-500/15 text-red-400',
+      iconClass: 'bg-destructive/15 text-destructive',
     },
     {
       label: 'Pending Suggestions',
       value: pendingSuggestions,
       Icon: Lightbulb,
-      iconClass: 'bg-amber-500/15 text-amber-400',
+      iconClass: 'bg-quiz-orange/15 text-quiz-orange',
     },
     {
       label: 'New Users (7d)',
       value: newUsers,
       Icon: UserPlus,
-      iconClass: 'bg-teal-500/15 text-teal-400',
+      iconClass: 'bg-quiz-green/15 text-quiz-green',
     },
     {
       label: 'Unpublished Quizzes',

@@ -1,6 +1,7 @@
 'use client'
 
 import { useReducedMotion } from 'framer-motion'
+import { Skeleton } from '@/components/ui/skeleton'
 import { PlayHeader } from './_components/play-header'
 import { QuestionPanel } from './_components/question-panel'
 import { QuitModal } from './_components/quit-modal'
@@ -35,10 +36,21 @@ export function PlayView({ quizId }: PlayViewProps) {
 
   if (loading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="text-center">
-          <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto" />
-          <p className="text-muted-foreground">Warming up the neurons…</p>
+      <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-8 w-32" />
+          <Skeleton className="h-8 w-24" />
+        </div>
+        <Skeleton className="h-2 w-full rounded-full" />
+        <div className="space-y-4">
+          <Skeleton className="h-6 w-3/4" />
+          <Skeleton className="aspect-video w-full rounded-xl" />
+          <div className="grid grid-cols-2 gap-3">
+            <Skeleton className="h-14 rounded-xl" />
+            <Skeleton className="h-14 rounded-xl" />
+            <Skeleton className="h-14 rounded-xl" />
+            <Skeleton className="h-14 rounded-xl" />
+          </div>
         </div>
       </div>
     )
@@ -57,8 +69,10 @@ export function PlayView({ quizId }: PlayViewProps) {
 
   if (!currentQuestion) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
+        <Skeleton className="h-8 w-32" />
+        <Skeleton className="h-2 w-full rounded-full" />
+        <Skeleton className="aspect-video w-full rounded-xl" />
       </div>
     )
   }

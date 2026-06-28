@@ -14,10 +14,10 @@ interface ProgressBarProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const variantClasses = {
   default: 'bg-primary',
-  success: 'bg-primary',
+  success: 'bg-quiz-green',
   warning: 'bg-warning',
   danger: 'bg-destructive',
-  gradient: 'bg-primary',
+  gradient: 'bg-gradient-to-r from-quiz-purple to-quiz-pink',
 }
 
 const sizeClasses = {

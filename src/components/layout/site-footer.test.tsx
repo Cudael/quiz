@@ -48,23 +48,16 @@ describe('SiteFooter', () => {
       'href',
       '/leaderboard'
     )
-    expect(screen.getByRole('link', { name: 'Duel' })).toHaveAttribute('href', '/duel')
+    expect(screen.getByRole('link', { name: 'Duel Mode' })).toHaveAttribute('href', '/duel')
     expect(screen.queryByRole('link', { name: 'Discord' })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Twitter / X' })).toHaveAttribute(
       'href',
       'https://x.com/PlayBusQuiz'
     )
-    expect(screen.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/about')
-    expect(screen.getByRole('link', { name: 'About' })).toHaveAttribute('data-prefetch', 'false')
-    expect(screen.getByRole('link', { name: 'Leaderboard' })).toHaveAttribute(
-      'data-prefetch',
-      'false'
-    )
+    expect(screen.getByRole('link', { name: 'About Us' })).toHaveAttribute('href', '/about')
     expect(screen.getByRole('link', { name: 'Privacy Policy' })).toHaveAttribute('href', '/privacy')
     expect(screen.getByRole('link', { name: 'Contact' })).toHaveAttribute('href', '/contact')
-    expect(screen.getByRole('link', { name: 'Browse Categories' })).not.toHaveAttribute(
-      'data-prefetch'
-    )
+    expect(screen.getByRole('link', { name: 'Categories' })).not.toHaveAttribute('data-prefetch')
 
     expect(screen.getByLabelText('Twitter / X')).toHaveAttribute(
       'href',

@@ -27,6 +27,7 @@ import {
 } from 'lucide-react'
 import { Logo } from '@/components/ui/logo'
 import { Avatar } from '@/components/ui/avatar'
+import { Skeleton } from '@/components/ui/skeleton'
 import { StreakFlame } from '@/components/ui/streak-flame'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -175,10 +176,10 @@ export function LeftMenu({ open, onClose }: LeftMenuProps) {
         <div className="border-b border-border/30 px-4 py-4">
           {status === 'loading' ? (
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 animate-pulse rounded-full bg-muted" />
+              <Skeleton className="h-10 w-10 rounded-full" />
               <div className="space-y-1.5">
-                <div className="h-4 w-24 animate-pulse rounded bg-muted" />
-                <div className="h-3 w-16 animate-pulse rounded bg-muted" />
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-3 w-16" />
               </div>
             </div>
           ) : session?.user ? (

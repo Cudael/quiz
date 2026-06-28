@@ -97,7 +97,7 @@ export default async function ChallengesPage() {
               <Flame className="h-3 w-3" />
               Daily
             </span>
-            <h2 className="mt-4 text-xl font-black">Quick Play</h2>
+            <h2 className="mt-4 text-xl font-extrabold">Quick Play</h2>
             <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
               Play {dailyTarget} quizzes today to keep your streak alive. Fast, fun, and perfect for
               your morning routine.
@@ -137,7 +137,7 @@ export default async function ChallengesPage() {
               <Calendar className="h-3 w-3" />
               Weekly
             </span>
-            <h2 className="mt-4 text-xl font-black">Hard Mode</h2>
+            <h2 className="mt-4 text-xl font-extrabold">Hard Mode</h2>
             <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
               Conquer {weeklyTarget} hard-difficulty quizzes this week. Only the brave need apply.
             </p>
@@ -185,7 +185,7 @@ export default async function ChallengesPage() {
               <Star className="h-3 w-3" />
               Monthly
             </span>
-            <h2 className="mt-4 text-xl font-black">Explorer</h2>
+            <h2 className="mt-4 text-xl font-extrabold">Explorer</h2>
             <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
               Play {monthlyTarget} quizzes across different categories this month. Become a true
               trivia explorer.
@@ -229,7 +229,7 @@ export default async function ChallengesPage() {
 
       {/* Leaderboard teaser */}
       <div className="rounded-2xl border border-border/40 bg-card p-6 text-center md:p-8">
-        <h2 className="text-xl font-black">Ready to compete?</h2>
+        <h2 className="text-xl font-extrabold">Ready to compete?</h2>
         <p className="mt-2 text-muted-foreground">
           Duel other players in real-time, climb the global leaderboard, and earn exclusive badges.
         </p>

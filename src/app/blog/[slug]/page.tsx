@@ -100,7 +100,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               </span>
             </div>
 
-            <h1 className="text-3xl font-black tracking-tight md:text-4xl">{post.title}</h1>
+            <h1 className="text-3xl font-extrabold tracking-tight md:text-4xl">{post.title}</h1>
             <p className="mt-3 text-lg text-muted-foreground">{post.description}</p>
 
             <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -118,7 +118,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
           <div
             className="prose prose-neutral max-w-none dark:prose-invert
-              prose-headings:font-black prose-headings:tracking-tight
+              prose-headings:font-extrabold prose-headings:tracking-tight
               prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
               prose-p:leading-relaxed prose-p:text-foreground/85
               prose-a:text-primary prose-a:no-underline hover:prose-a:underline
@@ -128,7 +128,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
           {relatedPosts.length > 0 && (
             <footer className="mt-16 border-t border-border/50 pt-8">
-              <h2 className="text-xl font-black tracking-tight mb-4">Related Posts</h2>
+              <h2 className="text-xl font-extrabold tracking-tight mb-4">Related Posts</h2>
               <div className="grid gap-4 sm:grid-cols-2">
                 {relatedPosts.map((related) => (
                   <Link

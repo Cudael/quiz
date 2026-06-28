@@ -113,7 +113,7 @@ export default function LearnPage() {
 
       {/* Learning Paths */}
       <div className="mb-12">
-        <h2 className="mb-5 text-2xl font-black tracking-tight">Your Learning Paths</h2>
+        <h2 className="mb-5 text-2xl font-extrabold tracking-tight">Your Learning Paths</h2>
         <div className="grid gap-5 sm:grid-cols-2">
           {LEARNING_PATHS.map((path) => (
             <Link
@@ -143,7 +143,7 @@ export default function LearnPage() {
 
       {/* Quick Tips */}
       <div className="mb-12">
-        <h2 className="mb-5 text-2xl font-black tracking-tight">Science-Backed Study Tips</h2>
+        <h2 className="mb-5 text-2xl font-extrabold tracking-tight">Science-Backed Study Tips</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           {QUICK_TIPS.map((tip) => (
             <div
@@ -168,7 +168,7 @@ export default function LearnPage() {
       {blogPosts.length > 0 && (
         <div className="mb-12">
           <div className="mb-5 flex items-end justify-between">
-            <h2 className="text-2xl font-black tracking-tight">From the Blog</h2>
+            <h2 className="text-2xl font-extrabold tracking-tight">From the Blog</h2>
             <Link
               href="/blog"
               className="flex items-center gap-1 text-sm font-bold text-primary hover:text-primary/80 transition-colors"
@@ -210,7 +210,7 @@ export default function LearnPage() {
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="rounded-2xl border border-border/40 bg-gradient-to-br from-quiz-purple/5 to-quiz-pink/5 p-6 text-center">
           <Lightbulb className="mx-auto h-8 w-8 text-quiz-purple" />
-          <h2 className="mt-3 text-lg font-black">Trivia Facts</h2>
+          <h2 className="mt-3 text-lg font-extrabold">Trivia Facts</h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
             Discover fascinating facts that make you the most interesting person in the room.
           </p>
@@ -223,7 +223,7 @@ export default function LearnPage() {
 
         <div className="rounded-2xl border border-border/40 bg-gradient-to-br from-quiz-green/5 to-quiz-blue/5 p-6 text-center">
           <PenLine className="mx-auto h-8 w-8 text-quiz-green" />
-          <h2 className="mt-3 text-lg font-black">Create a Quiz</h2>
+          <h2 className="mt-3 text-lg font-extrabold">Create a Quiz</h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
             Teaching others is one of the best ways to learn. Build your own quiz and share it.
           </p>

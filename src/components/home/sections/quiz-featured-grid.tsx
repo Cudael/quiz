@@ -25,7 +25,7 @@ export function QuizFeaturedGridSection({
     <section>
       <div className="mb-3 flex items-end justify-between">
         <div>
-          <h2 className="text-2xl font-black tracking-tight">{title}</h2>
+          <h2 className="text-2xl font-extrabold tracking-tight">{title}</h2>
           {subtitle && <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>}
         </div>
         {href && (

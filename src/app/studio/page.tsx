@@ -87,7 +87,7 @@ export default async function StudioPage({
 
         <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-center sm:text-left">
-            <h1 className="text-3xl font-black tracking-tight">Quiz Studio</h1>
+            <h1 className="text-3xl font-extrabold tracking-tight">Quiz Studio</h1>
             <p className="mt-2 text-sm text-muted-foreground max-w-md leading-relaxed">
               Create, curate, and optimize your quizzes. Check analytics, manage drafts, and keep
               your content top-tier.
@@ -221,7 +221,7 @@ function StudioStat({
         {icon}
         <span className="text-xs font-bold uppercase tracking-wider">{label}</span>
       </div>
-      <p className="text-2xl font-black leading-none">{value}</p>
+      <p className="text-2xl font-extrabold leading-none">{value}</p>
     </div>
   )
 }

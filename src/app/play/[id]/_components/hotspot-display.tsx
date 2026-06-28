@@ -85,14 +85,14 @@ export function HotspotDisplay({
         const isCorrect = selectedZoneId === correctZoneId
         return isCorrect
           ? {
-              border: 'border-green-500',
-              bg: 'bg-green-500/25',
-              text: 'text-green-600',
+              border: 'border-quiz-green',
+              bg: 'bg-quiz-green/25',
+              text: 'text-quiz-green',
             }
           : {
-              border: 'border-red-500',
-              bg: 'bg-red-500/25',
-              text: 'text-red-600',
+              border: 'border-destructive',
+              bg: 'bg-destructive/25',
+              text: 'text-destructive',
             }
       }
 
@@ -112,7 +112,7 @@ export function HotspotDisplay({
         data-zone-container
         className={`relative overflow-hidden rounded-xl border-2 transition-colors duration-200 bg-card ${
           disabled ? 'cursor-default' : 'cursor-crosshair'
-        } ${clickOutside ? 'border-red-500' : 'border-border/40'}`}
+        } ${clickOutside ? 'border-destructive' : 'border-border/40'}`}
         onClick={handleImageClick}
       >
         <Image
@@ -158,7 +158,7 @@ export function HotspotDisplay({
                 x={selectedZone.x}
                 y={selectedZone.y}
                 radius={selectedZone.radius}
-                bgClass={isCorrect ? 'bg-green-500/30' : 'bg-red-500/30'}
+                bgClass={isCorrect ? 'bg-quiz-green/30' : 'bg-destructive/30'}
               />
             )
           })()}

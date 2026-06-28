@@ -25,8 +25,14 @@ const allowlist = new Set([
   'components/home/sections/hero-daily-section.tsx',
   // Hero cards: text-white on dark overlay image — intentional contrast for readability.
   'components/home/sections/hero-cards.tsx',
-  // Hero search button: text-white on bg-orange-500 — intentional contrast for CTA.
+  // Hero search button: text-white on bg-primary — intentional contrast for CTA.
   'components/home/sections/hero-insight-box.tsx',
+  // Quiz cards: text-white on dynamic category color overlay — intentional contrast.
+  'components/ui/quiz-card.tsx',
+  // Profile level badge: text-white on bg-quiz-purple — intentional contrast.
+  'app/profile/layout.tsx',
+  // Studio stat values: text-white on gradient backgrounds — intentional contrast.
+  'app/studio/page.tsx',
 ])
 
 async function walk(dir) {

@@ -410,7 +410,7 @@ export default async function CategoryPage({
                 All Categories
               </Link>
             </Button>
-            <h1 className="text-2xl font-black tracking-tight">{category.name}</h1>
+            <h1 className="text-2xl font-extrabold tracking-tight">{category.name}</h1>
             <p className="mt-1 max-w-xl text-sm leading-relaxed text-muted-foreground">
               {category.description}
             </p>
@@ -555,7 +555,7 @@ export default async function CategoryPage({
 
       <section className="grid gap-4 rounded-2xl border bg-card p-5 lg:grid-cols-[1.2fr_1fr]">
         <div>
-          <h2 className="text-xl font-black tracking-tight">About {category.name} Quizzes</h2>
+          <h2 className="text-xl font-extrabold tracking-tight">About {category.name} Quizzes</h2>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
             {category.description} Use the filters above to find a comfortable difficulty, return to
             unfinished topics, or replay favorites when you want to improve your score.

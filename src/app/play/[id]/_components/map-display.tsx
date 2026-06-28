@@ -47,22 +47,22 @@ export function MapDisplay({
   const getFill = useCallback(
     (geoId: string) => {
       if (showResult && correctCountryId) {
-        if (geoId === correctCountryId) return '#22c55e'
-        if (geoId === selectedCountryId) return '#ef4444'
-        return '#d4d4d8'
+        if (geoId === correctCountryId) return 'hsl(142 71% 45%)' // quiz-green
+        if (geoId === selectedCountryId) return 'hsl(0 84% 50%)' // destructive
+        return 'hsl(0 0% 83%)' // muted
       }
-      if (geoId === selectedCountryId) return '#f97316'
-      return '#d4d4d8'
+      if (geoId === selectedCountryId) return 'hsl(24 95% 53%)' // primary
+      return 'hsl(0 0% 83%)' // muted
     },
     [showResult, correctCountryId, selectedCountryId]
   )
 
   const getStroke = useCallback(
     (geoId: string) => {
-      if (showResult && correctCountryId && geoId === correctCountryId) return '#16a34a'
-      if (showResult && selectedCountryId && geoId === selectedCountryId) return '#dc2626'
-      if (geoId === selectedCountryId) return '#ea580c'
-      return '#71717a'
+      if (showResult && correctCountryId && geoId === correctCountryId) return 'hsl(142 71% 35%)'
+      if (showResult && selectedCountryId && geoId === selectedCountryId) return 'hsl(0 84% 40%)'
+      if (geoId === selectedCountryId) return 'hsl(24 95% 43%)'
+      return 'hsl(0 0% 45%)'
     },
     [showResult, correctCountryId, selectedCountryId]
   )
@@ -94,15 +94,15 @@ export function MapDisplay({
                           cursor: disabled ? 'default' : 'pointer',
                         },
                         hover: {
-                          fill: disabled ? getFill(geoId) : '#a1a1aa',
+                          fill: disabled ? getFill(geoId) : 'hsl(0 0% 63%)',
                           stroke: getStroke(geoId),
                           strokeWidth: 1,
                           outline: 'none',
                           cursor: disabled ? 'default' : 'pointer',
                         },
                         pressed: {
-                          fill: '#f97316',
-                          stroke: '#ea580c',
+                          fill: 'hsl(24 95% 53%)',
+                          stroke: 'hsl(24 95% 43%)',
                           strokeWidth: 1,
                           outline: 'none',
                         },

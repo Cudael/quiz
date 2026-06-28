@@ -64,7 +64,7 @@ export function HeroInsightBox({ currentUser, totalQuizCount, quickLinks }: Hero
           </div>
           <button
             type="submit"
-            className="h-12 rounded-2xl bg-orange-500 px-5 text-sm font-black text-white hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 active:scale-95 transition-all inline-flex items-center justify-center"
+            className="h-12 rounded-2xl bg-primary px-5 text-sm font-extrabold text-white hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 active:scale-95 transition-all inline-flex items-center justify-center"
             aria-label="Search"
           >
             <span className="hidden sm:inline">Search</span>

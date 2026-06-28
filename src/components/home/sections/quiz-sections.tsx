@@ -48,7 +48,7 @@ export function QuizScrollerSection({
     <section>
       <div className="mb-3 flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-black tracking-tight">{title}</h2>
+          <h2 className="text-2xl font-extrabold tracking-tight">{title}</h2>
           {subtitle ? <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p> : null}
         </div>
         <div className="hidden items-center gap-2 sm:flex">
@@ -79,7 +79,7 @@ export function QuizScrollerSection({
           ))}
         </div>
       ) : (
-        <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground bg-accent/20">
+        <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground bg-accent/20">
           This corner&apos;s quiet… for now. Be the first to shake things up! 🎉
         </div>
       )}
@@ -107,14 +107,14 @@ export function QuizDenseGridSection({
       <div className="mb-3 border-b border-border/30 pb-2">
         <div className="flex items-end justify-between">
           <div>
-            <h2 className="text-xl font-black tracking-tight">{title}</h2>
+            <h2 className="text-xl font-extrabold tracking-tight">{title}</h2>
             {subtitle && <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>}
           </div>
           <Link
             href={href ?? '/popular'}
-            className="text-sm font-semibold text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="flex items-center gap-1 text-sm font-semibold text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md px-1"
           >
-            See all →
+            See all <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
       </div>
@@ -132,7 +132,7 @@ export function QuizDenseGridSection({
           ))}
         </div>
       ) : (
-        <div className="rounded-2xl border border-dashed bg-accent/20 p-8 text-center text-sm text-muted-foreground">
+        <div className="rounded-xl border border-dashed bg-accent/20 p-8 text-center text-sm text-muted-foreground">
           This corner&apos;s quiet… for now. Be the first to shake things up! 🎉
         </div>
       )}
@@ -170,7 +170,7 @@ export function QuizGridSection({
           ))}
         </div>
       ) : (
-        <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground bg-accent/20">
+        <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground bg-accent/20">
           This corner&apos;s quiet… for now. Be the first to shake things up! 🎉
         </div>
       )}
@@ -202,14 +202,14 @@ export function CategoryRowSection({ category }: { category: CategoryWithQuizzes
     <section>
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h2 className="text-xl font-black tracking-tight">{category.name} Quizzes</h2>
+          <h2 className="text-xl font-extrabold tracking-tight">{category.name} Quizzes</h2>
         </div>
         <div className="flex items-center gap-2">
           <Link
             href={`/categories/${category.slug}`}
-            className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
+            className="flex items-center gap-1 text-sm font-semibold text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md px-1"
           >
-            View all
+            View all <ArrowRight className="h-3.5 w-3.5" />
           </Link>
           <button
             onClick={() => scroll('left')}

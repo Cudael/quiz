@@ -77,7 +77,6 @@ describe('QuizCard difficulty overlay', () => {
     const mediumPill = screen.getByText('MEDIUM')
     expect(mediumPill.className).toContain('bottom-3')
     expect(mediumPill.className).toContain('right-3')
-    expect(mediumPill.getAttribute('style')).toContain('--color-warning')
-    expect(mediumPill.getAttribute('style')).toContain('color-mix')
+    expect(mediumPill.className).toContain('amber')
   })
 })

@@ -158,7 +158,7 @@ export default async function StatsPage() {
             <span className={`mb-3 flex h-12 w-12 items-center justify-center rounded-xl ${s.bg}`}>
               <s.icon className={`h-6 w-6 ${s.color}`} />
             </span>
-            <span className="text-2xl font-black tracking-tight">{s.value}</span>
+            <span className="text-2xl font-extrabold tracking-tight">{s.value}</span>
             <span className="mt-1 text-xs text-muted-foreground">{s.label}</span>
           </div>
         ))}
@@ -166,7 +166,7 @@ export default async function StatsPage() {
 
       {/* Milestones */}
       <div className="mb-12">
-        <h2 className="mb-5 text-2xl font-black tracking-tight">Platform Milestones</h2>
+        <h2 className="mb-5 text-2xl font-extrabold tracking-tight">Platform Milestones</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           {milestones.map((m) => (
             <div
@@ -196,7 +196,7 @@ export default async function StatsPage() {
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-quiz-orange/10">
             <Zap className="h-4 w-4 text-quiz-orange" />
           </span>
-          <h2 className="text-lg font-black">Did You Know?</h2>
+          <h2 className="text-lg font-extrabold">Did You Know?</h2>
         </div>
         <ul className="space-y-3">
           {funFacts.map((fact, i) => (

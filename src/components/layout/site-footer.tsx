@@ -99,7 +99,9 @@ export function SiteFooter() {
 
           {/* Explore */}
           <div className="space-y-4 col-span-1">
-            <p className="text-xs font-black uppercase tracking-widest text-foreground">Explore</p>
+            <p className="text-xs font-extrabold uppercase tracking-widest text-foreground">
+              Explore
+            </p>
             <nav className="flex flex-col gap-2.5" aria-label="Explore navigation">
               {EXPLORE_LINKS.map((link) => (
                 <Link
@@ -115,7 +117,7 @@ export function SiteFooter() {
 
           {/* Play */}
           <div className="space-y-4 col-span-1">
-            <p className="text-xs font-black uppercase tracking-widest text-foreground">Play</p>
+            <p className="text-xs font-extrabold uppercase tracking-widest text-foreground">Play</p>
             <nav className="flex flex-col gap-2.5" aria-label="Play navigation">
               {PLAY_LINKS.map((link) => (
                 <Link
@@ -131,7 +133,7 @@ export function SiteFooter() {
 
           {/* Create & Learn */}
           <div className="space-y-4 col-span-1">
-            <p className="text-xs font-black uppercase tracking-widest text-foreground">
+            <p className="text-xs font-extrabold uppercase tracking-widest text-foreground">
               Create & Learn
             </p>
             <nav className="flex flex-col gap-2.5" aria-label="Create & Learn navigation">
@@ -149,7 +151,7 @@ export function SiteFooter() {
 
           {/* Community */}
           <div className="space-y-4 col-span-1">
-            <p className="text-xs font-black uppercase tracking-widest text-foreground">
+            <p className="text-xs font-extrabold uppercase tracking-widest text-foreground">
               Community
             </p>
             <nav className="flex flex-col gap-2.5" aria-label="Community navigation">
@@ -167,7 +169,9 @@ export function SiteFooter() {
 
           {/* BusQuiz / Company */}
           <div className="space-y-4 col-span-1">
-            <p className="text-xs font-black uppercase tracking-widest text-foreground">BusQuiz</p>
+            <p className="text-xs font-extrabold uppercase tracking-widest text-foreground">
+              BusQuiz
+            </p>
             <nav className="flex flex-col gap-2.5" aria-label="Company navigation">
               {BUSQUIZ_LINKS.map((link) => (
                 <Link

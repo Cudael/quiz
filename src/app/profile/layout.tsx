@@ -60,13 +60,13 @@ export default async function ProfileLayout({ children }: { children: React.Reac
                   size="xl"
                   className="h-20 w-20 border-2 border-border shadow"
                 />
-                <div className="absolute -bottom-1 -right-1 flex h-6 w-16 items-center justify-center rounded-full bg-quiz-purple px-1.5 py-0.5 text-[10px] font-black tracking-wider text-white shadow ring-2 ring-card uppercase">
+                <div className="absolute -bottom-1 -right-1 flex h-6 w-16 items-center justify-center rounded-full bg-quiz-purple px-1.5 py-0.5 text-[10px] font-extrabold tracking-wider text-white shadow ring-2 ring-card uppercase">
                   Lv. {progress.level}
                 </div>
               </div>
               <div className="text-center sm:text-left">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1.5">
-                  <h1 className="text-2xl font-black tracking-tight">{user.name}</h1>
+                  <h1 className="text-2xl font-extrabold tracking-tight">{user.name}</h1>
                   <span className="mx-auto sm:mx-0 inline-flex items-center gap-1 text-xs text-muted-foreground bg-muted/65 px-2 py-0.5 rounded-full font-semibold">
                     @{user.username}
                   </span>

@@ -83,7 +83,7 @@ export function BadgesGrid({ badges, earnedBadges, badgeLeaders }: BadgesGridPro
                   className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"
                   style={{
                     background:
-                      'linear-gradient(135deg, rgba(124,58,237,0.06) 0%, rgba(236,72,153,0.06) 100%)',
+                      'linear-gradient(135deg, hsl(var(--color-quiz-purple) / 0.06) 0%, hsl(var(--color-quiz-pink) / 0.06) 100%)',
                   }}
                   aria-hidden="true"
                 />
