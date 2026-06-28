@@ -15,8 +15,7 @@ export function HeroCards({
   return (
     <div className="flex h-full flex-col sm:flex-row gap-4">
       {/* Duel Mode */}
-      <div className="group relative flex flex-1 flex-col justify-between overflow-hidden rounded-md border border-border bg-card p-5 transition-all duration-300 hover:-translate-y-1 hover:border-quiz-purple/40 hover:shadow-md">
-        <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-quiz-purple/5 transition-transform duration-500 group-hover:scale-150" />
+      <div className="group relative flex flex-1 flex-col justify-between overflow-hidden rounded-md border border-border bg-surface-1 p-5 transition-all duration-300 hover:border-quiz-purple/40 hover:shadow-md">
         <div className="relative flex flex-col items-center text-center">
           <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-md bg-quiz-purple/10 text-quiz-purple">
             <Swords className="h-5 w-5" />
@@ -40,8 +39,7 @@ export function HeroCards({
       </div>
 
       {/* Daily Challenge */}
-      <div className="group relative flex flex-1 flex-col justify-between overflow-hidden rounded-md border border-border bg-card p-5 transition-all duration-300 hover:-translate-y-1 hover:border-quiz-orange/40 hover:shadow-md">
-        <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-quiz-orange/5 transition-transform duration-500 group-hover:scale-150" />
+      <div className="group relative flex flex-1 flex-col justify-between overflow-hidden rounded-md border border-border bg-surface-1 p-5 transition-all duration-300 hover:border-quiz-orange/40 hover:shadow-md">
         <div className="relative flex flex-col items-center text-center">
           <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-md bg-quiz-orange/10 text-quiz-orange">
             <Flame className="h-5 w-5" />
