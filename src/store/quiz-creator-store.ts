@@ -87,7 +87,8 @@ export interface QuizCreatorActions {
     id: string,
     format: QuizFormat,
     questions: DraftQuestion[],
-    mapRegion?: string
+    mapRegion?: string,
+    options?: { replaceQuestions?: boolean }
   ) => void
   setSaving: (saving: boolean) => void
   setLastSaved: (at: Date) => void
@@ -162,12 +163,15 @@ export const useQuizCreatorStore = create<QuizCreatorState & QuizCreatorActions>
 
       setSharedImageUrl: (url) => set({ sharedImageUrl: url }),
 
-      applyTemplate: (id, format, questions, mapRegion) =>
-        set({
-          selectedTemplateId: id,
-          quizFormat: format,
-          questions,
-          mapRegion: mapRegion ?? null,
+      applyTemplate: (id, format, questions, mapRegion, options) =>
+        set((state) => {
+          const replaceQuestions = options?.replaceQuestions ?? state.questions.length === 0
+          return {
+            selectedTemplateId: id,
+            quizFormat: format,
+            questions: replaceQuestions ? questions : state.questions,
+            mapRegion: format === 'MAP_CHOICE' ? (mapRegion ?? state.mapRegion ?? 'europe') : null,
+          }
         }),
 
       setSaving: (saving) => set({ saving }),

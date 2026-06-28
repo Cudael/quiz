@@ -10,9 +10,9 @@ import { ImageUpload } from './image-upload'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import { updateQuiz } from '@/app/studio/actions'
 import { createQuizAndReturnId } from '@/app/studio/actions/quiz-meta-actions'
-import { addQuestion, updateQuestion } from '@/app/studio/actions/question-actions'
 import { togglePublish } from '@/app/studio/actions'
 import { getPendingFile, uploadFileToStorage, clearPendingUpload } from './use-image-upload'
+import { saveQuestionsForQuiz } from './quiz-save-utils'
 
 interface StepPublishProps {
   quizId: string | null
@@ -42,6 +42,7 @@ export function StepPublish({ quizId }: StepPublishProps) {
     setSaving,
     setLastSaved,
     setQuizId,
+    setQuestions,
   } = useQuizCreatorStore()
 
   const [saving, setSavingLocal] = React.useState(false)
@@ -198,42 +199,16 @@ export function StepPublish({ quizId }: StepPublishProps) {
           return
         }
         const newQuizId = createResult.quizId
+        setQuizId(newQuizId)
 
-        // Save ALL questions in parallel
-        const questionResults = await Promise.all(
-          resolvedQuestions.map(async (q, i) => {
-            const qFd = new FormData()
-            qFd.set('quizId', newQuizId)
-            qFd.set('type', q.type)
-            qFd.set('prompt', q.prompt)
-            qFd.set('timeLimitSec', String(q.timeLimitSec))
-            qFd.set('order', String(i))
-            if (q.imageUrl) qFd.set('imageUrl', q.imageUrl)
-            if (q.explanation) qFd.set('explanation', q.explanation)
-            if (q.meta) qFd.set('meta', JSON.stringify(q.meta))
-            qFd.set(
-              'choices',
-              JSON.stringify(
-                q.choices.map((c) => ({
-                  text: c.text,
-                  imageUrl: c.imageUrl || undefined,
-                  isCorrect: c.isCorrect,
-                  ...(c.meta ? { meta: c.meta } : {}),
-                }))
-              )
-            )
+        const saveQuestionsResult = await saveQuestionsForQuiz({
+          quizId: newQuizId,
+          questions: resolvedQuestions,
+        })
+        setQuestions(saveQuestionsResult.questions)
 
-            if (q.dbId) {
-              qFd.set('questionId', q.dbId)
-              return updateQuestion(qFd)
-            }
-            return addQuestion(qFd)
-          })
-        )
-
-        const failedQuestion = questionResults.find((r) => !r.ok)
-        if (failedQuestion && !failedQuestion.ok) {
-          addToast(failedQuestion.message || 'Could not save a question.', 'error')
+        if (!saveQuestionsResult.ok) {
+          addToast(saveQuestionsResult.message || 'Could not save a question.', 'error')
           return
         }
 
@@ -246,7 +221,6 @@ export function StepPublish({ quizId }: StepPublishProps) {
           return
         }
 
-        setQuizId(newQuizId)
         setMeta({ isPublished: true })
         setLastSaved(new Date())
         addToast('Quiz published! 🎉', 'success')
@@ -254,41 +228,16 @@ export function StepPublish({ quizId }: StepPublishProps) {
         return
       }
 
-      // ── Existing quiz — save/update ALL questions, then publish ──
-      const questionResults = await Promise.all(
-        resolvedQuestions.map(async (q, i) => {
-          const qFd = new FormData()
-          qFd.set('quizId', quizId)
-          qFd.set('type', q.type)
-          qFd.set('prompt', q.prompt)
-          qFd.set('timeLimitSec', String(q.timeLimitSec))
-          qFd.set('order', String(i))
-          if (q.imageUrl) qFd.set('imageUrl', q.imageUrl)
-          if (q.explanation) qFd.set('explanation', q.explanation)
-          if (q.meta) qFd.set('meta', JSON.stringify(q.meta))
-          qFd.set(
-            'choices',
-            JSON.stringify(
-              q.choices.map((c) => ({
-                text: c.text,
-                imageUrl: c.imageUrl || undefined,
-                isCorrect: c.isCorrect,
-                ...(c.meta ? { meta: c.meta } : {}),
-              }))
-            )
-          )
+      // ── Existing quiz — save/update questions safely, delete removed, then publish ──
+      const saveQuestionsResult = await saveQuestionsForQuiz({
+        quizId,
+        questions: resolvedQuestions,
+        deleteRemovedQuestionsAfterSave: true,
+      })
+      setQuestions(saveQuestionsResult.questions)
 
-          if (q.dbId) {
-            qFd.set('questionId', q.dbId)
-            return updateQuestion(qFd)
-          }
-          return addQuestion(qFd)
-        })
-      )
-
-      const failedQuestion = questionResults.find((r) => !r.ok)
-      if (failedQuestion && !failedQuestion.ok) {
-        addToast(failedQuestion.message || 'Could not save a question.', 'error')
+      if (!saveQuestionsResult.ok) {
+        addToast(saveQuestionsResult.message || 'Could not save a question.', 'error')
         return
       }
 
@@ -300,6 +249,10 @@ export function StepPublish({ quizId }: StepPublishProps) {
       updateFd.set('coverImage', resolvedCoverImage)
       updateFd.set('categoryId', categoryId)
       updateFd.set('difficulty', difficulty)
+      updateFd.set('format', quizFormat)
+      if (defaultTimeLimitSec !== null) {
+        updateFd.set('defaultTimeLimitSec', String(defaultTimeLimitSec))
+      }
       if (!isPublished) updateFd.set('isPublished', 'on')
 
       const result = await updateQuiz(updateFd)

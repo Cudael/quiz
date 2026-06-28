@@ -3,7 +3,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { StepPublish } from '@/app/studio/_components/step-publish'
 import { updateQuiz } from '@/app/studio/actions'
 import { createQuizAndReturnId } from '@/app/studio/actions/quiz-meta-actions'
+import {
+  addQuestion,
+  deleteRemovedQuestions,
+  updateQuestion,
+} from '@/app/studio/actions/question-actions'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
+import type { DraftQuestion } from '@/store/quiz-creator-store'
 
 const addToast = vi.fn()
 const push = vi.fn()
@@ -24,6 +30,12 @@ vi.mock('@/app/studio/actions/quiz-meta-actions', () => ({
   createQuizAndReturnId: vi.fn(),
 }))
 
+vi.mock('@/app/studio/actions/question-actions', () => ({
+  addQuestion: vi.fn(),
+  updateQuestion: vi.fn(),
+  deleteRemovedQuestions: vi.fn(),
+}))
+
 vi.mock('./image-upload', () => ({
   ImageUpload: ({
     label,
@@ -41,18 +53,25 @@ vi.mock('./image-upload', () => ({
   ),
 }))
 
-const baseQuestion = {
-  localId: 'q1',
-  dbId: 'dbq1234567890123456789012',
-  type: 'SINGLE' as const,
-  prompt: 'Question',
-  imageUrl: '',
-  explanation: '',
-  timeLimitSec: 20,
-  choices: [
-    { localId: 'c1', text: 'A', imageUrl: '', isCorrect: true },
-    { localId: 'c2', text: 'B', imageUrl: '', isCorrect: false },
-  ],
+function makeQuestion(index: number, overrides: Partial<DraftQuestion> = {}): DraftQuestion {
+  return {
+    localId: `q${index}`,
+    dbId: `dbq${index}234567890123456789012`,
+    type: 'SINGLE' as const,
+    prompt: `Question ${index}`,
+    imageUrl: '',
+    explanation: '',
+    timeLimitSec: 20,
+    choices: [
+      { localId: `c${index}-1`, text: 'A', imageUrl: '', isCorrect: true },
+      { localId: `c${index}-2`, text: 'B', imageUrl: '', isCorrect: false },
+    ],
+    ...overrides,
+  }
+}
+
+function makeQuestions(overrides: Partial<DraftQuestion> = {}) {
+  return Array.from({ length: 5 }, (_, index) => makeQuestion(index + 1, overrides))
 }
 
 describe('StepPublish', () => {
@@ -68,13 +87,16 @@ describe('StepPublish', () => {
       isPublished: false,
       quizFormat: 'TEXT_CHOICE',
       defaultTimeLimitSec: null,
-      questions: [baseQuestion, baseQuestion, baseQuestion, baseQuestion, baseQuestion],
+      questions: makeQuestions(),
     })
     vi.mocked(updateQuiz).mockResolvedValue({ ok: true })
     vi.mocked(createQuizAndReturnId).mockResolvedValue({
       ok: true,
       quizId: 'ck22345678901234567890123',
     })
+    vi.mocked(addQuestion).mockResolvedValue({ ok: true, questionId: 'new-question-id' })
+    vi.mocked(updateQuestion).mockResolvedValue({ ok: true })
+    vi.mocked(deleteRemovedQuestions).mockResolvedValue({ ok: true })
   })
 
   it('includes category and cover image requirements in checklist', () => {
@@ -108,6 +130,55 @@ describe('StepPublish', () => {
 
     await waitFor(() => {
       expect(addToast).toHaveBeenCalledWith('Invalid quiz input.', 'error')
+    })
+  })
+
+  it('passes the current format when publishing an existing quiz', async () => {
+    useQuizCreatorStore.setState({
+      quizFormat: 'IMAGE_CHOICE',
+      questions: makeQuestions({
+        choices: [
+          {
+            localId: 'image-a',
+            text: '',
+            imageUrl: 'https://example.com/a.jpg',
+            isCorrect: true,
+          },
+          {
+            localId: 'image-b',
+            text: '',
+            imageUrl: 'https://example.com/b.jpg',
+            isCorrect: false,
+          },
+        ],
+      }),
+    })
+
+    render(<StepPublish quizId="ck62345678901234567890123" />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Publish quiz' }))
+
+    await waitFor(() => {
+      expect(updateQuiz).toHaveBeenCalled()
+    })
+
+    const formData = vi.mocked(updateQuiz).mock.calls[0][0] as FormData
+    expect(formData.get('format')).toBe('IMAGE_CHOICE')
+  })
+
+  it('stores dbIds returned for new questions during publish', async () => {
+    vi.mocked(addQuestion).mockImplementation(async () => ({
+      ok: true,
+      questionId: `new-question-${vi.mocked(addQuestion).mock.calls.length}`,
+    }))
+    useQuizCreatorStore.setState({ questions: makeQuestions({ dbId: null }) })
+
+    render(<StepPublish quizId="ck72345678901234567890123" />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Publish quiz' }))
+
+    await waitFor(() => {
+      expect(useQuizCreatorStore.getState().questions[0].dbId).toBe('new-question-1')
     })
   })
 })

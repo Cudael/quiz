@@ -3,9 +3,10 @@
 import { cn } from '@/lib/utils'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import { ImageUpload } from './image-upload'
-import { TemplatePicker } from './template-picker'
+import { QUIZ_TEMPLATES, TemplatePicker } from './template-picker'
 import type { QuizTemplate } from './template-picker'
 import type { DraftQuestion, DraftChoice } from '@/store/quiz-creator-store'
+import type { QuizFormat } from '@/store/quiz-creator-store'
 
 interface Category {
   id: string
@@ -85,6 +86,10 @@ function buildTemplateQuestions(template: QuizTemplate): DraftQuestion[] {
   })
 }
 
+function isClassicChoiceFormat(format: QuizFormat) {
+  return format === 'TEXT_CHOICE' || format === 'IMAGE_CHOICE'
+}
+
 export function StepMeta({ categories }: StepMetaProps) {
   const {
     title,
@@ -94,9 +99,36 @@ export function StepMeta({ categories }: StepMetaProps) {
     imageUrl,
     defaultTimeLimitSec,
     selectedTemplateId,
+    quizFormat,
+    questions,
     setMeta,
     applyTemplate,
   } = useQuizCreatorStore()
+
+  const selectedFormatId =
+    selectedTemplateId ??
+    QUIZ_TEMPLATES.find((template) => template.format === quizFormat)?.id ??
+    null
+
+  const handleTemplateSelect = (template: QuizTemplate) => {
+    const templateQuestions = buildTemplateQuestions(template)
+    const hasQuestions = questions.length > 0
+    const isCompatibleSwitch =
+      isClassicChoiceFormat(quizFormat) && isClassicChoiceFormat(template.format)
+    let replaceQuestions = !hasQuestions
+
+    if (hasQuestions && !isCompatibleSwitch && template.format !== quizFormat) {
+      const confirmed = window.confirm(
+        'Changing to this quiz format will replace the current questions. Continue?'
+      )
+      if (!confirmed) return
+      replaceQuestions = true
+    }
+
+    applyTemplate(template.id, template.format, templateQuestions, template.mapRegion, {
+      replaceQuestions,
+    })
+  }
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_280px]">
@@ -242,13 +274,7 @@ export function StepMeta({ categories }: StepMetaProps) {
             <p className="text-sm font-semibold">Format</p>
             <p className="text-xs text-muted-foreground">Choose a quiz type</p>
           </div>
-          <TemplatePicker
-            selectedId={selectedTemplateId}
-            onSelect={(template) => {
-              const questions = buildTemplateQuestions(template)
-              applyTemplate(template.id, template.format, questions)
-            }}
-          />
+          <TemplatePicker selectedId={selectedFormatId} onSelect={handleTemplateSelect} />
           <p className="text-xs text-muted-foreground">You can change this later.</p>
         </div>
       </div>

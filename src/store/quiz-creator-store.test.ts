@@ -16,21 +16,8 @@ function makeQuestion(localId: string): DraftQuestion {
 }
 
 beforeEach(() => {
-  // Reset store to initial state by re-applying initial values through setMeta + setQuestions
   const store = useQuizCreatorStore.getState()
-  store.setMeta({
-    title: '',
-    description: '',
-    categoryId: '',
-    difficulty: 'MEDIUM',
-    imageUrl: '',
-    defaultTimeLimitSec: null,
-    quizFormat: 'TEXT_CHOICE',
-    isPublished: false,
-  })
-  store.setQuestions([])
-  store.setStep(1)
-  store.setSaving(false)
+  store.reset()
 })
 
 describe('initial state', () => {
@@ -128,7 +115,7 @@ describe('setQuizFormat', () => {
 })
 
 describe('applyTemplate', () => {
-  it('sets selectedTemplateId, format, and replaces questions', () => {
+  it('sets selectedTemplateId, format, and uses template questions when the draft is empty', () => {
     const questions = [makeQuestion('t1'), makeQuestion('t2')]
     useQuizCreatorStore.getState().applyTemplate('tmpl-1', 'IMAGE_CHOICE', questions)
     const state = useQuizCreatorStore.getState()
@@ -136,6 +123,43 @@ describe('applyTemplate', () => {
     expect(state.quizFormat).toBe('IMAGE_CHOICE')
     expect(state.questions).toHaveLength(2)
     expect(state.questions[0].localId).toBe('t1')
+  })
+
+  it('preserves existing questions when switching between classic choice formats', () => {
+    const existingQuestions = [makeQuestion('existing')]
+    const templateQuestions = [makeQuestion('template')]
+    useQuizCreatorStore.getState().setQuestions(existingQuestions)
+
+    useQuizCreatorStore
+      .getState()
+      .applyTemplate('image-choice', 'IMAGE_CHOICE', templateQuestions, undefined, {
+        replaceQuestions: false,
+      })
+
+    const state = useQuizCreatorStore.getState()
+    expect(state.quizFormat).toBe('IMAGE_CHOICE')
+    expect(state.questions).toHaveLength(1)
+    expect(state.questions[0].localId).toBe('existing')
+  })
+
+  it('replaces existing questions only when explicitly requested', () => {
+    useQuizCreatorStore.getState().setQuestions([makeQuestion('existing')])
+
+    useQuizCreatorStore.getState().applyTemplate('hotspot-choice', 'IMAGE_HOTSPOT', [], undefined, {
+      replaceQuestions: true,
+    })
+
+    const state = useQuizCreatorStore.getState()
+    expect(state.quizFormat).toBe('IMAGE_HOTSPOT')
+    expect(state.questions).toHaveLength(0)
+  })
+
+  it('sets the map region for map templates', () => {
+    useQuizCreatorStore.getState().applyTemplate('map-choice', 'MAP_CHOICE', [], 'europe')
+
+    const state = useQuizCreatorStore.getState()
+    expect(state.quizFormat).toBe('MAP_CHOICE')
+    expect(state.mapRegion).toBe('europe')
   })
 })
 

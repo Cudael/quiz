@@ -6,7 +6,7 @@ import type { QuizFormat } from '@/store/quiz-creator-store'
 function FormatPreview({ format }: { format: QuizFormat }) {
   if (format === 'TEXT_CHOICE') {
     return (
-      <div className="flex h-[72px] flex-col gap-1.5 rounded-md bg-muted/40 p-2">
+      <div className="flex h-18 flex-col gap-1.5 rounded-md bg-muted/40 p-2">
         <div className="h-2.5 w-3/4 rounded bg-muted-foreground/20" />
         <div className="mt-0.5 grid grid-cols-2 gap-1">
           <div className="h-6 rounded bg-muted-foreground/15" />
@@ -20,7 +20,7 @@ function FormatPreview({ format }: { format: QuizFormat }) {
 
   if (format === 'IMAGE_HOTSPOT') {
     return (
-      <div className="flex h-[72px] flex-col gap-1 rounded-md bg-muted/40 p-2">
+      <div className="flex h-18 flex-col gap-1 rounded-md bg-muted/40 p-2">
         <div className="h-2 w-2/3 rounded bg-muted-foreground/20" />
         <div className="relative flex-1 rounded bg-muted-foreground/10 overflow-hidden">
           {/* Zone circles */}
@@ -32,9 +32,22 @@ function FormatPreview({ format }: { format: QuizFormat }) {
     )
   }
 
+  if (format === 'MAP_CHOICE') {
+    return (
+      <div className="flex h-18 flex-col gap-1 rounded-md bg-muted/40 p-2">
+        <div className="h-2 w-2/3 rounded bg-muted-foreground/20" />
+        <div className="relative flex-1 overflow-hidden rounded bg-muted-foreground/10">
+          <div className="absolute left-2 top-3 h-5 w-8 rounded-full bg-quiz-blue/20 ring-1 ring-quiz-blue/40" />
+          <div className="absolute bottom-2 left-8 h-4 w-6 rounded-full bg-quiz-green/20 ring-1 ring-quiz-green/40" />
+          <div className="absolute right-3 top-2 h-8 w-5 rounded-full bg-quiz-orange/20 ring-1 ring-quiz-orange/40" />
+        </div>
+      </div>
+    )
+  }
+
   // IMAGE_CHOICE
   return (
-    <div className="flex h-[72px] flex-col gap-1.5 rounded-md bg-muted/40 p-2">
+    <div className="flex h-18 flex-col gap-1.5 rounded-md bg-muted/40 p-2">
       <div className="h-2.5 w-3/4 rounded bg-muted-foreground/20" />
       <div className="mt-0.5 grid grid-cols-2 gap-1 flex-1">
         <div className="rounded bg-muted-foreground/15 flex items-center justify-center">
@@ -99,6 +112,7 @@ export interface QuizTemplate {
   color: string
   timeLimitSec: number
   questionCount: number
+  mapRegion?: string
 }
 
 export const QUIZ_TEMPLATES: QuizTemplate[] = [
@@ -119,6 +133,15 @@ export const QUIZ_TEMPLATES: QuizTemplate[] = [
     questionCount: 5,
   },
   {
+    id: 'map-choice',
+    format: 'MAP_CHOICE',
+    name: 'Map Choice',
+    color: 'text-quiz-blue',
+    timeLimitSec: 20,
+    questionCount: 0,
+    mapRegion: 'europe',
+  },
+  {
     id: 'hotspot-choice',
     format: 'IMAGE_HOTSPOT',
     name: 'Image Hotspot',
@@ -137,12 +160,13 @@ export function TemplatePicker({ selectedId, onSelect }: TemplatePickerProps) {
   const selectedBorderByTemplateId: Record<string, string> = {
     'text-choice': 'border-primary ring-primary',
     'image-choice': 'border-purple-500 ring-purple-500',
+    'map-choice': 'border-quiz-blue ring-quiz-blue',
     'hotspot-choice': 'border-quiz-orange ring-quiz-orange',
   }
 
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {QUIZ_TEMPLATES.map((template) => {
           const isSelected = selectedId === template.id
           return (
