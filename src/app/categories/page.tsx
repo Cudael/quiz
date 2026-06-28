@@ -202,7 +202,6 @@ export default async function CategoriesPage({
     <div className="container mx-auto px-4 py-8 md:px-6">
       {/* Header */}
       <div className="relative mb-10 overflow-hidden rounded-md border border-border/50 bg-card p-6 md:p-8">
-        <div className="absolute top-0 right-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-quiz-orange/5 blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <Button
@@ -217,7 +216,7 @@ export default async function CategoriesPage({
               </Link>
             </Button>
             <h1 className="text-3xl font-extrabold tracking-tight md:text-4xl text-foreground">
-              Browse <span className="text-quiz-orange">Quiz Categories</span>
+              Browse Quiz Categories
             </h1>
             <p className="mt-2 text-sm text-muted-foreground max-w-xl">
               Test your knowledge across {allWithQuizzes.length} parent topics. Explore
@@ -225,7 +224,7 @@ export default async function CategoriesPage({
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2 rounded-full border border-border/60 bg-background/50 px-4 py-1.5 text-sm font-semibold backdrop-blur-sm shadow-sm">
-            <Layers className="h-4 w-4 text-quiz-orange" />
+            <Layers className="h-4 w-4 text-foreground" />
             <span className="font-bold tabular-nums text-foreground">
               {totalQuizzes.toLocaleString()}
             </span>
@@ -255,7 +254,7 @@ function CategoryCard({ category }: { category: CategoryWithQuizzes }) {
   const Icon = categoryIcons[category.icon] || categoryIcons['HelpCircle']
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-md border border-border/40 bg-card/65 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-border/85 hover:bg-card hover:shadow-md group">
+    <div className="flex flex-col overflow-hidden rounded-md border border-border/40 bg-card/65 backdrop-blur-sm transition-all duration-300 hover:border-border/85 hover:bg-card hover:shadow-md group">
       {/* Header — elegant glow & matching theme accent */}
       <div
         className="flex items-center justify-between px-4 py-3.5 border-b border-border/20 transition-all duration-300"
