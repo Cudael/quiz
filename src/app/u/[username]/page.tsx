@@ -161,13 +161,13 @@ export default async function UserProfilePage({
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(profileJsonLd) }}
       />
       <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
-        <section className="rounded-xl border border-border bg-card p-6">
+        <section className="rounded-md border border-border bg-card p-6">
           {user.bannerImage ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={user.bannerImage}
               alt={`${user.name}'s banner`}
-              className="mb-6 h-32 w-full rounded-lg object-cover"
+              className="mb-6 h-32 w-full rounded-md object-cover"
             />
           ) : null}
           <div className="flex flex-wrap items-center justify-between gap-4">
@@ -188,7 +188,7 @@ export default async function UserProfilePage({
               <form action={toggleFollowAction.bind(null, user.id, profileUsername)}>
                 <button
                   type="submit"
-                  className="rounded-lg border border-border px-4 py-2 text-sm font-medium hover:bg-muted"
+                  className="rounded-md border border-border px-4 py-2 text-sm font-medium hover:bg-muted"
                 >
                   {isFollowing ? 'Unfollow' : 'Follow'}
                 </button>
@@ -202,11 +202,11 @@ export default async function UserProfilePage({
             </div>
             <div className="space-y-4">
               <StreakFlame value={user.streakDays} best={user.bestStreak} size="lg" />
-              <div className="rounded-lg border border-border p-3 text-sm">
+              <div className="rounded-md border border-border p-3 text-sm">
                 <p className="text-muted-foreground">Followers</p>
                 <p className="text-xl font-semibold">{user.followers.length}</p>
               </div>
-              <div className="rounded-lg border border-border p-3 text-sm">
+              <div className="rounded-md border border-border p-3 text-sm">
                 <p className="text-muted-foreground">Following</p>
                 <p className="text-xl font-semibold">{user.following.length}</p>
               </div>
@@ -217,7 +217,7 @@ export default async function UserProfilePage({
         <RecentSessions sessions={user.sessions} />
       </div>
 
-      <section className="mt-6 rounded-xl border border-border bg-card p-6">
+      <section className="mt-6 rounded-md border border-border bg-card p-6">
         <h2 className="mb-4 text-lg font-semibold">Badges</h2>
         <BadgesGrid
           badges={allBadges}

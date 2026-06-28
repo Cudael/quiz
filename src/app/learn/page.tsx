@@ -119,10 +119,10 @@ export default function LearnPage() {
             <Link
               key={path.title}
               href={path.link}
-              className="group flex flex-col gap-4 rounded-2xl border border-border/50 bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary/30 hover:shadow-md"
+              className="group flex flex-col gap-4 rounded-md border border-border/50 bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary/30 hover:shadow-md"
             >
               <div className="flex items-start gap-4">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-muted text-2xl">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-muted text-2xl">
                   {path.emoji}
                 </span>
                 <div>
@@ -148,9 +148,9 @@ export default function LearnPage() {
           {QUICK_TIPS.map((tip) => (
             <div
               key={tip.title}
-              className="flex gap-4 rounded-xl border border-border/40 bg-card p-5"
+              className="flex gap-4 rounded-md border border-border/40 bg-card p-5"
             >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-quiz-orange/10 text-quiz-orange">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-quiz-orange/10 text-quiz-orange">
                 <tip.icon className="h-5 w-5" />
               </span>
               <div>
@@ -181,7 +181,7 @@ export default function LearnPage() {
               <Link
                 key={post.slug}
                 href={`/blog/${post.slug}`}
-                className="group flex flex-col rounded-xl border border-border/50 bg-card p-5 transition-all hover:-translate-y-1 hover:border-primary/30 hover:shadow-md"
+                className="group flex flex-col rounded-md border border-border/50 bg-card p-5 transition-all hover:-translate-y-1 hover:border-primary/30 hover:shadow-md"
               >
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-0.5 text-[10px] font-bold uppercase text-muted-foreground">
                   <Newspaper className="h-3 w-3" />
@@ -208,26 +208,26 @@ export default function LearnPage() {
 
       {/* CTA */}
       <div className="grid gap-5 sm:grid-cols-2">
-        <div className="rounded-2xl border border-border/40 bg-gradient-to-br from-quiz-purple/5 to-quiz-pink/5 p-6 text-center">
+        <div className="rounded-md border border-border/40 bg-gradient-to-br from-quiz-purple/5 to-quiz-pink/5 p-6 text-center">
           <Lightbulb className="mx-auto h-8 w-8 text-quiz-purple" />
           <h2 className="mt-3 text-lg font-extrabold">Trivia Facts</h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
             Discover fascinating facts that make you the most interesting person in the room.
           </p>
-          <Button asChild variant="outline" className="mt-4 rounded-xl">
+          <Button asChild variant="outline" className="mt-4 rounded-md">
             <Link href="/trivia-facts">
               Explore Facts <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
         </div>
 
-        <div className="rounded-2xl border border-border/40 bg-gradient-to-br from-quiz-green/5 to-quiz-blue/5 p-6 text-center">
+        <div className="rounded-md border border-border/40 bg-gradient-to-br from-quiz-green/5 to-quiz-blue/5 p-6 text-center">
           <PenLine className="mx-auto h-8 w-8 text-quiz-green" />
           <h2 className="mt-3 text-lg font-extrabold">Create a Quiz</h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
             Teaching others is one of the best ways to learn. Build your own quiz and share it.
           </p>
-          <Button asChild className="mt-4 rounded-xl font-bold" variant="gradient-green">
+          <Button asChild className="mt-4 rounded-md font-bold" variant="gradient-green">
             <Link href="/studio">
               Quiz Studio <ArrowRight className="ml-2 h-4 w-4" />
             </Link>

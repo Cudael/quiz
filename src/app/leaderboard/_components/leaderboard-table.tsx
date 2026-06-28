@@ -26,7 +26,7 @@ interface LeaderboardTableProps {
 
 export function LeaderboardTable({ pageRows, currentUserId }: LeaderboardTableProps) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-border bg-card">
+    <div className="overflow-x-auto rounded-md border border-border bg-card">
       <table className="w-full text-sm">
         <thead className="bg-muted/40 text-left text-muted-foreground">
           <tr>

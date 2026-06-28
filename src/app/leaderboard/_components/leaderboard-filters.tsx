@@ -85,7 +85,7 @@ export function LeaderboardFilters({
         ))}
       </div>
 
-      <details className="rounded-xl border border-border p-3">
+      <details className="rounded-md border border-border p-3">
         <summary className="cursor-pointer text-sm font-medium">
           Categories ({categoryParams.length || 'All'})
         </summary>

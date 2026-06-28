@@ -21,7 +21,7 @@ export function AdminNavLink({ href, children, badge, onClick }: AdminNavLinkPro
       href={href}
       onClick={onClick}
       className={cn(
-        'flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+        'flex items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition-colors',
         isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted'
       )}
     >

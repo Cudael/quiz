@@ -296,7 +296,7 @@ export function StepPublish({ quizId }: StepPublishProps) {
       />
 
       {/* Checklist */}
-      <div className="rounded-xl border bg-card p-5 space-y-3">
+      <div className="rounded-md border bg-card p-5 space-y-3">
         <h3 className="font-semibold">Publish checklist</h3>
         {checks.map((item) => (
           <div key={item.label} className="flex items-center gap-2 text-sm">
@@ -313,7 +313,7 @@ export function StepPublish({ quizId }: StepPublishProps) {
 
         {/* Question issues — shown when there are problems to fix */}
         {questionIssues.length > 0 && (
-          <div className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 space-y-1.5">
+          <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/5 p-3 space-y-1.5">
             {questionIssues.map((issue) => (
               <div
                 key={issue}
@@ -340,7 +340,7 @@ export function StepPublish({ quizId }: StepPublishProps) {
 
       {/* Share section */}
       {isPublished && (
-        <div className="rounded-xl border bg-card p-5 space-y-3">
+        <div className="rounded-md border bg-card p-5 space-y-3">
           <h3 className="font-semibold">Share your quiz</h3>
           <div className="flex items-center gap-2">
             <input

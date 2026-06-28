@@ -47,7 +47,7 @@ export default async function QuizImportPage({ params }: { params: Promise<{ id:
 
       <form
         action={importQuestions as unknown as (formData: FormData) => Promise<void>}
-        className="mt-6 space-y-4 rounded-lg border p-6"
+        className="mt-6 space-y-4 rounded-md border p-6"
       >
         <input type="hidden" name="quizId" value={quiz.id} />
         <label className="block">

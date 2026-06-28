@@ -235,7 +235,7 @@ export function HotspotQuestionEditor() {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-quiz-orange/20 bg-quiz-orange/5 px-4 py-3">
+      <div className="rounded-md border border-quiz-orange/20 bg-quiz-orange/5 px-4 py-3">
         <p className="text-sm font-semibold text-quiz-orange">Image Hotspot Quiz</p>
         <p className="mt-0.5 text-sm text-muted-foreground">
           Upload an image and click on it to place zones. Drag existing zones to reposition them.
@@ -282,7 +282,7 @@ export function HotspotQuestionEditor() {
             <div
               ref={imageContainerRef}
               data-zone-container
-              className="relative overflow-hidden rounded-xl border border-border/40 bg-card cursor-crosshair"
+              className="relative overflow-hidden rounded-md border border-border/40 bg-card cursor-crosshair"
               onClick={handleImageClick}
             >
               <Image
@@ -334,7 +334,7 @@ export function HotspotQuestionEditor() {
 
             {/* Zone form — below image */}
             {selectedZone && (
-              <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_200px_auto] items-end rounded-lg border border-border/50 bg-card p-3">
+              <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_200px_auto] items-end rounded-md border border-border/50 bg-card p-3">
                 <div className="space-y-1">
                   <label htmlFor="zone-name" className="text-xs font-medium">
                     Zone name
@@ -392,7 +392,7 @@ export function HotspotQuestionEditor() {
             </div>
 
             {allZones.length === 0 ? (
-              <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed py-12 text-center">
+              <div className="flex flex-col items-center gap-3 rounded-md border border-dashed py-12 text-center">
                 <PlusCircle className="h-10 w-10 text-muted-foreground" />
                 <p className="text-sm text-muted-foreground">
                   Click on the image to place your first zone.
@@ -407,7 +407,7 @@ export function HotspotQuestionEditor() {
                   const isEditing = editingPromptId === questionId
 
                   return (
-                    <div key={zone.id} className="rounded-lg border border-border/50 bg-card p-3">
+                    <div key={zone.id} className="rounded-md border border-border/50 bg-card p-3">
                       <div className="flex items-start gap-3">
                         <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
                           {idx + 1}

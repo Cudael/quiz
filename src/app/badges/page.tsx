@@ -64,7 +64,7 @@ export default async function BadgesPage() {
       </div>
 
       {badges.length === 0 ? (
-        <div className="rounded-xl border border-dashed bg-accent/20 p-12 text-center">
+        <div className="rounded-md border border-dashed bg-accent/20 p-12 text-center">
           <p className="text-muted-foreground">Badges coming soon!</p>
         </div>
       ) : (
@@ -75,7 +75,7 @@ export default async function BadgesPage() {
             return (
               <div
                 key={badge.id}
-                className="group flex items-start gap-4 rounded-xl border border-border/50 bg-card p-5 transition-all duration-200 hover:border-quiz-purple/30 hover:shadow-md"
+                className="group flex items-start gap-4 rounded-md border border-border/50 bg-card p-5 transition-all duration-200 hover:border-quiz-purple/30 hover:shadow-md"
               >
                 <span className="text-4xl shrink-0" aria-hidden="true">
                   {emoji}
@@ -97,7 +97,7 @@ export default async function BadgesPage() {
         </div>
       )}
 
-      <div className="mt-12 rounded-xl border bg-muted/30 p-6 text-center">
+      <div className="mt-12 rounded-md border bg-muted/30 p-6 text-center">
         <p className="text-sm text-foreground/70">
           Want to earn badges?{' '}
           <Link href="/categories" className="font-semibold text-primary hover:underline">

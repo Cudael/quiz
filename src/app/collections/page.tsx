@@ -59,7 +59,7 @@ export default function CollectionsPage() {
           <Link
             key={collection.slug}
             href={`/collections/${collection.slug}`}
-            className="group flex min-h-56 flex-col justify-between rounded-2xl border bg-card p-5 transition-colors hover:border-primary/40 hover:bg-primary/5"
+            className="group flex min-h-56 flex-col justify-between rounded-md border bg-card p-5 transition-colors hover:border-primary/40 hover:bg-primary/5"
           >
             <div>
               <h2 className="text-xl font-extrabold tracking-tight">{collection.title}</h2>

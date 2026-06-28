@@ -105,7 +105,7 @@ export function BulkQuizImportClient({ categories }: BulkQuizImportClientProps) 
             <span className="font-medium">Upload JSON file</span>
             <input
               accept="application/json,.json"
-              className="block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-1.5 file:text-sm file:font-medium"
+              className="block w-full rounded-md border border-input bg-background px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-1.5 file:text-sm file:font-medium"
               onChange={(event) => void handleFileChange(event)}
               type="file"
             />
@@ -114,7 +114,7 @@ export function BulkQuizImportClient({ categories }: BulkQuizImportClientProps) 
           <label className="block space-y-2 text-sm">
             <span className="font-medium">Paste JSON</span>
             <textarea
-              className="min-h-115 w-full rounded-lg border border-input bg-background px-3 py-2 font-mono text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-ring"
+              className="min-h-115 w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-ring"
               onChange={(event) => updateContent(event.target.value)}
               placeholder={SAMPLE_JSON}
               value={content}
@@ -161,7 +161,7 @@ export function BulkQuizImportClient({ categories }: BulkQuizImportClientProps) 
             <div className="max-h-64 space-y-2 overflow-y-auto pr-1">
               {categories.map((category) => (
                 <div
-                  className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2 text-sm"
+                  className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2 text-sm"
                   key={category.slug}
                 >
                   <span>{category.name}</span>
@@ -191,7 +191,7 @@ export function BulkQuizImportClient({ categories }: BulkQuizImportClientProps) 
                   <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
                     {preview.errors.map((error, index) => (
                       <div
-                        className="rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm"
+                        className="rounded-md border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm"
                         key={`${error.quizIndex ?? 'root'}-${error.path}-${index}`}
                       >
                         <p className="font-medium">
@@ -210,7 +210,7 @@ export function BulkQuizImportClient({ categories }: BulkQuizImportClientProps) 
                     <CheckCircle2 className="h-4 w-4" />
                     Ready drafts
                   </div>
-                  <div className="overflow-x-auto rounded-lg border border-border">
+                  <div className="overflow-x-auto rounded-md border border-border">
                     <table className="min-w-full text-sm">
                       <thead className="bg-muted/40 text-left text-muted-foreground">
                         <tr>

@@ -63,7 +63,7 @@ export function StepQuestions({ quizId }: StepQuestionsProps) {
 
 function FormatBanner({ title, description }: { title: string; description: string }) {
   return (
-    <div className="rounded-lg border border-quiz-orange/20 bg-quiz-orange/5 px-4 py-3">
+    <div className="rounded-md border border-quiz-orange/20 bg-quiz-orange/5 px-4 py-3">
       <p className="text-sm font-semibold text-quiz-orange">{title}</p>
       <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
     </div>
@@ -162,7 +162,7 @@ function ClassicQuestionsEditor({ quizId }: StepQuestionsProps) {
 
       {/* Question list */}
       {questions.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed py-12 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-md border border-dashed py-12 text-center">
           <PlusCircle className="h-10 w-10 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">
             No questions yet. Add your first question above.

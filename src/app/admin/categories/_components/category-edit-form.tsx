@@ -21,14 +21,14 @@ export function CategoryEditForm({ category, parentCategories, onCancel }: Categ
   return (
     <form
       action={updateAction}
-      className="grid gap-3 rounded-xl border border-border bg-background p-4 sm:grid-cols-2"
+      className="grid gap-3 rounded-md border border-border bg-background p-4 sm:grid-cols-2"
     >
       <input name="categoryId" type="hidden" value={category.id} />
 
       <label className="space-y-1 text-sm">
         <span className="text-muted-foreground">Name</span>
         <input
-          className="w-full rounded-lg border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
+          className="w-full rounded-md border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
           defaultValue={category.name}
           name="name"
           required
@@ -40,7 +40,7 @@ export function CategoryEditForm({ category, parentCategories, onCancel }: Categ
         <select
           name="parentSlug"
           defaultValue={category.parentSlug ?? ''}
-          className="w-full rounded-lg border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
+          className="w-full rounded-md border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
         >
           <option value="">None (top-level)</option>
           {parentCategories
@@ -56,7 +56,7 @@ export function CategoryEditForm({ category, parentCategories, onCancel }: Categ
       <label className="space-y-1 text-sm">
         <span className="text-muted-foreground">Icon</span>
         <input
-          className="w-full rounded-lg border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
+          className="w-full rounded-md border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
           defaultValue={category.icon}
           name="icon"
           required
@@ -66,7 +66,7 @@ export function CategoryEditForm({ category, parentCategories, onCancel }: Categ
       <label className="space-y-1 text-sm">
         <span className="text-muted-foreground">Color</span>
         <input
-          className="w-full rounded-lg border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
+          className="w-full rounded-md border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
           defaultValue={category.color}
           name="color"
           required
@@ -76,7 +76,7 @@ export function CategoryEditForm({ category, parentCategories, onCancel }: Categ
       <label className="space-y-1 text-sm">
         <span className="text-muted-foreground">Image URL</span>
         <input
-          className="w-full rounded-lg border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
+          className="w-full rounded-md border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
           defaultValue={category.imageUrl ?? ''}
           name="imageUrl"
           placeholder="https://..."
@@ -87,7 +87,7 @@ export function CategoryEditForm({ category, parentCategories, onCancel }: Categ
       <label className="space-y-1 text-sm sm:col-span-2">
         <span className="text-muted-foreground">Description</span>
         <textarea
-          className="min-h-24 w-full rounded-lg border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
+          className="min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
           defaultValue={category.description}
           name="description"
           required

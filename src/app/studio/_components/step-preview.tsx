@@ -44,7 +44,7 @@ export function StepPreview({ categories }: StepPreviewProps) {
   return (
     <div className="space-y-6">
       {/* Cover */}
-      <div className="overflow-hidden rounded-xl border bg-card">
+      <div className="overflow-hidden rounded-md border bg-card">
         {imageUrl ? (
           <div className="relative aspect-video w-full">
             <Image
@@ -82,7 +82,7 @@ export function StepPreview({ categories }: StepPreviewProps) {
           const hasCorrect = question.choices.some((c) => c.isCorrect)
 
           return (
-            <div key={question.localId} className="rounded-xl border bg-card p-4">
+            <div key={question.localId} className="rounded-md border bg-card p-4">
               <div className="mb-3 flex items-start gap-3">
                 <span className="shrink-0 text-sm font-semibold text-muted-foreground">
                   {index + 1}.
@@ -106,7 +106,7 @@ export function StepPreview({ categories }: StepPreviewProps) {
                   zones={(question.meta as { zones?: HotspotZone[] })?.zones ?? []}
                 />
               ) : question.imageUrl ? (
-                <div className="relative mb-3 aspect-video w-full overflow-hidden rounded-lg">
+                <div className="relative mb-3 aspect-video w-full overflow-hidden rounded-md">
                   <Image
                     src={question.imageUrl}
                     alt={`Illustration for question ${index + 1}`}
@@ -125,7 +125,7 @@ export function StepPreview({ categories }: StepPreviewProps) {
                   {question.choices.map((choice) => (
                     <div
                       key={choice.localId}
-                      className={`rounded-lg border ${
+                      className={`rounded-md border ${
                         usesClassicCorrectness && choice.isCorrect
                           ? 'border-quiz-green/50 bg-quiz-green/10 text-quiz-green'
                           : 'border-border'

@@ -114,14 +114,14 @@ export default async function AdminQuizzesPage({
             method="GET"
           >
             <input
-              className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               defaultValue={q ?? ''}
               name="q"
               placeholder="Search quizzes"
               type="search"
             />
             <select
-              className="rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              className="rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               defaultValue={categoryFilter}
               name="category"
             >
@@ -133,7 +133,7 @@ export default async function AdminQuizzesPage({
               ))}
             </select>
             <select
-              className="rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              className="rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               defaultValue={difficultyFilter}
               name="difficulty"
             >
@@ -143,7 +143,7 @@ export default async function AdminQuizzesPage({
               <option value="HARD">Hard</option>
             </select>
             <select
-              className="rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              className="rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               defaultValue={publishedFilter}
               name="published"
             >
@@ -154,7 +154,7 @@ export default async function AdminQuizzesPage({
             <Button type="submit">Apply filters</Button>
           </form>
 
-          <div className="overflow-x-auto rounded-xl border border-border">
+          <div className="overflow-x-auto rounded-md border border-border">
             <table className="min-w-full text-sm">
               <thead className="bg-muted/40 text-left text-muted-foreground">
                 <tr>

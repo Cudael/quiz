@@ -72,7 +72,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 animate={{ opacity: 1, x: 0, scale: 1 }}
                 exit={{ opacity: 0, x: 100, scale: 0.95 }}
                 className={cn(
-                  'flex items-center gap-3 rounded-xl border px-4 py-3 shadow-lg backdrop-blur-sm min-w-[280px] max-w-[400px]',
+                  'flex items-center gap-3 rounded-md border px-4 py-3 shadow-lg backdrop-blur-sm min-w-[280px] max-w-[400px]',
                   variantStyles[toast.variant]
                 )}
                 role="alert"

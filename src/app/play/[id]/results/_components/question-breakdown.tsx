@@ -74,11 +74,11 @@ export function QuestionBreakdown({ questions, answers }: QuestionBreakdownProps
       <CardHeader className="gap-3 sm:flex-row sm:items-center sm:justify-between">
         <CardTitle>Question Breakdown</CardTitle>
         {incorrectCount > 0 && (
-          <div className="flex rounded-xl border bg-background p-0.5 text-xs font-semibold">
+          <div className="flex rounded-md border bg-background p-0.5 text-xs font-semibold">
             <button
               type="button"
               onClick={() => setFilter('all')}
-              className={`rounded-lg px-3 py-1.5 transition-colors ${
+              className={`rounded-md px-3 py-1.5 transition-colors ${
                 filter === 'all' ? 'bg-foreground text-background' : 'text-muted-foreground'
               }`}
             >
@@ -87,7 +87,7 @@ export function QuestionBreakdown({ questions, answers }: QuestionBreakdownProps
             <button
               type="button"
               onClick={() => setFilter('incorrect')}
-              className={`rounded-lg px-3 py-1.5 transition-colors ${
+              className={`rounded-md px-3 py-1.5 transition-colors ${
                 filter === 'incorrect' ? 'bg-foreground text-background' : 'text-muted-foreground'
               }`}
             >
@@ -127,7 +127,7 @@ export function QuestionBreakdown({ questions, answers }: QuestionBreakdownProps
               : 'border-destructive/40 bg-destructive/5'
 
           return (
-            <div key={q.id} className={`rounded-lg border p-3 ${containerClassName}`}>
+            <div key={q.id} className={`rounded-md border p-3 ${containerClassName}`}>
               <div className="mb-2 flex items-start gap-2">
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
                   {idx + 1}

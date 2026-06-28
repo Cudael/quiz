@@ -5,7 +5,7 @@ export default function NotFound() {
   return (
     <div className="container mx-auto flex min-h-[70vh] max-w-2xl flex-col items-center justify-center px-4 text-center">
       <div
-        className="mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-muted text-4xl"
+        className="mb-4 flex h-20 w-20 items-center justify-center rounded-md bg-muted text-4xl"
         aria-hidden="true"
       >
         🧩

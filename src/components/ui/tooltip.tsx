@@ -37,7 +37,7 @@ export function Tooltip({ content, children, side = 'top', className }: TooltipP
           id={id}
           role="tooltip"
           className={cn(
-            'pointer-events-none absolute z-50 max-w-xs rounded-lg border border-border bg-popover px-3 py-1.5 text-xs text-popover-foreground shadow-md',
+            'pointer-events-none absolute z-50 max-w-xs rounded-md border border-border bg-popover px-3 py-1.5 text-xs text-popover-foreground shadow-md',
             positionClasses[side],
             className
           )}

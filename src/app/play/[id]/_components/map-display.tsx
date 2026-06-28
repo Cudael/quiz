@@ -69,7 +69,7 @@ export function MapDisplay({
 
   return (
     <div className={className}>
-      <div className="overflow-hidden rounded-xl border border-border/40 bg-card">
+      <div className="overflow-hidden rounded-md border border-border/40 bg-card">
         <ComposableMap
           projection="geoMercator"
           projectionConfig={{ scale: 100, center: regionConfig.center }}

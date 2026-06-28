@@ -78,16 +78,16 @@ export default async function AdminAuditLogPage({
 
       <Card>
         <CardContent className="space-y-6 pt-6">
-          <form className="grid gap-3 rounded-xl border border-border bg-muted/20 p-4 md:grid-cols-[1fr_1fr_auto_auto]">
+          <form className="grid gap-3 rounded-md border border-border bg-muted/20 p-4 md:grid-cols-[1fr_1fr_auto_auto]">
             <input
-              className="rounded-lg border border-input bg-background px-3 py-2 text-sm"
+              className="rounded-md border border-input bg-background px-3 py-2 text-sm"
               type="search"
               name="actor"
               placeholder="Filter by actor"
               defaultValue={actorFilter}
             />
             <input
-              className="rounded-lg border border-input bg-background px-3 py-2 text-sm"
+              className="rounded-md border border-input bg-background px-3 py-2 text-sm"
               type="search"
               name="action"
               placeholder="Filter by action type"
@@ -106,7 +106,7 @@ export default async function AdminAuditLogPage({
             ) : null}
           </form>
 
-          <div className="overflow-x-auto rounded-xl border border-border">
+          <div className="overflow-x-auto rounded-md border border-border">
             <table className="min-w-full text-sm">
               <thead className="bg-muted/40 text-left text-muted-foreground">
                 <tr>

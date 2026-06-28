@@ -146,7 +146,7 @@ export function HomePageClient({
 
       {/* CTA Banner */}
       <motion.div variants={sectionVariants}>
-        <div className="flex flex-col sm:flex-row items-center gap-4 rounded-xl border-2 border-dashed border-quiz-orange/30 bg-quiz-orange/5 p-5">
+        <div className="flex flex-col sm:flex-row items-center gap-4 rounded-md border-2 border-dashed border-quiz-orange/30 bg-quiz-orange/5 p-5">
           <PenLine className="h-8 w-8 shrink-0 text-quiz-orange" />
           <div className="flex-1 text-center sm:text-left">
             <h2 className="text-lg font-extrabold tracking-tight">Got a quiz idea?</h2>
@@ -154,7 +154,7 @@ export function HomePageClient({
               Share your knowledge — create a quiz in minutes.
             </p>
           </div>
-          <Button asChild size="sm" className="shrink-0 rounded-xl text-sm font-bold">
+          <Button asChild size="sm" className="shrink-0 rounded-md text-sm font-bold">
             <Link href="/studio">Create a Quiz</Link>
           </Button>
         </div>

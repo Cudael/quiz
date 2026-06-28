@@ -90,7 +90,7 @@ export default async function ChallengesPage() {
       {/* Challenge cards */}
       <div className="grid gap-6 lg:grid-cols-3 mb-12">
         {/* Daily Challenge */}
-        <div className="group relative flex flex-col overflow-hidden rounded-2xl border-2 border-quiz-orange/30 bg-gradient-to-b from-quiz-orange/5 to-transparent p-6 transition-all hover:-translate-y-1 hover:border-quiz-orange/50 hover:shadow-lg">
+        <div className="group relative flex flex-col overflow-hidden rounded-md border-2 border-quiz-orange/30 bg-gradient-to-b from-quiz-orange/5 to-transparent p-6 transition-all hover:-translate-y-1 hover:border-quiz-orange/50 hover:shadow-lg">
           <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-quiz-orange/10 blur-2xl transition-transform group-hover:scale-150" />
           <div className="relative">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-quiz-orange/15 px-2.5 py-1 text-xs font-bold text-quiz-orange">
@@ -120,7 +120,7 @@ export default async function ChallengesPage() {
                 />
               </div>
             </div>
-            <Button asChild className="mt-5 w-full rounded-xl font-bold" variant="gradient">
+            <Button asChild className="mt-5 w-full rounded-md font-bold" variant="gradient">
               <Link href="/random-quiz">
                 <Zap className="mr-2 h-4 w-4" />
                 Start Playing
@@ -130,7 +130,7 @@ export default async function ChallengesPage() {
         </div>
 
         {/* Weekly Challenge */}
-        <div className="group relative flex flex-col overflow-hidden rounded-2xl border-2 border-quiz-purple/30 bg-gradient-to-b from-quiz-purple/5 to-transparent p-6 transition-all hover:-translate-y-1 hover:border-quiz-purple/50 hover:shadow-lg">
+        <div className="group relative flex flex-col overflow-hidden rounded-md border-2 border-quiz-purple/30 bg-gradient-to-b from-quiz-purple/5 to-transparent p-6 transition-all hover:-translate-y-1 hover:border-quiz-purple/50 hover:shadow-lg">
           <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-quiz-purple/10 blur-2xl transition-transform group-hover:scale-150" />
           <div className="relative">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-quiz-purple/15 px-2.5 py-1 text-xs font-bold text-quiz-purple">
@@ -166,7 +166,7 @@ export default async function ChallengesPage() {
                   <Link
                     key={q.id}
                     href={`/play/${q.id}`}
-                    className="flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 p-2.5 text-sm font-medium transition-colors hover:bg-accent"
+                    className="flex items-center gap-3 rounded-md border border-border/50 bg-card/50 p-2.5 text-sm font-medium transition-colors hover:bg-accent"
                   >
                     <Trophy className="h-4 w-4 shrink-0 text-quiz-purple" />
                     <span className="truncate">{q.title}</span>
@@ -178,7 +178,7 @@ export default async function ChallengesPage() {
         </div>
 
         {/* Monthly Challenge */}
-        <div className="group relative flex flex-col overflow-hidden rounded-2xl border-2 border-quiz-green/30 bg-gradient-to-b from-quiz-green/5 to-transparent p-6 transition-all hover:-translate-y-1 hover:border-quiz-green/50 hover:shadow-lg">
+        <div className="group relative flex flex-col overflow-hidden rounded-md border-2 border-quiz-green/30 bg-gradient-to-b from-quiz-green/5 to-transparent p-6 transition-all hover:-translate-y-1 hover:border-quiz-green/50 hover:shadow-lg">
           <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-quiz-green/10 blur-2xl transition-transform group-hover:scale-150" />
           <div className="relative">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-quiz-green/15 px-2.5 py-1 text-xs font-bold text-quiz-green">
@@ -215,7 +215,7 @@ export default async function ChallengesPage() {
                   <Link
                     key={q.id}
                     href={`/play/${q.id}`}
-                    className="flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 p-2.5 text-sm font-medium transition-colors hover:bg-accent"
+                    className="flex items-center gap-3 rounded-md border border-border/50 bg-card/50 p-2.5 text-sm font-medium transition-colors hover:bg-accent"
                   >
                     <Star className="h-4 w-4 shrink-0 text-quiz-green" />
                     <span className="truncate">{q.title}</span>
@@ -228,19 +228,19 @@ export default async function ChallengesPage() {
       </div>
 
       {/* Leaderboard teaser */}
-      <div className="rounded-2xl border border-border/40 bg-card p-6 text-center md:p-8">
+      <div className="rounded-md border border-border/40 bg-card p-6 text-center md:p-8">
         <h2 className="text-xl font-extrabold">Ready to compete?</h2>
         <p className="mt-2 text-muted-foreground">
           Duel other players in real-time, climb the global leaderboard, and earn exclusive badges.
         </p>
         <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-          <Button asChild className="rounded-xl font-bold" variant="gradient-green">
+          <Button asChild className="rounded-md font-bold" variant="gradient-green">
             <Link href="/duel">
               <Swords className="mr-2 h-4 w-4" />
               Start a Duel
             </Link>
           </Button>
-          <Button asChild variant="outline" className="rounded-xl">
+          <Button asChild variant="outline" className="rounded-md">
             <Link href="/leaderboard">
               <Trophy className="mr-2 h-4 w-4" />
               View Leaderboard

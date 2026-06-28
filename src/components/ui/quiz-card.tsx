@@ -142,7 +142,7 @@ export const QuizCardHorizontal = React.memo(function QuizCardHorizontal({
 
   return (
     <Link href={getQuizPath(quiz)} className={cn('group block min-w-0 shrink-0 w-full', className)}>
-      <div className="overflow-hidden rounded-xl border border-border/40 shadow-sm transition-shadow duration-200 group-hover:shadow-md">
+      <div className="overflow-hidden rounded-md border border-border/40 shadow-sm transition-shadow duration-200 group-hover:shadow-md">
         {/* Square image area */}
         <div className="relative aspect-square w-full">
           <div
@@ -218,7 +218,7 @@ export const QuizCard = React.memo(function QuizCard({ quiz, className }: QuizCa
       <motion.div
         whileHover={shouldReduceMotion ? undefined : { y: -3, scale: 1.01 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="rounded-xl border border-border/50 shadow-md transition-shadow duration-300 group-hover:shadow-xl group-hover:shadow-quiz-purple/10"
+        className="rounded-md border border-border/50 shadow-md transition-shadow duration-300 group-hover:shadow-xl group-hover:shadow-quiz-purple/10"
       >
         {/* Square image area */}
         <div
@@ -312,7 +312,7 @@ export const QuizCardFeatured = React.memo(function QuizCardFeatured({
 
   return (
     <Link href={getQuizPath(quiz)} className={cn('group block min-w-0 w-full h-full', className)}>
-      <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border/40 shadow-sm transition-shadow duration-200 group-hover:shadow-md">
+      <div className="flex h-full flex-col overflow-hidden rounded-md border border-border/40 shadow-sm transition-shadow duration-200 group-hover:shadow-md">
         {/* Square image area */}
         <div className="relative aspect-square w-full">
           <div
@@ -376,7 +376,7 @@ export const QuizCardCompact = React.memo(function QuizCardCompact({
     <Link
       href={getQuizPath(quiz)}
       className={cn(
-        'group flex w-36 shrink-0 flex-col overflow-hidden rounded-lg border border-border/50 bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md',
+        'group flex w-36 shrink-0 flex-col overflow-hidden rounded-md border border-border/50 bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md',
         className
       )}
     >

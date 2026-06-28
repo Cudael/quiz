@@ -74,7 +74,7 @@ export default async function CompletedQuizzesPage() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border bg-card p-6">
+      <section className="rounded-md border bg-card p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="text-3xl font-extrabold tracking-tight">Completed Quizzes</h1>
@@ -84,11 +84,11 @@ export default async function CompletedQuizzesPage() {
             </p>
           </div>
           <div className="grid grid-cols-2 gap-2 text-center sm:w-64">
-            <div className="rounded-xl border bg-background px-3 py-2">
+            <div className="rounded-md border bg-background px-3 py-2">
               <p className="text-xl font-black">{completedByQuiz.length}</p>
               <p className="text-xs text-muted-foreground">Completed</p>
             </div>
-            <div className="rounded-xl border bg-background px-3 py-2">
+            <div className="rounded-md border bg-background px-3 py-2">
               <p className="text-xl font-black">{averageAccuracy}%</p>
               <p className="text-xs text-muted-foreground">Avg accuracy</p>
             </div>
@@ -97,20 +97,20 @@ export default async function CompletedQuizzesPage() {
       </section>
 
       {completedByQuiz.length === 0 ? (
-        <section className="rounded-2xl border border-dashed bg-muted/30 p-10 text-center">
+        <section className="rounded-md border border-dashed bg-muted/30 p-10 text-center">
           <CheckCircle2 className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" />
           <h2 className="font-bold">No completed quizzes yet</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Play your first quiz and it will appear here with your best score.
           </p>
-          <Button asChild className="mt-5 rounded-xl">
+          <Button asChild className="mt-5 rounded-md">
             <Link href="/categories">Browse Quizzes</Link>
           </Button>
         </section>
       ) : (
         <section className="space-y-3">
           {completedByQuiz.map(({ latest, attempts, bestScore, bestAccuracy }) => (
-            <article key={latest.quizId} className="rounded-xl border bg-card p-4">
+            <article key={latest.quizId} className="rounded-md border bg-card p-4">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                   <div className="mb-2 flex flex-wrap items-center gap-2">

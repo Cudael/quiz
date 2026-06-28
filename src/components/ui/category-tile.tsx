@@ -35,7 +35,7 @@ export const CategoryTile = React.memo(function CategoryTile({
       <Link
         href={`/categories/${slug}`}
         className={cn(
-          'block overflow-hidden rounded-2xl text-white shadow-lg hover:shadow-xl transition-shadow duration-200',
+          'block overflow-hidden rounded-md text-white shadow-lg hover:shadow-xl transition-shadow duration-200',
           className
         )}
       >

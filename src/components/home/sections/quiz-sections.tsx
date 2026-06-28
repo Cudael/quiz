@@ -79,7 +79,7 @@ export function QuizScrollerSection({
           ))}
         </div>
       ) : (
-        <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground bg-accent/20">
+        <div className="rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground bg-accent/20">
           This corner&apos;s quiet… for now. Be the first to shake things up! 🎉
         </div>
       )}
@@ -132,7 +132,7 @@ export function QuizDenseGridSection({
           ))}
         </div>
       ) : (
-        <div className="rounded-xl border border-dashed bg-accent/20 p-8 text-center text-sm text-muted-foreground">
+        <div className="rounded-md border border-dashed bg-accent/20 p-8 text-center text-sm text-muted-foreground">
           This corner&apos;s quiet… for now. Be the first to shake things up! 🎉
         </div>
       )}
@@ -170,7 +170,7 @@ export function QuizGridSection({
           ))}
         </div>
       ) : (
-        <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground bg-accent/20">
+        <div className="rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground bg-accent/20">
           This corner&apos;s quiet… for now. Be the first to shake things up! 🎉
         </div>
       )}

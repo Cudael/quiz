@@ -81,7 +81,7 @@ export default async function StudioPage({
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8 md:py-12">
       {/* Premium Dashboard Header Banner Card */}
-      <section className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 md:p-8 shadow-sm transition-all hover:shadow-md mb-8">
+      <section className="relative overflow-hidden rounded-md border border-border bg-card p-6 md:p-8 shadow-sm transition-all hover:shadow-md mb-8">
         <div className="absolute -right-16 -top-16 h-36 w-36 rounded-full bg-quiz-purple/5 blur-3xl" />
         <div className="absolute -left-16 -bottom-16 h-36 w-36 rounded-full bg-quiz-orange/5 blur-3xl" />
 
@@ -99,7 +99,7 @@ export default async function StudioPage({
             <Button
               asChild
               size="lg"
-              className="rounded-xl shadow-sm font-bold bg-quiz-purple hover:bg-quiz-purple/90 text-white"
+              className="rounded-md shadow-sm font-bold bg-quiz-purple hover:bg-quiz-purple/90 text-white"
             >
               <Link href="/studio/quiz/new">
                 <Plus className="mr-1.5 h-5 w-5 shrink-0" />
@@ -130,10 +130,10 @@ export default async function StudioPage({
       </section>
 
       {needsAttention.length > 0 && (
-        <section className="mb-8 rounded-2xl border border-quiz-orange/30 bg-quiz-orange/5 p-5 shadow-sm transition-all hover:shadow-md">
+        <section className="mb-8 rounded-md border border-quiz-orange/30 bg-quiz-orange/5 p-5 shadow-sm transition-all hover:shadow-md">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-quiz-orange/10 text-quiz-orange">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-quiz-orange/10 text-quiz-orange">
                 <AlertTriangle className="h-5 w-5" />
               </span>
               <div>
@@ -151,7 +151,7 @@ export default async function StudioPage({
               variant="outline"
               size="sm"
               asChild
-              className="rounded-xl shadow-sm self-center shrink-0"
+              className="rounded-md shadow-sm self-center shrink-0"
             >
               <Link href={`/studio/quiz/${needsAttention[0].id}/edit`}>Fix First Quiz</Link>
             </Button>
@@ -162,14 +162,14 @@ export default async function StudioPage({
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-border/40 pb-px">
         <div className="flex gap-1.5 pb-2">
           <Button
-            className="rounded-xl font-bold shadow-sm"
+            className="rounded-md font-bold shadow-sm"
             variant={activeTab === 'published' ? 'default' : 'outline'}
             asChild
           >
             <Link href="/studio?tab=published">Published</Link>
           </Button>
           <Button
-            className="rounded-xl font-bold shadow-sm"
+            className="rounded-md font-bold shadow-sm"
             variant={activeTab === 'drafts' ? 'default' : 'outline'}
             asChild
           >
@@ -216,7 +216,7 @@ function StudioStat({
   value: string | number
 }) {
   return (
-    <div className="flex flex-col justify-between rounded-xl border bg-card p-5 transition-all hover:-translate-y-1 hover:shadow-md">
+    <div className="flex flex-col justify-between rounded-md border bg-card p-5 transition-all hover:-translate-y-1 hover:shadow-md">
       <div className="mb-2 flex items-center gap-1.5 text-muted-foreground">
         {icon}
         <span className="text-xs font-bold uppercase tracking-wider">{label}</span>

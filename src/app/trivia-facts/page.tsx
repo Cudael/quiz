@@ -157,7 +157,7 @@ export default function TriviaFactsPage() {
       </div>
 
       {/* Daily featured fact */}
-      <div className="relative mb-12 overflow-hidden rounded-2xl border-2 border-quiz-orange/40 bg-gradient-to-br from-quiz-orange/10 via-quiz-purple/5 to-quiz-orange/10 p-6 md:p-8">
+      <div className="relative mb-12 overflow-hidden rounded-md border-2 border-quiz-orange/40 bg-gradient-to-br from-quiz-orange/10 via-quiz-purple/5 to-quiz-orange/10 p-6 md:p-8">
         <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-quiz-orange/10 blur-2xl" />
         <div className="relative">
           <div className="mb-4 flex items-center gap-2">
@@ -185,7 +185,7 @@ export default function TriviaFactsPage() {
           {TRIVIA_FACTS.map((item, i) => (
             <div
               key={i}
-              className="group flex flex-col gap-3 rounded-xl border border-border/50 bg-card p-5 transition-all hover:-translate-y-1 hover:border-quiz-purple/30 hover:shadow-md"
+              className="group flex flex-col gap-3 rounded-md border border-border/50 bg-card p-5 transition-all hover:-translate-y-1 hover:border-quiz-purple/30 hover:shadow-md"
             >
               <div className="flex items-center gap-2">
                 <span className="text-2xl">{item.emoji}</span>
@@ -201,19 +201,19 @@ export default function TriviaFactsPage() {
       </div>
 
       {/* CTA */}
-      <div className="rounded-2xl border border-border/40 bg-card p-6 text-center md:p-8">
+      <div className="rounded-md border border-border/40 bg-card p-6 text-center md:p-8">
         <h2 className="text-xl font-extrabold">Think you know your trivia?</h2>
         <p className="mt-2 text-muted-foreground">
           Put your knowledge to the test with thousands of quizzes.
         </p>
         <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-          <Button asChild className="rounded-xl font-bold">
+          <Button asChild className="rounded-md font-bold">
             <Link href="/random-quiz">
               Take a Random Quiz
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
-          <Button asChild variant="outline" className="rounded-xl">
+          <Button asChild variant="outline" className="rounded-md">
             <Link href="/categories">Browse Categories</Link>
           </Button>
         </div>

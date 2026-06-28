@@ -13,7 +13,7 @@ export function HotspotPreview({ imageUrl, zones }: HotspotPreviewProps) {
   if (!imageUrl) return null
 
   return (
-    <div className="relative mb-3 overflow-hidden rounded-lg border border-border/40 bg-card">
+    <div className="relative mb-3 overflow-hidden rounded-md border border-border/40 bg-card">
       <Image
         src={imageUrl}
         alt="Hotspot quiz preview"

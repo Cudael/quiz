@@ -158,13 +158,13 @@ export function LeftMenu({ open, onClose }: LeftMenuProps) {
           <Link
             href="/"
             onClick={onClose}
-            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
+            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
           >
             <Logo className="h-7 w-auto" />
           </Link>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             aria-label="Close menu"
           >
             <X className="h-4 w-4" />
@@ -178,7 +178,7 @@ export function LeftMenu({ open, onClose }: LeftMenuProps) {
               href="/profile"
               onClick={onClose}
               className={cn(
-                'flex items-center gap-3 rounded-xl p-2 -mx-2 transition-colors hover:bg-accent/50',
+                'flex items-center gap-3 rounded-md p-2 -mx-2 transition-colors hover:bg-accent/50',
                 isActive('/profile') && 'bg-primary/5'
               )}
             >
@@ -197,13 +197,13 @@ export function LeftMenu({ open, onClose }: LeftMenuProps) {
             </Link>
           ) : (
             <div className="flex gap-2">
-              <Button asChild variant="outline" className="flex-1 rounded-xl" size="sm">
+              <Button asChild variant="outline" className="flex-1 rounded-md" size="sm">
                 <Link href="/sign-in" onClick={onClose}>
                   <LogIn className="mr-1.5 h-3.5 w-3.5" />
                   Sign In
                 </Link>
               </Button>
-              <Button asChild className="flex-1 rounded-xl" size="sm">
+              <Button asChild className="flex-1 rounded-md" size="sm">
                 <Link href="/sign-up" onClick={onClose}>
                   <UserPlus className="mr-1.5 h-3.5 w-3.5" />
                   Register
@@ -231,7 +231,7 @@ export function LeftMenu({ open, onClose }: LeftMenuProps) {
                       href={item.href}
                       onClick={onClose}
                       className={cn(
-                        'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150',
+                        'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-all duration-150',
                         active
                           ? 'bg-primary/8 text-primary font-bold'
                           : item.highlighted
@@ -241,7 +241,7 @@ export function LeftMenu({ open, onClose }: LeftMenuProps) {
                     >
                       <span
                         className={cn(
-                          'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors',
+                          'flex h-8 w-8 shrink-0 items-center justify-center rounded-md transition-colors',
                           active
                             ? 'bg-primary/15 text-primary'
                             : item.highlighted

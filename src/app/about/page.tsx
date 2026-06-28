@@ -62,7 +62,7 @@ export default async function AboutPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-quiz-purple/10">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-quiz-purple/10">
                 <Gamepad2 className="h-5 w-5 text-quiz-purple" />
               </div>
               <h2 className="text-xl font-bold">Play</h2>
@@ -78,7 +78,7 @@ export default async function AboutPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-quiz-green/10">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-quiz-green/10">
                 <PenLine className="h-5 w-5 text-quiz-green" />
               </div>
               <h2 className="text-xl font-bold">Create</h2>
@@ -94,7 +94,7 @@ export default async function AboutPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-quiz-orange/10">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-quiz-orange/10">
                 <Swords className="h-5 w-5 text-quiz-orange" />
               </div>
               <h2 className="text-xl font-bold">Compete</h2>
@@ -109,7 +109,7 @@ export default async function AboutPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-quiz-yellow/10">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-quiz-yellow/10">
                 <Sparkles className="h-5 w-5 text-quiz-yellow" />
               </div>
               <h2 className="text-xl font-bold">Free Forever</h2>
@@ -160,7 +160,7 @@ export default async function AboutPage() {
       </div>
 
       {/* Our Mission */}
-      <div className="rounded-xl border bg-muted/30 p-8 text-center mb-12">
+      <div className="rounded-md border bg-muted/30 p-8 text-center mb-12">
         <h2 className="text-2xl font-extrabold tracking-tight mb-3">Our Mission</h2>
         <p className="text-muted-foreground max-w-xl mx-auto leading-relaxed">
           We believe learning should be fun, social, and accessible. BusQuiz makes it easy to test
@@ -170,19 +170,19 @@ export default async function AboutPage() {
 
       {/* CTAs */}
       <div className="flex flex-wrap justify-center gap-4">
-        <Button asChild size="lg" variant="gradient" className="rounded-xl font-bold">
+        <Button asChild size="lg" variant="gradient" className="rounded-md font-bold">
           <Link href="/categories">
             Browse Quizzes
             <ArrowRight className="h-4 w-4" />
           </Link>
         </Button>
-        <Button asChild size="lg" variant="outline" className="rounded-xl font-bold">
+        <Button asChild size="lg" variant="outline" className="rounded-md font-bold">
           <Link href="/duel">
             Start a Duel
             <ArrowRight className="h-4 w-4" />
           </Link>
         </Button>
-        <Button asChild size="lg" variant="outline" className="rounded-xl font-bold">
+        <Button asChild size="lg" variant="outline" className="rounded-md font-bold">
           <Link href="/studio">
             Create a Quiz
             <ArrowRight className="h-4 w-4" />

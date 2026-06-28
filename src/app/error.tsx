@@ -17,7 +17,7 @@ export default function Error({
   return (
     <div className="container mx-auto flex min-h-[60vh] max-w-xl flex-col items-center justify-center px-4 text-center">
       <div
-        className="mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-destructive/10 text-4xl"
+        className="mb-4 flex h-20 w-20 items-center justify-center rounded-md bg-destructive/10 text-4xl"
         aria-hidden="true"
       >
         ⚠️

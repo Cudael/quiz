@@ -123,7 +123,7 @@ export default async function AdminSuggestionsPage({
                       <input name="suggestionId" type="hidden" value={suggestion.id} />
                       <input name="decision" type="hidden" value="REJECT" />
                       <input
-                        className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                         name="reason"
                         placeholder="Reason for rejection"
                         required

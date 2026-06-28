@@ -132,7 +132,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
           ))}
         </div>
       ) : (
-        <div className="rounded-xl border border-dashed bg-muted/30 p-10 text-center text-sm text-muted-foreground">
+        <div className="rounded-md border border-dashed bg-muted/30 p-10 text-center text-sm text-muted-foreground">
           No quizzes match this collection yet.
         </div>
       )}

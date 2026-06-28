@@ -42,7 +42,7 @@ export function BadgeShowcase({ badges, currentUser }: BadgeShowcaseProps) {
         {badges.map((badge) => (
           <div
             key={badge.slug}
-            className="group flex flex-col items-center gap-1.5 rounded-xl border border-border/50 bg-card p-3 text-center transition-all duration-200 hover:border-quiz-purple/40 hover:shadow-md snap-start shrink-0 w-[120px]"
+            className="group flex flex-col items-center gap-1.5 rounded-md border border-border/50 bg-card p-3 text-center transition-all duration-200 hover:border-quiz-purple/40 hover:shadow-md snap-start shrink-0 w-[120px]"
           >
             <span className="text-3xl" aria-hidden="true">
               {badge.emoji}

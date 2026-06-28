@@ -134,7 +134,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   <Link
                     key={related.slug}
                     href={`/blog/${related.slug}`}
-                    className="group rounded-xl border border-border/50 bg-card p-4 transition-shadow hover:shadow-sm"
+                    className="group rounded-md border border-border/50 bg-card p-4 transition-shadow hover:shadow-sm"
                   >
                     <h3 className="font-bold transition-colors group-hover:text-primary">
                       {related.title}

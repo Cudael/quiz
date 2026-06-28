@@ -270,7 +270,7 @@ export default async function ResultsPage({
       </div>
 
       {/* Rating */}
-      <div className="mt-8 mb-8 rounded-lg border p-4">
+      <div className="mt-8 mb-8 rounded-md border p-4">
         <RateQuizForm
           quizId={id}
           userRating={userRating?.stars ?? null}
@@ -311,7 +311,7 @@ export default async function ResultsPage({
 
 function HighlightPill({ icon, title }: { icon: React.ReactNode; title: string }) {
   return (
-    <div className="flex items-center gap-2 rounded-xl border border-quiz-green/25 bg-background/80 px-3 py-2 text-sm font-semibold text-quiz-green">
+    <div className="flex items-center gap-2 rounded-md border border-quiz-green/25 bg-background/80 px-3 py-2 text-sm font-semibold text-quiz-green">
       {icon}
       <span>{title}</span>
     </div>
@@ -334,11 +334,11 @@ function NextStepCard({
   return (
     <Link
       href={href}
-      className={`rounded-2xl border p-4 transition-colors hover:border-primary/40 hover:bg-primary/5 ${
+      className={`rounded-md border p-4 transition-colors hover:border-primary/40 hover:bg-primary/5 ${
         primary ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-card'
       }`}
     >
-      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-background/80 text-quiz-orange">
+      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-md bg-background/80 text-quiz-orange">
         {icon}
       </div>
       <h2 className="font-bold">{title}</h2>

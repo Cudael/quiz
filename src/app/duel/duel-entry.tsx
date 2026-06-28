@@ -64,7 +64,7 @@ export function DuelEntry({ categories }: DuelEntryProps) {
         ].map((item) => (
           <div
             key={item.step}
-            className="rounded-xl border border-border/50 bg-card p-3 text-center"
+            className="rounded-md border border-border/50 bg-card p-3 text-center"
           >
             <p className="text-2xl mb-1">{item.emoji}</p>
             <p className="text-sm font-bold">{item.title}</p>

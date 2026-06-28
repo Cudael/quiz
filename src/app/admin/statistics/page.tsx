@@ -15,7 +15,7 @@ export default function StatisticsPage() {
       <Card>
         <CardContent className="pt-6 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-blue-500/10">
               <BarChart3 className="h-5 w-5 text-blue-500" />
             </div>
             <div>
@@ -72,7 +72,7 @@ export default function StatisticsPage() {
       <Card>
         <CardContent className="pt-6 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-quiz-orange/10">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-quiz-orange/10">
               <BarChart3 className="h-5 w-5 text-quiz-orange" />
             </div>
             <div>

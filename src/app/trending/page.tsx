@@ -107,7 +107,7 @@ export default async function TrendingQuizzesPage() {
       </div>
 
       {quizzes.length === 0 ? (
-        <div className="rounded-xl border border-dashed bg-accent/20 p-12 text-center">
+        <div className="rounded-md border border-dashed bg-accent/20 p-12 text-center">
           <p className="text-muted-foreground">No trending quizzes yet. Be the first to play!</p>
         </div>
       ) : (

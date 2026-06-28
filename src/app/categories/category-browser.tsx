@@ -60,7 +60,7 @@ function SubcategoryCard({ sub }: { sub: SubcategoryData }) {
   return (
     <Link
       href={`/categories/${sub.slug}`}
-      className="group flex items-start gap-3 rounded-lg border border-border/80 bg-card/70 p-3 transition-all duration-200 hover:border-transparent hover:bg-card hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="group flex items-start gap-3 rounded-md border border-border/80 bg-card/70 p-3 transition-all duration-200 hover:border-transparent hover:bg-card hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <span
         className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md"
@@ -88,11 +88,11 @@ function SubcategoryCard({ sub }: { sub: SubcategoryData }) {
 function ParentSection({ parent }: { parent: ParentCategoryData }) {
   return (
     <section aria-labelledby={`cat-${parent.slug}`}>
-      <div className="rounded-2xl border border-border/70 bg-card/60 p-5">
+      <div className="rounded-md border border-border/70 bg-card/60 p-5">
         <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
           <div className="flex min-w-0 items-start gap-3">
             <span
-              className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+              className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-md"
               style={{ backgroundColor: parent.color + '22' }}
             >
               <DynamicIcon
@@ -138,7 +138,7 @@ function ParentSection({ parent }: { parent: ParentCategoryData }) {
             ))}
           </div>
         ) : (
-          <p className="rounded-xl border border-dashed border-border px-4 py-5 text-center text-sm text-muted-foreground">
+          <p className="rounded-md border border-dashed border-border px-4 py-5 text-center text-sm text-muted-foreground">
             No subcategories yet
           </p>
         )}
@@ -198,7 +198,7 @@ export function CategoryBrowser({ parentCategories }: CategoryBrowserProps) {
             onChange={(e) => handleSearchChange(e.target.value)}
             placeholder="Search categories…"
             data-global-search="true"
-            className="w-full rounded-xl border border-input bg-background py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            className="w-full rounded-md border border-input bg-background py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
       </div>

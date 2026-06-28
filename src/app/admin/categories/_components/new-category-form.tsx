@@ -33,12 +33,12 @@ export function NewCategoryForm({ topLevelCategories, onCancel }: NewCategoryFor
   return (
     <form
       onSubmit={handleSubmit}
-      className="grid gap-3 rounded-xl border border-border bg-background p-4 sm:grid-cols-2"
+      className="grid gap-3 rounded-md border border-border bg-background p-4 sm:grid-cols-2"
     >
       <label className="space-y-1 text-sm">
         <span className="text-muted-foreground">Name</span>
         <input
-          className="w-full rounded-lg border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
+          className="w-full rounded-md border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
           name="name"
           required
         />
@@ -47,7 +47,7 @@ export function NewCategoryForm({ topLevelCategories, onCancel }: NewCategoryFor
       <label className="space-y-1 text-sm">
         <span className="text-muted-foreground">Icon</span>
         <input
-          className="w-full rounded-lg border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
+          className="w-full rounded-md border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
           name="icon"
           required
         />
@@ -56,7 +56,7 @@ export function NewCategoryForm({ topLevelCategories, onCancel }: NewCategoryFor
       <label className="space-y-1 text-sm">
         <span className="text-muted-foreground">Color</span>
         <input
-          className="w-full rounded-lg border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
+          className="w-full rounded-md border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
           name="color"
           placeholder="#rrggbb"
           required
@@ -66,7 +66,7 @@ export function NewCategoryForm({ topLevelCategories, onCancel }: NewCategoryFor
       <label className="space-y-1 text-sm">
         <span className="text-muted-foreground">Image URL</span>
         <input
-          className="w-full rounded-lg border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
+          className="w-full rounded-md border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
           name="imageUrl"
           placeholder="https://..."
           type="url"
@@ -76,7 +76,7 @@ export function NewCategoryForm({ topLevelCategories, onCancel }: NewCategoryFor
       <label className="space-y-1 text-sm sm:col-span-2">
         <span className="text-muted-foreground">Description</span>
         <textarea
-          className="min-h-24 w-full rounded-lg border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
+          className="min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
           name="description"
           required
         />
@@ -85,7 +85,7 @@ export function NewCategoryForm({ topLevelCategories, onCancel }: NewCategoryFor
       <label className="space-y-1 text-sm sm:col-span-2">
         <span className="text-muted-foreground">Parent category (optional)</span>
         <select
-          className="w-full rounded-lg border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
+          className="w-full rounded-md border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
           name="parentSlug"
         >
           <option value="">None (top-level)</option>

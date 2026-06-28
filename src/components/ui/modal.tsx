@@ -103,7 +103,7 @@ export function Modal({
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: 'spring', duration: 0.3 }}
             className={cn(
-              'relative z-10 w-full rounded-2xl bg-card border border-border p-6 shadow-2xl',
+              'relative z-10 w-full rounded-md bg-card border border-border p-6 shadow-2xl',
               sizeClasses[size],
               className
             )}

@@ -115,7 +115,7 @@ export function NavDropdown({ open, onClose }: NavDropdownProps) {
 
       {/* Container-width dropdown panel */}
       <div className="absolute top-14 left-0 right-0 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-        <div className="rounded-2xl border border-border/40 bg-card shadow-2xl">
+        <div className="rounded-md border border-border/40 bg-card shadow-2xl">
           <div className="p-6 md:p-8">
             <div className="grid grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-3 lg:grid-cols-6">
               {SECTIONS.map((section) => {
@@ -135,7 +135,7 @@ export function NavDropdown({ open, onClose }: NavDropdownProps) {
                               href={item.href}
                               onClick={onClose}
                               className={cn(
-                                'block rounded-lg px-2 py-1.5 -mx-2 text-sm font-medium transition-colors',
+                                'block rounded-md px-2 py-1.5 -mx-2 text-sm font-medium transition-colors',
                                 active
                                   ? 'bg-primary/8 text-primary font-bold'
                                   : item.highlighted

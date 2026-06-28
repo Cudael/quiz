@@ -45,7 +45,7 @@ export default async function ProfileLayout({ children }: { children: React.Reac
     <div className="container mx-auto max-w-6xl px-4 py-8 md:py-12">
       <div className="flex flex-col gap-8">
         {/* Unified Top Profile Banner Card */}
-        <section className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 md:p-8 shadow-sm transition-all hover:shadow-md">
+        <section className="relative overflow-hidden rounded-md border border-border bg-card p-6 md:p-8 shadow-sm transition-all hover:shadow-md">
           {/* Faded Background Pattern for Premium Feel */}
           <div className="absolute -right-16 -top-16 h-36 w-36 rounded-full bg-quiz-purple/5 blur-3xl" />
           <div className="absolute -left-16 -bottom-16 h-36 w-36 rounded-full bg-quiz-orange/5 blur-3xl" />
@@ -87,13 +87,13 @@ export default async function ProfileLayout({ children }: { children: React.Reac
             {/* Quick Actions (Share, Public Profile, Edit) */}
             <div className="flex flex-wrap items-center justify-center gap-2.5">
               <ShareProfileButton username={user.username} />
-              <Button asChild variant="outline" className="rounded-xl shadow-sm">
+              <Button asChild variant="outline" className="rounded-md shadow-sm">
                 <Link href={`/u/${user.username}`}>
                   <ExternalLink className="mr-1.5 h-4 w-full sm:w-4 shrink-0 text-muted-foreground" />
                   Public View
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="rounded-xl shadow-sm">
+              <Button asChild variant="outline" className="rounded-md shadow-sm">
                 <Link href="/profile/settings">
                   <Settings className="mr-1.5 h-4 w-4 shrink-0 text-muted-foreground" />
                   Edit Profile

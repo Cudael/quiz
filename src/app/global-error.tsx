@@ -18,7 +18,7 @@ export default function GlobalError({
       <body className="bg-background text-foreground">
         <main className="container mx-auto flex min-h-screen max-w-xl flex-col items-center justify-center px-4 text-center">
           <div
-            className="mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-destructive/10 text-4xl"
+            className="mb-4 flex h-20 w-20 items-center justify-center rounded-md bg-destructive/10 text-4xl"
             aria-hidden="true"
           >
             🚨
@@ -30,7 +30,7 @@ export default function GlobalError({
           <button
             type="button"
             onClick={() => unstable_retry()}
-            className="mt-6 rounded-lg bg-foreground px-4 py-2 font-medium text-background hover:bg-foreground/90"
+            className="mt-6 rounded-md bg-foreground px-4 py-2 font-medium text-background hover:bg-foreground/90"
           >
             Reload
           </button>

@@ -44,7 +44,7 @@ export function Navbar() {
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-xl"
+            className="rounded-md"
             onClick={() => setDropdownOpen(!dropdownOpen)}
             aria-label="Open navigation menu"
             aria-expanded={dropdownOpen}
@@ -53,7 +53,7 @@ export function Navbar() {
           </Button>
           <Link
             href="/"
-            className="flex items-center transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
+            className="flex items-center transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
           >
             <Logo className="h-9 w-auto" />
           </Link>
@@ -70,7 +70,7 @@ export function Navbar() {
                   href={link.href}
                   prefetch={link.prefetch}
                   className={cn(
-                    'relative rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                    'relative rounded-md px-4 py-2 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
                     active
                       ? 'text-primary bg-primary/8'
                       : link.highlighted

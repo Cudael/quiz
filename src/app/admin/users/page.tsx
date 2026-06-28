@@ -79,14 +79,14 @@ export default async function AdminUsersPage({
         <CardContent className="space-y-6 pt-6">
           <form className="flex flex-col gap-3 lg:flex-row" method="GET">
             <input
-              className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               defaultValue={q ?? ''}
               name="q"
               placeholder="Search name/email/username"
               type="search"
             />
             <select
-              className="rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              className="rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               defaultValue={roleFilterValue}
               name="role"
             >
@@ -97,7 +97,7 @@ export default async function AdminUsersPage({
             <Button type="submit">Apply filters</Button>
           </form>
 
-          <div className="overflow-x-auto rounded-xl border border-border">
+          <div className="overflow-x-auto rounded-md border border-border">
             <table className="min-w-full text-sm">
               <thead className="bg-muted/40 text-left text-muted-foreground">
                 <tr>

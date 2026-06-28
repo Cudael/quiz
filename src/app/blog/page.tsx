@@ -38,14 +38,14 @@ export default function BlogPage() {
       </div>
 
       {posts.length === 0 ? (
-        <div className="rounded-xl border border-dashed bg-accent/20 p-12 text-center">
+        <div className="rounded-md border border-dashed bg-accent/20 p-12 text-center">
           <p className="text-muted-foreground">No posts yet. Check back soon!</p>
         </div>
       ) : (
         <div className="space-y-8">
           {/* Featured post */}
           {featured && (
-            <article className="group rounded-xl border border-border/50 bg-card p-6 md:p-8 transition-shadow hover:shadow-md">
+            <article className="group rounded-md border border-border/50 bg-card p-6 md:p-8 transition-shadow hover:shadow-md">
               <div className="mb-3 flex flex-wrap items-center gap-3 text-xs text-foreground/60">
                 <span className="inline-flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
@@ -100,7 +100,7 @@ export default function BlogPage() {
               {rest.map((post) => (
                 <article
                   key={post.slug}
-                  className="group rounded-xl border border-border/50 bg-card p-5 transition-shadow hover:shadow-md"
+                  className="group rounded-md border border-border/50 bg-card p-5 transition-shadow hover:shadow-md"
                 >
                   <div className="mb-2 flex flex-wrap items-center gap-3 text-xs text-foreground/60">
                     <span className="inline-flex items-center gap-1">

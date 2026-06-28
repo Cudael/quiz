@@ -15,14 +15,14 @@ interface PublishedQuizzesProps {
 
 export function PublishedQuizzes({ quizzes }: PublishedQuizzesProps) {
   return (
-    <section className="mt-6 rounded-xl border border-border bg-card p-6">
+    <section className="mt-6 rounded-md border border-border bg-card p-6">
       <h2 className="mb-4 text-lg font-semibold">Published Quizzes</h2>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {quizzes.map((quiz) => (
           <Link
             key={quiz.id}
             href={getQuizPath(quiz)}
-            className="rounded-lg border border-border p-3 transition-colors hover:bg-muted/40"
+            className="rounded-md border border-border p-3 transition-colors hover:bg-muted/40"
           >
             <p className="font-medium">{quiz.title}</p>
             <p className="text-xs text-muted-foreground">

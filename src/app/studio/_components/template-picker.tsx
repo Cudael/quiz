@@ -151,7 +151,7 @@ export function TemplatePicker({ selectedId, onSelect }: TemplatePickerProps) {
               type="button"
               onClick={() => onSelect(template)}
               className={cn(
-                'rounded-lg border p-2 text-left transition-all hover:border-primary/50',
+                'rounded-md border p-2 text-left transition-all hover:border-primary/50',
                 isSelected && 'ring-2',
                 isSelected && selectedBorderByTemplateId[template.id]
               )}

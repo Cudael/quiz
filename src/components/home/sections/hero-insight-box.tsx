@@ -48,7 +48,7 @@ export function HeroInsightBox({ currentUser, totalQuizCount, quickLinks }: Hero
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="What do you want to learn today?"
-              className="h-12 w-full rounded-2xl border border-border/60 bg-muted/30 pl-11 pr-10 text-sm transition-all focus:bg-background focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="h-12 w-full rounded-md border border-border/60 bg-muted/30 pl-11 pr-10 text-sm transition-all focus:bg-background focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20"
               aria-label="Search quizzes"
             />
             {query.length > 0 && (
@@ -64,7 +64,7 @@ export function HeroInsightBox({ currentUser, totalQuizCount, quickLinks }: Hero
           </div>
           <button
             type="submit"
-            className="h-12 rounded-2xl bg-primary px-5 text-sm font-extrabold text-white hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 active:scale-95 transition-all inline-flex items-center justify-center"
+            className="h-12 rounded-md bg-primary px-5 text-sm font-extrabold text-white hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 active:scale-95 transition-all inline-flex items-center justify-center"
             aria-label="Search"
           >
             <span className="hidden sm:inline">Search</span>
@@ -95,7 +95,7 @@ export function HeroInsightBox({ currentUser, totalQuizCount, quickLinks }: Hero
           <Link
             key={link.label}
             href={link.href}
-            className="inline-flex items-center justify-center sm:justify-start gap-1.5 rounded-xl border border-border/50 bg-card p-3 sm:px-4 sm:py-2 text-sm font-bold transition-all hover:border-primary/40 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-sm active:scale-95"
+            className="inline-flex items-center justify-center sm:justify-start gap-1.5 rounded-md border border-border/50 bg-card p-3 sm:px-4 sm:py-2 text-sm font-bold transition-all hover:border-primary/40 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-sm active:scale-95"
           >
             <link.icon className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
             <span>{link.label}</span>

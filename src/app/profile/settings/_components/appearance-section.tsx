@@ -12,7 +12,7 @@ export function AppearanceSection({ reducedMotion, setReducedMotion }: Appearanc
   const { theme, setTheme } = useTheme()
 
   return (
-    <section className="rounded-xl border border-border bg-card p-6">
+    <section className="rounded-md border border-border bg-card p-6">
       <h2 className="mb-4 text-lg font-semibold">Appearance</h2>
       <div className="space-y-3">
         <div className="space-y-1">

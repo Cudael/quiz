@@ -21,10 +21,10 @@ export function ContinueStreakStrip({ currentUser, recommendedQuiz }: ContinueSt
   const percent = Math.min(100, Math.round((xpIntoLevel / xpNeeded) * 100))
 
   return (
-    <section className="rounded-2xl border bg-card p-4 shadow-sm">
+    <section className="rounded-md border bg-card p-4 shadow-sm">
       <div className="grid gap-4 lg:grid-cols-[1.1fr_1fr_auto] lg:items-center">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-quiz-orange/10 text-quiz-orange">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-quiz-orange/10 text-quiz-orange">
             <Flame className="h-6 w-6" />
           </div>
           <div className="min-w-0">
@@ -54,13 +54,13 @@ export function ContinueStreakStrip({ currentUser, recommendedQuiz }: ContinueSt
         </div>
 
         <div className="flex flex-wrap gap-2 lg:justify-end">
-          <Button asChild className="rounded-xl font-bold">
+          <Button asChild className="rounded-md font-bold">
             <Link href={recommendedQuiz ? `/play/${recommendedQuiz.id}` : '/random-quiz'}>
               <Zap className="mr-2 h-4 w-4" />
               Keep Playing
             </Link>
           </Button>
-          <Button asChild variant="outline" className="rounded-xl">
+          <Button asChild variant="outline" className="rounded-md">
             <Link href="/profile/badges">
               <Award className="mr-2 h-4 w-4" />
               Badges

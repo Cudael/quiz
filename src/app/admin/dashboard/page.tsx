@@ -116,7 +116,7 @@ export default async function AdminDashboardPage() {
         {stats.map(({ label, value, Icon, iconClass }) => (
           <Card key={label}>
             <CardContent className="flex items-start gap-4 pt-6">
-              <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${iconClass}`}>
+              <div className={`flex h-10 w-10 items-center justify-center rounded-md ${iconClass}`}>
                 <Icon className="h-5 w-5" />
               </div>
               <div>
@@ -154,7 +154,7 @@ export default async function AdminDashboardPage() {
               {recentActions.map((action) => (
                 <div
                   key={action.id}
-                  className="flex flex-col gap-2 rounded-lg border border-border bg-background px-4 py-3 md:flex-row md:items-center md:justify-between"
+                  className="flex flex-col gap-2 rounded-md border border-border bg-background px-4 py-3 md:flex-row md:items-center md:justify-between"
                 >
                   <div>
                     <p className="font-medium">

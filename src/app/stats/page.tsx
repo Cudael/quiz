@@ -153,9 +153,9 @@ export default async function StatsPage() {
         {stats.map((s) => (
           <div
             key={s.label}
-            className="flex flex-col items-center rounded-2xl border border-border/60 bg-card p-5 text-center transition-all hover:-translate-y-1 hover:shadow-md"
+            className="flex flex-col items-center rounded-md border border-border/60 bg-card p-5 text-center transition-all hover:-translate-y-1 hover:shadow-md"
           >
-            <span className={`mb-3 flex h-12 w-12 items-center justify-center rounded-xl ${s.bg}`}>
+            <span className={`mb-3 flex h-12 w-12 items-center justify-center rounded-md ${s.bg}`}>
               <s.icon className={`h-6 w-6 ${s.color}`} />
             </span>
             <span className="text-2xl font-extrabold tracking-tight">{s.value}</span>
@@ -171,9 +171,9 @@ export default async function StatsPage() {
           {milestones.map((m) => (
             <div
               key={m.title}
-              className="flex items-start gap-4 rounded-xl border border-border/50 bg-card p-4"
+              className="flex items-start gap-4 rounded-md border border-border/50 bg-card p-4"
             >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-xl">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-muted text-xl">
                 {m.emoji}
               </span>
               <div className="min-w-0">
@@ -191,9 +191,9 @@ export default async function StatsPage() {
       </div>
 
       {/* Fun facts */}
-      <div className="rounded-2xl border border-border/40 bg-gradient-to-br from-quiz-purple/5 to-quiz-orange/5 p-6 md:p-8">
+      <div className="rounded-md border border-border/40 bg-gradient-to-br from-quiz-purple/5 to-quiz-orange/5 p-6 md:p-8">
         <div className="mb-4 flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-quiz-orange/10">
+          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-quiz-orange/10">
             <Zap className="h-4 w-4 text-quiz-orange" />
           </span>
           <h2 className="text-lg font-extrabold">Did You Know?</h2>

@@ -110,7 +110,7 @@ export function HotspotDisplay({
       <div
         ref={containerRef}
         data-zone-container
-        className={`relative overflow-hidden rounded-xl border-2 transition-colors duration-200 bg-card ${
+        className={`relative overflow-hidden rounded-md border-2 transition-colors duration-200 bg-card ${
           disabled ? 'cursor-default' : 'cursor-crosshair'
         } ${clickOutside ? 'border-destructive' : 'border-border/40'}`}
         onClick={handleImageClick}

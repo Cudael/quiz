@@ -157,7 +157,7 @@ export function StudioQuizBrowser({ quizzes }: StudioQuizBrowserProps) {
           ))}
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
+        <div className="overflow-x-auto rounded-md border">
           <table className="min-w-full text-sm">
             <thead className="bg-muted/40">
               <tr>

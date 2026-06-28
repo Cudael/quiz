@@ -40,7 +40,7 @@ export default async function MyQuizzesPage() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border bg-card p-6">
+      <section className="rounded-md border bg-card p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="text-3xl font-extrabold tracking-tight">My Quizzes</h1>
@@ -49,7 +49,7 @@ export default async function MyQuizzesPage() {
               next.
             </p>
           </div>
-          <Button asChild className="rounded-xl font-bold">
+          <Button asChild className="rounded-md font-bold">
             <Link href="/studio/quiz/new">
               <Plus className="mr-2 h-4 w-4" />
               New Quiz
@@ -66,13 +66,13 @@ export default async function MyQuizzesPage() {
       </section>
 
       {quizzes.length === 0 ? (
-        <section className="rounded-2xl border border-dashed bg-muted/30 p-10 text-center">
+        <section className="rounded-md border border-dashed bg-muted/30 p-10 text-center">
           <Sparkles className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" />
           <h2 className="font-bold">No quizzes created yet</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Start with a simple idea, add a few questions, and publish when it feels ready.
           </p>
-          <Button asChild className="mt-5 rounded-xl">
+          <Button asChild className="mt-5 rounded-md">
             <Link href="/studio/quiz/new">Create Your First Quiz</Link>
           </Button>
         </section>
@@ -89,7 +89,7 @@ export default async function MyQuizzesPage() {
               (averageQuizRating !== null && averageQuizRating < 3)
 
             return (
-              <article key={quiz.id} className="rounded-xl border bg-card p-4">
+              <article key={quiz.id} className="rounded-md border bg-card p-4">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                   <div className="min-w-0">
                     <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -150,7 +150,7 @@ export default async function MyQuizzesPage() {
 
 function CreatorStat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-xl border bg-card p-5">
+    <div className="rounded-md border bg-card p-5">
       <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
       <p className="mt-1 text-2xl font-black">{value}</p>
     </div>

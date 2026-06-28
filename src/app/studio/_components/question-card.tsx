@@ -51,7 +51,7 @@ export function QuestionCard({
   } = useQuestionCard({ question, index, quizId, onUpdate, onRemove })
 
   return (
-    <div className="rounded-xl border bg-card">
+    <div className="rounded-md border bg-card">
       {/* Header */}
       <div className="flex items-center gap-2 px-4 py-3">
         {reorderMode && (

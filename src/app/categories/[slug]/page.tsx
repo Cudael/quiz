@@ -401,7 +401,7 @@ export default async function CategoryPage({
       />
 
       {/* Banner */}
-      <section className="rounded-2xl border border-border/50 bg-card p-4 md:p-5">
+      <section className="rounded-md border border-border/50 bg-card p-4 md:p-5">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <Button variant="ghost" size="sm" asChild className="-ml-2 mb-1 h-7 px-2 text-xs">
@@ -415,7 +415,7 @@ export default async function CategoryPage({
               {category.description}
             </p>
           </div>
-          <div className="flex shrink-0 items-center gap-1.5 rounded-lg border border-border/50 bg-background px-3 py-1 text-sm">
+          <div className="flex shrink-0 items-center gap-1.5 rounded-md border border-border/50 bg-background px-3 py-1 text-sm">
             <span className="font-bold tabular-nums">{totalCount.toLocaleString()}</span>
             <span className="text-muted-foreground">{totalCount === 1 ? 'quiz' : 'quizzes'}</span>
           </div>
@@ -424,14 +424,14 @@ export default async function CategoryPage({
 
       {/* Subcategory pills */}
       {subcategories.length > 0 ? (
-        <div className="rounded-2xl border border-border/50 bg-card p-4">
+        <div className="rounded-md border border-border/50 bg-card p-4">
           <p className="mb-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Want to dig deeper?
           </p>
           <div className="flex flex-wrap gap-2">
             <Link
               href={`/categories/${category.slug}`}
-              className="rounded-lg border border-foreground/20 bg-foreground/10 px-3 py-1 text-sm font-semibold transition-colors hover:bg-foreground/15"
+              className="rounded-md border border-foreground/20 bg-foreground/10 px-3 py-1 text-sm font-semibold transition-colors hover:bg-foreground/15"
             >
               All
             </Link>
@@ -439,7 +439,7 @@ export default async function CategoryPage({
               <Link
                 key={sub.slug}
                 href={`/categories/${sub.slug}`}
-                className="rounded-lg border border-border/50 px-3 py-1 text-sm font-medium text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground"
+                className="rounded-md border border-border/50 px-3 py-1 text-sm font-medium text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground"
               >
                 {sub.name}
               </Link>
@@ -454,12 +454,12 @@ export default async function CategoryPage({
           Showing {resultStart}–{resultEnd} of {totalCount.toLocaleString()} results
         </p>
         <div className="flex flex-wrap gap-2">
-          <div className="flex items-center rounded-xl border border-border/50 bg-card p-0.5 text-sm">
+          <div className="flex items-center rounded-md border border-border/50 bg-card p-0.5 text-sm">
             {(Object.keys(DIFFICULTY_LABELS) as DifficultyFilter[]).map((key) => (
               <Link
                 key={key}
                 href={buildUrl(1, sort, key, completion)}
-                className={`rounded-lg px-3 py-1 font-medium transition-colors ${
+                className={`rounded-md px-3 py-1 font-medium transition-colors ${
                   difficulty === key
                     ? 'bg-foreground text-background'
                     : 'text-muted-foreground hover:text-foreground'
@@ -470,12 +470,12 @@ export default async function CategoryPage({
             ))}
           </div>
           {session?.user?.id && (
-            <div className="flex items-center rounded-xl border border-border/50 bg-card p-0.5 text-sm">
+            <div className="flex items-center rounded-md border border-border/50 bg-card p-0.5 text-sm">
               {(Object.keys(COMPLETION_LABELS) as CompletionFilter[]).map((key) => (
                 <Link
                   key={key}
                   href={buildUrl(1, sort, difficulty, key)}
-                  className={`rounded-lg px-3 py-1 font-medium transition-colors ${
+                  className={`rounded-md px-3 py-1 font-medium transition-colors ${
                     completion === key
                       ? 'bg-foreground text-background'
                       : 'text-muted-foreground hover:text-foreground'
@@ -486,12 +486,12 @@ export default async function CategoryPage({
               ))}
             </div>
           )}
-          <div className="flex items-center rounded-xl border border-border/50 bg-card p-0.5 text-sm">
+          <div className="flex items-center rounded-md border border-border/50 bg-card p-0.5 text-sm">
             {(Object.keys(SORT_LABELS) as SortOption[]).map((key) => (
               <Link
                 key={key}
                 href={buildUrl(1, key)}
-                className={`rounded-lg px-3 py-1 font-medium transition-colors ${
+                className={`rounded-md px-3 py-1 font-medium transition-colors ${
                   sort === key
                     ? 'bg-foreground text-background'
                     : 'text-muted-foreground hover:text-foreground'
@@ -516,7 +516,7 @@ export default async function CategoryPage({
           ))}
         </div>
       ) : (
-        <div className="rounded-2xl border border-dashed border-border bg-card/50 p-10 text-center">
+        <div className="rounded-md border border-dashed border-border bg-card/50 p-10 text-center">
           <p className="text-sm text-muted-foreground">
             No published quizzes in this category yet.
           </p>
@@ -553,7 +553,7 @@ export default async function CategoryPage({
         </nav>
       ) : null}
 
-      <section className="grid gap-4 rounded-2xl border bg-card p-5 lg:grid-cols-[1.2fr_1fr]">
+      <section className="grid gap-4 rounded-md border bg-card p-5 lg:grid-cols-[1.2fr_1fr]">
         <div>
           <h2 className="text-xl font-extrabold tracking-tight">About {category.name} Quizzes</h2>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -561,17 +561,17 @@ export default async function CategoryPage({
             unfinished topics, or replay favorites when you want to improve your score.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
-            <Button size="sm" asChild className="rounded-xl">
+            <Button size="sm" asChild className="rounded-md">
               <Link href="/random-quiz">Play Random Quiz</Link>
             </Button>
-            <Button size="sm" variant="outline" asChild className="rounded-xl">
+            <Button size="sm" variant="outline" asChild className="rounded-md">
               <Link href="/studio/quiz/new">Create a Quiz</Link>
             </Button>
           </div>
         </div>
         <div className="space-y-3">
           {faqItems.map((item) => (
-            <details key={item.question} className="rounded-xl border bg-background p-3">
+            <details key={item.question} className="rounded-md border bg-background p-3">
               <summary className="cursor-pointer text-sm font-bold">{item.question}</summary>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.answer}</p>
             </details>

@@ -76,7 +76,7 @@ export function AiGenerateDialog({ open, onClose, categories }: AiGenerateDialog
             onChange={(e) => setTopic(e.target.value)}
             placeholder='e.g., "World War II", "JavaScript basics", "Space exploration", "Famous painters"'
             rows={3}
-            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
           />
         </div>
 
@@ -88,7 +88,7 @@ export function AiGenerateDialog({ open, onClose, categories }: AiGenerateDialog
             id="ai-category"
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
-            className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm"
+            className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
           >
             {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>
@@ -107,7 +107,7 @@ export function AiGenerateDialog({ open, onClose, categories }: AiGenerateDialog
               id="ai-count"
               value={count}
               onChange={(e) => setCount(Number(e.target.value))}
-              className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm"
+              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
             >
               {COUNTS.map((n) => (
                 <option key={n} value={n}>
@@ -125,7 +125,7 @@ export function AiGenerateDialog({ open, onClose, categories }: AiGenerateDialog
                   key={d.value}
                   type="button"
                   onClick={() => setDifficulty(d.value)}
-                  className={`flex-1 rounded-lg border px-2 py-2 text-xs font-semibold transition-colors ${
+                  className={`flex-1 rounded-md border px-2 py-2 text-xs font-semibold transition-colors ${
                     difficulty === d.value
                       ? 'border-primary bg-primary/10 text-primary'
                       : 'border-border bg-background text-muted-foreground hover:bg-accent'
@@ -138,7 +138,7 @@ export function AiGenerateDialog({ open, onClose, categories }: AiGenerateDialog
           </div>
         </div>
 
-        <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-700 dark:text-amber-400">
+        <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-700 dark:text-amber-400">
           <strong>Review before publishing:</strong> The AI will generate a complete quiz with
           title, description, and {count} questions. Please review all questions and answers for
           accuracy before publishing — AI-generated content may contain errors.

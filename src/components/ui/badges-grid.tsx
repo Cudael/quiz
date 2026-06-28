@@ -65,7 +65,7 @@ export function BadgesGrid({ badges, earnedBadges, badgeLeaders }: BadgesGridPro
               type="button"
               onClick={() => setOpenBadge(badge)}
               className={cn(
-                'group relative overflow-hidden rounded-2xl border p-4 text-left transition-all duration-200',
+                'group relative overflow-hidden rounded-md border p-4 text-left transition-all duration-200',
                 isEarned
                   ? 'border-quiz-purple/40 bg-quiz-purple/10 shadow-sm hover:shadow-md hover:border-quiz-purple/60 hover:scale-[1.02]'
                   : 'border-border/60 bg-muted/20 hover:bg-muted/30 grayscale opacity-50 hover:opacity-60'
@@ -80,7 +80,7 @@ export function BadgesGrid({ badges, earnedBadges, badgeLeaders }: BadgesGridPro
               {/* Gradient shimmer on earned badges */}
               {isEarned && (
                 <div
-                  className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"
+                  className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-md"
                   style={{
                     background:
                       'linear-gradient(135deg, hsl(var(--color-quiz-purple) / 0.06) 0%, hsl(var(--color-quiz-pink) / 0.06) 100%)',
@@ -120,7 +120,7 @@ export function BadgesGrid({ badges, earnedBadges, badgeLeaders }: BadgesGridPro
               <p className="font-bold text-xs uppercase tracking-wider text-muted-foreground mb-1.5">
                 Criteria
               </p>
-              <pre className="overflow-auto rounded-xl bg-muted p-3 text-xs leading-relaxed">
+              <pre className="overflow-auto rounded-md bg-muted p-3 text-xs leading-relaxed">
                 {openBadge.criteria}
               </pre>
             </div>

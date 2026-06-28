@@ -35,11 +35,11 @@ export function AuthControls() {
       <div className="flex items-center gap-1 md:gap-2">
         <Link
           href="/sign-in"
-          className="rounded-lg px-2 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground md:px-3 md:text-sm"
+          className="rounded-md px-2 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground md:px-3 md:text-sm"
         >
           Sign in
         </Link>
-        <Button asChild size="sm" className="rounded-lg text-xs md:text-sm">
+        <Button asChild size="sm" className="rounded-md text-xs md:text-sm">
           <Link href="/sign-up">Register</Link>
         </Button>
       </div>

@@ -113,7 +113,7 @@ export default async function CategoriesPage({
         </div>
 
         {quizzes.length === 0 ? (
-          <div className="rounded-xl border border-dashed bg-accent/20 p-12 text-center">
+          <div className="rounded-md border border-dashed bg-accent/20 p-12 text-center">
             <Search className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
             <p className="text-sm text-muted-foreground">
               No quizzes match &ldquo;{query}&rdquo;. Try a different search term.
@@ -232,7 +232,7 @@ function formatCount(n: number): string {
 
 function CategoryCard({ category }: { category: CategoryWithQuizzes }) {
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl border bg-card transition-shadow hover:shadow-md">
+    <div className="flex flex-col overflow-hidden rounded-md border bg-card transition-shadow hover:shadow-md">
       {/* Header — colored */}
       <div
         className="flex items-center justify-between px-4 py-3"

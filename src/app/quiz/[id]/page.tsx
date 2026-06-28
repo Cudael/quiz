@@ -183,7 +183,7 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
         {/* Main content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Hero card — image left, content right */}
-          <div className="overflow-hidden rounded-2xl border bg-card">
+          <div className="overflow-hidden rounded-md border bg-card">
             <div className="flex flex-col sm:flex-row">
               {/* Image — compact, left side */}
               <div className="relative h-48 w-full shrink-0 sm:h-auto sm:w-56 md:w-64">
@@ -245,7 +245,7 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
                   asChild
                   size="lg"
                   variant="gradient"
-                  className="w-full sm:w-fit rounded-xl font-bold shadow-lg shadow-quiz-purple/25"
+                  className="w-full sm:w-fit rounded-md font-bold shadow-lg shadow-quiz-purple/25"
                 >
                   <Link href={`/play/${quiz.id}`}>
                     <Zap className="mr-2 h-5 w-5" />
@@ -285,7 +285,7 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
             </div>
 
             {/* What to Expect */}
-            <div className="rounded-lg border border-dashed bg-muted/30 p-4">
+            <div className="rounded-md border border-dashed bg-muted/30 p-4">
               <p className="text-sm font-semibold mb-1">📋 What to Expect</p>
               <p className="text-xs text-muted-foreground">
                 {questionCount} questions · ~20 seconds each · Average score is{' '}
@@ -300,7 +300,7 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
           </div>
 
           {/* Rating + Report */}
-          <div className="rounded-lg border p-4">
+          <div className="rounded-md border p-4">
             <RateQuizForm
               quizId={quiz.id}
               userRating={userRating?.stars ?? null}
@@ -327,7 +327,7 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
               </Suspense>
             </Card>
             <div className="mt-4">
-              <Button variant="outline" asChild className="w-full rounded-xl">
+              <Button variant="outline" asChild className="w-full rounded-md">
                 <Link href="/categories">Browse all quizzes</Link>
               </Button>
             </div>

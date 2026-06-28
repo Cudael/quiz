@@ -69,7 +69,7 @@ export default async function ProfilePage() {
     <div className="space-y-6">
       {/* ── Stats Grid ── */}
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border bg-card p-5">
+        <div className="rounded-md border bg-card p-5">
           <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
             Level {progress.level}
           </p>
@@ -113,19 +113,19 @@ export default async function ProfilePage() {
 
       {/* ── Quick Actions ── */}
       <section className="grid gap-3 sm:grid-cols-3">
-        <Button asChild variant="gradient" size="lg" className="rounded-xl">
+        <Button asChild variant="gradient" size="lg" className="rounded-md">
           <Link href="/random-quiz" className="inline-flex items-center justify-center">
             <Zap className="mr-2 h-5 w-5 shrink-0" />
             Play Random Quiz
           </Link>
         </Button>
-        <Button asChild variant="outline" size="lg" className="rounded-xl">
+        <Button asChild variant="outline" size="lg" className="rounded-md">
           <Link href="/studio" className="inline-flex items-center justify-center">
             <PenLine className="mr-2 h-5 w-5 shrink-0" />
             Create a Quiz
           </Link>
         </Button>
-        <Button asChild variant="outline" size="lg" className="rounded-xl">
+        <Button asChild variant="outline" size="lg" className="rounded-md">
           <Link href={`/u/${user.username}`} className="inline-flex items-center justify-center">
             <Share2 className="mr-2 h-5 w-5 shrink-0" />
             Public Profile
@@ -134,7 +134,7 @@ export default async function ProfilePage() {
       </section>
 
       {/* ── Recent Activity ── */}
-      <section className="rounded-xl border bg-card p-6">
+      <section className="rounded-md border bg-card p-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-bold">Recent Activity</h2>
           {authoredCount > 0 && (
@@ -144,7 +144,7 @@ export default async function ProfilePage() {
           )}
         </div>
         {user.sessions.length === 0 ? (
-          <div className="rounded-lg border border-dashed bg-muted/30 p-8 text-center">
+          <div className="rounded-md border border-dashed bg-muted/30 p-8 text-center">
             <Play className="mx-auto mb-2 h-8 w-8 text-muted-foreground/50" />
             <p className="text-sm text-muted-foreground">
               No sessions yet.{' '}
@@ -159,7 +159,7 @@ export default async function ProfilePage() {
               <Link
                 key={s.id}
                 href={`/quiz/${s.quiz.id}`}
-                className="flex items-center justify-between rounded-lg border px-4 py-3 text-sm transition-colors hover:bg-accent/50"
+                className="flex items-center justify-between rounded-md border px-4 py-3 text-sm transition-colors hover:bg-accent/50"
               >
                 <p className="truncate font-medium">{s.quiz.title}</p>
                 <div className="ml-4 flex shrink-0 items-center gap-3 text-xs text-muted-foreground">
@@ -178,7 +178,7 @@ export default async function ProfilePage() {
       </section>
 
       {/* ── Badges ── */}
-      <section className="rounded-xl border bg-card p-6">
+      <section className="rounded-md border bg-card p-6">
         <div className="mb-4 flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold">Badges</h2>
@@ -194,7 +194,7 @@ export default async function ProfilePage() {
           </Button>
         </div>
         {user.badges.length === 0 ? (
-          <div className="rounded-lg border border-dashed bg-muted/30 p-6 text-center">
+          <div className="rounded-md border border-dashed bg-muted/30 p-6 text-center">
             <Award className="mx-auto mb-2 h-8 w-8 text-muted-foreground/50" />
             <p className="text-sm text-muted-foreground">
               No badges yet — keep playing to unlock some!
@@ -205,7 +205,7 @@ export default async function ProfilePage() {
             {user.badges.map((ub) => (
               <div
                 key={ub.badgeId}
-                className="flex items-center gap-3 rounded-lg border border-quiz-green/20 bg-quiz-green/5 px-4 py-3"
+                className="flex items-center gap-3 rounded-md border border-quiz-green/20 bg-quiz-green/5 px-4 py-3"
               >
                 <span className="text-xl" aria-hidden="true">
                   {getBadgeEmoji(ub.badge.slug)}
@@ -235,7 +235,7 @@ function StatCard({
   sub?: string
 }) {
   return (
-    <div className="flex flex-col justify-between rounded-xl border bg-card p-5">
+    <div className="flex flex-col justify-between rounded-md border bg-card p-5">
       <div className="mb-2 flex items-center gap-1.5">
         {icon}
         <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">

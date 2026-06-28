@@ -20,7 +20,7 @@ export function DangerZoneSection({ username }: DangerZoneSectionProps) {
 
   return (
     <>
-      <section className="rounded-xl border border-destructive/40 bg-card p-6">
+      <section className="rounded-md border border-destructive/40 bg-card p-6">
         <h2 className="mb-2 text-lg font-semibold text-destructive">Danger zone</h2>
         <p className="mb-4 text-sm text-muted-foreground">
           Delete your account permanently. Type {usernameForDelete} to confirm.

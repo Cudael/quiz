@@ -195,7 +195,7 @@ export function QuestionPanel({
       >
         <div className="mb-6 space-y-4">
           {showHeaderImage ? (
-            <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-muted/20">
+            <div className="relative overflow-hidden rounded-md border border-border/60 bg-muted/20">
               <Image
                 loader={imageLoader}
                 unoptimized
@@ -236,7 +236,7 @@ export function QuestionPanel({
                 }}
                 disabled={isAnswered}
                 placeholder="Type your answer…"
-                className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+                className="w-full rounded-md border border-border bg-card px-4 py-3 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
               />
             </div>
           </div>
@@ -274,7 +274,7 @@ export function QuestionPanel({
                     onClick={() => onChoiceSelect(choice.id)}
                     disabled={isAnswered}
                     className={cn(
-                      'relative flex flex-col items-center gap-2 overflow-hidden rounded-xl border p-2 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                      'relative flex flex-col items-center gap-2 overflow-hidden rounded-md border p-2 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                       isAnswered
                         ? isSelected
                           ? isCorrect
@@ -298,10 +298,10 @@ export function QuestionPanel({
                         alt={`Choice ${idx + 1}`}
                         width={200}
                         height={150}
-                        className="h-32 w-full rounded-lg object-cover"
+                        className="h-32 w-full rounded-md object-cover"
                       />
                     ) : (
-                      <div className="flex h-32 w-full items-center justify-center rounded-lg bg-muted/30">
+                      <div className="flex h-32 w-full items-center justify-center rounded-md bg-muted/30">
                         <span className="text-xs text-muted-foreground">No image</span>
                       </div>
                     )}
@@ -326,7 +326,7 @@ export function QuestionPanel({
                     onClick={() => onChoiceSelect(choice.id)}
                     disabled={isAnswered}
                     className={cn(
-                      'flex min-h-[56px] items-center gap-3 rounded-xl border p-4 text-left text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                      'flex min-h-[56px] items-center gap-3 rounded-md border p-4 text-left text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                       isAnswered
                         ? isSelected
                           ? isCorrect

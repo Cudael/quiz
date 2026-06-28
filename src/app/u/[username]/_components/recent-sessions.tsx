@@ -15,7 +15,7 @@ interface RecentSessionsProps {
 
 export function RecentSessions({ sessions }: RecentSessionsProps) {
   return (
-    <section className="rounded-xl border border-border bg-card p-6">
+    <section className="rounded-md border border-border bg-card p-6">
       <h2 className="mb-4 text-lg font-semibold">Recent Sessions</h2>
       <div className="space-y-3">
         {sessions.map((sessionRow) => {
@@ -24,7 +24,7 @@ export function RecentSessions({ sessions }: RecentSessionsProps) {
               ? Math.round((sessionRow.correctCount / sessionRow.totalCount) * 100)
               : 0
           return (
-            <div key={sessionRow.id} className="rounded-lg border border-border p-3 text-sm">
+            <div key={sessionRow.id} className="rounded-md border border-border p-3 text-sm">
               <p className="font-medium">{sessionRow.quiz.title}</p>
               <p className="text-xs text-muted-foreground">
                 {sessionRow.score} pts • {accuracy}% accuracy

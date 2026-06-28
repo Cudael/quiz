@@ -210,7 +210,7 @@ export default async function ProfileBadgesPage() {
               return (
                 <div
                   key={badge.id}
-                  className="group flex items-start gap-4 rounded-xl border border-quiz-green/30 bg-quiz-green/5 p-4 transition-shadow hover:shadow-md"
+                  className="group flex items-start gap-4 rounded-md border border-quiz-green/30 bg-quiz-green/5 p-4 transition-shadow hover:shadow-md"
                 >
                   <span className="text-3xl shrink-0" aria-hidden="true">
                     {getBadgeEmoji(badge.slug)}
@@ -250,7 +250,7 @@ export default async function ProfileBadgesPage() {
               return (
                 <div
                   key={badge.id}
-                  className="flex items-start gap-4 rounded-xl border border-border/40 bg-muted/20 p-4 opacity-70 transition-opacity hover:opacity-100"
+                  className="flex items-start gap-4 rounded-md border border-border/40 bg-muted/20 p-4 opacity-70 transition-opacity hover:opacity-100"
                 >
                   <span className="text-3xl shrink-0 grayscale" aria-hidden="true">
                     {getBadgeEmoji(badge.slug)}
@@ -285,7 +285,7 @@ export default async function ProfileBadgesPage() {
         </section>
       )}
 
-      <div className="mt-12 rounded-xl border bg-muted/30 p-6 text-center">
+      <div className="mt-12 rounded-md border bg-muted/30 p-6 text-center">
         <p className="text-sm text-muted-foreground">
           Play more quizzes to unlock the rest.{' '}
           <Link href="/categories" className="font-semibold text-primary hover:underline">

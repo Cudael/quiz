@@ -21,7 +21,7 @@ export function AccountSection({ email, hasPassword, providers }: AccountSection
   })
 
   return (
-    <section className="rounded-xl border border-border bg-card p-6">
+    <section className="rounded-md border border-border bg-card p-6">
       <h2 className="mb-4 text-lg font-semibold">Account</h2>
       <p className="text-sm text-muted-foreground">
         Email: <span className="font-medium">{email ?? 'Not set'}</span>

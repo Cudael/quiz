@@ -17,7 +17,7 @@ export function ProfileSection({ profile, setProfile }: ProfileSectionProps) {
   const { addToast } = useToast()
 
   return (
-    <section className="rounded-xl border border-border bg-card p-6">
+    <section className="rounded-md border border-border bg-card p-6">
       <h2 className="mb-4 text-lg font-semibold">Profile</h2>
       <form
         className="space-y-3"
@@ -117,7 +117,7 @@ export function ProfileSection({ profile, setProfile }: ProfileSectionProps) {
             <img
               src={profile.bannerImage}
               alt="Profile banner preview"
-              className="h-28 w-full rounded-lg border border-border object-cover"
+              className="h-28 w-full rounded-md border border-border object-cover"
             />
           </div>
         ) : null}

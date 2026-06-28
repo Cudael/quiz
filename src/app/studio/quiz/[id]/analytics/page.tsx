@@ -150,13 +150,13 @@ export default async function QuizAnalyticsPage({ params }: { params: Promise<{ 
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" asChild className="rounded-xl">
+            <Button variant="outline" asChild className="rounded-md">
               <Link href={`/quiz/${quiz.id}`}>
                 <Eye className="mr-2 h-4 w-4" />
                 Preview
               </Link>
             </Button>
-            <Button asChild className="rounded-xl">
+            <Button asChild className="rounded-md">
               <Link href={`/studio/quiz/${quiz.id}/edit`}>
                 <FilePenLine className="mr-2 h-4 w-4" />
                 Edit Quiz
@@ -191,11 +191,11 @@ export default async function QuizAnalyticsPage({ params }: { params: Promise<{ 
       </section>
 
       {mostMissed.length > 0 && (
-        <section className="rounded-2xl border bg-card p-5">
+        <section className="rounded-md border bg-card p-5">
           <h2 className="text-lg font-bold">Most Missed Questions</h2>
           <div className="mt-4 grid gap-3 lg:grid-cols-3">
             {mostMissed.map((question) => (
-              <div key={question.id} className="rounded-xl border bg-muted/20 p-4">
+              <div key={question.id} className="rounded-md border bg-muted/20 p-4">
                 <p className="text-xs font-bold text-muted-foreground">Question {question.index}</p>
                 <p className="mt-1 line-clamp-3 text-sm font-semibold">{question.prompt}</p>
                 <p className="mt-3 text-2xl font-black text-destructive">{question.correctRate}%</p>
@@ -206,7 +206,7 @@ export default async function QuizAnalyticsPage({ params }: { params: Promise<{ 
         </section>
       )}
 
-      <section className="rounded-2xl border bg-card p-5">
+      <section className="rounded-md border bg-card p-5">
         <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="text-lg font-bold">Question Performance</h2>
@@ -218,7 +218,7 @@ export default async function QuizAnalyticsPage({ params }: { params: Promise<{ 
         </div>
         <div className="space-y-3">
           {questionStats.map((question) => (
-            <article key={question.id} className="rounded-xl border p-4">
+            <article key={question.id} className="rounded-md border p-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0">
                   <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -280,7 +280,7 @@ function AnalyticsStat({
   value: string | number
 }) {
   return (
-    <div className="rounded-xl border bg-card p-4">
+    <div className="rounded-md border bg-card p-4">
       <div className="mb-2 flex items-center gap-2 text-muted-foreground">
         {icon}
         <span className="text-xs font-semibold uppercase tracking-wider">{label}</span>
@@ -292,7 +292,7 @@ function AnalyticsStat({
 
 function MiniStat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-lg border bg-background px-2 py-2">
+    <div className="rounded-md border bg-background px-2 py-2">
       <p className="text-sm font-black">{value}</p>
       <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
     </div>
