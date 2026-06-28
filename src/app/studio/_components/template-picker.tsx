@@ -106,7 +106,7 @@ export const QUIZ_TEMPLATES: QuizTemplate[] = [
     id: 'text-choice',
     format: 'TEXT_CHOICE',
     name: 'Text Choice',
-    color: 'text-primary',
+    color: 'text-quiz-orange',
     timeLimitSec: 20,
     questionCount: 5,
   },

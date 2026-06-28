@@ -19,10 +19,10 @@ const sizeClasses = {
 }
 
 const fallbackColors = [
-  'bg-primary/15 text-primary',
+  'bg-quiz-orange/15 text-quiz-orange',
   'bg-muted text-muted-foreground',
   'bg-accent text-accent-foreground',
-  'bg-primary/10 text-primary',
+  'bg-quiz-orange/10 text-quiz-orange',
   'bg-muted text-foreground',
 ] as const
 
@@ -67,7 +67,7 @@ export function Avatar({ src, alt, fallback, size = 'md', className, ...props }:
           onError={() => setImgError(true)}
         />
       ) : (
-        <span className="flex h-full w-full items-center justify-center font-bold text-primary-foreground">
+        <span className="flex h-full w-full items-center justify-center font-bold text-white">
           {initials}
         </span>
       )}

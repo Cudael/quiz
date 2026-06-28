@@ -131,7 +131,7 @@ export function BadgesGrid({ badges, earnedBadges, badgeLeaders }: BadgesGridPro
               <ul className="space-y-1.5">
                 {(badgeLeaders[openBadge.id] ?? []).slice(0, 5).map((earner) => (
                   <li key={earner.id} className="flex items-center gap-2 text-sm">
-                    <span className="h-6 w-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center shrink-0">
+                    <span className="h-6 w-6 rounded-full bg-quiz-orange/10 text-quiz-orange text-xs font-bold flex items-center justify-center shrink-0">
                       {earner.name.charAt(0).toUpperCase()}
                     </span>
                     {earner.username ? `${earner.name} (@${earner.username})` : earner.name}

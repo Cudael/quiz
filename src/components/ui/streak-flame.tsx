@@ -44,7 +44,7 @@ export function StreakFlame({ value, best, size = 'md', className }: StreakFlame
         {/* Glow ring for hot streaks */}
         {value >= 7 && (
           <span
-            className="absolute inset-0 rounded-full blur-sm bg-primary/35"
+            className="absolute inset-0 rounded-full blur-sm bg-quiz-orange/35"
             aria-hidden="true"
           />
         )}

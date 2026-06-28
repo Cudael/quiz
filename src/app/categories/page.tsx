@@ -206,7 +206,7 @@ export default async function CategoriesPage({
           </Link>
         </Button>
         <h1 className="text-3xl font-extrabold md:text-4xl">
-          Browse <span className="text-primary">Quiz Categories</span>
+          Browse <span className="text-quiz-orange">Quiz Categories</span>
         </h1>
         <p className="mt-2 text-muted-foreground">
           {allWithQuizzes.length} categories · {totalQuizzes} quizzes

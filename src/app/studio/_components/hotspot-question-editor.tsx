@@ -235,8 +235,8 @@ export function HotspotQuestionEditor() {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
-        <p className="text-sm font-semibold text-primary">Image Hotspot Quiz</p>
+      <div className="rounded-lg border border-quiz-orange/20 bg-quiz-orange/5 px-4 py-3">
+        <p className="text-sm font-semibold text-quiz-orange">Image Hotspot Quiz</p>
         <p className="mt-0.5 text-sm text-muted-foreground">
           Upload an image and click on it to place zones. Drag existing zones to reposition them.
           Each zone becomes a question where players must click that area of the image.
@@ -321,13 +321,13 @@ export function HotspotQuestionEditor() {
                   }}
                 >
                   <div
-                    className="rounded-full border-2 border-primary bg-primary/30 animate-pulse"
+                    className="rounded-full border-2 border-quiz-orange bg-quiz-orange/30 animate-pulse"
                     style={{
                       width: `${zoneForm.radius * HOTSPOT_RADIUS_SCALE}px`,
                       height: `${zoneForm.radius * HOTSPOT_RADIUS_SCALE}px`,
                     }}
                   />
-                  <Target className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+                  <Target className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-4 w-4 text-quiz-orange" />
                 </div>
               )}
             </div>

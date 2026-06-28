@@ -63,8 +63,8 @@ export function StepQuestions({ quizId }: StepQuestionsProps) {
 
 function FormatBanner({ title, description }: { title: string; description: string }) {
   return (
-    <div className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
-      <p className="text-sm font-semibold text-primary">{title}</p>
+    <div className="rounded-lg border border-quiz-orange/20 bg-quiz-orange/5 px-4 py-3">
+      <p className="text-sm font-semibold text-quiz-orange">{title}</p>
       <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
     </div>
   )

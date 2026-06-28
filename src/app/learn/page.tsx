@@ -150,7 +150,7 @@ export default function LearnPage() {
               key={tip.title}
               className="flex gap-4 rounded-xl border border-border/40 bg-card p-5"
             >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-quiz-orange/10 text-quiz-orange">
                 <tip.icon className="h-5 w-5" />
               </span>
               <div>

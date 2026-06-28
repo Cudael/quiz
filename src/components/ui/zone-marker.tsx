@@ -77,7 +77,7 @@ export function ZoneMarker({
         style={{
           width: `${sizePx}px`,
           height: `${sizePx}px`,
-          ...(isSmall ? { backgroundColor: 'hsl(var(--primary))' } : {}),
+          ...(isSmall ? { backgroundColor: '#f97316' } : {}),
         }}
       />
       {showLabel && name && (

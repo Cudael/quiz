@@ -33,6 +33,12 @@ const allowlist = new Set([
   'app/profile/layout.tsx',
   // Studio stat values: text-white on gradient backgrounds — intentional contrast.
   'app/studio/page.tsx',
+  // About step numbers: text-white on bg-quiz-orange — intentional contrast.
+  'app/about/page.tsx',
+  // Avatar fallback: text-white on bg-quiz-orange — intentional contrast.
+  'components/ui/avatar.tsx',
+  // Badge default variant: text-white on bg-quiz-orange — intentional contrast.
+  'components/ui/badge.tsx',
 ])
 
 async function walk(dir) {

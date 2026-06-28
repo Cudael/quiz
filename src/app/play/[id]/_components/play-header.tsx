@@ -46,7 +46,7 @@ export function PlayHeader({
         </div>
         <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
           <div
-            className="h-full rounded-full bg-primary transition-all duration-500"
+            className="h-full rounded-full bg-quiz-orange transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -59,7 +59,7 @@ export function PlayHeader({
         </div>
       </div>
       <div className="text-right">
-        <p className="text-base font-bold text-primary sm:text-lg">{score}</p>
+        <p className="text-base font-bold text-quiz-orange sm:text-lg">{score}</p>
         <p className="text-xs text-muted-foreground">pts</p>
       </div>
       <button

@@ -44,7 +44,7 @@ export function LeaderboardTable({ pageRows, currentUserId }: LeaderboardTablePr
             return (
               <tr
                 key={row.key}
-                className={`border-t border-border ${isCurrentUser ? 'bg-primary/10' : ''}`}
+                className={`border-t border-border ${isCurrentUser ? 'bg-quiz-orange/10' : ''}`}
               >
                 <td className="px-4 py-3 font-semibold">
                   <div className="inline-flex items-center gap-1">

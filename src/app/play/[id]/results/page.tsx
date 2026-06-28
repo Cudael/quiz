@@ -338,7 +338,7 @@ function NextStepCard({
         primary ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-card'
       }`}
     >
-      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-background/80 text-primary">
+      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-background/80 text-quiz-orange">
         {icon}
       </div>
       <h2 className="font-bold">{title}</h2>
