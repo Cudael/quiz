@@ -11,6 +11,7 @@ import {
   MessageSquare,
   ScrollText,
   Tag,
+  Upload,
   Users,
 } from 'lucide-react'
 import { auth } from '@/server/auth'
@@ -69,6 +70,10 @@ export default async function AdminLayout({ children }: { children: ReactNode })
             <AdminNavLink href="/admin/quizzes">
               <BookOpen className="h-4 w-4" />
               <span>Quizzes</span>
+            </AdminNavLink>
+            <AdminNavLink href="/admin/quizzes/import">
+              <Upload className="h-4 w-4" />
+              <span>Bulk Import</span>
             </AdminNavLink>
             <AdminNavLink href="/admin/categories">
               <Tag className="h-4 w-4" />

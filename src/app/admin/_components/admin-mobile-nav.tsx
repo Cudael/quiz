@@ -12,6 +12,7 @@ import {
   Menu,
   ScrollText,
   Tag,
+  Upload,
   Users,
 } from 'lucide-react'
 import { Sheet } from '@/components/ui/sheet'
@@ -26,6 +27,7 @@ const NAV_SECTIONS = [
     label: 'Content',
     items: [
       { href: '/admin/quizzes', icon: BookOpen, label: 'Quizzes' },
+      { href: '/admin/quizzes/import', icon: Upload, label: 'Bulk Import' },
       { href: '/admin/categories', icon: Tag, label: 'Categories' },
     ],
   },
