@@ -156,7 +156,7 @@ export const QuizCardHorizontal = React.memo(function QuizCardHorizontal({
               fill
               unoptimized
               sizes="176px"
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              className="object-cover transition-all duration-500 group-hover:brightness-110"
               onError={() => setImageFailed(true)}
             />
           ) : null}
@@ -215,14 +215,10 @@ export const QuizCard = React.memo(function QuizCard({ quiz, className }: QuizCa
 
   return (
     <Link href={getQuizPath(quiz)} className={cn('group block', className)}>
-      <motion.div
-        whileHover={shouldReduceMotion ? undefined : { y: -3, scale: 1.01 }}
-        transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="rounded-md border border-border/50 shadow-md transition-shadow duration-300 group-hover:shadow-xl group-hover:shadow-quiz-purple/10"
-      >
+      <motion.div className="rounded-md border border-border/50 shadow-md transition-shadow duration-300 group-hover:shadow-xl group-hover:shadow-quiz-purple/10">
         {/* Square image area */}
         <div
-          className="relative aspect-square w-full overflow-hidden rounded-t-xl"
+          className="relative aspect-square w-full overflow-hidden rounded-t-md"
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
@@ -237,7 +233,7 @@ export const QuizCard = React.memo(function QuizCard({ quiz, className }: QuizCa
               fill
               unoptimized
               sizes="(max-width: 768px) 100vw, 256px"
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              className="object-cover transition-all duration-500 group-hover:brightness-110"
               onError={() => setImageFailed(true)}
             />
           ) : null}
@@ -274,7 +270,7 @@ export const QuizCard = React.memo(function QuizCard({ quiz, className }: QuizCa
         </div>
 
         {/* Info section — more vertical space */}
-        <div className="flex flex-col gap-2 rounded-b-xl bg-card px-4 py-4">
+        <div className="flex flex-col gap-2 rounded-b-md bg-card px-4 py-4">
           <div className="flex items-start justify-between gap-2">
             <h3 className="line-clamp-2 flex-1 text-sm font-extrabold leading-tight text-foreground">
               {quiz.title}
@@ -326,7 +322,7 @@ export const QuizCardFeatured = React.memo(function QuizCardFeatured({
               fill
               unoptimized
               sizes="(max-width: 1024px) 50vw, 33vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              className="object-cover transition-all duration-500 group-hover:brightness-110"
               onError={() => setImageFailed(true)}
             />
           ) : null}
