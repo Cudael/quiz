@@ -27,7 +27,7 @@ export default async function StudioPage({
   const { tab } = await searchParams
   const activeTab = tab === 'drafts' ? 'drafts' : 'published'
 
-  const [quizzes, categories] = await Promise.all([
+  const [quizzes, categories, publishedCount, draftCount] = await Promise.all([
     prisma.quiz.findMany({
       where: {
         authorId: session.user.id,
@@ -53,11 +53,11 @@ export default async function StudioPage({
       orderBy: { name: 'asc' },
       select: { id: true, name: true },
     }),
+    prisma.quiz.count({ where: { authorId: session.user.id, isPublished: true } }),
+    prisma.quiz.count({ where: { authorId: session.user.id, isPublished: false } }),
   ])
 
   const isAdmin = session.user.role === 'ADMIN'
-  const publishedCount = quizzes.filter((quiz) => quiz.isPublished).length
-  const draftCount = quizzes.length - publishedCount
   const totalPlays = quizzes.reduce((sum, quiz) => sum + quiz.playCount, 0)
   const allRatings = quizzes.flatMap((quiz) => quiz.ratings.map((rating) => rating.stars))
   const averageRating =
@@ -99,11 +99,11 @@ export default async function StudioPage({
             <Button
               asChild
               size="lg"
-              className="rounded-md shadow-sm font-bold bg-quiz-purple hover:bg-quiz-purple/90 text-white"
+              className="rounded-md shadow-sm font-bold bg-quiz-orange hover:bg-quiz-orange/90 text-white"
             >
               <Link href="/studio/quiz/new">
                 <Plus className="mr-1.5 h-5 w-5 shrink-0" />
-                New Quiz
+                Create a Quiz
               </Link>
             </Button>
           </div>
@@ -216,7 +216,7 @@ function StudioStat({
   value: string | number
 }) {
   return (
-    <div className="flex flex-col justify-between rounded-md border bg-card p-5 transition-all hover:-translate-y-1 hover:shadow-md">
+    <div className="flex flex-col justify-between rounded-md border bg-card p-5 transition-all hover:shadow-md">
       <div className="mb-2 flex items-center gap-1.5 text-muted-foreground">
         {icon}
         <span className="text-xs font-bold uppercase tracking-wider">{label}</span>
