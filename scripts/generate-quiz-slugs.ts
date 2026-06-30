@@ -15,21 +15,23 @@ async function main() {
 
   const existingSlugs = new Set<string>()
 
-  // Pre-populate with any existing slugs
+  // Pre-populate with clean existing slugs (no numeric suffixes)
   for (const q of quizzes) {
-    if (q.slug) existingSlugs.add(q.slug)
+    if (q.slug && !/-\d+$/.test(q.slug)) existingSlugs.add(q.slug)
   }
 
   let updated = 0
   let skipped = 0
 
   for (const quiz of quizzes) {
-    // Skip if already has a slug
-    if (quiz.slug) {
+    // Skip if already has a clean slug (no numeric suffix)
+    if (quiz.slug && !/-\d+$/.test(quiz.slug)) {
+      existingSlugs.add(quiz.slug)
       skipped++
       continue
     }
 
+    // Regenerate slug for quizzes with no slug or with numeric suffix (e.g. -2, -3)
     const slug = await generateUniqueSlug(quiz.title, async (s) => existingSlugs.has(s))
     existingSlugs.add(slug)
 
