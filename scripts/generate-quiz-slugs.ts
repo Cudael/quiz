@@ -7,7 +7,7 @@ async function main() {
   console.log('Generating slugs for existing quizzes...')
 
   const quizzes = await prisma.quiz.findMany({
-    select: { id: true, title: true },
+    select: { id: true, title: true, slug: true },
     orderBy: { createdAt: 'asc' },
   })
 
@@ -16,11 +16,7 @@ async function main() {
   const existingSlugs = new Set<string>()
 
   // Pre-populate with any existing slugs
-  const existing = await prisma.quiz.findMany({
-    where: { slug: { not: '' } },
-    select: { id: true, slug: true },
-  })
-  for (const q of existing) {
+  for (const q of quizzes) {
     if (q.slug) existingSlugs.add(q.slug)
   }
 
@@ -29,7 +25,7 @@ async function main() {
 
   for (const quiz of quizzes) {
     // Skip if already has a slug
-    if (existingSlugs.has(quiz.id)) {
+    if (quiz.slug) {
       skipped++
       continue
     }
