@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
+import { generateUniqueSlug } from '@/lib/slugify'
 
 type AiGenerateResult =
   | { ok: true; quizId: string }
@@ -192,9 +193,13 @@ export async function generateQuizWithAi(formData: FormData): Promise<AiGenerate
   }
 
   // Create the quiz in the database
+  const slug = await generateUniqueSlug(generated.title.slice(0, 120), (s) =>
+    prisma.quiz.findUnique({ where: { slug: s } }).then((q) => !!q)
+  )
   const quiz = await prisma.quiz.create({
     data: {
       title: generated.title.slice(0, 120),
+      slug,
       description: generated.description.slice(0, 500),
       authorId: session.user.id,
       categoryId: parsed.data.categoryId,

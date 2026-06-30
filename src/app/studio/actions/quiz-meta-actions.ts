@@ -5,6 +5,7 @@ import type { Prisma } from '@prisma/client'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
 import { draftQuizSchema } from '@/schemas'
+import { generateUniqueSlug } from '@/lib/slugify'
 import { evaluateBadges } from '@/domain/badges'
 
 export type QuizMetaActionResult =
@@ -42,6 +43,9 @@ export async function createQuizAndReturnId(formData: FormData): Promise<QuizMet
     ...parsed.data,
     coverImage: parsed.data.coverImage ?? null,
     authorId: session.user.id,
+    slug: await generateUniqueSlug(parsed.data.title, (slug) =>
+      prisma.quiz.findUnique({ where: { slug } }).then((q) => !!q)
+    ),
   }
 
   // Verify the user still exists before creating to avoid FK violations

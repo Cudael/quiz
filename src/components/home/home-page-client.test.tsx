@@ -23,6 +23,7 @@ const popularQuizzes: QuizCardData[] = [
   {
     id: 'quiz-1',
     title: 'World capitals challenge',
+    slug: 'world-capitals-challenge',
     difficulty: 'MEDIUM',
     category: {
       name: 'Geography',
@@ -35,6 +36,7 @@ const newestQuizzes: QuizCardData[] = [
   {
     id: 'quiz-2',
     title: 'Fresh science facts',
+    slug: 'fresh-science-facts',
     difficulty: 'EASY',
     category: {
       name: 'Science',
@@ -47,6 +49,7 @@ const trendingQuizzes: QuizCardData[] = [
   {
     id: 'quiz-4',
     title: 'Hot history streak',
+    slug: 'hot-history-streak',
     difficulty: 'MEDIUM',
     category: {
       name: 'History',
@@ -59,6 +62,7 @@ const personalizedQuizzes: QuizCardData[] = [
   {
     id: 'quiz-3',
     title: 'Physics speed round',
+    slug: 'physics-speed-round',
     difficulty: 'HARD',
     category: {
       name: 'Science',

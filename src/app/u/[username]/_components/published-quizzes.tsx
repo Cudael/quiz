@@ -5,6 +5,7 @@ import { getQuizPath } from '@/lib/quiz-url'
 interface PublishedQuiz {
   id: string
   title: string
+  slug: string
   difficulty: string
   category: { name: string }
 }

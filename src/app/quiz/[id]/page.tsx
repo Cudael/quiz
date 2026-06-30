@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { cache, Suspense } from 'react'
 import Image from 'next/image'
-import { notFound, permanentRedirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Clock, BarChart3, Compass, Users, BookOpen, Star, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -17,7 +17,6 @@ import { RateQuizForm } from '../rate-quiz-form'
 import { RecommendedQuizzes } from './_components/recommended-quizzes'
 import { YouMightAlsoLike } from './_components/you-might-also-like'
 import { absoluteUrl } from '@/lib/site'
-import { getQuizIdFromParam, getQuizPath } from '@/lib/quiz-url'
 
 const difficultyVariant: Record<string, 'success' | 'warning' | 'destructive'> = {
   EASY: 'success',
@@ -39,9 +38,9 @@ const QUIZ_META_SELECT = {
 } as const
 
 /** Cached quiz fetch — deduplicates across generateMetadata + page render. */
-const getQuiz = cache(async (id: string) => {
+const getQuiz = cache(async (slug: string) => {
   return prisma.quiz.findUnique({
-    where: { id, isPublished: true },
+    where: { slug, isPublished: true },
     select: QUIZ_META_SELECT,
   })
 })
@@ -51,9 +50,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ id: string }>
 }): Promise<Metadata> {
-  const { id: idParam } = await params
-  const id = getQuizIdFromParam(idParam)
-  const quiz = await getQuiz(id)
+  const { id: slug } = await params
+  const quiz = await getQuiz(slug)
 
   if (!quiz) {
     return {
@@ -64,7 +62,7 @@ export async function generateMetadata({
 
   const title = `${quiz.title} by ${getDisplayAuthorName(quiz.author)} • ${quiz.category.name} | BusQuiz`
   const description = quiz.description || `Take ${quiz.title} and climb the leaderboard on BusQuiz.`
-  const path = getQuizPath(quiz)
+  const path = `/quiz/${slug}`
   const url = absoluteUrl(path)
   const ogImages = quiz.coverImage ? [quiz.coverImage] : ['/og-default.png']
 
@@ -80,21 +78,25 @@ export async function generateMetadata({
 }
 
 export default async function QuizDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id: idParam } = await params
-  const id = getQuizIdFromParam(idParam)
+  const { id: slug } = await params
   const session = await auth()
 
-  const [quiz, ratingAgg, userRating] = await Promise.all([
-    getQuiz(id),
+  const quiz = await getQuiz(slug)
+
+  if (!quiz) {
+    notFound()
+  }
+
+  const [ratingAgg, userRating] = await Promise.all([
     prisma.rating.aggregate({
-      where: { quizId: id },
+      where: { quizId: quiz.id },
       _avg: { stars: true },
       _count: { stars: true },
     }),
     session?.user?.id
       ? prisma.rating.findUnique({
           where: {
-            userId_quizId: { userId: session.user.id, quizId: id },
+            userId_quizId: { userId: session.user.id, quizId: quiz.id },
           },
           select: { stars: true },
         })
@@ -103,11 +105,6 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
 
   if (!quiz) {
     notFound()
-  }
-
-  const quizPath = getQuizPath(quiz)
-  if (idParam !== quizPath.replace('/quiz/', '')) {
-    permanentRedirect(quizPath)
   }
 
   const questionCount = quiz.questions.length
@@ -126,7 +123,7 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
     '@type': 'Quiz',
     name: quiz.title,
     description: quiz.description || `Take ${quiz.title} and climb the leaderboard on BusQuiz.`,
-    url: absoluteUrl(quizPath),
+    url: absoluteUrl(`/quiz/${slug}`),
     ...(quiz.coverImage ? { image: quiz.coverImage } : {}),
     author: { '@type': 'Person', name: getDisplayAuthorName(quiz.author) },
     educationalLevel,
@@ -164,7 +161,12 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
                 name: quiz.category.name,
                 item: absoluteUrl(`/categories/${quiz.category.slug}`),
               },
-              { '@type': 'ListItem', position: 3, name: quiz.title, item: absoluteUrl(quizPath) },
+              {
+                '@type': 'ListItem',
+                position: 3,
+                name: quiz.title,
+                item: absoluteUrl(`/quiz/${slug}`),
+              },
             ],
           }),
         }}

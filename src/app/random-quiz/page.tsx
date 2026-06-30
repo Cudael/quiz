@@ -17,7 +17,7 @@ export default async function RandomQuizPage() {
   const offset = Math.floor(Math.random() * count)
   const quiz = await prisma.quiz.findFirst({
     where: { isPublished: true },
-    select: { id: true, title: true },
+    select: { id: true, title: true, slug: true },
     skip: offset,
     take: 1,
     orderBy: { createdAt: 'asc' },

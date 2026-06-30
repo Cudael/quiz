@@ -9,6 +9,7 @@ import {
   type BulkImportValidationError,
   type BulkImportValidationResult,
 } from '@/domain/quiz-bulk-import'
+import { generateUniqueSlug } from '@/lib/slugify'
 
 type AdminActionResult = { ok: true; userId: string } | { ok: false; message: string }
 
@@ -147,6 +148,9 @@ export async function importBulkQuizDrafts(
       const created = await tx.quiz.create({
         data: {
           title: quiz.title,
+          slug: await generateUniqueSlug(quiz.title, (s) =>
+            tx.quiz.findUnique({ where: { slug: s } }).then((q) => !!q)
+          ),
           description: quiz.description,
           coverImage: quiz.coverImage ?? null,
           tags: quiz.tags,

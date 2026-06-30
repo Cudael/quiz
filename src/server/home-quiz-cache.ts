@@ -9,6 +9,7 @@ export const HOME_TRENDING_QUIZZES_TAG = 'home-trending-quizzes'
 export const HOME_QUIZ_SELECT = {
   id: true,
   title: true,
+  slug: true,
   coverImage: true,
   difficulty: true,
   playCount: true,

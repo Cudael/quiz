@@ -10,6 +10,7 @@ import { getQuizPath } from '@/lib/quiz-url'
 export interface QuizCardData {
   id: string
   title: string
+  slug: string
   difficulty: 'EASY' | 'MEDIUM' | 'HARD'
   coverImage?: string | null
   category: {

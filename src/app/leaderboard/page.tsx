@@ -68,7 +68,7 @@ export default async function LeaderboardPage({
     quizId
       ? prisma.quiz.findUnique({
           where: { id: quizId },
-          select: { id: true, title: true },
+          select: { id: true, title: true, slug: true },
         })
       : null,
     getLeaderboardRows({

@@ -124,6 +124,7 @@ model Category {
 model Quiz {
   id                  String     @id @default(cuid())
   title               String
+  slug                String     @unique
   description         String
   coverImage          String?
   tags                String[] // string array, e.g. ["history","ww2"]

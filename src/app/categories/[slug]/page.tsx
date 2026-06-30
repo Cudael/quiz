@@ -196,6 +196,7 @@ export default async function CategoryPage({
   const selectFields = {
     id: true,
     title: true,
+    slug: true,
     coverImage: true,
     difficulty: true,
     playCount: true,
@@ -215,6 +216,7 @@ export default async function CategoryPage({
     return {
       id: quiz.id,
       title: quiz.title,
+      slug: quiz.slug,
       coverImage: quiz.coverImage,
       difficulty:
         quiz.difficulty === 'EASY' || quiz.difficulty === 'MEDIUM' || quiz.difficulty === 'HARD'

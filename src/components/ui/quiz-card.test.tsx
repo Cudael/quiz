@@ -50,6 +50,7 @@ vi.mock('framer-motion', () => ({
 const baseQuiz: QuizCardData = {
   id: 'quiz-1',
   title: 'Arcade Knowledge Challenge',
+  slug: 'arcade-knowledge-challenge',
   difficulty: 'EASY',
   coverImage: 'https://cdn.example.com/quiz.jpg',
   category: {

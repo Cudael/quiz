@@ -20,6 +20,7 @@ const FALLBACK_CATEGORY_GRADIENT = 'var(--background-image-card-gradient)'
 const QUIZ_CARD_SELECT_WITH_RATINGS = {
   id: true,
   title: true,
+  slug: true,
   coverImage: true,
   difficulty: true,
   playCount: true,
@@ -64,6 +65,7 @@ function mapQuizCard(quiz: HomeQuizRecord, completedQuizIds?: Set<string>): Quiz
   return {
     id: quiz.id,
     title: quiz.title,
+    slug: quiz.slug,
     coverImage: quiz.coverImage,
     difficulty:
       quiz.difficulty === 'EASY' || quiz.difficulty === 'MEDIUM' || quiz.difficulty === 'HARD'

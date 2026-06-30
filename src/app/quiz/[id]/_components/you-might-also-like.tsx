@@ -20,6 +20,7 @@ const fetchYouMightAlsoLike = unstable_cache(
       select: {
         id: true,
         title: true,
+        slug: true,
         coverImage: true,
         difficulty: true,
         playCount: true,
@@ -38,6 +39,7 @@ const fetchYouMightAlsoLike = unstable_cache(
       return {
         id: q.id,
         title: q.title,
+        slug: q.slug,
         coverImage: q.coverImage,
         difficulty: q.difficulty as 'EASY' | 'MEDIUM' | 'HARD',
         category: {

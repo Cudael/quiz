@@ -14,6 +14,7 @@ const difficultyVariant: Record<string, 'success' | 'warning' | 'destructive'> =
 interface RecommendedQuiz {
   id: string
   title: string
+  slug: string
   difficulty: string
   playCount: number
   avgScore: number
@@ -39,6 +40,7 @@ const fetchRecommendedQuizzes = unstable_cache(
         select: {
           id: true,
           title: true,
+          slug: true,
           difficulty: true,
           playCount: true,
           avgScore: true,
@@ -57,6 +59,7 @@ const fetchRecommendedQuizzes = unstable_cache(
         select: {
           id: true,
           title: true,
+          slug: true,
           difficulty: true,
           playCount: true,
           avgScore: true,

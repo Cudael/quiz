@@ -5,6 +5,7 @@ import type { Prisma } from '@prisma/client'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
 import { draftQuizSchema, quizSchema } from '@/schemas'
+import { generateUniqueSlug } from '@/lib/slugify'
 import { assertEmailVerified, assertOwnership, quizIdSchema, type ActionResult } from './_shared'
 
 const quizInputSchema = quizSchema
@@ -99,6 +100,9 @@ export async function createQuiz(formData: FormData): Promise<ActionResult> {
     ...parsed.data,
     coverImage: parsed.data.coverImage ?? null,
     authorId: session.user.id,
+    slug: await generateUniqueSlug(parsed.data.title, (slug) =>
+      prisma.quiz.findUnique({ where: { slug } }).then((q) => !!q)
+    ),
   }
 
   const userExists = await prisma.user.count({ where: { id: session.user.id } })

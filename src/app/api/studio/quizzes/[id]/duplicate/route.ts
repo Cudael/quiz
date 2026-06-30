@@ -3,6 +3,7 @@ import type { Prisma } from '@prisma/client'
 import { NextResponse } from 'next/server'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
+import { generateUniqueSlug } from '@/lib/slugify'
 
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
@@ -52,6 +53,9 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
 
   const data: Prisma.QuizUncheckedCreateInput = {
     title: `Copy of ${quiz.title}`,
+    slug: await generateUniqueSlug(`Copy of ${quiz.title}`, (s) =>
+      prisma.quiz.findUnique({ where: { slug: s } }).then((q) => !!q)
+    ),
     description: quiz.description,
     coverImage: quiz.coverImage,
     tags: quiz.tags,

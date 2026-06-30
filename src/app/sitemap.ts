@@ -12,7 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     prisma.category.findMany({ select: { slug: true, createdAt: true } }),
     prisma.quiz.findMany({
       where: { isPublished: true },
-      select: { id: true, title: true, updatedAt: true },
+      select: { id: true, title: true, slug: true, updatedAt: true },
     }),
     prisma.user.findMany({
       where: { username: { not: null }, quizzes: { some: { isPublished: true } } },

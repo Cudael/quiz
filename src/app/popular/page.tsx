@@ -32,6 +32,7 @@ export default async function PopularQuizzesPage() {
     select: {
       id: true,
       title: true,
+      slug: true,
       coverImage: true,
       difficulty: true,
       playCount: true,
@@ -51,6 +52,7 @@ export default async function PopularQuizzesPage() {
     return {
       id: quiz.id,
       title: quiz.title,
+      slug: quiz.slug,
       coverImage: quiz.coverImage,
       difficulty: quiz.difficulty as 'EASY' | 'MEDIUM' | 'HARD',
       category: {

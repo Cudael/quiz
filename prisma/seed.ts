@@ -11,6 +11,7 @@
  */
 
 import { PrismaClient } from '@prisma/client'
+import { generateUniqueSlug } from '../src/lib/slugify'
 import { categories, badges, users, quizDefs, questionsByQuiz } from './seed-data'
 
 const prisma = new PrismaClient()
@@ -112,6 +113,9 @@ async function main() {
     const quiz = await prisma.quiz.create({
       data: {
         title: qd.title,
+        slug: await generateUniqueSlug(qd.title, (s) =>
+          prisma.quiz.findUnique({ where: { slug: s } }).then((q) => !!q)
+        ),
         description: qd.description,
         categoryId,
         difficulty: qd.difficulty,

@@ -23,6 +23,7 @@ function createQuiz(id: number): QuizCardData {
   return {
     id: `quiz-${id}`,
     title: `Quiz ${id}`,
+    slug: `quiz-${id}`,
     difficulty: 'MEDIUM',
     category: {
       name: 'Science',

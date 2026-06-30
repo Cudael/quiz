@@ -34,7 +34,7 @@ interface CategoryWithQuizzes {
   color: string
   icon: string
   quizCount: number
-  topQuizzes: { id: string; title: string; playCount: number }[]
+  topQuizzes: { id: string; title: string; slug: string; playCount: number }[]
 }
 
 export default async function CategoriesPage({
@@ -63,6 +63,7 @@ export default async function CategoriesPage({
       select: {
         id: true,
         title: true,
+        slug: true,
         coverImage: true,
         difficulty: true,
         playCount: true,
@@ -83,6 +84,7 @@ export default async function CategoriesPage({
       return {
         id: quiz.id,
         title: quiz.title,
+        slug: quiz.slug,
         coverImage: quiz.coverImage,
         difficulty: quiz.difficulty as 'EASY' | 'MEDIUM' | 'HARD',
         category: {
@@ -170,7 +172,7 @@ export default async function CategoriesPage({
         },
         orderBy: { playCount: 'desc' },
         take: 5,
-        select: { id: true, title: true, playCount: true },
+        select: { id: true, title: true, slug: true, playCount: true },
       })
 
       // Count quizzes across parent + children (include subcategory quiz counts)

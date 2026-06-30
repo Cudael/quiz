@@ -48,6 +48,7 @@ export default async function TrendingQuizzesPage() {
       select: {
         id: true,
         title: true,
+        slug: true,
         coverImage: true,
         difficulty: true,
         playCount: true,
@@ -74,6 +75,7 @@ export default async function TrendingQuizzesPage() {
         return {
           id: quiz.id,
           title: quiz.title,
+          slug: quiz.slug,
           coverImage: quiz.coverImage,
           difficulty: quiz.difficulty as 'EASY' | 'MEDIUM' | 'HARD',
           category: {
