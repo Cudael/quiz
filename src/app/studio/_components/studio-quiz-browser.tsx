@@ -17,6 +17,7 @@ type StudioLayout = 'table' | 'grid'
 interface StudioQuiz {
   id: string
   title: string
+  slug: string | null
   coverImage: string | null
   difficulty: string
   playCount: number
@@ -241,7 +242,7 @@ function QuizActions({
         <Link href={`/studio/quiz/${quiz.id}/edit`}>Edit</Link>
       </Button>
       <Button variant="outline" size="sm" asChild className="text-[11px] px-2">
-        <Link href={`/quiz/${quiz.id}`}>Preview</Link>
+        <Link href={`/quiz/${quiz.slug}`}>Preview</Link>
       </Button>
       <Button variant="outline" size="sm" asChild className="text-[11px] px-2">
         <Link href={`/studio/quiz/${quiz.id}/analytics`}>Analytics</Link>

@@ -18,6 +18,7 @@ export default async function MyQuizzesPage() {
     select: {
       id: true,
       title: true,
+      slug: true,
       difficulty: true,
       playCount: true,
       avgScore: true,
@@ -126,7 +127,7 @@ export default async function MyQuizzesPage() {
                       </Link>
                     </Button>
                     <Button variant="outline" size="sm" asChild>
-                      <Link href={`/quiz/${quiz.id}`}>
+                      <Link href={`/quiz/${quiz.slug}`}>
                         <Eye className="mr-1.5 h-4 w-4" />
                         Preview
                       </Link>

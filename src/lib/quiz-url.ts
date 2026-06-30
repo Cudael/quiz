@@ -1,7 +1,8 @@
 export interface QuizUrlInput {
-  slug: string
+  id?: string
+  slug: string | null
 }
 
 export function getQuizPath(quiz: QuizUrlInput) {
-  return `/quiz/${quiz.slug}`
+  return `/quiz/${quiz.slug ?? quiz.id ?? 'unknown'}`
 }

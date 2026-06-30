@@ -14,6 +14,7 @@ export default async function EditQuizPage({ params }: { params: Promise<{ id: s
     where: { id },
     select: {
       id: true,
+      slug: true,
       title: true,
       description: true,
       coverImage: true,

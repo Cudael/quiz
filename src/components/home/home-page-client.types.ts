@@ -1,7 +1,7 @@
 import type { QuizCardData } from '@/components/ui/quiz-card'
 
 export interface CategoryWithQuizzes {
-  slug: string
+  slug: string | null
   name: string
   icon: string
   color: string
@@ -17,7 +17,7 @@ export interface HomeCurrentUser {
 }
 
 export interface BadgePreview {
-  slug: string
+  slug: string | null
   name: string
   description: string
   emoji: string

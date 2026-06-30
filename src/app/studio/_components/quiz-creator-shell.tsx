@@ -27,6 +27,7 @@ interface Category {
 
 interface InitialQuiz {
   id: string
+  slug: string | null
   title: string
   description: string
   coverImage: string | null
@@ -344,7 +345,12 @@ export function QuizCreatorShell({
           {currentStep === 1 && <StepMeta categories={categories} />}
           {currentStep === 2 && <StepQuestions quizId={effectiveQuizId} />}
           {currentStep === 3 && <StepPreview quizId={effectiveQuizId} categories={categories} />}
-          {currentStep === 4 && <StepPublish quizId={quizId ?? initialQuizId ?? null} />}
+          {currentStep === 4 && (
+            <StepPublish
+              quizId={quizId ?? initialQuizId ?? null}
+              quizSlug={initialData?.quiz.slug}
+            />
+          )}
         </div>
       </div>
 

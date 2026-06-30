@@ -36,6 +36,7 @@ export default async function StudioPage({
       select: {
         id: true,
         title: true,
+        slug: true,
         coverImage: true,
         difficulty: true,
         playCount: true,

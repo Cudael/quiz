@@ -16,6 +16,7 @@ import { saveQuestionsForQuiz } from './quiz-save-utils'
 
 interface StepPublishProps {
   quizId: string | null
+  quizSlug?: string | null
 }
 
 interface CheckItem {
@@ -25,7 +26,7 @@ interface CheckItem {
 
 const categoryIdSchema = z.string().cuid()
 
-export function StepPublish({ quizId }: StepPublishProps) {
+export function StepPublish({ quizId, quizSlug: initialSlug }: StepPublishProps) {
   const router = useRouter()
   const { addToast } = useToast()
   const {
@@ -47,6 +48,7 @@ export function StepPublish({ quizId }: StepPublishProps) {
 
   const [saving, setSavingLocal] = React.useState(false)
   const [copied, setCopied] = React.useState(false)
+  const [quizSlug, setQuizSlug] = React.useState<string | null>(initialSlug ?? null)
   const publishInFlightRef = React.useRef(false)
 
   const MIN_QUESTIONS = 5
@@ -199,7 +201,9 @@ export function StepPublish({ quizId }: StepPublishProps) {
           return
         }
         const newQuizId = createResult.quizId
+        const newQuizSlug = createResult.quizSlug
         setQuizId(newQuizId)
+        setQuizSlug(newQuizSlug)
 
         const saveQuestionsResult = await saveQuestionsForQuiz({
           quizId: newQuizId,
@@ -224,7 +228,7 @@ export function StepPublish({ quizId }: StepPublishProps) {
         setMeta({ isPublished: true })
         setLastSaved(new Date())
         addToast('Quiz published! 🎉', 'success')
-        router.push(`/quiz/${newQuizId}`)
+        router.push(`/quiz/${newQuizSlug}`)
         return
       }
 
@@ -275,9 +279,9 @@ export function StepPublish({ quizId }: StepPublishProps) {
   }
 
   const getShareUrl = () => {
-    if (!quizId) return ''
-    if (typeof window === 'undefined') return `/quiz/${quizId}`
-    return `${window.location.origin}/quiz/${quizId}`
+    if (!quizSlug) return ''
+    if (typeof window === 'undefined') return `/quiz/${quizSlug}`
+    return `${window.location.origin}/quiz/${quizSlug}`
   }
 
   const handleCopy = async () => {

@@ -9,7 +9,7 @@ import { generateUniqueSlug } from '@/lib/slugify'
 import { evaluateBadges } from '@/domain/badges'
 
 export type QuizMetaActionResult =
-  | { ok: true; quizId: string }
+  | { ok: true; quizId: string; quizSlug: string }
   | {
       ok: false
       error: 'UNAUTHORIZED' | 'VALIDATION_ERROR'
@@ -65,5 +65,5 @@ export async function createQuizAndReturnId(formData: FormData): Promise<QuizMet
   }
 
   revalidatePath('/studio')
-  return { ok: true, quizId: quiz.id }
+  return { ok: true, quizId: quiz.id, quizSlug: quiz.slug ?? '' }
 }

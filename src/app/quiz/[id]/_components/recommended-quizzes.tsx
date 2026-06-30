@@ -14,7 +14,7 @@ const difficultyVariant: Record<string, 'success' | 'warning' | 'destructive'> =
 interface RecommendedQuiz {
   id: string
   title: string
-  slug: string
+  slug: string | null
   difficulty: string
   playCount: number
   avgScore: number

@@ -21,7 +21,7 @@ async function main() {
     select: { id: true, slug: true },
   })
   for (const q of existing) {
-    existingSlugs.add(q.slug)
+    if (q.slug) existingSlugs.add(q.slug)
   }
 
   let updated = 0

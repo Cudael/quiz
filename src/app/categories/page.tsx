@@ -34,7 +34,7 @@ interface CategoryWithQuizzes {
   color: string
   icon: string
   quizCount: number
-  topQuizzes: { id: string; title: string; slug: string; playCount: number }[]
+  topQuizzes: { id: string; title: string; slug: string | null; playCount: number }[]
 }
 
 export default async function CategoriesPage({

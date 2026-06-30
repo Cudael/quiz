@@ -24,6 +24,7 @@ export default async function QuizAnalyticsPage({ params }: { params: Promise<{ 
     select: {
       id: true,
       title: true,
+      slug: true,
       authorId: true,
       difficulty: true,
       playCount: true,
@@ -151,7 +152,7 @@ export default async function QuizAnalyticsPage({ params }: { params: Promise<{ 
           </div>
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" asChild className="rounded-md">
-              <Link href={`/quiz/${quiz.id}`}>
+              <Link href={`/quiz/${quiz.slug}`}>
                 <Eye className="mr-2 h-4 w-4" />
                 Preview
               </Link>

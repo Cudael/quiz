@@ -93,6 +93,7 @@ describe('StepPublish', () => {
     vi.mocked(createQuizAndReturnId).mockResolvedValue({
       ok: true,
       quizId: 'ck22345678901234567890123',
+      quizSlug: 'test-quiz-slug',
     })
     vi.mocked(addQuestion).mockResolvedValue({ ok: true, questionId: 'new-question-id' })
     vi.mocked(updateQuestion).mockResolvedValue({ ok: true })
