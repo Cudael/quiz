@@ -21,6 +21,10 @@ vi.mock('@/server/rate-limit', () => ({ checkRateLimit: checkRateLimitMock }))
 
 import { POST } from '@/app/api/upload/route'
 
+const PNG_BYTES = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00])
+const JPEG_BYTES = new Uint8Array([0xff, 0xd8, 0xff, 0xdb, 0x00])
+const GIF_BYTES = new Uint8Array([0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x00])
+
 function createRequest(file?: File) {
   const formData = new FormData()
   if (file) {
@@ -53,7 +57,9 @@ describe('POST /api/upload', () => {
     authMock.mockResolvedValue({ user: { id: 'user_123' } })
     checkRateLimitMock.mockResolvedValue(false)
 
-    const response = await POST(createRequest(new File(['img'], 'photo.png', { type: 'image/png' })))
+    const response = await POST(
+      createRequest(new File([PNG_BYTES], 'photo.png', { type: 'image/png' }))
+    )
 
     expect(response.status).toBe(429)
     expect(s3SendMock).not.toHaveBeenCalled()
@@ -72,7 +78,7 @@ describe('POST /api/upload', () => {
 
   it('returns 413 for files larger than 5 MB', async () => {
     authMock.mockResolvedValue({ user: { id: 'user_123' } })
-    const file = new File(['small'], 'cover.png', { type: 'image/png' })
+    const file = new File([PNG_BYTES], 'cover.png', { type: 'image/png' })
     Object.defineProperty(file, 'size', { value: 5 * 1024 * 1024 + 1 })
 
     const response = await POST(createRequest(file))
@@ -86,7 +92,7 @@ describe('POST /api/upload', () => {
     vi.spyOn(Date, 'now').mockReturnValue(1710000000000)
     vi.spyOn(crypto, 'randomUUID').mockReturnValue('uuid-1234')
 
-    const file = new File(['image'], 'My cover image!.png', { type: 'image/png' })
+    const file = new File([PNG_BYTES], 'My cover image!.png', { type: 'image/png' })
     const response = await POST(createRequest(file))
 
     expect(response.status).toBe(200)
@@ -109,7 +115,7 @@ describe('POST /api/upload', () => {
     vi.spyOn(crypto, 'randomUUID').mockReturnValue('uuid-5678')
 
     const response = await POST(
-      createRequest(new File(['image'], '!!!.png', { type: 'image/png' }))
+      createRequest(new File([PNG_BYTES], '!!!.png', { type: 'image/png' }))
     )
 
     expect(response.status).toBe(200)
@@ -121,5 +127,58 @@ describe('POST /api/upload', () => {
       })
     )
   })
-})
 
+  it('returns 415 for spoofed MIME when bytes are not a valid image signature', async () => {
+    authMock.mockResolvedValue({ user: { id: 'user_123' } })
+
+    const response = await POST(
+      createRequest(new File(['not-a-real-image'], 'fake.png', { type: 'image/png' }))
+    )
+
+    expect(response.status).toBe(415)
+    await expect(response.json()).resolves.toEqual({
+      error: 'Unsupported or invalid image format. Allowed: PNG, JPEG, WEBP, GIF.',
+    })
+    expect(s3SendMock).not.toHaveBeenCalled()
+  })
+
+  it('returns 415 for unsupported image formats (SVG blocked by policy)', async () => {
+    authMock.mockResolvedValue({ user: { id: 'user_123' } })
+
+    const response = await POST(
+      createRequest(
+        new File(['<svg xmlns="http://www.w3.org/2000/svg"></svg>'], 'vector.svg', {
+          type: 'image/svg+xml',
+        })
+      )
+    )
+
+    expect(response.status).toBe(415)
+    await expect(response.json()).resolves.toEqual({ error: 'SVG uploads are not supported' })
+    expect(s3SendMock).not.toHaveBeenCalled()
+  })
+
+  it('accepts other allowlisted signatures such as JPEG and GIF', async () => {
+    authMock.mockResolvedValue({ user: { id: 'user_123' } })
+    vi.spyOn(Date, 'now').mockReturnValue(1710000000001)
+    vi.spyOn(crypto, 'randomUUID').mockReturnValue('uuid-jpeg-gif')
+
+    const jpegResponse = await POST(
+      createRequest(new File([JPEG_BYTES], 'photo.jpg', { type: 'image/jpeg' }))
+    )
+    const gifResponse = await POST(
+      createRequest(new File([GIF_BYTES], 'anim.gif', { type: 'image/gif' }))
+    )
+
+    expect(jpegResponse.status).toBe(200)
+    expect(gifResponse.status).toBe(200)
+    expect(s3SendMock).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ ContentType: 'image/jpeg' })
+    )
+    expect(s3SendMock).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ ContentType: 'image/gif' })
+    )
+  })
+})
