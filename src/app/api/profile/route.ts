@@ -3,8 +3,13 @@ import { cookies } from 'next/headers'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
 import { meDeleteSchema } from '@/schemas'
+import { patchProfile } from '@/app/api/profile/_shared/patch-profile'
 
 const GENERIC_ERROR = 'Unable to delete account.'
+
+export async function PATCH(request: Request) {
+  return patchProfile(request)
+}
 
 export async function DELETE(request: Request) {
   const session = await auth()

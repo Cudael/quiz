@@ -23,7 +23,7 @@ export function ProfileSection({ profile, setProfile }: ProfileSectionProps) {
         className="space-y-3"
         onSubmit={async (event) => {
           event.preventDefault()
-          const response = await fetch('/api/profile/profile', {
+          const response = await fetch('/api/profile', {
             method: 'PATCH',
             headers: { 'content-type': 'application/json' },
             body: JSON.stringify({
