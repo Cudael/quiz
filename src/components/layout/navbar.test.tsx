@@ -1,5 +1,5 @@
 import type React from 'react'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { linkMock, usePathnameMock, useSessionMock } = vi.hoisted(() => ({
@@ -55,8 +55,10 @@ vi.mock('@/components/ui/button', () => ({
     asChild,
     children,
     ...props
-  }: React.ComponentProps<'button'> & { asChild?: boolean }) =>
-    asChild ? children : <button {...props}>{children}</button>,
+  }: React.ComponentProps<'button'> & { asChild?: boolean }) => {
+    if (asChild) return children
+    return <button {...props}>{children}</button>
+  },
 }))
 
 vi.mock('@/components/ui/sheet', () => ({
@@ -86,5 +88,21 @@ describe('Navbar', () => {
     expect(leaderboardLink).toHaveAttribute('data-prefetch', 'false')
     expect(categoriesLink).not.toHaveAttribute('data-prefetch')
     expect(screen.getByRole('button', { name: /open.*menu/i })).toBeInTheDocument()
+  })
+
+  it('closes dropdown on Escape, restores focus, and toggles body scroll lock', () => {
+    render(<Navbar />)
+
+    const menuButton = screen.getByRole('button', { name: /open.*menu/i })
+    fireEvent.click(menuButton)
+
+    expect(screen.getByRole('link', { name: 'Popular' })).toBeInTheDocument()
+    expect(document.body.style.overflow).toBe('hidden')
+
+    fireEvent.keyDown(document, { key: 'Escape' })
+
+    expect(screen.queryByRole('link', { name: 'Popular' })).not.toBeInTheDocument()
+    expect(document.body.style.overflow).toBe('')
+    expect(menuButton).toHaveFocus()
   })
 })

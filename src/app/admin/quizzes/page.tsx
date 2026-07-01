@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader } from '@/components/ui/page-header'
 import { cn } from '@/lib/utils'
 import { getDisplayAuthorName } from '@/lib/author-display'
+import { getQuizPath } from '@/lib/quiz-url'
 import { AdminQuizActions } from './_components/quiz-actions'
 
 const PAGE_SIZE = 25
@@ -176,7 +177,7 @@ export default async function AdminQuizzesPage({
                       <td className="px-4 py-3">
                         <Link
                           className="font-medium transition-colors hover:text-primary"
-                          href={`/quiz/${quiz.id}`}
+                          href={getQuizPath({ id: quiz.id, slug: quiz.slug })}
                         >
                           {quiz.title}
                         </Link>
@@ -226,6 +227,7 @@ export default async function AdminQuizzesPage({
                       <td className="px-4 py-3">
                         <AdminQuizActions
                           quizId={quiz.id}
+                          quizSlug={quiz.slug}
                           quizTitle={quiz.title}
                           isPublished={quiz.isPublished}
                           nextPublish={quiz.isPublished ? 'false' : 'true'}

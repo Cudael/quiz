@@ -11,6 +11,7 @@ import { auth } from '@/server/auth'
 import { RateQuizForm } from '@/app/quiz/rate-quiz-form'
 import { QuestionBreakdown } from './_components/question-breakdown'
 import { copy } from '@/lib/copy'
+import { getQuizPath } from '@/lib/quiz-url'
 
 export const metadata: Metadata = {
   title: 'Quiz Results',
@@ -86,6 +87,7 @@ export default async function ResultsPage({
     take: 3,
     select: {
       id: true,
+      slug: true,
       title: true,
       difficulty: true,
       playCount: true,
@@ -300,7 +302,7 @@ export default async function ResultsPage({
                 : 'Similar Quiz'
             }
             description={`${quiz.title} · ${quiz.questions.length} questions`}
-            href={`/quiz/${quiz.id}`}
+            href={getQuizPath({ id: quiz.id, slug: quiz.slug })}
             icon={<ChevronRight className="h-5 w-5" />}
           />
         ))}

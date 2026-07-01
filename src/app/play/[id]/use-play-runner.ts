@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useToast } from '@/components/ui/toast'
 import { usePlaySessionStore } from '@/store/play-session'
 import { copy } from '@/lib/copy'
+import { getQuizPath } from '@/lib/quiz-url'
 import type { Question, QuizData } from './play-view.types'
 import { getSoundPreference, SOUND_PREFERENCE_STORAGE_KEY } from './play-view.utils'
 
@@ -307,8 +308,8 @@ export function usePlayRunner(quizId: string) {
 
   const quitToQuiz = useCallback(() => {
     store.reset()
-    router.push(`/quiz/${quizId}`)
-  }, [store, router, quizId])
+    router.push(getQuizPath({ id: quizId, slug: quiz?.slug ?? null }))
+  }, [store, router, quizId, quiz?.slug])
 
   return {
     store,

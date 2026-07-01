@@ -34,7 +34,7 @@ const COMMUNITY_LINKS = [
 const BUSQUIZ_LINKS = [
   { href: '/about', label: 'About Us' },
   { href: '/contact', label: 'Contact' },
-  { href: '/feedback', label: 'Send Feedback' },
+  { href: '/feedback', label: 'Send Feedback (Sign in required)' },
   { href: '/privacy', label: 'Privacy Policy' },
   { href: '/terms', label: 'Terms of Service' },
 ]

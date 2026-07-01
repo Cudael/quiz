@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Award, Bell, PlayCircle, UserPlus } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { getQuizPath } from '@/lib/quiz-url'
 import { EmptyState } from '@/components/ui/empty-state'
 import {
   DropdownMenu,
@@ -79,8 +80,13 @@ function getNotificationHref(notification: NotificationItem) {
   }
 
   if (notification.type === 'QUIZ_PLAYED') {
+    const quizSlug = meta.quizSlug
     const quizId = meta.quizId ?? meta.id
-    return typeof quizId === 'string' && quizId.trim().length > 0 ? `/quiz/${quizId}` : null
+    if (typeof quizId !== 'string' || quizId.trim().length === 0) return null
+    return getQuizPath({
+      id: quizId,
+      slug: typeof quizSlug === 'string' && quizSlug.trim().length > 0 ? quizSlug : null,
+    })
   }
 
   return null

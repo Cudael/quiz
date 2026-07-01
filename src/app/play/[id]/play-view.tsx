@@ -1,6 +1,7 @@
 'use client'
 
 import { useReducedMotion } from 'framer-motion'
+import { Loader2 } from 'lucide-react'
 import { PlayHeader } from './_components/play-header'
 import { QuestionPanel } from './_components/question-panel'
 import { QuitModal } from './_components/quit-modal'
@@ -34,7 +35,14 @@ export function PlayView({ quizId }: PlayViewProps) {
   } = usePlayRunner(quizId)
 
   if (loading) {
-    return null
+    return (
+      <div className="container mx-auto max-w-2xl px-4 py-10">
+        <div className="rounded-md border bg-card p-8 text-center">
+          <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+          <p className="mt-3 text-sm text-muted-foreground">Loading quiz...</p>
+        </div>
+      </div>
+    )
   }
 
   if (!loading && questions.length === 0) {
@@ -49,7 +57,14 @@ export function PlayView({ quizId }: PlayViewProps) {
   }
 
   if (!currentQuestion) {
-    return null
+    return (
+      <div className="container mx-auto max-w-2xl px-4 py-10">
+        <div className="rounded-md border bg-card p-8 text-center">
+          <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+          <p className="mt-3 text-sm text-muted-foreground">Preparing question...</p>
+        </div>
+      </div>
+    )
   }
 
   const progress = ((store.currentQuestionIndex + (isAnswered ? 1 : 0)) / questions.length) * 100

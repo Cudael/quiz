@@ -58,14 +58,34 @@ export default async function ChallengesPage() {
     },
   })
 
-  // Get user's recent play count for progress tracking
-  let recentPlayCount = 0
+  // Get user's play counts in each challenge window
+  let dailyPlayCount = 0
+  let weeklyPlayCount = 0
+  let monthlyPlayCount = 0
   if (userId) {
-    const oneWeekAgo = new Date()
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
-    recentPlayCount = await prisma.playSession.count({
-      where: { userId, createdAt: { gte: oneWeekAgo } },
-    })
+    const now = new Date()
+    const startOfDay = new Date(now)
+    startOfDay.setHours(0, 0, 0, 0)
+
+    const startOfWeek = new Date(now)
+    const dayOfWeek = startOfWeek.getDay()
+    const daysSinceMonday = (dayOfWeek + 6) % 7
+    startOfWeek.setDate(startOfWeek.getDate() - daysSinceMonday)
+    startOfWeek.setHours(0, 0, 0, 0)
+
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+
+    ;[dailyPlayCount, weeklyPlayCount, monthlyPlayCount] = await Promise.all([
+      prisma.playSession.count({
+        where: { userId, createdAt: { gte: startOfDay } },
+      }),
+      prisma.playSession.count({
+        where: { userId, createdAt: { gte: startOfWeek } },
+      }),
+      prisma.playSession.count({
+        where: { userId, createdAt: { gte: startOfMonth } },
+      }),
+    ])
   }
 
   const dailyTarget = 3
@@ -107,7 +127,7 @@ export default async function ChallengesPage() {
                 <span className="text-muted-foreground">Today&apos;s progress</span>
                 <span>
                   {userId
-                    ? `${Math.min(recentPlayCount, dailyTarget)} / ${dailyTarget}`
+                    ? `${Math.min(dailyPlayCount, dailyTarget)} / ${dailyTarget}`
                     : `0 / ${dailyTarget}`}
                 </span>
               </div>
@@ -115,7 +135,7 @@ export default async function ChallengesPage() {
                 <div
                   className="h-full rounded-full bg-quiz-orange transition-all"
                   style={{
-                    width: `${Math.min(100, (Math.min(recentPlayCount, dailyTarget) / dailyTarget) * 100)}%`,
+                    width: `${Math.min(100, (Math.min(dailyPlayCount, dailyTarget) / dailyTarget) * 100)}%`,
                   }}
                 />
               </div>
@@ -143,16 +163,16 @@ export default async function ChallengesPage() {
             </p>
             <div className="mt-4 space-y-2">
               <div className="flex items-center justify-between text-xs font-semibold">
-                <span className="text-muted-foreground">Week progress</span>
+                <span className="text-muted-foreground">This week</span>
                 <span>
-                  {Math.min(recentPlayCount, weeklyTarget)} / {weeklyTarget}
+                  {Math.min(weeklyPlayCount, weeklyTarget)} / {weeklyTarget}
                 </span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-muted">
                 <div
                   className="h-full rounded-full bg-quiz-purple transition-all"
                   style={{
-                    width: `${Math.min(100, (Math.min(recentPlayCount, weeklyTarget) / weeklyTarget) * 100)}%`,
+                    width: `${Math.min(100, (Math.min(weeklyPlayCount, weeklyTarget) / weeklyTarget) * 100)}%`,
                   }}
                 />
               </div>
@@ -192,16 +212,16 @@ export default async function ChallengesPage() {
             </p>
             <div className="mt-4 space-y-2">
               <div className="flex items-center justify-between text-xs font-semibold">
-                <span className="text-muted-foreground">Month progress</span>
+                <span className="text-muted-foreground">This month</span>
                 <span>
-                  {Math.min(recentPlayCount, monthlyTarget)} / {monthlyTarget}
+                  {Math.min(monthlyPlayCount, monthlyTarget)} / {monthlyTarget}
                 </span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-muted">
                 <div
                   className="h-full rounded-full bg-quiz-green transition-all"
                   style={{
-                    width: `${Math.min(100, (Math.min(recentPlayCount, monthlyTarget) / monthlyTarget) * 100)}%`,
+                    width: `${Math.min(100, (Math.min(monthlyPlayCount, monthlyTarget) / monthlyTarget) * 100)}%`,
                   }}
                 />
               </div>

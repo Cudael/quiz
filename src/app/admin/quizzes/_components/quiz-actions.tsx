@@ -5,10 +5,12 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Modal } from '@/components/ui/modal'
+import { getQuizPath } from '@/lib/quiz-url'
 import { deleteQuiz, toggleQuizPublished } from '../actions'
 
 interface AdminQuizActionsProps {
   quizId: string
+  quizSlug: string | null
   quizTitle: string
   isPublished: boolean
   nextPublish: string
@@ -16,6 +18,7 @@ interface AdminQuizActionsProps {
 
 export function AdminQuizActions({
   quizId,
+  quizSlug,
   quizTitle,
   isPublished,
   nextPublish,
@@ -55,24 +58,15 @@ export function AdminQuizActions({
     <>
       <div className="flex flex-wrap gap-2">
         <Button asChild size="sm" variant="outline">
-          <Link href={`/quiz/${quizId}`}>View</Link>
+          <Link href={getQuizPath({ id: quizId, slug: quizSlug })}>View</Link>
         </Button>
         <Button asChild size="sm" variant="outline">
           <Link href={`/studio/quiz/${quizId}/edit`}>Edit</Link>
         </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={handlePublish}
-          disabled={publishing}
-        >
+        <Button size="sm" variant="outline" onClick={handlePublish} disabled={publishing}>
           {isPublished ? 'Unpublish' : 'Publish'}
         </Button>
-        <Button
-          size="sm"
-          variant="destructive"
-          onClick={() => setDeleteModalOpen(true)}
-        >
+        <Button size="sm" variant="destructive" onClick={() => setDeleteModalOpen(true)}>
           Delete
         </Button>
       </div>

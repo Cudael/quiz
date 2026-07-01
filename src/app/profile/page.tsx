@@ -8,6 +8,7 @@ import { StreakFlame } from '@/components/ui/streak-flame'
 import { Button } from '@/components/ui/button'
 import { xpProgress, xpForLevel, xpForNextLevel } from '@/domain/leveling'
 import { getBadgeEmoji } from '@/lib/badge-display'
+import { getQuizPath } from '@/lib/quiz-url'
 
 export default async function ProfilePage() {
   const session = await auth()
@@ -27,7 +28,7 @@ export default async function ProfilePage() {
         sessions: {
           orderBy: { createdAt: 'desc' },
           take: 8,
-          include: { quiz: { select: { id: true, title: true } } },
+          include: { quiz: { select: { id: true, slug: true, title: true } } },
         },
       },
     }),
@@ -150,7 +151,7 @@ export default async function ProfilePage() {
             {user.sessions.map((s) => (
               <Link
                 key={s.id}
-                href={`/quiz/${s.quiz.id}`}
+                href={getQuizPath({ id: s.quiz.id, slug: s.quiz.slug })}
                 className="flex items-center justify-between rounded-md border px-4 py-3 text-sm transition-colors hover:bg-accent/50"
               >
                 <p className="truncate font-medium">{s.quiz.title}</p>

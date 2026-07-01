@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { prisma } from '@/server/prisma'
 import { resolveReport } from '../actions'
 import { getDisplayAuthorName } from '@/lib/author-display'
+import { getQuizPath } from '@/lib/quiz-url'
 
 const STATUS_OPTIONS = ['ALL', 'PENDING', 'DISMISSED', 'ACTIONED'] as const
 
@@ -37,6 +38,7 @@ export default async function AdminReportsPage({
         quiz: {
           select: {
             id: true,
+            slug: true,
             title: true,
             author: { select: { name: true, username: true, role: true } },
           },
@@ -93,7 +95,7 @@ export default async function AdminReportsPage({
                   <div className="space-y-2">
                     <Link
                       className="text-lg font-semibold transition-colors hover:text-primary"
-                      href={`/quiz/${report.quiz.id}`}
+                      href={getQuizPath({ id: report.quiz.id, slug: report.quiz.slug })}
                     >
                       {report.quiz.title}
                     </Link>

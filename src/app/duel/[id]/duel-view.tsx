@@ -1,5 +1,6 @@
 'use client'
 
+import { Loader2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DuelLobby } from './_components/duel-lobby'
 import { DuelQuestionPanel } from './_components/duel-question-panel'
@@ -31,7 +32,21 @@ export function DuelView({ duelId }: DuelViewProps) {
   } = useDuelSession(duelId)
 
   if (loading || !state) {
-    return null
+    return (
+      <div className="container mx-auto max-w-2xl px-4 py-10">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              Loading duel...
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">Fetching match details and players.</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   if (state.duel.status === 'WAITING') {

@@ -48,6 +48,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   return NextResponse.json({
     quiz: {
       id: quiz.id,
+      slug: quiz.slug,
       title: quiz.title,
       description: quiz.description,
       difficulty: quiz.difficulty,

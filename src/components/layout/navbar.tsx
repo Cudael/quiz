@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Menu, Swords } from 'lucide-react'
-import { useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { Logo } from '@/components/ui/logo'
 import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
@@ -29,8 +29,14 @@ const navLinks: NavLink[] = [
 
 export function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const menuButtonRef = useRef<HTMLButtonElement | null>(null)
   const pathname = usePathname()
   const { data: session } = useSession()
+
+  const closeDropdown = useCallback(() => {
+    setDropdownOpen(false)
+    menuButtonRef.current?.focus()
+  }, [])
 
   function isActive(href: string) {
     return pathname === href || pathname.startsWith(href + '/')
@@ -42,6 +48,7 @@ export function Navbar() {
         {/* Left: hamburger + Logo */}
         <div className="flex items-center gap-1">
           <Button
+            ref={menuButtonRef}
             variant="ghost"
             size="icon"
             className="rounded-md"
@@ -95,7 +102,7 @@ export function Navbar() {
           <AuthControls />
         </div>
 
-        <NavDropdown open={dropdownOpen} onClose={() => setDropdownOpen(false)} />
+        <NavDropdown open={dropdownOpen} onClose={closeDropdown} />
       </div>
     </header>
   )

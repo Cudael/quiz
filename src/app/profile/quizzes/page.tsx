@@ -5,6 +5,7 @@ import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { getQuizPath } from '@/lib/quiz-url'
 
 export default async function MyQuizzesPage() {
   const session = await auth()
@@ -127,7 +128,7 @@ export default async function MyQuizzesPage() {
                       </Link>
                     </Button>
                     <Button variant="outline" size="sm" asChild>
-                      <Link href={`/quiz/${quiz.slug}`}>
+                      <Link href={getQuizPath({ id: quiz.id, slug: quiz.slug })}>
                         <Eye className="mr-1.5 h-4 w-4" />
                         Preview
                       </Link>

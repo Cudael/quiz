@@ -19,6 +19,7 @@ export interface Question {
 
 export interface QuizData {
   id: string
+  slug: string | null
   title: string
   difficulty: string
   category: { name: string; slug: string }
