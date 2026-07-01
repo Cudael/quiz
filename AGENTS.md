@@ -31,7 +31,8 @@ src/
       duel/             create, join, [id] (state), start, submit
       notifications/    GET list, PATCH read
       play/             submit (score, XP, badges)
-      profile/          GET/PATCH, password, preferences
+      profile/          PATCH/DELETE (canonical), profile/ (compat PATCH alias),
+                        password, preferences
       quiz/[id]/        play (token endpoint)
       studio/quizzes/   CRUD endpoints
       upload/           Image upload to R2
@@ -86,7 +87,7 @@ src/
                         section-primitives, badge-showcase, continue-streak-strip
   content/              Static content: blog-posts.ts, collections.ts
   server/               Server-only modules:
-                          auth.ts, auth.config.ts, auth-routes.ts, authorize-email-password.ts,
+                          auth.ts, auth.config.ts, authorize-email-password.ts,
                           prisma.ts, play-token.ts, password.ts, rate-limit.ts,
                           leaderboard.ts, email.ts, home-quiz-cache.ts, home-page-data.ts,
                           token-hash.ts, duel.ts
@@ -176,7 +177,6 @@ Minimum env: `DATABASE_URL` + `AUTH_SECRET`. OAuth providers are optional; their
 
 - `src/server/auth.ts` — NextAuth instance + session helpers
 - `src/server/auth.config.ts` — NextAuth config (providers, callbacks)
-- `src/server/auth-routes.ts` — Custom auth route handlers
 - `src/server/authorize-email-password.ts` — Credentials provider logic
 - `src/server/password.ts` — bcrypt hashing/verification
 - `src/server/token-hash.ts` — Token hashing utilities
@@ -188,9 +188,13 @@ Minimum env: `DATABASE_URL` + `AUTH_SECRET`. OAuth providers are optional; their
 `middleware.ts` handles:
 
 - **Route protection**: `/studio*` and `/admin*` require auth. Unauthenticated → `/api/auth/signin`. Non-admin on `/admin*` → rewrite to `/admin/forbidden`.
-- **Guest-only routes**: `/sign-in` and `/sign-up` redirect authenticated users to `/me`.
+- **Guest-only routes**: `/sign-in` and `/sign-up` redirect authenticated users to `/profile`.
 - **CSP**: Dynamic Content-Security-Policy with per-request nonce for scripts. Tailwind v4 requires `style-src 'unsafe-inline'`.
 - **Security headers**: Set in `next.config.ts` (X-Frame-Options, X-Content-Type-Options, HSTS, Referrer-Policy, Permissions-Policy).
+
+## Documentation Policy
+
+Functional PRs that change route contracts, endpoint behavior, or compatibility aliases must update `AGENTS.md` in the same PR so this file remains the operational source of truth.
 
 ## Environment Variables
 
@@ -245,6 +249,7 @@ Pure business logic in `src/domain/` (no framework dependencies):
 GitHub Actions (`.github/workflows/ci.yml`): On push/PR to `main` — checkout, Node 20, `npm ci`, `prisma generate`, `npm run lint`, `npm run typecheck`, `npm test -- --run`.
 
 Vercel deployment with cron job: `GET /api/cron/cleanup-guests` daily at 3:00 AM UTC.
+Cron endpoint security: requires `Authorization: Bearer <CRON_SECRET>` and performs bounded guest-only cleanup.
 
 ## Documentation
 
