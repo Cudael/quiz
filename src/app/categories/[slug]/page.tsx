@@ -276,7 +276,7 @@ export default async function CategoryPage({
       conditions.push(Prisma.sql`q."id" NOT IN (${Prisma.join(completionIds)})`)
     }
 
-    const whereSql = Prisma.sql`WHERE ${Prisma.join(conditions, Prisma.sql` AND `)}`
+    const whereSql = Prisma.sql`WHERE ${Prisma.join(conditions, ' AND ')}`
 
     const [totalCount, rankedQuizIds] = await Promise.all([
       prisma.quiz.count({ where: quizWhere }),
@@ -313,10 +313,12 @@ export default async function CategoryPage({
     })
 
     const quizById = new Map(pageQuizzes.map((quiz) => [quiz.id, quiz]))
-    const quizCards = pageIds
-      .map((id) => quizById.get(id))
-      .filter(Boolean)
-      .map(toQuizCard)
+    const quizCards: QuizCardData[] = []
+    for (const id of pageIds) {
+      const quiz = quizById.get(id)
+      if (!quiz) continue
+      quizCards.push(toQuizCard(quiz))
+    }
 
     return { quizCards, totalCount }
   }

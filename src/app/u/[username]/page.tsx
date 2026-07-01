@@ -80,8 +80,12 @@ export default async function UserProfilePage({
           category: true,
         },
       },
-      followers: true,
-      following: true,
+      _count: {
+        select: {
+          followers: true,
+          following: true,
+        },
+      },
     },
   })
 
@@ -204,11 +208,11 @@ export default async function UserProfilePage({
               <StreakFlame value={user.streakDays} best={user.bestStreak} size="lg" />
               <div className="rounded-md border border-border p-3 text-sm">
                 <p className="text-muted-foreground">Followers</p>
-                <p className="text-xl font-semibold">{user.followers.length}</p>
+                <p className="text-xl font-semibold">{user._count.followers}</p>
               </div>
               <div className="rounded-md border border-border p-3 text-sm">
                 <p className="text-muted-foreground">Following</p>
-                <p className="text-xl font-semibold">{user.following.length}</p>
+                <p className="text-xl font-semibold">{user._count.following}</p>
               </div>
             </div>
           </div>
