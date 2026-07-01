@@ -45,24 +45,16 @@ export default async function ProfilePage() {
   const xpNeeded = nextLevelXp - currentLevelXp
   const xpInto = user.xp - currentLevelXp
 
-  const [stats, accuracyAgg] = await Promise.all([
-    prisma.playSession.aggregate({
-      where: { userId: user.id },
-      _count: { _all: true },
-      _avg: { score: true },
-      _sum: { correctCount: true, totalCount: true },
-    }),
-    prisma.playSession.aggregate({
-      where: { userId: user.id },
-      _sum: { correctCount: true, totalCount: true },
-    }),
-  ])
+  const stats = await prisma.playSession.aggregate({
+    where: { userId: user.id },
+    _count: { _all: true },
+    _avg: { score: true },
+    _sum: { correctCount: true, totalCount: true },
+  })
 
   const accuracy =
-    (accuracyAgg._sum.totalCount ?? 0) > 0
-      ? Math.round(
-          ((accuracyAgg._sum.correctCount ?? 0) / (accuracyAgg._sum.totalCount ?? 1)) * 100
-        )
+    (stats._sum.totalCount ?? 0) > 0
+      ? Math.round(((stats._sum.correctCount ?? 0) / (stats._sum.totalCount ?? 1)) * 100)
       : null
 
   return (
