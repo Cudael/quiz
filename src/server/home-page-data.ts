@@ -16,6 +16,8 @@ import type {
 import { getBadgeEmoji } from '@/lib/badge-display'
 
 const FALLBACK_CATEGORY_GRADIENT = 'var(--background-image-card-gradient)'
+const PERSONALIZATION_SESSION_LOOKBACK_DAYS = 365
+const PERSONALIZATION_SESSION_READ_CAP = 500
 
 const QUIZ_CARD_SELECT_WITH_RATINGS = {
   id: true,
@@ -177,13 +179,21 @@ export async function getHomePageData(): Promise<HomePageData> {
   let userPlaySessions: { quizId: string; quiz: { categoryId: string } }[] = []
 
   if (isAuthenticatedUser && session?.user?.id) {
+    const sessionLookbackCutoff = new Date(
+      Date.now() - PERSONALIZATION_SESSION_LOOKBACK_DAYS * 24 * 60 * 60 * 1000
+    )
+
     userPlaySessions = await prisma.playSession.findMany({
-      where: { userId: session.user.id },
+      where: {
+        userId: session.user.id,
+        createdAt: { gte: sessionLookbackCutoff },
+      },
       select: {
         quizId: true,
         quiz: { select: { categoryId: true } },
       },
       orderBy: { createdAt: 'desc' },
+      take: PERSONALIZATION_SESSION_READ_CAP,
     })
     for (const s of userPlaySessions) {
       playedQuizIds.add(s.quizId)
