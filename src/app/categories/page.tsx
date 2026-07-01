@@ -134,66 +134,113 @@ export default async function CategoriesPage({
     )
   }
 
-  // Default: show category grid
-  const categories = await prisma.category.findMany({
+  // Default: show category grid with batched data loading (no per-category fan-out)
+  const parentCategories = await prisma.category.findMany({
     where: { parentSlug: null },
-    include: {
-      quizzes: {
-        where: { isPublished: true },
-        select: { id: true },
-      },
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      color: true,
+      icon: true,
     },
     orderBy: { name: 'asc' },
   })
 
-  // Fetch top 5 quizzes per parent category (including subcategory quizzes)
-  const categorySlugs = categories.map((c) => c.slug)
-  const subcategories = await prisma.category.findMany({
-    where: { parentSlug: { in: categorySlugs } },
-    select: { slug: true, parentSlug: true },
-  })
+  const parentSlugs = parentCategories.map((c) => c.slug)
+  const subcategories =
+    parentSlugs.length > 0
+      ? await prisma.category.findMany({
+          where: { parentSlug: { in: parentSlugs } },
+          select: { id: true, slug: true, parentSlug: true },
+        })
+      : []
+
+  const categoryIdToSlug = new Map<string, string>()
+  for (const parent of parentCategories) {
+    categoryIdToSlug.set(parent.id, parent.slug)
+  }
+  for (const sub of subcategories) {
+    categoryIdToSlug.set(sub.id, sub.slug)
+  }
+
+  const allRelevantCategoryIds = [...categoryIdToSlug.keys()]
+
+  const [publishedCounts, publishedQuizzes] =
+    allRelevantCategoryIds.length > 0
+      ? await Promise.all([
+          prisma.quiz.groupBy({
+            by: ['categoryId'],
+            where: {
+              isPublished: true,
+              categoryId: { in: allRelevantCategoryIds },
+            },
+            _count: { _all: true },
+          }),
+          prisma.quiz.findMany({
+            where: {
+              isPublished: true,
+              categoryId: { in: allRelevantCategoryIds },
+            },
+            orderBy: { playCount: 'desc' },
+            select: { id: true, title: true, slug: true, playCount: true, categoryId: true },
+          }),
+        ])
+      : [[], []]
+
+  const quizCountBySlug = new Map<string, number>()
+  for (const entry of publishedCounts) {
+    const slug = categoryIdToSlug.get(entry.categoryId)
+    if (!slug) continue
+    quizCountBySlug.set(slug, entry._count._all)
+  }
 
   const parentToSubSlugs = new Map<string, string[]>()
+  const subSlugToParentSlug = new Map<string, string>()
   for (const sub of subcategories) {
     if (!sub.parentSlug) continue
     const arr = parentToSubSlugs.get(sub.parentSlug) ?? []
     arr.push(sub.slug)
     parentToSubSlugs.set(sub.parentSlug, arr)
+    subSlugToParentSlug.set(sub.slug, sub.parentSlug)
   }
 
-  const allWithQuizzes: CategoryWithQuizzes[] = await Promise.all(
-    categories.map(async (cat) => {
-      const slugs = [cat.slug, ...(parentToSubSlugs.get(cat.slug) ?? [])]
+  const topQuizzesByParent = new Map<
+    string,
+    { id: string; title: string; slug: string | null; playCount: number }[]
+  >()
+  for (const parent of parentCategories) {
+    topQuizzesByParent.set(parent.slug, [])
+  }
 
-      const topQuizzes = await prisma.quiz.findMany({
-        where: {
-          isPublished: true,
-          category: { slug: { in: slugs } },
-        },
-        orderBy: { playCount: 'desc' },
-        take: 5,
-        select: { id: true, title: true, slug: true, playCount: true },
-      })
-
-      // Count quizzes across parent + children (include subcategory quiz counts)
-      const childCounts = await prisma.category.findMany({
-        where: { parentSlug: cat.slug },
-        select: {
-          _count: { select: { quizzes: { where: { isPublished: true } } } },
-        },
-      })
-      const childTotal = childCounts.reduce((s, c) => s + c._count.quizzes, 0)
-
-      return {
-        slug: cat.slug,
-        name: cat.name,
-        color: cat.color || 'var(--color-quiz-blue)',
-        icon: cat.icon || 'HelpCircle',
-        quizCount: cat.quizzes.length + childTotal,
-        topQuizzes,
-      }
+  for (const quiz of publishedQuizzes) {
+    const categorySlug = categoryIdToSlug.get(quiz.categoryId)
+    if (!categorySlug) continue
+    const parentSlug = subSlugToParentSlug.get(categorySlug) ?? categorySlug
+    const bucket = topQuizzesByParent.get(parentSlug)
+    if (!bucket || bucket.length >= 5) continue
+    bucket.push({
+      id: quiz.id,
+      title: quiz.title,
+      slug: quiz.slug,
+      playCount: quiz.playCount,
     })
-  )
+  }
+
+  const allWithQuizzes: CategoryWithQuizzes[] = parentCategories.map((cat) => {
+    const childSlugs = parentToSubSlugs.get(cat.slug) ?? []
+    const childTotal = childSlugs.reduce((sum, slug) => sum + (quizCountBySlug.get(slug) ?? 0), 0)
+    const parentTotal = quizCountBySlug.get(cat.slug) ?? 0
+
+    return {
+      slug: cat.slug,
+      name: cat.name,
+      color: cat.color || 'var(--color-quiz-blue)',
+      icon: cat.icon || 'HelpCircle',
+      quizCount: parentTotal + childTotal,
+      topQuizzes: topQuizzesByParent.get(cat.slug) ?? [],
+    }
+  })
 
   // Sort by quiz count descending
   allWithQuizzes.sort((a, b) => b.quizCount - a.quizCount)
