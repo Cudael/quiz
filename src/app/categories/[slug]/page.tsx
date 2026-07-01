@@ -7,6 +7,7 @@ import { serializeJsonLd } from '@/lib/seo'
 import { Button } from '@/components/ui/button'
 import { QuizCardHorizontal } from '@/components/ui/quiz-card'
 import type { QuizCardData } from '@/components/ui/quiz-card'
+import { Prisma } from '@prisma/client'
 import { getDisplayAuthorName } from '@/lib/author-display'
 import { getQuizPath } from '@/lib/quiz-url'
 import { prisma } from '@/server/prisma'
@@ -250,31 +251,81 @@ export default async function CategoryPage({
     return { quizCards: quizzes.map(toQuizCard), totalCount }
   }
 
+  async function fetchRatingSortedQuizzes(skip: number): Promise<{
+    quizCards: QuizCardData[]
+    totalCount: number
+  }> {
+    const completionIds = [...playedQuizIds]
+
+    if (completion === 'completed' && completionIds.length === 0) {
+      return { quizCards: [], totalCount: 0 }
+    }
+
+    const conditions: Prisma.Sql[] = [
+      Prisma.sql`q."isPublished" = true`,
+      Prisma.sql`q."categoryId" IN (${Prisma.join(allCategoryIds)})`,
+    ]
+
+    if (difficulty !== 'all') {
+      conditions.push(Prisma.sql`q."difficulty" = ${difficulty}`)
+    }
+
+    if (completion === 'completed') {
+      conditions.push(Prisma.sql`q."id" IN (${Prisma.join(completionIds)})`)
+    } else if (completion === 'unplayed' && completionIds.length > 0) {
+      conditions.push(Prisma.sql`q."id" NOT IN (${Prisma.join(completionIds)})`)
+    }
+
+    const whereSql = Prisma.sql`WHERE ${Prisma.join(conditions, Prisma.sql` AND `)}`
+
+    const [totalCount, rankedQuizIds] = await Promise.all([
+      prisma.quiz.count({ where: quizWhere }),
+      prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+        SELECT q."id"
+        FROM "Quiz" q
+        LEFT JOIN (
+          SELECT
+            r."quizId" AS "quizId",
+            AVG(r."stars")::float AS "avgRating",
+            COUNT(*)::int AS "ratingCount"
+          FROM "Rating" r
+          GROUP BY r."quizId"
+        ) rr ON rr."quizId" = q."id"
+        ${whereSql}
+        ORDER BY
+          COALESCE(rr."avgRating", 0) DESC,
+          COALESCE(rr."ratingCount", 0) DESC,
+          q."playCount" DESC,
+          q."id" ASC
+        OFFSET ${skip}
+        LIMIT ${PAGE_SIZE}
+      `),
+    ])
+
+    const pageIds = rankedQuizIds.map((q) => q.id)
+    if (pageIds.length === 0) {
+      return { quizCards: [], totalCount }
+    }
+
+    const pageQuizzes = await prisma.quiz.findMany({
+      where: { id: { in: pageIds } },
+      select: selectFields,
+    })
+
+    const quizById = new Map(pageQuizzes.map((quiz) => [quiz.id, quiz]))
+    const quizCards = pageIds
+      .map((id) => quizById.get(id))
+      .filter(Boolean)
+      .map(toQuizCard)
+
+    return { quizCards, totalCount }
+  }
+
   let quizCards: QuizCardData[]
   let totalCount: number
 
   if (sort === 'rating') {
-    // Fetch all quizzes, compute avg rating in-memory, then paginate
-    const allQuizzes = await prisma.quiz.findMany({
-      where: quizWhere,
-      select: selectFields,
-    })
-
-    totalCount = allQuizzes.length
-
-    const scored = allQuizzes.map(toQuizCard).sort((a, b) => {
-      const aAvg = a.avgRating ?? 0
-      const bAvg = b.avgRating ?? 0
-      if (bAvg !== aAvg) return bAvg - aAvg
-      // Tie-break by rating count, then playCount
-      const aCount = a.ratingCount ?? 0
-      const bCount = b.ratingCount ?? 0
-      if (bCount !== aCount) return bCount - aCount
-      return (b.playCount ?? 0) - (a.playCount ?? 0)
-    })
-
-    const skip = (page - 1) * PAGE_SIZE
-    quizCards = scored.slice(skip, skip + PAGE_SIZE)
+    ;({ quizCards, totalCount } = await fetchRatingSortedQuizzes((page - 1) * PAGE_SIZE))
   } else {
     const orderBy =
       sort === 'newest'
