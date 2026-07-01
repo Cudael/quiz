@@ -91,7 +91,7 @@ export default auth((req) => {
   // Redirect logged-in users away from sign-in/sign-up
   if (isGuestOnlyAuth) {
     if (req.auth?.user) {
-      return NextResponse.redirect(new URL('/me', req.nextUrl.origin))
+      return NextResponse.redirect(new URL('/profile', req.nextUrl.origin))
     }
     const response = NextResponse.next({ request: { headers: requestHeaders } })
     response.headers.set('Content-Security-Policy', csp)

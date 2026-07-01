@@ -8,11 +8,17 @@ import { hashPassword } from '@/server/password'
 import { sendVerificationEmail } from '@/server/email'
 import { checkRateLimit, getClientIp } from '@/server/rate-limit'
 import { hashToken } from '@/server/token-hash'
+import { absoluteUrl } from '@/lib/site'
 
 const VERIFICATION_TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000
 
 export async function POST(request: Request) {
-  if (!(await checkRateLimit(`register:${getClientIp(request)}`, { limit: 5, windowMs: 15 * 60 * 1000 }))) {
+  if (
+    !(await checkRateLimit(`register:${getClientIp(request)}`, {
+      limit: 5,
+      windowMs: 15 * 60 * 1000,
+    }))
+  ) {
     return NextResponse.json(
       { error: 'Too many requests. Please try again later.' },
       { status: 429 }
@@ -67,7 +73,7 @@ export async function POST(request: Request) {
       },
     })
 
-    const verifyUrl = new URL('/api/auth/verify-email', request.url)
+    const verifyUrl = new URL(absoluteUrl('/api/auth/verify-email'))
     verifyUrl.searchParams.set('token', rawToken)
     await sendVerificationEmail(email, verifyUrl.toString())
   } catch (error) {

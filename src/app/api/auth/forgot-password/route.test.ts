@@ -61,6 +61,9 @@ describe('POST /api/auth/forgot-password', () => {
     // Identifier uses the "reset:" prefix to distinguish from verify tokens
     expect(createdData.identifier).toBe('reset:user@example.com')
     expect(sendPasswordResetEmailMock).toHaveBeenCalledOnce()
+    expect(sendPasswordResetEmailMock.mock.calls[0][1]).toMatch(
+      /^http:\/\/localhost:3000\/reset-password\?token=/
+    )
   })
 
   it('deletes existing reset tokens before creating a new one', async () => {

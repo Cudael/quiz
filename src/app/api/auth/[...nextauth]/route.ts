@@ -8,10 +8,11 @@ export const GET = handlers.GET
 // The exact type varies by Next.js version, so `unknown[]` is used here
 // to forward it to the underlying handler without version-specific imports.
 export async function POST(request: Request, ...args: unknown[]) {
-  // Only rate-limit credential sign-in attempts (path contains /signin/).
-  // Token refreshes, signout, and OAuth callbacks are not rate-limited.
+  // Only rate-limit credential sign-in attempts.
+  // Credential auth in NextAuth can hit either signin or callback routes.
   const { pathname } = new URL(request.url)
-  if (pathname.includes('/signin/')) {
+  const isCredentialsSignIn = /\/(signin|callback)\/email-password$/.test(pathname)
+  if (isCredentialsSignIn) {
     if (
       !(await checkRateLimit(`nextauth-signin:${getClientIp(request)}`, {
         limit: 10,

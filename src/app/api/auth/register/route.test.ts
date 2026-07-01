@@ -66,6 +66,10 @@ describe('POST /api/auth/register', () => {
     await expect(response.json()).resolves.toEqual({ ok: true })
     expect(prismaMock.user.create).toHaveBeenCalledOnce()
     expect(prismaMock.verificationToken.create).toHaveBeenCalledOnce()
+    expect(sendVerificationEmailMock).toHaveBeenCalledOnce()
+    expect(sendVerificationEmailMock.mock.calls[0][1]).toMatch(
+      /^http:\/\/localhost:3000\/api\/auth\/verify-email\?token=/
+    )
   })
 
   it('returns 409 when the email already exists', async () => {

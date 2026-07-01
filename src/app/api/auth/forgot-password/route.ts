@@ -5,6 +5,7 @@ import { prisma } from '@/server/prisma'
 import { sendPasswordResetEmail } from '@/server/email'
 import { checkRateLimit, getClientIp } from '@/server/rate-limit'
 import { hashToken } from '@/server/token-hash'
+import { absoluteUrl } from '@/lib/site'
 
 const RESET_TOKEN_EXPIRY_MS = 60 * 60 * 1000 // 1 hour
 
@@ -62,7 +63,7 @@ export async function POST(request: Request) {
     data: { identifier: `reset:${email}`, token: tokenHash, expires },
   })
 
-  const resetUrl = new URL('/reset-password', request.url)
+  const resetUrl = new URL(absoluteUrl('/reset-password'))
   resetUrl.searchParams.set('token', rawToken)
   await sendPasswordResetEmail(email, resetUrl.toString())
 
