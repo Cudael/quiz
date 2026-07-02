@@ -115,9 +115,6 @@ export function NavDropdown({ open, onClose }: NavDropdownProps) {
   useEffect(() => {
     if (!open) return
 
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         onClose()
@@ -127,7 +124,6 @@ export function NavDropdown({ open, onClose }: NavDropdownProps) {
     document.addEventListener('keydown', onKeyDown)
 
     return () => {
-      document.body.style.overflow = previousOverflow
       document.removeEventListener('keydown', onKeyDown)
     }
   }, [open, onClose])

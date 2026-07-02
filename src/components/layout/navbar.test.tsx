@@ -90,19 +90,17 @@ describe('Navbar', () => {
     expect(screen.getByRole('button', { name: /open.*menu/i })).toBeInTheDocument()
   })
 
-  it('closes dropdown on Escape, restores focus, and toggles body scroll lock', () => {
+  it('closes dropdown on Escape and restores focus', () => {
     render(<Navbar />)
 
     const menuButton = screen.getByRole('button', { name: /open.*menu/i })
     fireEvent.click(menuButton)
 
     expect(screen.getByRole('link', { name: 'Popular' })).toBeInTheDocument()
-    expect(document.body.style.overflow).toBe('hidden')
 
     fireEvent.keyDown(document, { key: 'Escape' })
 
     expect(screen.queryByRole('link', { name: 'Popular' })).not.toBeInTheDocument()
-    expect(document.body.style.overflow).toBe('')
     expect(menuButton).toHaveFocus()
   })
 })
