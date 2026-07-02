@@ -3,15 +3,10 @@
 import * as React from 'react'
 import { Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { AiGenerateDialog } from './ai-generate-dialog'
-
-interface Category {
-  id: string
-  name: string
-}
+import { AiGenerateDialog, type CategoryNode } from './ai-generate-dialog'
 
 interface AiGenerateButtonProps {
-  categories: Category[]
+  categories: CategoryNode[]
 }
 
 export function AiGenerateButton({ categories }: AiGenerateButtonProps) {

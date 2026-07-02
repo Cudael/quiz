@@ -53,9 +53,8 @@ export default async function StudioPage({
       orderBy: { updatedAt: 'desc' },
     }),
     prisma.category.findMany({
-      where: { parentSlug: null },
-      orderBy: { name: 'asc' },
-      select: { id: true, name: true },
+      orderBy: [{ parentSlug: { sort: 'asc', nulls: 'first' } }, { name: 'asc' }],
+      select: { id: true, name: true, slug: true, parentSlug: true },
     }),
     prisma.quiz.count({ where: { ...ownershipFilter, isPublished: true } }),
     prisma.quiz.count({ where: { ...ownershipFilter, isPublished: false } }),

@@ -8,15 +8,17 @@ import { Modal } from '@/components/ui/modal'
 import { useToast } from '@/components/ui/toast'
 import { generateQuizWithAi } from '@/app/studio/actions/ai-generate'
 
-interface Category {
+export interface CategoryNode {
   id: string
   name: string
+  slug: string
+  parentSlug: string | null
 }
 
 interface AiGenerateDialogProps {
   open: boolean
   onClose: () => void
-  categories: Category[]
+  categories: CategoryNode[]
 }
 
 const DIFFICULTIES = [
@@ -45,24 +47,61 @@ const FORMATS: { value: string; label: string; group: string }[] = [
   { value: 'NUMBER_GUESS', label: 'Number Guess', group: 'Text' },
 ]
 
+/** Build the tree: parent categories and their subcategories. */
+function buildCategoryTree(categories: CategoryNode[]) {
+  const parents: CategoryNode[] = []
+  const childrenByParent = new Map<string, CategoryNode[]>()
+
+  for (const cat of categories) {
+    if (cat.parentSlug === null) {
+      parents.push(cat)
+    } else {
+      const list = childrenByParent.get(cat.parentSlug) ?? []
+      list.push(cat)
+      childrenByParent.set(cat.parentSlug, list)
+    }
+  }
+
+  // Also index parents by slug for quick lookup in the dialog
+  const parentBySlug = new Map(parents.map((p) => [p.slug, p]))
+
+  return { parents, childrenByParent, parentBySlug }
+}
+
 export function AiGenerateDialog({ open, onClose, categories }: AiGenerateDialogProps) {
   const router = useRouter()
   const { addToast } = useToast()
+
+  const tree = React.useMemo(() => buildCategoryTree(categories), [categories])
+
   const [generating, setGenerating] = React.useState(false)
   const [topic, setTopic] = React.useState('')
-  const [categoryId, setCategoryId] = React.useState(categories[0]?.id ?? '')
+  const [parentCategoryId, setParentCategoryId] = React.useState(tree.parents[0]?.id ?? '')
+  const [subcategoryId, setSubcategoryId] = React.useState('')
   const [count, setCount] = React.useState(10)
   const [difficulty, setDifficulty] = React.useState<'EASY' | 'MEDIUM' | 'HARD'>('MEDIUM')
   const [format, setFormat] = React.useState('TEXT_CHOICE')
 
+  // Reset subcategory when parent changes
+  const handleParentChange = React.useCallback((id: string) => {
+    setParentCategoryId(id)
+    setSubcategoryId('')
+  }, [])
+
+  // The actual category ID sent to the server: subcategory if selected, else parent
+  const effectiveCategoryId = subcategoryId || parentCategoryId
+
+  const parentSlug = tree.parents.find((p) => p.id === parentCategoryId)?.slug ?? ''
+  const subcategories = tree.childrenByParent.get(parentSlug) ?? []
+
   async function handleGenerate() {
-    if (!topic.trim() || !categoryId) return
+    if (!topic.trim() || !effectiveCategoryId) return
 
     setGenerating(true)
     try {
       const fd = new FormData()
       fd.set('topic', topic.trim())
-      fd.set('categoryId', categoryId)
+      fd.set('categoryId', effectiveCategoryId)
       fd.set('count', String(count))
       fd.set('difficulty', difficulty)
       fd.set('format', format)
@@ -109,11 +148,11 @@ export function AiGenerateDialog({ open, onClose, categories }: AiGenerateDialog
             </label>
             <select
               id="ai-category"
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
+              value={parentCategoryId}
+              onChange={(e) => handleParentChange(e.target.value)}
               className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
             >
-              {categories.map((cat) => (
+              {tree.parents.map((cat) => (
                 <option key={cat.id} value={cat.id}>
                   {cat.name}
                 </option>
@@ -121,6 +160,30 @@ export function AiGenerateDialog({ open, onClose, categories }: AiGenerateDialog
             </select>
           </div>
 
+          <div className="space-y-1.5">
+            <label htmlFor="ai-subcategory" className="text-sm font-medium">
+              {subcategories.length > 0 ? 'Subcategory' : 'Subcategory'}
+            </label>
+            <select
+              id="ai-subcategory"
+              value={subcategoryId}
+              onChange={(e) => setSubcategoryId(e.target.value)}
+              disabled={subcategories.length === 0}
+              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm disabled:opacity-50"
+            >
+              <option value="">
+                — All {tree.parents.find((p) => p.id === parentCategoryId)?.name ?? 'Category'} —
+              </option>
+              {subcategories.map((sub) => (
+                <option key={sub.id} value={sub.id}>
+                  {sub.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <label htmlFor="ai-format" className="text-sm font-medium">
               Format
@@ -138,9 +201,7 @@ export function AiGenerateDialog({ open, onClose, categories }: AiGenerateDialog
               ))}
             </select>
           </div>
-        </div>
 
-        <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <label htmlFor="ai-count" className="text-sm font-medium">
               Questions
@@ -158,25 +219,25 @@ export function AiGenerateDialog({ open, onClose, categories }: AiGenerateDialog
               ))}
             </select>
           </div>
+        </div>
 
-          <div className="space-y-1.5">
-            <span className="text-sm font-medium">Difficulty</span>
-            <div className="flex gap-1">
-              {DIFFICULTIES.map((d) => (
-                <button
-                  key={d.value}
-                  type="button"
-                  onClick={() => setDifficulty(d.value)}
-                  className={`flex-1 rounded-md border px-2 py-2 text-xs font-semibold transition-colors ${
-                    difficulty === d.value
-                      ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-border bg-background text-muted-foreground hover:bg-accent'
-                  }`}
-                >
-                  {d.label}
-                </button>
-              ))}
-            </div>
+        <div className="space-y-1.5">
+          <span className="text-sm font-medium">Difficulty</span>
+          <div className="flex gap-1">
+            {DIFFICULTIES.map((d) => (
+              <button
+                key={d.value}
+                type="button"
+                onClick={() => setDifficulty(d.value)}
+                className={`flex-1 rounded-md border px-2 py-2 text-xs font-semibold transition-colors ${
+                  difficulty === d.value
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border bg-background text-muted-foreground hover:bg-accent'
+                }`}
+              >
+                {d.label}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -192,7 +253,10 @@ export function AiGenerateDialog({ open, onClose, categories }: AiGenerateDialog
           <Button variant="ghost" onClick={onClose} disabled={generating}>
             Cancel
           </Button>
-          <Button onClick={handleGenerate} disabled={generating || !topic.trim() || !categoryId}>
+          <Button
+            onClick={handleGenerate}
+            disabled={generating || !topic.trim() || !effectiveCategoryId}
+          >
             {generating ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
