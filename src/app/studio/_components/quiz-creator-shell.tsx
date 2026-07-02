@@ -311,7 +311,7 @@ export function QuizCreatorShell({
                     onClick={() => setStep(step)}
                     aria-current={isActive ? 'step' : undefined}
                     className={cn(
-                      'flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium transition-colors',
+                      'flex items-center gap-1.5 rounded-sm px-3 py-1 text-sm font-medium transition-colors',
                       isActive && 'bg-primary text-primary-foreground',
                       isDone && 'text-muted-foreground',
                       !isActive && !isDone && 'text-muted-foreground'
@@ -319,7 +319,7 @@ export function QuizCreatorShell({
                   >
                     <span
                       className={cn(
-                        'flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold',
+                        'flex h-5 w-5 items-center justify-center rounded-sm text-xs font-bold',
                         isActive
                           ? 'bg-primary-foreground text-primary'
                           : isDone

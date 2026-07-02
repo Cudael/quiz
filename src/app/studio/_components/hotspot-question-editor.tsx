@@ -409,7 +409,7 @@ export function HotspotQuestionEditor() {
                   return (
                     <div key={zone.id} className="rounded-md border border-border/50 bg-card p-3">
                       <div className="flex items-start gap-3">
-                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-sm bg-muted text-xs font-bold text-muted-foreground">
                           {idx + 1}
                         </span>
                         <div className="min-w-0 flex-1 space-y-2">

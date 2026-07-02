@@ -229,7 +229,7 @@ export function StepMeta({ categories }: StepMetaProps) {
                   type="button"
                   onClick={() => setMeta({ difficulty: value })}
                   className={cn(
-                    'rounded-full border px-4 py-1.5 text-sm font-medium transition-colors',
+                    'rounded-sm border px-4 py-1.5 text-sm font-medium transition-colors',
                     difficulty === value
                       ? activeClass
                       : 'border-border text-muted-foreground hover:border-primary/50'
@@ -265,7 +265,7 @@ export function StepMeta({ categories }: StepMetaProps) {
                   type="button"
                   onClick={() => setMeta({ defaultTimeLimitSec: value })}
                   className={cn(
-                    'rounded-full border px-4 py-1.5 text-sm font-medium transition-colors',
+                    'rounded-sm border px-4 py-1.5 text-sm font-medium transition-colors',
                     defaultTimeLimitSec === value
                       ? 'border-primary bg-primary text-primary-foreground'
                       : 'border-border text-muted-foreground hover:border-primary/50'

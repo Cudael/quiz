@@ -34,7 +34,7 @@ export function DuelEntry({ categories }: DuelEntryProps) {
   return (
     <div className="space-y-6">
       <div className="space-y-2 text-center">
-        <p className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <p className="inline-flex items-center gap-2 rounded-sm border border-quiz-purple/30 bg-quiz-purple/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-quiz-purple">
           <Swords className="h-3.5 w-3.5" />
           Duel Mode
         </p>
@@ -158,7 +158,7 @@ export function DuelEntry({ categories }: DuelEntryProps) {
               </div>
             </div>
 
-            <Button type="submit" variant="gradient" className="w-full" disabled={submittingCreate}>
+            <Button type="submit" variant="accent" className="w-full" disabled={submittingCreate}>
               {submittingCreate ? 'Creating…' : 'Create Duel'}
             </Button>
           </form>

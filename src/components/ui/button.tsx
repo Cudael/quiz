@@ -5,22 +5,25 @@ import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
+/** Arcade-style press: solid buttons sit on a hard 3px ledge and physically
+ *  push down when clicked — crisp and tactile, no soft glows. */
+const pressable = 'active:translate-y-[3px] active:shadow-none'
+
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95',
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold ring-offset-background transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
-        default:
-          'bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20',
-        destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-        outline: 'border border-foreground/25 bg-transparent hover:bg-foreground/10',
-        secondary: 'bg-foreground/10 text-foreground hover:bg-foreground/20',
-        ghost: 'hover:bg-foreground/10',
+        default: `bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_3px_0_0_hsl(var(--primary)/0.3)] ${pressable}`,
+        destructive: `bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-[0_3px_0_0_hsl(var(--destructive)/0.4)] ${pressable}`,
+        outline:
+          'border border-foreground/25 bg-transparent hover:bg-foreground/10 active:scale-95',
+        secondary: 'bg-foreground/10 text-foreground hover:bg-foreground/20 active:scale-95',
+        ghost: 'hover:bg-foreground/10 active:scale-95',
         link: 'text-foreground underline-offset-4 hover:underline',
-        gradient:
-          'bg-gradient-to-r from-quiz-purple to-quiz-pink text-white hover:opacity-95 shadow-md shadow-quiz-purple/10 hover:shadow-quiz-purple/20 transition-all duration-200',
-        'gradient-green':
-          'bg-gradient-to-r from-quiz-green to-emerald-500 text-white hover:opacity-95 shadow-md shadow-quiz-green/10 hover:shadow-quiz-green/20 transition-all duration-200',
+        accent: `bg-quiz-purple text-white hover:bg-quiz-purple/90 shadow-[0_3px_0_0_var(--color-quiz-purple-dark)] ${pressable}`,
+        warm: `bg-quiz-orange text-white hover:bg-quiz-orange/90 shadow-[0_3px_0_0_var(--color-quiz-orange-dark)] ${pressable}`,
+        success: `bg-quiz-green text-white hover:bg-quiz-green/90 shadow-[0_3px_0_0_var(--color-quiz-green-dark)] ${pressable}`,
       },
       size: {
         default: 'h-10 px-4 py-2',

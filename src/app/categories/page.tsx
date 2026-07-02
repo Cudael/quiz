@@ -264,6 +264,10 @@ export default async function CategoriesPage({
                 Back to Home
               </Link>
             </Button>
+            <p className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+              <span aria-hidden className="h-2 w-2 shrink-0 bg-quiz-blue" />
+              Explore
+            </p>
             <h1 className="text-3xl font-extrabold tracking-tight md:text-4xl text-foreground">
               Browse Quiz Categories
             </h1>
@@ -272,7 +276,7 @@ export default async function CategoriesPage({
               subcategories, seek legendary scores, and claim your crown!
             </p>
           </div>
-          <div className="flex shrink-0 items-center gap-2 rounded-full border border-border/60 bg-background/50 px-4 py-1.5 text-sm font-semibold backdrop-blur-sm shadow-sm">
+          <div className="flex shrink-0 items-center gap-2 rounded-sm border border-border/60 bg-background/50 px-4 py-1.5 text-sm font-semibold backdrop-blur-sm">
             <Layers className="h-4 w-4 text-foreground" />
             <span className="font-bold tabular-nums text-foreground">
               {totalQuizzes.toLocaleString()}
@@ -328,7 +332,7 @@ function CategoryCard({ category }: { category: CategoryWithQuizzes }) {
           </span>
           <span className="truncate">{category.name}</span>
         </Link>
-        <span className="rounded-full bg-muted/50 px-2 py-0.5 text-[11px] font-semibold text-muted-foreground/90 select-none">
+        <span className="rounded-sm bg-muted/50 px-2 py-0.5 text-[11px] font-semibold text-muted-foreground/90 select-none">
           {category.quizCount}
         </span>
       </div>

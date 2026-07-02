@@ -74,15 +74,15 @@ export function HeroInsightBox({ currentUser, totalQuizCount, quickLinks }: Hero
 
         {/* Stats inline row */}
         <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-quiz-purple/5 px-2.5 py-1 font-semibold text-quiz-purple whitespace-nowrap border border-quiz-purple/10">
+          <span className="inline-flex items-center gap-1.5 rounded-sm bg-quiz-purple/5 px-2.5 py-1 font-semibold text-quiz-purple whitespace-nowrap border border-quiz-purple/10">
             <Zap className="h-3.5 w-3.5 shrink-0" />
             {formattedCount} quizzes
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-quiz-orange/5 px-2.5 py-1 font-semibold text-quiz-orange whitespace-nowrap border border-quiz-orange/10">
+          <span className="inline-flex items-center gap-1.5 rounded-sm bg-quiz-orange/5 px-2.5 py-1 font-semibold text-quiz-orange whitespace-nowrap border border-quiz-orange/10">
             <Trophy className="h-3.5 w-3.5 shrink-0" />
             Earn badges & XP
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-quiz-green/5 px-2.5 py-1 font-semibold text-quiz-green whitespace-nowrap border border-quiz-green/10">
+          <span className="inline-flex items-center gap-1.5 rounded-sm bg-quiz-green/5 px-2.5 py-1 font-semibold text-quiz-green whitespace-nowrap border border-quiz-green/10">
             <Users className="h-3.5 w-3.5 shrink-0" />
             Climb leaderboards
           </span>

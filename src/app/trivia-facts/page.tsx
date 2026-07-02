@@ -145,7 +145,7 @@ export default function TriviaFactsPage() {
     <div className="container mx-auto max-w-4xl px-4 py-10 md:py-16">
       {/* Hero */}
       <div className="mb-10 text-center">
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs font-bold text-muted-foreground">
+        <div className="mb-3 inline-flex items-center gap-2 rounded-sm border bg-card px-3 py-1 text-xs font-bold text-muted-foreground">
           <Lightbulb className="h-3.5 w-3.5" />
           Did You Know?
         </div>
@@ -157,11 +157,10 @@ export default function TriviaFactsPage() {
       </div>
 
       {/* Daily featured fact */}
-      <div className="relative mb-12 overflow-hidden rounded-md border-2 border-quiz-orange/40 bg-gradient-to-br from-quiz-orange/10 via-quiz-purple/5 to-quiz-orange/10 p-6 md:p-8">
-        <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-quiz-orange/10 blur-2xl" />
+      <div className="relative mb-12 overflow-hidden rounded-md border border-t-4 border-t-quiz-orange bg-card p-6 md:p-8">
         <div className="relative">
           <div className="mb-4 flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 rounded-full bg-quiz-orange/15 px-2.5 py-0.5 text-xs font-bold text-quiz-orange">
+            <span className="inline-flex items-center gap-1 rounded-sm bg-quiz-orange/15 px-2.5 py-0.5 text-xs font-bold text-quiz-orange">
               <Sparkles className="h-3 w-3" />
               Featured Fact
             </span>
@@ -189,7 +188,7 @@ export default function TriviaFactsPage() {
             >
               <div className="flex items-center gap-2">
                 <span className="text-2xl">{item.emoji}</span>
-                <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+                <span className="rounded-sm bg-muted px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
                   {item.category}
                 </span>
               </div>

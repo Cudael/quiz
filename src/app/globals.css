@@ -35,9 +35,12 @@
 
   --color-quiz-purple: #7c3aed;
   --color-quiz-purple-light: #a78bfa;
+  --color-quiz-purple-dark: #5b21b6;
   --color-quiz-green: #22c55e;
+  --color-quiz-green-dark: #15803d;
 
   --color-quiz-orange: #f97316;
+  --color-quiz-orange-dark: #c2410c;
   --color-quiz-pink: #ec4899;
   --color-quiz-blue: #3b82f6;
   --color-quiz-yellow: #eab308;
@@ -45,6 +48,10 @@
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
+
+  /* Hard offset shadows — crisp, squared elevation (signature card lift) */
+  --shadow-hard-sm: 3px 3px 0 0 hsl(var(--foreground) / 0.1);
+  --shadow-hard: 6px 6px 0 0 hsl(var(--foreground) / 0.1);
 
   --font-sans: var(--font-inter), system-ui, sans-serif;
 
@@ -160,7 +167,7 @@
   --border: 0 0% 90%;
   --input: 0 0% 90%;
   --ring: 0 0% 10%;
-  --radius: 0.375rem;
+  --radius: 0.25rem;
 
   --warning: 38 92% 50%;
   --warning-foreground: 0 0% 100%;

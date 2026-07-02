@@ -96,7 +96,7 @@ export default async function ChallengesPage() {
     <div className="container mx-auto max-w-5xl px-4 py-10 md:py-16">
       {/* Hero */}
       <div className="mb-10 text-center">
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs font-bold text-muted-foreground">
+        <div className="mb-3 inline-flex items-center gap-2 rounded-sm border bg-card px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
           <Trophy className="h-3.5 w-3.5" />
           Challenges await
         </div>
@@ -110,10 +110,9 @@ export default async function ChallengesPage() {
       {/* Challenge cards */}
       <div className="grid gap-6 lg:grid-cols-3 mb-12">
         {/* Daily Challenge */}
-        <div className="group relative flex flex-col overflow-hidden rounded-md border-2 border-quiz-orange/30 bg-gradient-to-b from-quiz-orange/5 to-transparent p-6 transition-all hover:-translate-y-1 hover:border-quiz-orange/50 hover:shadow-lg">
-          <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-quiz-orange/10 blur-2xl transition-transform group-hover:scale-150" />
+        <div className="group relative flex flex-col overflow-hidden rounded-md border border-t-4 border-t-quiz-orange bg-card p-6 transition-all hover:-translate-y-1 hover:shadow-hard">
           <div className="relative">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-quiz-orange/15 px-2.5 py-1 text-xs font-bold text-quiz-orange">
+            <span className="inline-flex items-center gap-1.5 rounded-sm bg-quiz-orange/15 px-2.5 py-1 text-xs font-bold text-quiz-orange">
               <Flame className="h-3 w-3" />
               Daily
             </span>
@@ -131,16 +130,16 @@ export default async function ChallengesPage() {
                     : `0 / ${dailyTarget}`}
                 </span>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-muted">
+              <div className="h-2 overflow-hidden rounded-sm bg-muted">
                 <div
-                  className="h-full rounded-full bg-quiz-orange transition-all"
+                  className="h-full bg-quiz-orange transition-all"
                   style={{
                     width: `${Math.min(100, (Math.min(dailyPlayCount, dailyTarget) / dailyTarget) * 100)}%`,
                   }}
                 />
               </div>
             </div>
-            <Button asChild className="mt-5 w-full rounded-md font-bold" variant="gradient">
+            <Button asChild className="mt-5 w-full rounded-md font-bold" variant="warm">
               <Link href="/random-quiz">
                 <Zap className="mr-2 h-4 w-4" />
                 Start Playing
@@ -150,10 +149,9 @@ export default async function ChallengesPage() {
         </div>
 
         {/* Weekly Challenge */}
-        <div className="group relative flex flex-col overflow-hidden rounded-md border-2 border-quiz-purple/30 bg-gradient-to-b from-quiz-purple/5 to-transparent p-6 transition-all hover:-translate-y-1 hover:border-quiz-purple/50 hover:shadow-lg">
-          <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-quiz-purple/10 blur-2xl transition-transform group-hover:scale-150" />
+        <div className="group relative flex flex-col overflow-hidden rounded-md border border-t-4 border-t-quiz-purple bg-card p-6 transition-all hover:-translate-y-1 hover:shadow-hard">
           <div className="relative">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-quiz-purple/15 px-2.5 py-1 text-xs font-bold text-quiz-purple">
+            <span className="inline-flex items-center gap-1.5 rounded-sm bg-quiz-purple/15 px-2.5 py-1 text-xs font-bold text-quiz-purple">
               <Calendar className="h-3 w-3" />
               Weekly
             </span>
@@ -168,9 +166,9 @@ export default async function ChallengesPage() {
                   {Math.min(weeklyPlayCount, weeklyTarget)} / {weeklyTarget}
                 </span>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-muted">
+              <div className="h-2 overflow-hidden rounded-sm bg-muted">
                 <div
-                  className="h-full rounded-full bg-quiz-purple transition-all"
+                  className="h-full bg-quiz-purple transition-all"
                   style={{
                     width: `${Math.min(100, (Math.min(weeklyPlayCount, weeklyTarget) / weeklyTarget) * 100)}%`,
                   }}
@@ -198,10 +196,9 @@ export default async function ChallengesPage() {
         </div>
 
         {/* Monthly Challenge */}
-        <div className="group relative flex flex-col overflow-hidden rounded-md border-2 border-quiz-green/30 bg-gradient-to-b from-quiz-green/5 to-transparent p-6 transition-all hover:-translate-y-1 hover:border-quiz-green/50 hover:shadow-lg">
-          <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-quiz-green/10 blur-2xl transition-transform group-hover:scale-150" />
+        <div className="group relative flex flex-col overflow-hidden rounded-md border border-t-4 border-t-quiz-green bg-card p-6 transition-all hover:-translate-y-1 hover:shadow-hard">
           <div className="relative">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-quiz-green/15 px-2.5 py-1 text-xs font-bold text-quiz-green">
+            <span className="inline-flex items-center gap-1.5 rounded-sm bg-quiz-green/15 px-2.5 py-1 text-xs font-bold text-quiz-green">
               <Star className="h-3 w-3" />
               Monthly
             </span>
@@ -217,9 +214,9 @@ export default async function ChallengesPage() {
                   {Math.min(monthlyPlayCount, monthlyTarget)} / {monthlyTarget}
                 </span>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-muted">
+              <div className="h-2 overflow-hidden rounded-sm bg-muted">
                 <div
-                  className="h-full rounded-full bg-quiz-green transition-all"
+                  className="h-full bg-quiz-green transition-all"
                   style={{
                     width: `${Math.min(100, (Math.min(monthlyPlayCount, monthlyTarget) / monthlyTarget) * 100)}%`,
                   }}
@@ -254,7 +251,7 @@ export default async function ChallengesPage() {
           Duel other players in real-time, climb the global leaderboard, and earn exclusive badges.
         </p>
         <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-          <Button asChild className="rounded-md font-bold" variant="gradient-green">
+          <Button asChild className="rounded-md font-bold" variant="accent">
             <Link href="/duel">
               <Swords className="mr-2 h-4 w-4" />
               Start a Duel

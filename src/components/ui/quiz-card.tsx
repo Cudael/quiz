@@ -108,7 +108,7 @@ interface QuizCardProps {
 
 function PlayedBadge() {
   return (
-    <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-500/20 px-1.5 py-px text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 shrink-0">
+    <span className="inline-flex items-center gap-0.5 rounded-sm bg-emerald-500/20 px-1.5 py-px text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 shrink-0">
       ✓ Played
     </span>
   )
@@ -124,7 +124,7 @@ function DifficultyPill({
   return (
     <span
       className={cn(
-        'absolute inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md',
+        'absolute inline-flex items-center rounded-sm px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md',
         DIFFICULTY_CONFIG[difficulty],
         className
       )}
@@ -143,7 +143,7 @@ export const QuizCardHorizontal = React.memo(function QuizCardHorizontal({
 
   return (
     <Link href={getQuizPath(quiz)} className={cn('group block min-w-0 shrink-0 w-full', className)}>
-      <div className="overflow-hidden rounded-md border border-border/40 shadow-sm transition-shadow duration-200 group-hover:shadow-md">
+      <div className="overflow-hidden rounded-md border bg-card transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-hard-sm">
         {/* Square image area */}
         <div className="relative aspect-square w-full">
           <div
@@ -164,7 +164,7 @@ export const QuizCardHorizontal = React.memo(function QuizCardHorizontal({
           {/* Category pill over image */}
           <div className="absolute left-2 top-2">
             <span
-              className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white backdrop-blur-md"
+              className="inline-flex items-center rounded-sm px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white backdrop-blur-md"
               style={{
                 backgroundColor: `${quiz.category.color}44`,
                 border: `1px solid ${quiz.category.color}66`,
@@ -216,7 +216,7 @@ export const QuizCard = React.memo(function QuizCard({ quiz, className }: QuizCa
 
   return (
     <Link href={getQuizPath(quiz)} className={cn('group block', className)}>
-      <motion.div className="rounded-md border border-border/50 shadow-md transition-shadow duration-300 group-hover:shadow-xl group-hover:shadow-quiz-purple/10">
+      <motion.div className="rounded-md border bg-card transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-hard">
         {/* Square image area */}
         <div
           className="relative aspect-square w-full overflow-hidden rounded-t-md"
@@ -252,7 +252,7 @@ export const QuizCard = React.memo(function QuizCard({ quiz, className }: QuizCa
           {/* Category pill */}
           <div className="absolute left-3 top-3">
             <span
-              className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-md"
+              className="inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-md"
               style={{
                 backgroundColor: `${quiz.category.color}44`,
                 border: `1px solid ${quiz.category.color}66`,
@@ -309,7 +309,7 @@ export const QuizCardFeatured = React.memo(function QuizCardFeatured({
 
   return (
     <Link href={getQuizPath(quiz)} className={cn('group block min-w-0 w-full h-full', className)}>
-      <div className="flex h-full flex-col overflow-hidden rounded-md border border-border/40 shadow-sm transition-shadow duration-200 group-hover:shadow-md">
+      <div className="flex h-full flex-col overflow-hidden rounded-md border bg-card transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-hard-sm">
         {/* Square image area */}
         <div className="relative aspect-square w-full">
           <div
@@ -330,7 +330,7 @@ export const QuizCardFeatured = React.memo(function QuizCardFeatured({
           {/* Category pill over image */}
           <div className="absolute left-2 top-2">
             <span
-              className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white backdrop-blur-md"
+              className="inline-flex items-center rounded-sm px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white backdrop-blur-md"
               style={{
                 backgroundColor: `${quiz.category.color}44`,
                 border: `1px solid ${quiz.category.color}66`,
@@ -373,7 +373,7 @@ export const QuizCardCompact = React.memo(function QuizCardCompact({
     <Link
       href={getQuizPath(quiz)}
       className={cn(
-        'group flex w-36 shrink-0 flex-col overflow-hidden rounded-md border border-border/50 bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md',
+        'group flex w-36 shrink-0 flex-col overflow-hidden rounded-md border bg-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-hard-sm',
         className
       )}
     >

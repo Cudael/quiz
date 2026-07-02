@@ -17,7 +17,7 @@ const variantClasses = {
   success: 'bg-quiz-green',
   warning: 'bg-warning',
   danger: 'bg-destructive',
-  gradient: 'bg-gradient-to-r from-quiz-purple to-quiz-pink',
+  gradient: 'bg-quiz-purple',
 }
 
 const sizeClasses = {
@@ -41,7 +41,7 @@ export function ProgressBar({
   return (
     <div className={cn('w-full', className)} {...props}>
       <div
-        className={cn('w-full overflow-hidden rounded-full bg-muted', sizeClasses[size])}
+        className={cn('w-full overflow-hidden rounded-sm bg-muted', sizeClasses[size])}
         role="progressbar"
         aria-valuenow={value}
         aria-valuemin={0}
@@ -49,7 +49,7 @@ export function ProgressBar({
       >
         <div
           className={cn(
-            'h-full rounded-full transition-all duration-500 ease-out',
+            'h-full transition-all duration-500 ease-out',
             variantClasses[variant],
             animated && 'animate-pulse'
           )}

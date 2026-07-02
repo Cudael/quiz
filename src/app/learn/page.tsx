@@ -100,7 +100,7 @@ export default function LearnPage() {
     <div className="container mx-auto max-w-5xl px-4 py-10 md:py-16">
       {/* Hero */}
       <div className="mb-12 text-center">
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs font-bold text-muted-foreground">
+        <div className="mb-3 inline-flex items-center gap-2 rounded-sm border bg-card px-3 py-1 text-xs font-bold text-muted-foreground">
           <GraduationCap className="h-3.5 w-3.5" />
           Learning Hub
         </div>
@@ -183,7 +183,7 @@ export default function LearnPage() {
                 href={`/blog/${post.slug}`}
                 className="group flex flex-col rounded-md border border-border/50 bg-card p-5 transition-all hover:-translate-y-1 hover:border-primary/30 hover:shadow-md"
               >
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-0.5 text-[10px] font-bold uppercase text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5 rounded-sm bg-muted px-2.5 py-0.5 text-[10px] font-bold uppercase text-muted-foreground">
                   <Newspaper className="h-3 w-3" />
                   Article
                 </span>
@@ -208,7 +208,7 @@ export default function LearnPage() {
 
       {/* CTA */}
       <div className="grid gap-5 sm:grid-cols-2">
-        <div className="rounded-md border border-border/40 bg-gradient-to-br from-quiz-purple/5 to-quiz-pink/5 p-6 text-center">
+        <div className="rounded-md border border-t-4 border-t-quiz-purple bg-card p-6 text-center">
           <Lightbulb className="mx-auto h-8 w-8 text-quiz-purple" />
           <h2 className="mt-3 text-lg font-extrabold">Trivia Facts</h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
@@ -221,13 +221,13 @@ export default function LearnPage() {
           </Button>
         </div>
 
-        <div className="rounded-md border border-border/40 bg-gradient-to-br from-quiz-green/5 to-quiz-blue/5 p-6 text-center">
+        <div className="rounded-md border border-t-4 border-t-quiz-green bg-card p-6 text-center">
           <PenLine className="mx-auto h-8 w-8 text-quiz-green" />
           <h2 className="mt-3 text-lg font-extrabold">Create a Quiz</h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
             Teaching others is one of the best ways to learn. Build your own quiz and share it.
           </p>
-          <Button asChild className="mt-4 rounded-md font-bold" variant="gradient-green">
+          <Button asChild className="mt-4 rounded-md font-bold" variant="success">
             <Link href="/studio">
               Quiz Studio <ArrowRight className="ml-2 h-4 w-4" />
             </Link>

@@ -457,9 +457,9 @@ export default async function CategoryPage({
       />
 
       {/* Banner */}
-      <section className="relative overflow-hidden rounded-md border border-border/50 bg-card/65 backdrop-blur-sm p-6 md:p-8">
+      <section className="relative overflow-hidden rounded-md border border-border/50 bg-card p-6 md:p-8">
         <div
-          className="absolute top-0 right-0 -mr-16 -mt-16 h-64 w-64 rounded-full blur-3xl pointer-events-none opacity-20 animate-pulse-slow"
+          className="absolute inset-x-0 top-0 h-1"
           style={{ backgroundColor: category.color || 'var(--color-quiz-blue)' }}
         />
         <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -502,7 +502,7 @@ export default async function CategoryPage({
             </p>
           </div>
           <div
-            className="flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-semibold shadow-sm backdrop-blur-sm"
+            className="flex shrink-0 items-center gap-1.5 rounded-sm border px-4 py-1.5 text-sm font-semibold shadow-sm backdrop-blur-sm"
             style={{
               backgroundColor: (category.color || '#3b82f6') + '0d',
               borderColor: (category.color || '#3b82f6') + '2d',

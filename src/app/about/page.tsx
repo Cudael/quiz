@@ -149,7 +149,7 @@ export default async function AboutPage() {
             },
           ].map((item) => (
             <div key={item.step} className="text-center">
-              <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-quiz-orange text-white font-bold text-sm">
+              <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-sm bg-quiz-orange text-white font-bold text-sm">
                 {item.step}
               </div>
               <h3 className="font-bold mb-1">{item.title}</h3>
@@ -170,7 +170,7 @@ export default async function AboutPage() {
 
       {/* CTAs */}
       <div className="flex flex-wrap justify-center gap-4">
-        <Button asChild size="lg" variant="gradient" className="rounded-md font-bold">
+        <Button asChild size="lg" variant="accent" className="rounded-md font-bold">
           <Link href="/categories">
             Browse Quizzes
             <ArrowRight className="h-4 w-4" />

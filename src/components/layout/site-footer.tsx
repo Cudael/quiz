@@ -63,7 +63,7 @@ export function SiteFooter() {
                 aria-label="Twitter / X"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background/50 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-background/50 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
               >
                 <Twitter className="h-3.5 w-3.5" />
               </a>
@@ -72,7 +72,7 @@ export function SiteFooter() {
                 aria-label="TikTok"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background/50 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-background/50 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
               >
                 <span className="inline-block h-3.5 w-3.5">
                   <svg
@@ -90,7 +90,7 @@ export function SiteFooter() {
                 aria-label="Instagram"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background/50 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-background/50 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
               >
                 <Instagram className="h-3.5 w-3.5" />
               </a>

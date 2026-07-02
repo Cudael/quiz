@@ -40,10 +40,10 @@ export function LeaderboardFilters({
               categories: categoryParams,
               quizId,
             })}`}
-            className={`rounded-full px-3 py-1.5 text-sm ${
+            className={`rounded-sm px-3 py-1.5 text-sm font-medium transition-colors ${
               period === value
                 ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground'
+                : 'bg-muted text-muted-foreground hover:bg-foreground/10'
             }`}
           >
             {value === 'all' ? 'All-time' : value === 'week' ? 'This Week' : 'Today'}
@@ -57,7 +57,7 @@ export function LeaderboardFilters({
               sort,
               categories: categoryParams,
             })}`}
-            className="rounded-full bg-muted px-3 py-1.5 text-sm text-muted-foreground"
+            className="rounded-sm bg-muted px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-foreground/10"
           >
             Clear quiz filter
           </Link>
@@ -74,10 +74,10 @@ export function LeaderboardFilters({
               categories: categoryParams,
               quizId,
             })}`}
-            className={`rounded-full px-3 py-1.5 text-sm ${
+            className={`rounded-sm px-3 py-1.5 text-sm font-medium transition-colors ${
               sort === option.value
                 ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground'
+                : 'bg-muted text-muted-foreground hover:bg-foreground/10'
             }`}
           >
             {option.label}
@@ -103,10 +103,10 @@ export function LeaderboardFilters({
                 categories: toggleCategory(categoryParams, category.slug),
                 quizId,
               })}`}
-              className={`rounded-full px-3 py-1.5 text-sm ${
+              className={`rounded-sm px-3 py-1.5 text-sm font-medium transition-colors ${
                 categoryParams.includes(category.slug)
                   ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-muted-foreground'
+                  : 'bg-muted text-muted-foreground hover:bg-foreground/10'
               }`}
             >
               {category.name}

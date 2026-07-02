@@ -60,7 +60,7 @@ export function AuthControls() {
           >
             <Avatar src={session.user.image} fallback={name} size="sm" />
             <span className="hidden max-w-20 truncate text-xs font-medium md:block">{name}</span>
-            <span className="hidden rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium md:inline-flex">
+            <span className="hidden rounded-sm bg-muted px-1.5 py-0.5 text-[10px] font-medium md:inline-flex">
               Level {session.user.level}
             </span>
             <span className="hidden md:inline-flex">

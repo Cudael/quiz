@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Trophy } from 'lucide-react'
 import { EmptyState } from '@/components/ui/empty-state'
+import { PageHeader } from '@/components/ui/page-header'
 import { copy } from '@/lib/copy'
 import { absoluteUrl } from '@/lib/site'
 import { getQuizPath } from '@/lib/quiz-url'
@@ -92,24 +93,25 @@ export default async function LeaderboardPage({
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-bold">
-            {quiz ? `${quiz.title} Leaderboard` : 'Global Leaderboard'}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {quiz ? 'Compare runs for this quiz only.' : 'Track the top players across every quiz.'}
-          </p>
-        </div>
-        {quiz ? (
-          <Link
-            href={getQuizPath(quiz)}
-            className="rounded-md border border-border px-3 py-2 text-sm"
-          >
-            Back to quiz
-          </Link>
-        ) : null}
-      </div>
+      <PageHeader
+        className="mb-6"
+        eyebrow="Compete"
+        accent="yellow"
+        title={quiz ? `${quiz.title} Leaderboard` : 'Global Leaderboard'}
+        description={
+          quiz ? 'Compare runs for this quiz only.' : 'Track the top players across every quiz.'
+        }
+        actions={
+          quiz ? (
+            <Link
+              href={getQuizPath(quiz)}
+              className="rounded-md border border-border px-3 py-2 text-sm"
+            >
+              Back to quiz
+            </Link>
+          ) : undefined
+        }
+      />
 
       <LeaderboardFilters
         period={period}

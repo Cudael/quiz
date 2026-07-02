@@ -131,7 +131,7 @@ export function CategoryBarClient({ categories }: { categories: CategoryBarItem[
                   href={`/categories/${category.slug}`}
                   title={`${category.name} - ${category.quizCount} quizzes`}
                   className={cn(
-                    'group relative flex h-9 items-center gap-2 rounded-full border border-transparent px-3 py-2 text-sm font-semibold transition-colors duration-200',
+                    'group relative flex h-9 items-center gap-2 rounded-md border border-transparent px-3 py-2 text-sm font-semibold transition-colors duration-200',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                     isActive
                       ? 'border-primary/30 bg-primary/15 text-primary'
@@ -158,7 +158,7 @@ export function CategoryBarClient({ categories }: { categories: CategoryBarItem[
                   </div>
 
                   <span className="max-w-[110px] truncate">{category.name}</span>
-                  <div className="rounded-full bg-muted/80 px-2 py-0.5 text-[11px] font-semibold text-foreground/60">
+                  <div className="rounded-sm bg-muted/80 px-2 py-0.5 text-[11px] font-semibold text-foreground/60">
                     {category.quizCount}
                   </div>
 

@@ -82,12 +82,13 @@ export default async function StudioPage({
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8 md:py-12">
       {/* Premium Dashboard Header Banner Card */}
-      <section className="relative overflow-hidden rounded-md border border-border bg-card p-6 md:p-8 shadow-sm transition-all hover:shadow-md mb-8">
-        <div className="absolute -right-16 -top-16 h-36 w-36 rounded-full bg-quiz-purple/5 blur-3xl" />
-        <div className="absolute -left-16 -bottom-16 h-36 w-36 rounded-full bg-quiz-orange/5 blur-3xl" />
-
+      <section className="relative overflow-hidden rounded-md border border-border bg-card p-6 md:p-8 mb-8">
         <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-center sm:text-left">
+            <p className="mb-2 flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground sm:justify-start">
+              <span aria-hidden className="h-2 w-2 shrink-0 bg-quiz-orange" />
+              Creator tools
+            </p>
             <h1 className="text-3xl font-extrabold tracking-tight">Quiz Studio</h1>
             <p className="mt-2 text-sm text-muted-foreground max-w-md leading-relaxed">
               Create, curate, and optimize your quizzes. Check analytics, manage drafts, and keep
@@ -97,11 +98,7 @@ export default async function StudioPage({
 
           <div className="flex flex-wrap items-center justify-center gap-2.5">
             {isAdmin && <AiGenerateButton categories={categories} />}
-            <Button
-              asChild
-              size="lg"
-              className="rounded-md shadow-sm font-bold bg-quiz-orange hover:bg-quiz-orange/90 text-white"
-            >
+            <Button asChild size="lg" variant="warm" className="font-bold">
               <Link href="/studio/quiz/new">
                 <Plus className="mr-1.5 h-5 w-5 shrink-0" />
                 Create a Quiz

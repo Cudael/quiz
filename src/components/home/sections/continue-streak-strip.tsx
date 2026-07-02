@@ -48,8 +48,8 @@ export function ContinueStreakStrip({ currentUser, recommendedQuiz }: ContinueSt
               {xpIntoLevel.toLocaleString()} / {xpNeeded.toLocaleString()} XP
             </span>
           </div>
-          <div className="h-2 overflow-hidden rounded-full bg-muted">
-            <div className="h-full rounded-full bg-quiz-green" style={{ width: `${percent}%` }} />
+          <div className="h-2 overflow-hidden rounded-sm bg-muted">
+            <div className="h-full bg-quiz-green" style={{ width: `${percent}%` }} />
           </div>
         </div>
 

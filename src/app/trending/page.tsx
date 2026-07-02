@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { PageHeader } from '@/components/ui/page-header'
 import { QuizCardHorizontal, type QuizCardData } from '@/components/ui/quiz-card'
 import { prisma } from '@/server/prisma'
 import { absoluteUrl } from '@/lib/site'
@@ -93,20 +94,20 @@ export default async function TrendingQuizzesPage() {
 
   return (
     <div className="container mx-auto px-4 py-10 md:px-6 md:py-16">
-      <div className="mb-8">
-        <Button variant="ghost" asChild className="mb-4 -ml-2">
-          <Link href="/">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Home
-          </Link>
-        </Button>
-        <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-          Trending Right Now Quizzes
-        </h1>
-        <p className="mt-2 text-muted-foreground">
-          The quizzes everyone is playing this week — ranked by recent plays.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Hot this week"
+        accent="pink"
+        back={
+          <Button variant="ghost" asChild className="-ml-2">
+            <Link href="/">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Home
+            </Link>
+          </Button>
+        }
+        title="Trending Right Now Quizzes"
+        description="The quizzes everyone is playing this week — ranked by recent plays."
+      />
 
       {quizzes.length === 0 ? (
         <div className="rounded-md border border-dashed bg-accent/20 p-12 text-center">

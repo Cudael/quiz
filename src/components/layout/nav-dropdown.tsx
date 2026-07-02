@@ -199,7 +199,7 @@ export function NavDropdown({ open, onClose }: NavDropdownProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={social.label}
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/50 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary hover:bg-primary/5"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/50 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary hover:bg-primary/5"
                   >
                     <SocialIcon className="h-3.5 w-3.5" />
                   </a>

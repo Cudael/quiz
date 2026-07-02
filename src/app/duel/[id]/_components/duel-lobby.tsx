@@ -35,7 +35,7 @@ export function DuelLobby({ state, participantCount, submittingStart, onStart }:
           {state.isHost ? (
             <Button
               className="w-full"
-              variant="gradient"
+              variant="accent"
               disabled={participantCount < 2 || submittingStart}
               onClick={onStart}
             >

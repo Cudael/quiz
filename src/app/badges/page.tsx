@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { PageHeader } from '@/components/ui/page-header'
 import { prisma } from '@/server/prisma'
 import { absoluteUrl } from '@/lib/site'
 
@@ -49,19 +50,20 @@ export default async function BadgesPage() {
 
   return (
     <div className="container mx-auto px-4 py-10 md:px-6 md:py-16">
-      <div className="mb-8">
-        <Button variant="ghost" asChild className="mb-4 -ml-2">
-          <Link href="/">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Home
-          </Link>
-        </Button>
-        <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Earn Badges</h1>
-        <p className="mt-2 text-muted-foreground max-w-2xl">
-          Play quizzes, build streaks, and unlock achievements. Complete challenges to collect them
-          all and show off your quiz mastery.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Achievements"
+        accent="purple"
+        back={
+          <Button variant="ghost" asChild className="-ml-2">
+            <Link href="/">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Home
+            </Link>
+          </Button>
+        }
+        title="Earn Badges"
+        description="Play quizzes, build streaks, and unlock achievements. Complete challenges to collect them all and show off your quiz mastery."
+      />
 
       {badges.length === 0 ? (
         <div className="rounded-md border border-dashed bg-accent/20 p-12 text-center">

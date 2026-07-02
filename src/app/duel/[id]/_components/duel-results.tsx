@@ -43,7 +43,7 @@ export function DuelResults({ state }: DuelResultsProps) {
             </table>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">
-            <Button asChild variant="gradient" className="flex-1">
+            <Button asChild variant="accent" className="flex-1">
               <Link href="/duel">Play Again</Link>
             </Button>
             <Button asChild variant="outline" className="flex-1">

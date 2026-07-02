@@ -137,7 +137,7 @@ export default async function StatsPage() {
   return (
     <div className="container mx-auto max-w-5xl px-4 py-10 md:py-16">
       <div className="mb-10 text-center">
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs font-bold text-muted-foreground">
+        <div className="mb-3 inline-flex items-center gap-2 rounded-sm border bg-card px-3 py-1 text-xs font-bold text-muted-foreground">
           <BarChart3 className="h-3.5 w-3.5" />
           Live numbers
         </div>
@@ -191,7 +191,7 @@ export default async function StatsPage() {
       </div>
 
       {/* Fun facts */}
-      <div className="rounded-md border border-border/40 bg-gradient-to-br from-quiz-purple/5 to-quiz-orange/5 p-6 md:p-8">
+      <div className="rounded-md border border-t-4 border-t-quiz-orange bg-card p-6 md:p-8">
         <div className="mb-4 flex items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-md bg-quiz-orange/10">
             <Zap className="h-4 w-4 text-quiz-orange" />

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowRight, Boxes } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
+import { PageHeader } from '@/components/ui/page-header'
 import { quizCollections } from '@/content/collections'
 import { absoluteUrl } from '@/lib/site'
 import { serializeJsonLd } from '@/lib/seo'
@@ -43,15 +44,13 @@ export default function CollectionsPage() {
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
       <section className="max-w-2xl">
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs font-bold text-muted-foreground">
-          <Boxes className="h-3.5 w-3.5" />
-          Curated paths
-        </div>
-        <h1 className="text-3xl font-extrabold tracking-tight md:text-4xl">Quiz Collections</h1>
-        <p className="mt-2 text-muted-foreground">
-          Pick a focused set when you want a quick challenge, a warmup, or a cleaner way to explore
-          BusQuiz.
-        </p>
+        <PageHeader
+          className="mb-0"
+          eyebrow="Curated paths"
+          accent="green"
+          title="Quiz Collections"
+          description="Pick a focused set when you want a quick challenge, a warmup, or a cleaner way to explore BusQuiz."
+        />
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

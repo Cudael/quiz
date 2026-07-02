@@ -106,7 +106,7 @@ export default async function ProfilePage() {
 
       {/* ── Quick Actions ── */}
       <section className="grid gap-3 sm:grid-cols-3">
-        <Button asChild variant="gradient" size="lg" className="rounded-md">
+        <Button asChild variant="accent" size="lg" className="rounded-md">
           <Link href="/random-quiz" className="inline-flex items-center justify-center">
             <Zap className="mr-2 h-5 w-5 shrink-0" />
             Play Random Quiz

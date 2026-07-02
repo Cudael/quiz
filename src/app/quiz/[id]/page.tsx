@@ -246,8 +246,8 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
                 <Button
                   asChild
                   size="lg"
-                  variant="gradient"
-                  className="w-full sm:w-fit rounded-md font-bold shadow-lg shadow-quiz-purple/25"
+                  variant="accent"
+                  className="w-full sm:w-fit rounded-md font-bold"
                 >
                   <Link href={`/play/${quiz.id}`}>
                     <Zap className="mr-2 h-5 w-5" />

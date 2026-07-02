@@ -187,9 +187,9 @@ export default async function ProfileBadgesPage() {
       {/* Progress bar */}
       {totalCount > 0 && (
         <div className="mb-8">
-          <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
+          <div className="h-3 w-full overflow-hidden rounded-sm bg-muted">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-quiz-purple to-quiz-purple/70 transition-all"
+              className="h-full bg-quiz-purple transition-all"
               style={{ width: `${(earnedCount / totalCount) * 100}%` }}
             />
           </div>
@@ -262,9 +262,9 @@ export default async function ProfileBadgesPage() {
                     </p>
                     {progress && (
                       <div className="mt-3 space-y-1.5">
-                        <div className="h-1.5 overflow-hidden rounded-full bg-background">
+                        <div className="h-1.5 overflow-hidden rounded-sm bg-background">
                           <div
-                            className="h-full rounded-full bg-quiz-orange"
+                            className="h-full bg-quiz-orange"
                             style={{ width: `${progress.percent}%` }}
                           />
                         </div>

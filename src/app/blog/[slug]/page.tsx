@@ -107,7 +107,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               {post.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground"
+                  className="inline-flex items-center gap-1 rounded-sm bg-muted px-3 py-1 text-xs font-medium text-muted-foreground"
                 >
                   <Tag className="h-3 w-3" />
                   {tag}

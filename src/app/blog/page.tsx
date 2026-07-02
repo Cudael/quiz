@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Calendar, Clock, Tag } from 'lucide-react'
+import { PageHeader } from '@/components/ui/page-header'
 import { getAllBlogPosts } from '@/content/blog-posts'
 import { absoluteUrl } from '@/lib/site'
 
@@ -30,12 +31,13 @@ export default function BlogPage() {
 
   return (
     <div className="container mx-auto px-4 py-10 md:px-6 md:py-16">
-      <div className="mb-10">
-        <h1 className="text-4xl font-extrabold tracking-tight">Blog</h1>
-        <p className="mt-3 text-lg text-muted-foreground">
-          Quiz tips, tutorials, platform news, and insights on quiz-based learning.
-        </p>
-      </div>
+      <PageHeader
+        className="mb-10"
+        eyebrow="News & tips"
+        accent="blue"
+        title="Blog"
+        description="Quiz tips, tutorials, platform news, and insights on quiz-based learning."
+      />
 
       {posts.length === 0 ? (
         <div className="rounded-md border border-dashed bg-accent/20 p-12 text-center">
@@ -75,7 +77,7 @@ export default function BlogPage() {
                 {featured.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-foreground/60"
+                    className="inline-flex items-center gap-1 rounded-sm bg-muted px-2.5 py-1 text-[11px] font-medium text-foreground/60"
                   >
                     <Tag className="h-3 w-3" />
                     {tag}
@@ -131,7 +133,7 @@ export default function BlogPage() {
                     {post.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-foreground/60"
+                        className="inline-flex items-center gap-1 rounded-sm bg-muted px-2 py-0.5 text-[10px] font-medium text-foreground/60"
                       >
                         <Tag className="h-2.5 w-2.5" />
                         {tag}

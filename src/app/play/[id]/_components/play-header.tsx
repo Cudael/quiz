@@ -44,9 +44,9 @@ export function PlayHeader({
             <span className="text-xs font-semibold text-quiz-yellow">Last one! 🏁</span>
           )}
         </div>
-        <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+        <div className="h-2 w-full rounded-sm bg-muted overflow-hidden">
           <div
-            className="h-full rounded-full bg-quiz-orange transition-all duration-500"
+            className="h-full bg-quiz-orange transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>

@@ -173,7 +173,7 @@ export function QuestionPanel({
         {/* Next/Finish button */}
         {isAnswered && (
           <div className="mt-6 flex justify-end">
-            <Button onClick={onNext} variant="gradient" disabled={submitting}>
+            <Button onClick={onNext} variant="accent" disabled={submitting}>
               {isLastQuestion ? 'Finish' : 'Next'}
               <span className="text-xs opacity-70 ml-1">(Enter)</span>
             </Button>
@@ -344,7 +344,7 @@ export function QuestionPanel({
                   >
                     <span
                       className={cn(
-                        'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-bold transition-colors',
+                        'flex h-7 w-7 shrink-0 items-center justify-center rounded-sm border text-xs font-bold transition-colors',
                         isAnswered
                           ? isSelected
                             ? isCorrect
@@ -374,7 +374,7 @@ export function QuestionPanel({
               animate={{ opacity: 1, y: 0 }}
               className="mt-6 flex justify-end"
             >
-              <Button onClick={onSubmit} variant="gradient" disabled={!canSubmit}>
+              <Button onClick={onSubmit} variant="accent" disabled={!canSubmit}>
                 Submit Answer
                 <span className="ml-1 text-xs opacity-70">(Enter / Space)</span>
               </Button>
@@ -387,7 +387,7 @@ export function QuestionPanel({
               animate={{ opacity: 1, y: 0 }}
               className="mt-6 flex justify-end"
             >
-              <Button onClick={onNext} variant="gradient" disabled={submitting}>
+              <Button onClick={onNext} variant="accent" disabled={submitting}>
                 {isLastQuestion ? 'Finish' : 'Next'}
                 <span className="text-xs opacity-70 ml-1">(Enter)</span>
               </Button>

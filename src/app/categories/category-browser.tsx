@@ -118,7 +118,7 @@ function ParentSection({ parent }: { parent: ParentCategoryData }) {
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="rounded-full border border-border bg-background px-3 py-1 text-xs font-semibold text-muted-foreground">
+            <span className="rounded-sm border border-border bg-background px-3 py-1 text-xs font-semibold text-muted-foreground">
               {parent.quizCount} {parent.quizCount === 1 ? 'quiz' : 'quizzes'}
             </span>
             <Link
