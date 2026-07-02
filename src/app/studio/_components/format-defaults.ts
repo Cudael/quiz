@@ -284,7 +284,12 @@ export function isQuestionCompleteForFormat(question: DraftQuestion, format: Qui
   switch (format) {
     case 'IMAGE_HOTSPOT': {
       const zones = (meta as { zones?: unknown[] }).zones
-      return Array.isArray(zones) && zones.length > 0
+      return (
+        Array.isArray(zones) &&
+        zones.length > 0 &&
+        question.imageUrl.trim().length > 0 &&
+        question.choices.some((c) => c.isCorrect)
+      )
     }
     case 'ORDER':
       return (

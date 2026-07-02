@@ -1,6 +1,21 @@
 'use client'
 
+/**
+ * Zone geometry is stored as percentages of the image box:
+ * x/y = center position (0–100), radius = editor size unit.
+ *
+ * Markers are sized as a percentage of the container width (the stored
+ * radius maps to `radius × HOTSPOT_RADIUS_SCALE` pixels at the reference
+ * width), so the editor preview, the play view, and hit-testing stay
+ * consistent across every viewport size.
+ */
 export const HOTSPOT_RADIUS_SCALE = 10
+export const HOTSPOT_REFERENCE_WIDTH = 800
+
+/** Zone diameter as a percentage of the container width. */
+export function zoneDiameterPercent(radius: number): number {
+  return ((radius * HOTSPOT_RADIUS_SCALE) / HOTSPOT_REFERENCE_WIDTH) * 100
+}
 
 export interface ZoneMarkerProps {
   x: number
@@ -31,13 +46,12 @@ export function ZoneMarker({
   onDragEnd,
   children,
 }: ZoneMarkerProps) {
-  const isSmall = radius <= 1.5
-  // Small: radius * 8px solid square | Large: radius * SCALE pixels bordered circle
-  const sizePx = isSmall ? radius * 8 : radius * HOTSPOT_RADIUS_SCALE
+  const diameter = zoneDiameterPercent(radius)
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handlePointerDown = (e: React.PointerEvent) => {
     if (!draggable || !onDragEnd) return
     e.stopPropagation()
+    e.preventDefault()
 
     const container = (e.currentTarget as HTMLElement).closest('[data-zone-container]')
     if (!container) return
@@ -45,44 +59,44 @@ export function ZoneMarker({
     let lastX = x
     let lastY = y
 
-    const handleMouseMove = (moveEvent: MouseEvent) => {
+    const handlePointerMove = (moveEvent: PointerEvent) => {
       moveEvent.preventDefault()
       const rect = container.getBoundingClientRect()
-      lastX = ((moveEvent.clientX - rect.left) / rect.width) * 100
-      lastY = ((moveEvent.clientY - rect.top) / rect.height) * 100
+      lastX = Math.min(100, Math.max(0, ((moveEvent.clientX - rect.left) / rect.width) * 100))
+      lastY = Math.min(100, Math.max(0, ((moveEvent.clientY - rect.top) / rect.height) * 100))
     }
 
-    const handleMouseUp = () => {
-      document.removeEventListener('mousemove', handleMouseMove)
-      document.removeEventListener('mouseup', handleMouseUp)
+    const handlePointerUp = () => {
+      document.removeEventListener('pointermove', handlePointerMove)
+      document.removeEventListener('pointerup', handlePointerUp)
+      document.removeEventListener('pointercancel', handlePointerUp)
       onDragEnd(lastX, lastY)
     }
 
-    document.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('mouseup', handleMouseUp)
+    document.addEventListener('pointermove', handlePointerMove)
+    document.addEventListener('pointerup', handlePointerUp)
+    document.addEventListener('pointercancel', handlePointerUp)
   }
 
   return (
     <div
-      className={`absolute ${draggable ? 'pointer-events-auto cursor-grab active:cursor-grabbing' : 'pointer-events-none'} transition-opacity duration-700 ${fading ? 'opacity-0' : 'opacity-100'}`}
+      className={`absolute ${draggable ? 'pointer-events-auto cursor-grab touch-none active:cursor-grabbing' : 'pointer-events-none'} transition-opacity duration-700 ${fading ? 'opacity-0' : 'opacity-100'}`}
       style={{
         left: `${x}%`,
         top: `${y}%`,
         transform: 'translate(-50%, -50%)',
+        // Percentage width resolves against the positioned container,
+        // so markers scale with the rendered image
+        width: `${diameter}%`,
       }}
-      onMouseDown={handleMouseDown}
+      onPointerDown={handlePointerDown}
     >
       <div
-        className={isSmall ? '' : `rounded-full ${borderClass} ${bgClass}`}
-        style={{
-          width: `${sizePx}px`,
-          height: `${sizePx}px`,
-          ...(isSmall ? { backgroundColor: '#f97316' } : {}),
-        }}
+        className={`aspect-square w-full min-h-2 min-w-2 rounded-full border-2 ${borderClass} ${bgClass}`}
       />
       {showLabel && name && (
         <span
-          className={`absolute top-full left-1/2 -translate-x-1/2 mt-0.5 text-xs font-semibold whitespace-nowrap bg-background/90 px-1.5 py-0.5 rounded ${labelClass}`}
+          className={`absolute top-full left-1/2 mt-0.5 -translate-x-1/2 whitespace-nowrap rounded bg-background/90 px-1.5 py-0.5 text-xs font-semibold ${labelClass}`}
         >
           {name}
         </span>

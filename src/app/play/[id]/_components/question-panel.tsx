@@ -200,14 +200,25 @@ export function QuestionPanel({
           </p>
         )}
 
-        {/* Result text */}
-        {effectiveSelectedZoneId && !isAnswered && (
-          <p className="mb-4 text-center text-sm text-muted-foreground">
-            You selected:{' '}
-            <span className="font-semibold text-foreground">
-              {hotspotZones.find((z) => z.id === effectiveSelectedZoneId)?.name ??
-                effectiveSelectedZoneId}
-            </span>
+        {/* Result feedback */}
+        {isAnswered && (
+          <p className="mb-4 text-center text-sm font-medium" aria-live="polite">
+            {selectedHotspotZoneId === correctZoneId ? (
+              <span className="text-emerald-700 dark:text-emerald-400">
+                Correct! {allHotspotZones.find((z) => z.id === correctZoneId)?.name ?? ''}
+              </span>
+            ) : (
+              <span className="text-destructive">
+                {selectedHotspotZoneId
+                  ? `You clicked ${allHotspotZones.find((z) => z.id === selectedHotspotZoneId)?.name ?? 'a zone'} — `
+                  : 'Time ran out — '}
+                the correct answer was{' '}
+                <span className="font-semibold">
+                  {allHotspotZones.find((z) => z.id === correctZoneId)?.name ?? 'another zone'}
+                </span>
+                .
+              </span>
+            )}
           </p>
         )}
 
@@ -396,7 +407,9 @@ export function QuestionPanel({
                               ? 'border-primary bg-primary/10'
                               : 'cursor-pointer border-border bg-card hover:border-primary hover:bg-primary/5'
                         )}
-                        aria-label={`Choice ${idx + 1}`}
+                        aria-label={
+                          choice.text ? `Choice ${idx + 1}: ${choice.text}` : `Choice ${idx + 1}`
+                        }
                         aria-pressed={isSelected}
                       >
                         {choice.imageUrl ? (
@@ -404,7 +417,7 @@ export function QuestionPanel({
                             loader={imageLoader}
                             unoptimized
                             src={choice.imageUrl}
-                            alt={`Choice ${idx + 1}`}
+                            alt={choice.text || `Choice ${idx + 1}`}
                             width={200}
                             height={150}
                             className="h-32 w-full rounded-md object-cover"

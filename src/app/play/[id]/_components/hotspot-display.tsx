@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState } from 'react'
 import Image from 'next/image'
-import { ZoneMarker, HOTSPOT_RADIUS_SCALE } from '@/components/ui/zone-marker'
+import { ZoneMarker, zoneDiameterPercent } from '@/components/ui/zone-marker'
 import type { HotspotZone } from '@/store/quiz-creator-store'
 
 interface HotspotDisplayProps {
@@ -44,16 +44,17 @@ export function HotspotDisplay({
       const rect = containerRef.current.getBoundingClientRect()
       const x = ((e.clientX - rect.left) / rect.width) * 100
       const y = ((e.clientY - rect.top) / rect.height) * 100
+      // Normalize the vertical axis to width units so distances are circular
+      const aspect = rect.width > 0 ? rect.height / rect.width : 1
 
-      // Scale the distance by the same factor used for display
       let closestZone: HotspotZone | null = null
       let closestDist = Infinity
 
       for (const zone of zones) {
         const dx = x - zone.x
-        const dy = y - zone.y
+        const dy = (y - zone.y) * aspect
         const distPercent = Math.sqrt(dx * dx + dy * dy)
-        const hitRadiusPercent = ((zone.radius * HOTSPOT_RADIUS_SCALE) / rect.width) * 100
+        const hitRadiusPercent = zoneDiameterPercent(zone.radius) / 2
         if (distPercent <= hitRadiusPercent && distPercent < closestDist) {
           closestDist = distPercent
           closestZone = zone
@@ -73,27 +74,22 @@ export function HotspotDisplay({
 
   const getZoneColors = useCallback(
     (zone: HotspotZone) => {
-      if (!showResult) {
-        return {
-          border: 'border-quiz-orange',
-          bg: 'bg-quiz-orange/10',
-          text: 'text-quiz-orange',
+      if (showResult) {
+        if (zone.id === selectedZoneId && selectedZoneId !== correctZoneId) {
+          return {
+            border: 'border-destructive',
+            bg: 'bg-destructive/25',
+            text: 'text-destructive',
+          }
         }
-      }
-
-      if (zone.id === selectedZoneId) {
-        const isCorrect = selectedZoneId === correctZoneId
-        return isCorrect
-          ? {
-              border: 'border-quiz-green',
-              bg: 'bg-quiz-green/25',
-              text: 'text-quiz-green',
-            }
-          : {
-              border: 'border-destructive',
-              bg: 'bg-destructive/25',
-              text: 'text-destructive',
-            }
+        if (zone.id === correctZoneId) {
+          // Reveal the correct zone (whether or not it was the pick)
+          return {
+            border: 'border-quiz-green',
+            bg: 'bg-quiz-green/25',
+            text: 'text-quiz-green',
+          }
+        }
       }
 
       return {
@@ -104,6 +100,8 @@ export function HotspotDisplay({
     },
     [showResult, correctZoneId, selectedZoneId]
   )
+
+  const interactive = !disabled && !!onZoneClick
 
   return (
     <div className={className}>
@@ -128,7 +126,8 @@ export function HotspotDisplay({
         {showMarkers &&
           zones.map((zone) => {
             const colors = getZoneColors(zone)
-            const showLabel = showNames || (showResult && zone.id === selectedZoneId)
+            const showLabel =
+              showNames || (showResult && (zone.id === selectedZoneId || zone.id === correctZoneId))
             const isFading = fadingZoneIds.includes(zone.id)
             return (
               <ZoneMarker
@@ -146,22 +145,27 @@ export function HotspotDisplay({
             )
           })}
 
-        {/* Result indicator on selected zone */}
-        {showResult &&
-          selectedZoneId &&
-          (() => {
-            const selectedZone = zones.find((z) => z.id === selectedZoneId)
-            if (!selectedZone) return null
-            const isCorrect = selectedZoneId === correctZoneId
-            return (
-              <ZoneMarker
-                x={selectedZone.x}
-                y={selectedZone.y}
-                radius={selectedZone.radius}
-                bgClass={isCorrect ? 'bg-quiz-green/30' : 'bg-destructive/30'}
-              />
-            )
-          })()}
+        {/* Keyboard-accessible zone targets (visually silent, focusable) */}
+        {interactive &&
+          zones.map((zone) => (
+            <button
+              key={`kbd-${zone.id}`}
+              type="button"
+              aria-label={`Select zone: ${zone.name}`}
+              onClick={(e) => {
+                e.stopPropagation()
+                onZoneClick?.(zone.id)
+              }}
+              className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full opacity-0 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              style={{
+                left: `${zone.x}%`,
+                top: `${zone.y}%`,
+                width: `${zoneDiameterPercent(zone.radius)}%`,
+                aspectRatio: '1',
+                minWidth: '16px',
+              }}
+            />
+          ))}
       </div>
     </div>
   )

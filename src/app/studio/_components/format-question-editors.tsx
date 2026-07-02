@@ -541,12 +541,14 @@ export function MemoryFlashFields({ question, onUpdate }: EditorProps) {
         aria-label="Study text"
         className="w-full rounded-md border bg-background px-3 py-2 text-sm"
       />
-      <ImageUpload
-        compact
-        value={typeof meta.studyImageUrl === 'string' ? meta.studyImageUrl : ''}
-        onChange={(url) => onUpdate(updateMeta(question, { studyImageUrl: url }))}
-        label="Study image (optional)"
-      />
+      <div className="space-y-1">
+        <p className="text-xs font-medium">Study image (optional)</p>
+        <ImageUpload
+          compact
+          value={typeof meta.studyImageUrl === 'string' ? meta.studyImageUrl : ''}
+          onChange={(url) => onUpdate(updateMeta(question, { studyImageUrl: url }))}
+        />
+      </div>
       <div className="space-y-1">
         <p className="text-xs font-medium">Study time</p>
         <div className="flex gap-2">

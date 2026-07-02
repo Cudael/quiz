@@ -115,6 +115,18 @@ export function QuestionCard({
           {quizFormat === 'MEMORY_FLASH' && (
             <MemoryFlashFields question={question} onUpdate={onUpdate} />
           )}
+          {(quizFormat === 'TEXT_CHOICE' ||
+            quizFormat === 'IMAGE_CHOICE' ||
+            quizFormat === 'ODD_ONE_OUT') && (
+            <div className="space-y-1">
+              <p className="text-xs font-medium">Question image (optional)</p>
+              <ImageUpload
+                compact
+                value={question.imageUrl}
+                onChange={(url) => onUpdate({ imageUrl: url })}
+              />
+            </div>
+          )}
 
           {/* Answers section — dispatched by quiz format */}
           {quizFormat === 'ORDER' ? (
@@ -165,11 +177,21 @@ export function QuestionCard({
                       title="Mark as correct answer"
                     />
                     {quizFormat === 'IMAGE_CHOICE' ? (
-                      <ImageUpload
-                        compact
-                        value={choice.imageUrl}
-                        onChange={(url) => updateChoice(choice.localId, { imageUrl: url })}
-                      />
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <ImageUpload
+                          compact
+                          value={choice.imageUrl}
+                          onChange={(url) => updateChoice(choice.localId, { imageUrl: url })}
+                        />
+                        <input
+                          type="text"
+                          value={choice.text}
+                          onChange={(e) => updateChoice(choice.localId, { text: e.target.value })}
+                          placeholder="Caption (optional)"
+                          aria-label={`Choice ${i + 1} caption`}
+                          className="w-full rounded-md border bg-background px-2 py-1 text-xs"
+                        />
+                      </div>
                     ) : (
                       <input
                         type="text"
@@ -199,6 +221,46 @@ export function QuestionCard({
               </div>
             </div>
           )}
+
+          {/* Time limit */}
+          <div className="flex flex-wrap items-center gap-2">
+            <label htmlFor={`time-${question.localId}`} className="text-xs font-medium">
+              Time limit
+            </label>
+            <div className="flex gap-1">
+              {[10, 20, 30, 60].map((seconds) => (
+                <button
+                  key={seconds}
+                  type="button"
+                  onClick={() => onUpdate({ timeLimitSec: seconds })}
+                  className={cn(
+                    'rounded-sm border px-2.5 py-1 text-xs font-medium transition-colors',
+                    question.timeLimitSec === seconds
+                      ? 'border-primary bg-primary text-primary-foreground'
+                      : 'border-border text-muted-foreground hover:border-primary/50'
+                  )}
+                >
+                  {seconds}s
+                </button>
+              ))}
+            </div>
+            <input
+              id={`time-${question.localId}`}
+              type="number"
+              min={5}
+              max={120}
+              value={question.timeLimitSec}
+              onChange={(e) => {
+                const parsed = Math.round(Number(e.target.value))
+                if (Number.isFinite(parsed)) {
+                  onUpdate({ timeLimitSec: Math.min(120, Math.max(5, parsed)) })
+                }
+              }}
+              aria-label="Custom time limit in seconds"
+              className="w-16 rounded-md border bg-background px-2 py-1 text-xs"
+            />
+            <span className="text-xs text-muted-foreground">seconds per question</span>
+          </div>
 
           {/* Explanation toggle */}
           <div className="space-y-2">

@@ -2,11 +2,11 @@
 
 import { useState, useCallback, useRef, useMemo } from 'react'
 import Image from 'next/image'
-import { PlusCircle, Trash2, Pencil, Target } from 'lucide-react'
+import { PlusCircle, Trash2, Target } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ImageUpload } from './image-upload'
-import { ZoneMarker, HOTSPOT_RADIUS_SCALE } from '@/components/ui/zone-marker'
+import { ZoneMarker, zoneDiameterPercent } from '@/components/ui/zone-marker'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import type { HotspotZone } from '@/store/quiz-creator-store'
 import type { DraftChoice } from '@/store/quiz-creator-store'
@@ -17,23 +17,15 @@ interface ZoneFormState {
 }
 
 export function HotspotQuestionEditor() {
-  const {
-    questions,
-    sharedImageUrl,
-    addQuestion,
-    updateQuestion,
-    removeQuestion,
-    setMeta,
-    setQuestions,
-  } = useQuizCreatorStore()
+  const { questions, sharedImageUrl, addQuestion, updateQuestion, setMeta, setQuestions } =
+    useQuizCreatorStore()
   const defaultTimeLimitSec = useQuizCreatorStore((state) => state.defaultTimeLimitSec)
 
   const [selectedZone, setSelectedZone] = useState<{ x: number; y: number } | null>(null)
   const [zoneForm, setZoneForm] = useState<ZoneFormState>({
     name: '',
-    radius: 1.5,
+    radius: 4,
   })
-  const [editingPromptId, setEditingPromptId] = useState<string | null>(null)
   const imageContainerRef = useRef<HTMLDivElement>(null)
 
   const allZones = useMemo(() => {
@@ -69,8 +61,19 @@ export function HotspotQuestionEditor() {
     const x = ((e.clientX - rect.left) / rect.width) * 100
     const y = ((e.clientY - rect.top) / rect.height) * 100
     setSelectedZone({ x, y })
-    setZoneForm({ name: '', radius: 1.5 })
+    setZoneForm((f) => ({ name: '', radius: f.radius }))
   }, [])
+
+  /** Set or replace the shared image and keep every question in sync. */
+  const handleSharedImageChange = useCallback(
+    (url: string) => {
+      setMeta({ sharedImageUrl: url })
+      if (url && questions.length > 0) {
+        setQuestions(questions.map((q) => ({ ...q, imageUrl: url })))
+      }
+    },
+    [setMeta, questions, setQuestions]
+  )
 
   const handleAddZone = useCallback(() => {
     if (!selectedZone || !zoneForm.name.trim()) return
@@ -104,8 +107,6 @@ export function HotspotQuestionEditor() {
       choices,
       meta: {
         zones: allZonesForChoice,
-        imageWidth: 0,
-        imageHeight: 0,
       },
     })
 
@@ -136,7 +137,7 @@ export function HotspotQuestionEditor() {
     }
 
     setSelectedZone(null)
-    setZoneForm({ name: '', radius: 1.5 })
+    setZoneForm((f) => ({ name: '', radius: f.radius }))
   }, [
     selectedZone,
     zoneForm,
@@ -167,16 +168,45 @@ export function HotspotQuestionEditor() {
     [questions, setQuestions]
   )
 
+  /**
+   * Delete a zone everywhere: remove its question AND strip the zone from
+   * every remaining question's zone list and choices, so no orphan zones
+   * are left clickable during play.
+   */
   const handleDeleteZone = useCallback(
-    (questionId: string) => {
-      removeQuestion(questionId)
+    (questionId: string, zoneId: string) => {
+      const remaining = questions
+        .filter((q) => q.localId !== questionId)
+        .map((q) => {
+          const meta = q.meta as { zones?: HotspotZone[] } | undefined
+          return {
+            ...q,
+            meta: {
+              ...(meta ?? {}),
+              zones: (meta?.zones ?? []).filter((z) => z.id !== zoneId),
+            },
+            choices: q.choices.filter(
+              (c) => (c.meta as { zoneId?: string } | undefined)?.zoneId !== zoneId
+            ),
+          }
+        })
+      setQuestions(remaining)
     },
-    [removeQuestion]
+    [questions, setQuestions]
   )
 
   const handlePromptChange = useCallback(
     (localId: string, newPrompt: string) => {
       updateQuestion(localId, { prompt: newPrompt })
+    },
+    [updateQuestion]
+  )
+
+  const handleTimeLimitChange = useCallback(
+    (localId: string, seconds: number) => {
+      updateQuestion(localId, {
+        timeLimitSec: Math.min(120, Math.max(5, Math.round(seconds) || 20)),
+      })
     },
     [updateQuestion]
   )
@@ -187,8 +217,8 @@ export function HotspotQuestionEditor() {
         questions.map((q) => {
           const meta = q.meta as { zones?: HotspotZone[] } | undefined
           if (!meta?.zones) return q
-          const hasZone = meta.zones.some((z) => z.id === zoneId)
-          if (!hasZone) return q
+          const oldZone = meta.zones.find((z) => z.id === zoneId)
+          if (!oldZone) return q
 
           const updatedZones = meta.zones.map((z) =>
             z.id === zoneId ? { ...z, name: newName } : z
@@ -202,9 +232,13 @@ export function HotspotQuestionEditor() {
             return c
           })
 
+          // Only refresh the prompt if the author hasn't customized it
+          const hasDefaultPrompt = q.prompt === `Click on ${oldZone.name}`
           return {
             ...q,
-            ...(q.localId === questionId ? { prompt: `Click on ${newName}` } : {}),
+            ...(q.localId === questionId && hasDefaultPrompt
+              ? { prompt: `Click on ${newName}` }
+              : {}),
             meta: { ...meta, zones: updatedZones },
             choices: updatedChoices,
           }
@@ -248,7 +282,7 @@ export function HotspotQuestionEditor() {
           <p className="text-sm font-medium">Upload a shared image for all questions</p>
           <ImageUpload
             value={sharedImageUrl}
-            onChange={(v) => setMeta({ sharedImageUrl: v })}
+            onChange={handleSharedImageChange}
             label="Quiz image"
             aspectRatio="16/9"
           />
@@ -318,15 +352,10 @@ export function HotspotQuestionEditor() {
                     left: `${selectedZone.x}%`,
                     top: `${selectedZone.y}%`,
                     transform: 'translate(-50%, -50%)',
+                    width: `${zoneDiameterPercent(zoneForm.radius)}%`,
                   }}
                 >
-                  <div
-                    className="rounded-full border-2 border-quiz-orange bg-quiz-orange/30 animate-pulse"
-                    style={{
-                      width: `${zoneForm.radius * HOTSPOT_RADIUS_SCALE}px`,
-                      height: `${zoneForm.radius * HOTSPOT_RADIUS_SCALE}px`,
-                    }}
-                  />
+                  <div className="aspect-square w-full min-h-2 min-w-2 animate-pulse rounded-full border-2 border-quiz-orange bg-quiz-orange/30" />
                   <Target className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-4 w-4 text-quiz-orange" />
                 </div>
               )}
@@ -352,9 +381,11 @@ export function HotspotQuestionEditor() {
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
                     <label htmlFor="zone-radius" className="text-xs font-medium">
-                      Radius
+                      Zone size
                     </label>
-                    <span className="text-xs text-muted-foreground">{zoneForm.radius}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {zoneForm.radius < 4 ? 'Small' : zoneForm.radius < 12 ? 'Medium' : 'Large'}
+                    </span>
                   </div>
                   <input
                     id="zone-radius"
@@ -404,7 +435,6 @@ export function HotspotQuestionEditor() {
                   const question = questions.find((q) => q.localId === zone.questionId)
                   const prompt = question?.prompt ?? `Click on ${zone.name}`
                   const questionId = zone.questionId
-                  const isEditing = editingPromptId === questionId
 
                   return (
                     <div key={zone.id} className="rounded-md border border-border/50 bg-card p-3">
@@ -413,21 +443,21 @@ export function HotspotQuestionEditor() {
                           {idx + 1}
                         </span>
                         <div className="min-w-0 flex-1 space-y-2">
-                          {isEditing ? (
+                          <div className="space-y-1">
+                            <label
+                              htmlFor={`zone-prompt-${zone.id}`}
+                              className="text-xs text-muted-foreground"
+                            >
+                              Question prompt
+                            </label>
                             <input
+                              id={`zone-prompt-${zone.id}`}
                               type="text"
                               value={prompt}
                               onChange={(e) => handlePromptChange(questionId, e.target.value)}
-                              onBlur={() => setEditingPromptId(null)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') setEditingPromptId(null)
-                              }}
-                              autoFocus
-                              className="w-full rounded border border-input bg-background px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                              className="w-full rounded border border-input bg-background px-2 py-1 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary"
                             />
-                          ) : (
-                            <p className="text-sm font-medium">{prompt || 'No prompt'}</p>
-                          )}
+                          </div>
 
                           <div className="flex items-center gap-2">
                             <label
@@ -443,7 +473,7 @@ export function HotspotQuestionEditor() {
                               onChange={(e) =>
                                 handleZoneNameChange(questionId, zone.id, e.target.value)
                               }
-                              className="w-24 rounded border border-input bg-background px-1.5 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+                              className="w-24 min-w-0 flex-1 rounded border border-input bg-background px-1.5 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
                             />
                           </div>
 
@@ -452,7 +482,7 @@ export function HotspotQuestionEditor() {
                               htmlFor={`zone-radius-${zone.id}`}
                               className="text-xs text-muted-foreground"
                             >
-                              Radius:
+                              Size:
                             </label>
                             <input
                               id={`zone-radius-${zone.id}`}
@@ -466,33 +496,40 @@ export function HotspotQuestionEditor() {
                               }
                               className="w-20"
                             />
-                            <span className="text-xs text-muted-foreground w-12">
-                              {zone.radius}
+                            <span className="w-14 text-xs text-muted-foreground">
+                              {zone.radius < 4 ? 'Small' : zone.radius < 12 ? 'Medium' : 'Large'}
                             </span>
                           </div>
 
-                          <p className="text-xs text-muted-foreground">
-                            Position: ({zone.x.toFixed(1)}, {zone.y.toFixed(1)})
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <label
+                              htmlFor={`zone-time-${zone.id}`}
+                              className="text-xs text-muted-foreground"
+                            >
+                              Time:
+                            </label>
+                            <input
+                              id={`zone-time-${zone.id}`}
+                              type="number"
+                              min={5}
+                              max={120}
+                              value={question?.timeLimitSec ?? 20}
+                              onChange={(e) =>
+                                handleTimeLimitChange(questionId, Number(e.target.value))
+                              }
+                              className="w-16 rounded border border-input bg-background px-1.5 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+                            />
+                            <span className="text-xs text-muted-foreground">seconds</span>
+                          </div>
                         </div>
-                        <div className="flex shrink-0 gap-1">
-                          <button
-                            type="button"
-                            onClick={() => setEditingPromptId(isEditing ? null : questionId)}
-                            className="rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                            aria-label="Edit prompt"
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteZone(questionId)}
-                            className="rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                            aria-label="Delete zone"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteZone(questionId, zone.id)}
+                          className="shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                          aria-label={`Delete zone ${zone.name}`}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
                       </div>
                     </div>
                   )
