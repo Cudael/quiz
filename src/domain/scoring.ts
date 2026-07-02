@@ -12,7 +12,9 @@ import { computeStreak as computeStreakDetailed } from './streak'
 // ---------------------------------------------------------------------------
 
 interface ScoreQuestionParams {
-  correct: boolean
+  correct?: boolean
+  /** Partial credit 0..1 (overrides `correct` when provided). */
+  credit?: number
   timeRemainingMs: number
   timeLimitMs: number
   /** Survival streak count (0 = no multiplier) */
@@ -21,20 +23,24 @@ interface ScoreQuestionParams {
 
 /**
  * Compute per-question score.
- * base = 100 if correct, 0 if wrong
- * speedBonus = round(100 * timeRemaining / timeLimit) if correct
+ * base = round(100 * credit) — credit is 1 for fully correct, 0 for wrong,
+ *   and may be fractional for partial-credit question types (ORDER, MATCH,
+ *   GROUPS, NUMBER_GUESS, list-mode FILL_BLANK)
+ * speedBonus = round(100 * timeRemaining / timeLimit) only when fully correct
  * survivalMultiplier = 1 + 0.25 * floor(streak / 3)  (applied to whole score)
  */
 export function scoreQuestion({
   correct,
+  credit,
   timeRemainingMs,
   timeLimitMs,
   streak = 0,
 }: ScoreQuestionParams): number {
-  if (!correct) return 0
-  const base = 100
+  const effectiveCredit = Math.min(1, Math.max(0, credit ?? (correct ? 1 : 0)))
+  if (effectiveCredit <= 0) return 0
+  const base = Math.round(100 * effectiveCredit)
   const ratio = timeLimitMs > 0 ? Math.min(1, Math.max(0, timeRemainingMs / timeLimitMs)) : 0
-  const speedBonus = Math.round(100 * ratio)
+  const speedBonus = effectiveCredit === 1 ? Math.round(100 * ratio) : 0
   const rawScore = base + speedBonus
   const multiplier = 1 + 0.25 * Math.floor(streak / 3)
   return Math.round(rawScore * multiplier)

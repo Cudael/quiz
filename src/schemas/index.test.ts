@@ -70,6 +70,127 @@ describe('questionSchema', () => {
     })
     expect(result.success).toBe(false)
   })
+
+  it('accepts a valid ORDER question with a complete position sequence', () => {
+    const result = questionSchema.safeParse({
+      type: 'ORDER',
+      prompt: 'Order the planets by size',
+      timeLimitSec: 30,
+      choices: [
+        { text: 'Mercury', isCorrect: false, meta: { position: 1 } },
+        { text: 'Mars', isCorrect: false, meta: { position: 2 } },
+        { text: 'Earth', isCorrect: false, meta: { position: 3 } },
+      ],
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects ORDER questions with gaps in positions', () => {
+    const result = questionSchema.safeParse({
+      type: 'ORDER',
+      prompt: 'Order these',
+      timeLimitSec: 30,
+      choices: [
+        { text: 'A', isCorrect: false, meta: { position: 1 } },
+        { text: 'B', isCorrect: false, meta: { position: 3 } },
+        { text: 'C', isCorrect: false, meta: { position: 4 } },
+      ],
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('accepts a valid MATCH question with one-to-one pairs', () => {
+    const result = questionSchema.safeParse({
+      type: 'MATCH',
+      prompt: 'Match country to capital',
+      timeLimitSec: 40,
+      choices: [
+        { text: 'France', isCorrect: false, meta: { side: 'L', matchKey: 'p1' } },
+        { text: 'Paris', isCorrect: false, meta: { side: 'R', matchKey: 'p1' } },
+        { text: 'Spain', isCorrect: false, meta: { side: 'L', matchKey: 'p2' } },
+        { text: 'Madrid', isCorrect: false, meta: { side: 'R', matchKey: 'p2' } },
+        { text: 'Italy', isCorrect: false, meta: { side: 'L', matchKey: 'p3' } },
+        { text: 'Rome', isCorrect: false, meta: { side: 'R', matchKey: 'p3' } },
+      ],
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects MATCH questions with unbalanced sides', () => {
+    const result = questionSchema.safeParse({
+      type: 'MATCH',
+      prompt: 'Match these',
+      timeLimitSec: 40,
+      choices: [
+        { text: 'France', isCorrect: false, meta: { side: 'L', matchKey: 'p1' } },
+        { text: 'Paris', isCorrect: false, meta: { side: 'R', matchKey: 'p1' } },
+        { text: 'Spain', isCorrect: false, meta: { side: 'L', matchKey: 'p2' } },
+      ],
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('validates NUMBER_GUESS meta bounds', () => {
+    const valid = questionSchema.safeParse({
+      type: 'NUMBER_GUESS',
+      prompt: 'How tall is Everest (m)?',
+      timeLimitSec: 20,
+      meta: { answer: 8849, min: 0, max: 10000, tolerance: 100 },
+      choices: [],
+    })
+    expect(valid.success).toBe(true)
+
+    const answerOutOfRange = questionSchema.safeParse({
+      type: 'NUMBER_GUESS',
+      prompt: 'How tall?',
+      timeLimitSec: 20,
+      meta: { answer: 20000, min: 0, max: 10000, tolerance: 100 },
+      choices: [],
+    })
+    expect(answerOutOfRange.success).toBe(false)
+  })
+
+  it('validates GROUPS boards with equal group sizes', () => {
+    const makeTiles = (key: string, texts: string[]) =>
+      texts.map((text) => ({ text, isCorrect: false, meta: { groupKey: key } }))
+    const valid = questionSchema.safeParse({
+      type: 'GROUPS',
+      prompt: 'Find the groups',
+      timeLimitSec: 120,
+      meta: { groups: [{ key: 'A' }, { key: 'B' }] },
+      choices: [...makeTiles('A', ['a1', 'a2', 'a3']), ...makeTiles('B', ['b1', 'b2', 'b3'])],
+    })
+    expect(valid.success).toBe(true)
+
+    const unevenSizes = questionSchema.safeParse({
+      type: 'GROUPS',
+      prompt: 'Find the groups',
+      timeLimitSec: 120,
+      meta: { groups: [{ key: 'A' }, { key: 'B' }] },
+      choices: [...makeTiles('A', ['a1', 'a2', 'a3']), ...makeTiles('B', ['b1', 'b2'])],
+    })
+    expect(unevenSizes.success).toBe(false)
+  })
+
+  it('requires accepted answers for FILL_BLANK', () => {
+    const valid = questionSchema.safeParse({
+      type: 'FILL_BLANK',
+      prompt: 'Highest mountain?',
+      timeLimitSec: 25,
+      meta: { acceptedAnswers: ['Everest'] },
+      choices: [],
+    })
+    expect(valid.success).toBe(true)
+
+    const missing = questionSchema.safeParse({
+      type: 'FILL_BLANK',
+      prompt: 'Highest mountain?',
+      timeLimitSec: 25,
+      meta: { acceptedAnswers: [] },
+      choices: [],
+    })
+    expect(missing.success).toBe(false)
+  })
 })
 
 describe('reportSchema', () => {

@@ -108,6 +108,7 @@ src/
                           quests.ts, season.ts
   domain/               Pure domain logic:
                           badges.ts, leveling.ts, scoring.ts, streak.ts,
+                          evaluate-answer.ts, text-answer.ts,
                           quiz-import.ts, quiz-bulk-import.ts, quiz-constants.ts
   schemas/              Zod schemas (index.ts)
   lib/                  Generic utilities:
@@ -180,7 +181,15 @@ User, Category, Quiz, Question, Choice, PlaySession, QuestionAnswer, Duel, DuelP
 
 ### Key enums
 
-Role (USER/ADMIN), Difficulty (EASY/MEDIUM/HARD), QuestionType (SINGLE/TRUEFALSE/FILL_BLANK/MAP_SELECT/HOTSPOT), QuizFormat (TEXT_CHOICE/IMAGE_CHOICE/MAP_CHOICE/IMAGE_HOTSPOT), DuelStatus (WAITING/IN_PROGRESS/FINISHED), PlayMode (STANDARD/DAILY/PRACTICE/BLITZ), ReportReason, ReportStatus (reports can target quizzes or comments), SuggestionStatus, NotificationType, FeedbackType, FeedbackStatus, QuestPeriod.
+Role (USER/ADMIN), Difficulty (EASY/MEDIUM/HARD), QuestionType (SINGLE/TRUEFALSE/FILL_BLANK/MAP_SELECT/HOTSPOT/ORDER/MATCH/NUMBER_GUESS/GROUPS), QuizFormat (TEXT_CHOICE/IMAGE_CHOICE/MAP_CHOICE/IMAGE_HOTSPOT/ORDER/MATCH/ODD_ONE_OUT/TYPE_ANSWER/NUMBER_GUESS/IMAGE_REVEAL/AUDIO_CHOICE/VERSUS/CONNECTIONS/ANAGRAM/MEMORY_FLASH), DuelStatus (WAITING/IN_PROGRESS/FINISHED), PlayMode (STANDARD/DAILY/PRACTICE/BLITZ), ReportReason, ReportStatus (reports can target quizzes or comments), SuggestionStatus, NotificationType, FeedbackType, FeedbackStatus, QuestPeriod.
+
+### Quiz formats & answer evaluation
+
+- `QuizFormat` is an editor-side concern (which Studio editor UI is used); `QuestionType` + `Question.meta`/`Choice.meta` drive play rendering and scoring.
+- Format → type mapping: ORDER→ORDER (choices carry `meta.position`, assigned from editor order at save), MATCH→MATCH (`meta.side` 'L'/'R' + `meta.matchKey`), CONNECTIONS→GROUPS (`meta.groupKey` per tile, `Question.meta.groups`), NUMBER_GUESS→NUMBER_GUESS (`Question.meta` {answer,min,max,tolerance,unit}), TYPE_ANSWER/ANAGRAM→FILL_BLANK (`Question.meta.acceptedAnswers`, optional `fuzzy`, `anagram: true` for tiles; list mode via `meta.answers`), ODD_ONE_OUT/IMAGE_REVEAL (`meta.reveal`)/AUDIO_CHOICE (`meta.audioUrl`)/VERSUS (`Choice.meta.value`, higher auto-correct)/MEMORY_FLASH (`meta.studyText|studyImageUrl|studyDurationMs`)→SINGLE.
+- Server-authoritative evaluation for all types lives in `src/domain/evaluate-answer.ts` (used by `POST /api/play/submit`). ORDER/MATCH/GROUPS/NUMBER_GUESS/list-FILL_BLANK earn partial credit (0..1); `scoreQuestion` awards `round(100*credit)` plus a speed bonus only when fully correct; `QuestionAnswer.isCorrect`/`correctCount` require credit === 1.
+- `submitAnswerInputSchema` accepts `choiceIds` (ordered for ORDER), `textAnswer`, `textAnswers`, `numberAnswer`, `pairs`, `groups`. Non-choice answers are persisted encoded in `QuestionAnswer.chosenIds` (MATCH: `left::right`, GROUPS: `id|id|…`, NUMBER_GUESS: the guess, FILL_BLANK: given text).
+- Survival and duel question pools exclude interactive types (`ORDER`, `MATCH`, `NUMBER_GUESS`, `GROUPS`, `FILL_BLANK`) — they render plain choice grids.
 
 ## Auth
 
@@ -248,7 +257,9 @@ Pure business logic in `src/domain/` (no framework dependencies):
 
 - `badges.ts` — Badge criteria evaluation
 - `leveling.ts` — XP/level calculations (formula: `100 * (n-1) * n / 2`)
-- `scoring.ts` — Quiz scoring (70% win threshold)
+- `scoring.ts` — Quiz scoring (70% win threshold; supports partial credit 0..1)
+- `evaluate-answer.ts` — Server-authoritative answer evaluation for all question types
+- `text-answer.ts` — Free-text answer normalization + fuzzy matching (FILL_BLANK)
 - `streak.ts` — Streak tracking (36-hour grace period; streak freezes consume `User.streakFreezes`)
 - `quiz-import.ts` — Single quiz import parsing
 - `quiz-bulk-import.ts` — Bulk CSV/JSON import

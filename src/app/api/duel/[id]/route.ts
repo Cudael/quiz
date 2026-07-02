@@ -64,6 +64,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   if (includeQuestions && duel.status === 'IN_PROGRESS') {
     const candidateQuestions = await prisma.question.findMany({
       where: {
+        // Duels render a plain choice grid — exclude interactive formats
+        type: { notIn: ['ORDER', 'MATCH', 'NUMBER_GUESS', 'GROUPS', 'FILL_BLANK'] },
         quiz: {
           isPublished: true,
           ...(duel.categoryId ? { categoryId: duel.categoryId } : {}),

@@ -84,6 +84,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const candidateQuestions = await prisma.question.findMany({
     where: {
+      // Keep in sync with the pool filter used when duels start
+      type: { notIn: ['ORDER', 'MATCH', 'NUMBER_GUESS', 'GROUPS', 'FILL_BLANK'] },
       quiz: {
         isPublished: true,
         ...(duel.categoryId ? { categoryId: duel.categoryId } : {}),

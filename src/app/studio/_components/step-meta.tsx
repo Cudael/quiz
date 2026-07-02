@@ -7,8 +7,9 @@ import { cn } from '@/lib/utils'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import { ImageUpload } from './image-upload'
 import { QUIZ_TEMPLATES, TemplatePicker } from './template-picker'
+import { makeQuestionForFormat } from './format-defaults'
 import type { QuizTemplate } from './template-picker'
-import type { DraftQuestion, DraftChoice } from '@/store/quiz-creator-store'
+import type { DraftQuestion } from '@/store/quiz-creator-store'
 import type { QuizFormat } from '@/store/quiz-creator-store'
 
 interface Category {
@@ -47,46 +48,9 @@ const DIFFICULTY_CONFIG: Array<{
 
 function buildTemplateQuestions(template: QuizTemplate): DraftQuestion[] {
   if (template.questionCount === 0) return []
-
-  const makeTextChoices = (): { type: DraftQuestion['type']; choices: DraftChoice[] } => {
-    return {
-      type: 'SINGLE',
-      choices: [
-        { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: true },
-        { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: false },
-      ],
-    }
-  }
-
-  return Array.from({ length: template.questionCount }, () => {
-    if (template.format === 'IMAGE_CHOICE') {
-      return {
-        localId: crypto.randomUUID(),
-        dbId: null,
-        type: 'SINGLE' as const,
-        prompt: '',
-        imageUrl: '',
-        explanation: '',
-        timeLimitSec: template.timeLimitSec,
-        choices: [
-          { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: true },
-          { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: false },
-        ],
-      }
-    }
-
-    const textChoice = makeTextChoices()
-    return {
-      localId: crypto.randomUUID(),
-      dbId: null,
-      type: textChoice.type,
-      prompt: '',
-      imageUrl: '',
-      explanation: '',
-      timeLimitSec: template.timeLimitSec,
-      choices: textChoice.choices,
-    }
-  })
+  return Array.from({ length: template.questionCount }, () =>
+    makeQuestionForFormat(template.format, template.timeLimitSec)
+  )
 }
 
 function isClassicChoiceFormat(format: QuizFormat) {

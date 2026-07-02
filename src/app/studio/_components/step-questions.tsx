@@ -22,9 +22,9 @@ import { PlusCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/components/ui/toast'
-import { DEFAULT_TIME_LIMIT_SEC } from '@/domain/quiz-constants'
-import { QuestionCard, makeDefaultChoices } from './question-card'
+import { QuestionCard } from './question-card'
 import { HotspotQuestionEditor } from './hotspot-question-editor'
+import { FORMAT_INFO, makeQuestionForFormat } from './format-defaults'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 
 interface StepQuestionsProps {
@@ -34,28 +34,14 @@ interface StepQuestionsProps {
 export function StepQuestions({ quizId }: StepQuestionsProps) {
   const quizFormat = useQuizCreatorStore((state) => state.quizFormat)
 
-  if (quizFormat === 'IMAGE_CHOICE') {
-    return (
-      <div className="space-y-6">
-        <FormatBanner
-          title="Image Choice Quiz"
-          description="Add single-choice questions where each answer is an image. Upload an image for each choice and mark the correct one."
-        />
-        <ClassicQuestionsEditor quizId={quizId} />
-      </div>
-    )
-  }
-
   if (quizFormat === 'IMAGE_HOTSPOT') {
     return <HotspotQuestionEditor />
   }
 
+  const info = FORMAT_INFO[quizFormat]
   return (
     <div className="space-y-6">
-      <FormatBanner
-        title="Text Choice Quiz"
-        description="Add single-choice questions. For each question, write the question text, fill in all the answer choices, and mark the correct answer using the radio button."
-      />
+      <FormatBanner title={info.bannerTitle} description={info.bannerDescription} />
       <ClassicQuestionsEditor quizId={quizId} />
     </div>
   )
@@ -73,6 +59,7 @@ function FormatBanner({ title, description }: { title: string; description: stri
 function ClassicQuestionsEditor({ quizId }: StepQuestionsProps) {
   const { questions, addQuestion, updateQuestion, removeQuestion, setQuestions } =
     useQuizCreatorStore()
+  const quizFormat = useQuizCreatorStore((state) => state.quizFormat)
   const defaultTimeLimitSec = useQuizCreatorStore((state) => state.defaultTimeLimitSec)
   const { addToast } = useToast()
 
@@ -88,16 +75,7 @@ function ClassicQuestionsEditor({ quizId }: StepQuestionsProps) {
   )
 
   const handleAddQuestion = () => {
-    addQuestion({
-      localId: crypto.randomUUID(),
-      dbId: null,
-      type: 'SINGLE',
-      prompt: '',
-      imageUrl: '',
-      explanation: '',
-      timeLimitSec: defaultTimeLimitSec ?? DEFAULT_TIME_LIMIT_SEC,
-      choices: makeDefaultChoices(),
-    })
+    addQuestion(makeQuestionForFormat(quizFormat, defaultTimeLimitSec ?? undefined))
   }
 
   const handleDragEnd = async ({ active, over }: DragEndEvent) => {

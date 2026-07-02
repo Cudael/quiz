@@ -21,8 +21,29 @@ export interface HotspotZone {
   radius: number
 }
 
-export type QuestionType = 'SINGLE' | 'HOTSPOT'
-export type QuizFormat = 'TEXT_CHOICE' | 'IMAGE_CHOICE' | 'IMAGE_HOTSPOT'
+export type QuestionType =
+  | 'SINGLE'
+  | 'HOTSPOT'
+  | 'ORDER'
+  | 'MATCH'
+  | 'NUMBER_GUESS'
+  | 'GROUPS'
+  | 'FILL_BLANK'
+export type QuizFormat =
+  | 'TEXT_CHOICE'
+  | 'IMAGE_CHOICE'
+  | 'IMAGE_HOTSPOT'
+  | 'ORDER'
+  | 'MATCH'
+  | 'ODD_ONE_OUT'
+  | 'TYPE_ANSWER'
+  | 'NUMBER_GUESS'
+  | 'IMAGE_REVEAL'
+  | 'AUDIO_CHOICE'
+  | 'VERSUS'
+  | 'CONNECTIONS'
+  | 'ANAGRAM'
+  | 'MEMORY_FLASH'
 export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD'
 
 export interface DraftQuestion {

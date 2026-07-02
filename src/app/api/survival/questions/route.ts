@@ -28,6 +28,8 @@ export async function GET(req: NextRequest) {
 
   const candidates = await prisma.question.findMany({
     where: {
+      // Survival renders a plain choice grid — exclude interactive formats
+      type: { notIn: ['ORDER', 'MATCH', 'NUMBER_GUESS', 'GROUPS', 'FILL_BLANK'] },
       quiz: {
         isPublished: true,
         ...(categorySlug ? { category: { slug: categorySlug } } : {}),

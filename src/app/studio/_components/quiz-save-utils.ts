@@ -32,12 +32,18 @@ export function buildQuestionFormData(quizId: string, question: DraftQuestion, o
   formData.set(
     'choices',
     JSON.stringify(
-      question.choices.map((choice) => ({
-        text: choice.text,
-        imageUrl: choice.imageUrl || undefined,
-        isCorrect: choice.isCorrect,
-        ...(choice.meta ? { meta: choice.meta } : {}),
-      }))
+      question.choices.map((choice, choiceIndex) => {
+        // ORDER questions: the editor keeps choices in the correct order —
+        // derive the authoritative position from the array index.
+        const meta =
+          question.type === 'ORDER' ? { ...choice.meta, position: choiceIndex + 1 } : choice.meta
+        return {
+          text: choice.text,
+          imageUrl: choice.imageUrl || undefined,
+          isCorrect: choice.isCorrect,
+          ...(meta ? { meta } : {}),
+        }
+      })
     )
   )
   return formData

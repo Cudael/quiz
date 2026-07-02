@@ -7,8 +7,19 @@ import { Button } from '@/components/ui/button'
 import { Modal } from '@/components/ui/modal'
 import { ImageUpload } from './image-upload'
 import { useQuestionCard } from './use-question-card'
+import {
+  AudioUrlField,
+  GroupsBoardEditor,
+  ImageRevealFields,
+  MatchPairsEditor,
+  MemoryFlashFields,
+  NumberGuessFields,
+  OrderChoicesEditor,
+  TypeAnswerFields,
+  VersusChoicesEditor,
+} from './format-question-editors'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
-import type { DraftQuestion, DraftChoice } from '@/store/quiz-creator-store'
+import type { DraftQuestion } from '@/store/quiz-creator-store'
 
 interface QuestionCardProps {
   question: DraftQuestion
@@ -17,13 +28,6 @@ interface QuestionCardProps {
   reorderMode: boolean
   onUpdate: (updates: Partial<DraftQuestion>) => void
   onRemove: () => void
-}
-
-export function makeDefaultChoices(): DraftChoice[] {
-  return [
-    { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: true },
-    { localId: crypto.randomUUID(), text: '', imageUrl: '', isCorrect: false },
-  ]
 }
 
 export function QuestionCard({
@@ -101,71 +105,100 @@ export function QuestionCard({
             />
           </div>
 
-          {/* Choices */}
-          <div className="space-y-2">
-            <div>
-              <p className="block text-sm font-medium">Choices</p>
-              <p className="text-xs text-muted-foreground">
-                {quizFormat === 'IMAGE_CHOICE'
-                  ? 'Upload an image for each choice, then select the correct one.'
-                  : 'Fill in all the choices, then select the radio button next to the correct one.'}
-              </p>
-            </div>
+          {/* Format-specific extras above the answers section */}
+          {quizFormat === 'IMAGE_REVEAL' && (
+            <ImageRevealFields question={question} onUpdate={onUpdate} />
+          )}
+          {quizFormat === 'AUDIO_CHOICE' && (
+            <AudioUrlField question={question} onUpdate={onUpdate} />
+          )}
+          {quizFormat === 'MEMORY_FLASH' && (
+            <MemoryFlashFields question={question} onUpdate={onUpdate} />
+          )}
 
-            <div className={quizFormat === 'IMAGE_CHOICE' ? 'grid grid-cols-2 gap-2' : 'space-y-2'}>
-              {question.choices.map((choice, i) => (
-                <div
-                  key={choice.localId}
-                  className={cn(
-                    'flex items-center gap-2 rounded-md border px-2 py-1 transition-colors',
-                    choice.isCorrect
-                      ? 'border-quiz-green/40 bg-quiz-green/10'
-                      : quizFormat === 'IMAGE_CHOICE'
-                        ? 'border-border'
-                        : 'border-transparent'
-                  )}
-                >
-                  <input
-                    type="radio"
-                    name={`correct-${question.localId}`}
-                    checked={choice.isCorrect}
-                    onChange={() => setCorrect(choice.localId)}
-                    title="Mark as correct answer"
-                  />
-                  {quizFormat === 'IMAGE_CHOICE' ? (
-                    <ImageUpload
-                      compact
-                      value={choice.imageUrl}
-                      onChange={(url) => updateChoice(choice.localId, { imageUrl: url })}
-                    />
-                  ) : (
+          {/* Answers section — dispatched by quiz format */}
+          {quizFormat === 'ORDER' ? (
+            <OrderChoicesEditor question={question} onUpdate={onUpdate} />
+          ) : quizFormat === 'MATCH' ? (
+            <MatchPairsEditor question={question} onUpdate={onUpdate} />
+          ) : quizFormat === 'CONNECTIONS' ? (
+            <GroupsBoardEditor question={question} onUpdate={onUpdate} />
+          ) : quizFormat === 'NUMBER_GUESS' ? (
+            <NumberGuessFields question={question} onUpdate={onUpdate} />
+          ) : quizFormat === 'TYPE_ANSWER' || quizFormat === 'ANAGRAM' ? (
+            <TypeAnswerFields question={question} onUpdate={onUpdate} />
+          ) : quizFormat === 'VERSUS' ? (
+            <VersusChoicesEditor question={question} onUpdate={onUpdate} />
+          ) : (
+            <div className="space-y-2">
+              <div>
+                <p className="block text-sm font-medium">Choices</p>
+                <p className="text-xs text-muted-foreground">
+                  {quizFormat === 'IMAGE_CHOICE'
+                    ? 'Upload an image for each choice, then select the correct one.'
+                    : quizFormat === 'ODD_ONE_OUT'
+                      ? 'Add the items, then mark the odd one out as the correct answer.'
+                      : 'Fill in all the choices, then select the radio button next to the correct one.'}
+                </p>
+              </div>
+
+              <div
+                className={quizFormat === 'IMAGE_CHOICE' ? 'grid grid-cols-2 gap-2' : 'space-y-2'}
+              >
+                {question.choices.map((choice, i) => (
+                  <div
+                    key={choice.localId}
+                    className={cn(
+                      'flex items-center gap-2 rounded-md border px-2 py-1 transition-colors',
+                      choice.isCorrect
+                        ? 'border-quiz-green/40 bg-quiz-green/10'
+                        : quizFormat === 'IMAGE_CHOICE'
+                          ? 'border-border'
+                          : 'border-transparent'
+                    )}
+                  >
                     <input
-                      type="text"
-                      value={choice.text}
-                      onChange={(e) => updateChoice(choice.localId, { text: e.target.value })}
-                      placeholder={`Choice ${i + 1}`}
-                      className="min-w-0 flex-1 rounded-md border bg-background px-3 py-1.5 text-sm"
+                      type="radio"
+                      name={`correct-${question.localId}`}
+                      checked={choice.isCorrect}
+                      onChange={() => setCorrect(choice.localId)}
+                      title="Mark as correct answer"
                     />
-                  )}
-                  {choice.isCorrect && (
-                    <span className="shrink-0 text-xs font-medium text-quiz-green">✓</span>
-                  )}
-                  {question.choices.length > 2 && (
-                    <button
-                      type="button"
-                      onClick={() => removeChoice(choice.localId)}
-                      className="shrink-0 text-muted-foreground hover:text-destructive"
-                    >
-                      ×
-                    </button>
-                  )}
-                </div>
-              ))}
-              <Button type="button" variant="outline" size="sm" onClick={addChoice}>
-                + Add choice
-              </Button>
+                    {quizFormat === 'IMAGE_CHOICE' ? (
+                      <ImageUpload
+                        compact
+                        value={choice.imageUrl}
+                        onChange={(url) => updateChoice(choice.localId, { imageUrl: url })}
+                      />
+                    ) : (
+                      <input
+                        type="text"
+                        value={choice.text}
+                        onChange={(e) => updateChoice(choice.localId, { text: e.target.value })}
+                        placeholder={`Choice ${i + 1}`}
+                        className="min-w-0 flex-1 rounded-md border bg-background px-3 py-1.5 text-sm"
+                      />
+                    )}
+                    {choice.isCorrect && (
+                      <span className="shrink-0 text-xs font-medium text-quiz-green">✓</span>
+                    )}
+                    {question.choices.length > 2 && (
+                      <button
+                        type="button"
+                        onClick={() => removeChoice(choice.localId)}
+                        className="shrink-0 text-muted-foreground hover:text-destructive"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <Button type="button" variant="outline" size="sm" onClick={addChoice}>
+                  + Add choice
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Explanation toggle */}
           <div className="space-y-2">

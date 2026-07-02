@@ -13,6 +13,112 @@ interface QuestionBreakdownProps {
   answers: ResultAnswer[]
 }
 
+/** Question types whose answers are not a plain choice selection. */
+const SUMMARY_TYPES = new Set(['ORDER', 'MATCH', 'GROUPS', 'NUMBER_GUESS', 'FILL_BLANK'])
+
+function metaRecord(value: unknown): Record<string, unknown> {
+  return typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : {}
+}
+
+function choiceTextById(question: ResultQuestion, id: string): string {
+  return question.choices.find((c) => c.id === id)?.text ?? '?'
+}
+
+/** Human-readable "correct answer" line for format-specific question types. */
+function correctSummaryFor(question: ResultQuestion): string {
+  const meta = metaRecord(question.meta)
+  switch (question.type) {
+    case 'ORDER':
+      return [...question.choices]
+        .sort(
+          (a, b) =>
+            (Number(metaRecord(a.meta).position) || 0) - (Number(metaRecord(b.meta).position) || 0)
+        )
+        .map((c) => c.text)
+        .join(' → ')
+    case 'MATCH': {
+      const left = question.choices.filter((c) => metaRecord(c.meta).side === 'L')
+      return left
+        .map((l) => {
+          const partner = question.choices.find(
+            (c) =>
+              metaRecord(c.meta).side === 'R' &&
+              metaRecord(c.meta).matchKey === metaRecord(l.meta).matchKey
+          )
+          return `${l.text} ↔ ${partner?.text ?? '?'}`
+        })
+        .join(', ')
+    }
+    case 'GROUPS': {
+      const groups = Array.isArray(meta.groups) ? meta.groups : []
+      return groups
+        .map((g) => {
+          const group = metaRecord(g)
+          const tiles = question.choices
+            .filter((c) => metaRecord(c.meta).groupKey === group.key)
+            .map((c) => c.text)
+            .join(', ')
+          return `${typeof group.label === 'string' && group.label ? group.label : 'Group'}: ${tiles}`
+        })
+        .join(' • ')
+    }
+    case 'NUMBER_GUESS': {
+      const answer = meta.answer
+      const unit = typeof meta.unit === 'string' && meta.unit ? ` ${meta.unit}` : ''
+      return typeof answer === 'number' ? `${answer.toLocaleString()}${unit}` : ''
+    }
+    case 'FILL_BLANK': {
+      const accepted = Array.isArray(meta.acceptedAnswers)
+        ? meta.acceptedAnswers.filter((a): a is string => typeof a === 'string')
+        : question.choices.filter((c) => c.isCorrect).map((c) => c.text)
+      const list = Array.isArray(meta.answers)
+        ? meta.answers
+            .map((entry) => metaRecord(entry).label)
+            .filter((l): l is string => typeof l === 'string')
+        : []
+      return list.length > 0 ? list.join(', ') : accepted.join(', ')
+    }
+    default:
+      return ''
+  }
+}
+
+/** Player's submitted answer, decoded from the persisted chosenIds encoding. */
+function givenSummaryFor(question: ResultQuestion, chosenIds: string[]): string {
+  switch (question.type) {
+    case 'ORDER':
+      return chosenIds.map((id) => choiceTextById(question, id)).join(' → ')
+    case 'MATCH':
+      return chosenIds
+        .map((encoded) => {
+          const [leftId, rightId] = encoded.split('::')
+          return `${choiceTextById(question, leftId)} ↔ ${choiceTextById(question, rightId)}`
+        })
+        .join(', ')
+    case 'GROUPS':
+      return chosenIds
+        .map((encoded) =>
+          encoded
+            .split('|')
+            .map((id) => choiceTextById(question, id))
+            .join(', ')
+        )
+        .join(' • ')
+    case 'NUMBER_GUESS': {
+      const guess = Number(chosenIds[0])
+      const unit =
+        typeof metaRecord(question.meta).unit === 'string'
+          ? ` ${metaRecord(question.meta).unit}`
+          : ''
+      return Number.isFinite(guess) ? `${guess.toLocaleString()}${unit}` : '—'
+    }
+    case 'FILL_BLANK':
+      return chosenIds.join(', ') || '—'
+    default:
+      return ''
+  }
+}
+
 /** Determine per-choice correctness for format-specific types using meta fields. */
 function isChoiceCorrect(
   choice: ResultChoice,
@@ -99,11 +205,14 @@ export function QuestionBreakdown({ questions, answers }: QuestionBreakdownProps
       <CardContent className="space-y-3">
         {visibleQuestions.map((q) => {
           const idx = questions.findIndex((question) => question.id === q.id)
-          const correctText = q.choices
-            .filter((c) => isChoiceCorrect(c, q.choices, q.type))
-            .map((c) => c.text || (c.imageUrl ? 'Image' : ''))
-            .filter(Boolean)
-            .join(', ')
+          const isSummaryType = SUMMARY_TYPES.has(q.type)
+          const correctText = isSummaryType
+            ? correctSummaryFor(q)
+            : q.choices
+                .filter((c) => isChoiceCorrect(c, q.choices, q.type))
+                .map((c) => c.text || (c.imageUrl ? 'Image' : ''))
+                .filter(Boolean)
+                .join(', ')
           const isImageChoice = q.choices.some((c) => c.imageUrl)
           const displayPrompt = q.prompt
           const answer = answersByQuestionId.get(q.id) ?? null
@@ -152,7 +261,14 @@ export function QuestionBreakdown({ questions, answers }: QuestionBreakdownProps
                   </div>
 
                   {hasAnswerData ? (
-                    isImageChoice ? (
+                    isSummaryType ? (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Your answer:{' '}
+                        <span className="font-medium text-foreground">
+                          {givenSummaryFor(q, answer?.chosenIds ?? [])}
+                        </span>
+                      </p>
+                    ) : isImageChoice ? (
                       <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
                         {q.choices.map((choice, choiceIdx) => {
                           const isChosen = chosenIds.has(choice.id)

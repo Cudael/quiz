@@ -4,10 +4,17 @@ import { create } from 'zustand'
 // Types
 // ---------------------------------------------------------------------------
 
-export interface AnswerRecord {
+export interface AnswerExtras {
+  textAnswer?: string
+  textAnswers?: string[]
+  numberAnswer?: number
+  pairs?: Array<{ leftId: string; rightId: string }>
+  groups?: string[][]
+}
+
+export interface AnswerRecord extends AnswerExtras {
   choiceIds: string[]
   timeTakenMs: number
-  textAnswer?: string
 }
 
 export type PlayStatus = 'idle' | 'playing' | 'submitting' | 'done'
@@ -27,7 +34,7 @@ export interface PlaySessionActions {
     questionId: string,
     choiceIds: string[],
     timeTakenMs: number,
-    textAnswer?: string
+    extras?: AnswerExtras
   ) => void
   addScore: (points: number) => void
   incrementStreak: () => void
@@ -61,9 +68,9 @@ export const usePlaySessionStore = create<PlaySessionState & PlaySessionActions>
       status: 'playing',
     }),
 
-  answer: (questionId, choiceIds, timeTakenMs, textAnswer) =>
+  answer: (questionId, choiceIds, timeTakenMs, extras) =>
     set((state) => ({
-      answers: { ...state.answers, [questionId]: { choiceIds, timeTakenMs, textAnswer } },
+      answers: { ...state.answers, [questionId]: { choiceIds, timeTakenMs, ...extras } },
     })),
 
   addScore: (points) => set((state) => ({ score: state.score + points })),

@@ -38,12 +38,24 @@ describe('answer', () => {
   it('stores an answer record', () => {
     usePlaySessionStore.getState().answer('q1', ['c1'], 1500)
     const answers = usePlaySessionStore.getState().answers
-    expect(answers['q1']).toEqual({ choiceIds: ['c1'], timeTakenMs: 1500, textAnswer: undefined })
+    expect(answers['q1']).toEqual({ choiceIds: ['c1'], timeTakenMs: 1500 })
   })
 
   it('stores textAnswer when provided', () => {
-    usePlaySessionStore.getState().answer('q2', [], 800, 'Paris')
+    usePlaySessionStore.getState().answer('q2', [], 800, { textAnswer: 'Paris' })
     expect(usePlaySessionStore.getState().answers['q2'].textAnswer).toBe('Paris')
+  })
+
+  it('stores format-specific extras when provided', () => {
+    usePlaySessionStore.getState().answer('q3', [], 900, {
+      numberAnswer: 42,
+      pairs: [{ leftId: 'l1', rightId: 'r1' }],
+      groups: [['a', 'b']],
+    })
+    const record = usePlaySessionStore.getState().answers['q3']
+    expect(record.numberAnswer).toBe(42)
+    expect(record.pairs).toEqual([{ leftId: 'l1', rightId: 'r1' }])
+    expect(record.groups).toEqual([['a', 'b']])
   })
 })
 

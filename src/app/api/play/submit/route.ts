@@ -4,6 +4,7 @@ import { cookies } from 'next/headers'
 import { prisma } from '@/server/prisma'
 import { verifyPlayToken } from '@/server/play-token'
 import { scoreQuestion } from '@/domain/scoring'
+import { evaluateAnswer } from '@/domain/evaluate-answer'
 import { auth } from '@/server/auth'
 import { evaluateBadgesWithClient, evaluateBadges } from '@/domain/badges'
 import { levelForXp } from '@/domain/leveling'
@@ -15,10 +16,6 @@ import { submitPlaySchema } from '@/schemas'
 import { checkRateLimit, getClientIp } from '@/server/rate-limit'
 
 const SUBMIT_RATE_LIMIT = { limit: 30, windowMs: 5 * 60 * 1000 } as const
-
-function sanitizeChoiceIds(choiceIds: string[], validChoiceIds: Set<string>) {
-  return Array.from(new Set(choiceIds.filter((choiceId) => validChoiceIds.has(choiceId)))).sort()
-}
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req)
@@ -98,44 +95,35 @@ export async function POST(req: NextRequest) {
     const question = quiz.questions.find((q) => q.id === answer.questionId)
     if (!question) continue
 
-    const validChoiceIds = new Set(question.choices.map((choice) => choice.id))
     const timeLimitMs = question.timeLimitSec * 1000
     // Clamp timeTakenMs to [0, timeLimitMs] to prevent negative-time exploits
     const timeTakenMs = Math.min(Math.max(0, answer.timeTakenMs), timeLimitMs)
 
-    let isCorrect: boolean
-
-    // Classic type (SINGLE)
-    const correctChoiceIds = question.choices
-      .filter((c) => c.isCorrect)
-      .map((c) => c.id)
-      .sort()
-    const givenIds = sanitizeChoiceIds(answer.choiceIds, validChoiceIds)
-
-    if (correctChoiceIds.length === 0) {
-      // No correct choices are configured for this question — treat as always incorrect
-      console.error(
-        `[submit] Question ${question.id} (type=${question.type}) has no correct choices configured.`
-      )
-      isCorrect = false
-    } else {
-      isCorrect =
-        correctChoiceIds.length === givenIds.length &&
-        correctChoiceIds.every((id, i) => id === givenIds[i])
-    }
+    // Server-authoritative evaluation for every question type
+    const { credit, chosenIds } = evaluateAnswer(question, {
+      choiceIds: answer.choiceIds,
+      textAnswer: answer.textAnswer,
+      textAnswers: answer.textAnswers,
+      numberAnswer: answer.numberAnswer,
+      pairs: answer.pairs,
+      groups: answer.groups,
+    })
+    const isCorrect = credit === 1
 
     evaluatedAnswers.push({
       questionId: question.id,
-      chosenIds: givenIds,
+      chosenIds,
       isCorrect,
       timeTakenMs,
     })
 
     if (isCorrect) {
       correctCount++
+    }
+    if (credit > 0) {
       const timeRemainingMs = timeLimitMs - timeTakenMs
       score += scoreQuestion({
-        correct: true,
+        credit,
         timeRemainingMs,
         timeLimitMs,
         streak: 0,

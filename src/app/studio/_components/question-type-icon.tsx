@@ -1,6 +1,14 @@
 'use client'
 
-import { CircleDot, Target } from 'lucide-react'
+import {
+  ArrowDownUp,
+  CircleDot,
+  Grid3x3,
+  Keyboard,
+  Link2,
+  SlidersHorizontal,
+  Target,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { QuestionType } from '@/store/quiz-creator-store'
 
@@ -16,6 +24,11 @@ const TYPE_CONFIG: Record<
 > = {
   SINGLE: { icon: CircleDot, label: 'Single', colorClass: 'text-quiz-purple' },
   HOTSPOT: { icon: Target, label: 'Hotspot', colorClass: 'text-quiz-orange' },
+  ORDER: { icon: ArrowDownUp, label: 'Ordering', colorClass: 'text-quiz-green' },
+  MATCH: { icon: Link2, label: 'Matching', colorClass: 'text-primary' },
+  NUMBER_GUESS: { icon: SlidersHorizontal, label: 'Number guess', colorClass: 'text-primary' },
+  GROUPS: { icon: Grid3x3, label: 'Connections', colorClass: 'text-primary' },
+  FILL_BLANK: { icon: Keyboard, label: 'Type answer', colorClass: 'text-quiz-orange' },
 }
 
 export function QuestionTypeIcon({ type, className, showLabel = false }: QuestionTypeIconProps) {

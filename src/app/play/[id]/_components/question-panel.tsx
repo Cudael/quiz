@@ -3,12 +3,21 @@ import { useState, useCallback, useMemo } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import type { Question } from '../play-view.types'
+import { matchesAcceptedAnswer } from '@/domain/text-answer'
+import type { Choice, Question } from '../play-view.types'
 import { getQuestionImageSrc, imageLoader } from '../play-view.utils'
 import { CountdownRing } from './countdown-ring'
 import { MapDisplay } from './map-display'
 import { HotspotDisplay } from './hotspot-display'
 import type { HotspotZone } from './hotspot-display'
+import { OrderQuestion } from './order-question'
+import { MatchQuestion } from './match-question'
+import { NumberGuessQuestion } from './number-guess-question'
+import { GroupsQuestion } from './groups-question'
+import { AnagramQuestion } from './anagram-question'
+import { AudioClipPlayer } from './audio-clip-player'
+import { ImageReveal } from './image-reveal'
+import { MemoryFlashStudy } from './memory-flash-study'
 
 interface QuestionPanelProps {
   currentQuestion: Question
@@ -23,7 +32,16 @@ interface QuestionPanelProps {
   submitting: boolean
   onChoiceSelect: (choiceId: string) => void
   onSubmit: () => void
-  onAnswer: (choiceIds: string[], timeout?: boolean, textAnswer?: string) => void
+  onAnswer: (
+    choiceIds: string[],
+    timeout?: boolean,
+    extras?: {
+      textAnswer?: string
+      numberAnswer?: number
+      pairs?: Array<{ leftId: string; rightId: string }>
+      groups?: string[][]
+    }
+  ) => void
   onNext: () => void
   onTextSubmit?: (text: string) => void
   textAnswer?: string
@@ -55,6 +73,29 @@ export function QuestionPanel({
   const isImageChoice = currentQuestion.choices.some((c) => c.imageUrl)
   const isMapQuestion = currentQuestion.type === 'MAP_SELECT'
   const isHotspotQuestion = currentQuestion.type === 'HOTSPOT'
+
+  const questionMeta = (currentQuestion.meta ?? {}) as Record<string, unknown>
+  const isOrderQuestion = currentQuestion.type === 'ORDER'
+  const isMatchQuestion = currentQuestion.type === 'MATCH'
+  const isNumberGuessQuestion = currentQuestion.type === 'NUMBER_GUESS'
+  const isGroupsQuestion = currentQuestion.type === 'GROUPS'
+  const isAnagramQuestion = currentQuestion.type === 'FILL_BLANK' && questionMeta.anagram === true
+  const hasOwnSubmit =
+    isOrderQuestion ||
+    isMatchQuestion ||
+    isNumberGuessQuestion ||
+    isGroupsQuestion ||
+    isAnagramQuestion
+  const audioUrl = typeof questionMeta.audioUrl === 'string' ? questionMeta.audioUrl : null
+  const revealMode = typeof questionMeta.reveal === 'string' ? questionMeta.reveal : null
+  const studyDurationMs =
+    typeof questionMeta.studyDurationMs === 'number' && questionMeta.studyDurationMs > 0
+      ? questionMeta.studyDurationMs
+      : null
+
+  const [studyDoneForQuestionId, setStudyDoneForQuestionId] = useState<string | null>(null)
+  const inStudyPhase =
+    studyDurationMs !== null && !isAnswered && studyDoneForQuestionId !== currentQuestion.id
 
   const [selectedCountryId, setSelectedCountryId] = useState<string | null>(null)
   const [selectedHotspotZoneId, setSelectedHotspotZoneId] = useState<string | null>(null)
@@ -193,210 +234,329 @@ export function QuestionPanel({
         exit={reduceMotion ? { opacity: 0 } : { opacity: 0, x: -40 }}
         transition={{ duration: 0.25 }}
       >
-        <div className="mb-6 space-y-4">
-          {showHeaderImage ? (
-            <div className="relative overflow-hidden rounded-md border border-border/60 bg-muted/20">
-              <Image
-                loader={imageLoader}
-                unoptimized
-                src={questionImageSrc!}
-                alt={`Question illustration: ${renderedPrompt}`}
-                width={1200}
-                height={675}
-                sizes="(max-width: 768px) 100vw, 768px"
-                className="h-auto max-h-[320px] w-full object-contain"
-              />
-            </div>
-          ) : null}
-
-          <div className="flex items-center gap-4">
-            <CountdownRing timeLimitSec={effectiveTimeLimitSec} timeRemainingMs={timeRemainingMs} />
-            <p className="flex-1 text-xl font-semibold leading-snug">{renderedPrompt}</p>
-          </div>
-        </div>
-
-        <QuestionTypeHint type={currentQuestion.type} isAnswered={isAnswered} />
-
-        {currentQuestion.type === 'FILL_BLANK' ? (
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="fill-blank-input" className="sr-only">
-                Your answer
-              </label>
-              <input
-                id="fill-blank-input"
-                type="text"
-                aria-label="Your answer"
-                value={textAnswer ?? ''}
-                onChange={(e) => onTextChange?.(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && textAnswer?.trim()) {
-                    onTextSubmit?.(textAnswer)
-                  }
-                }}
-                disabled={isAnswered}
-                placeholder="Type your answer…"
-                className="w-full rounded-md border border-border bg-card px-4 py-3 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
-              />
-            </div>
-          </div>
-        ) : isMapQuestion ? (
-          <div className="space-y-4">
-            <MapDisplay
-              mapRegion={mapRegion}
-              selectedCountryId={selectedCountryId}
-              disabled={isAnswered}
-              onCountryClick={handleCountryClick}
-              className="max-w-lg mx-auto"
-            />
-            {selectedCountryId && !isAnswered && (
-              <p className="text-center text-sm text-muted-foreground">
-                You selected:{' '}
-                <span className="font-semibold text-foreground">
-                  {currentQuestion.choices.find(
-                    (c) => (c.meta as Record<string, string>)?.regionId === selectedCountryId
-                  )?.text ?? selectedCountryId}
-                </span>
-              </p>
-            )}
-          </div>
-        ) : isImageChoice ? (
-          <div className="grid gap-3 sm:grid-cols-2">
-            {currentQuestion.choices
-              .filter((c) => !hiddenChoiceIds.includes(c.id))
-              .map((choice, idx) => {
-                const isSelected = selectedChoiceIds.includes(choice.id)
-                const isCorrect = choice.isCorrect === true
-                return (
-                  <button
-                    key={choice.id}
-                    type="button"
-                    onClick={() => onChoiceSelect(choice.id)}
-                    disabled={isAnswered}
-                    className={cn(
-                      'relative flex flex-col items-center gap-2 overflow-hidden rounded-md border p-2 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                      isAnswered
-                        ? isSelected
-                          ? isCorrect
-                            ? 'border-emerald-500 bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 font-semibold'
-                            : 'border-destructive bg-destructive/15 text-destructive font-semibold'
-                          : isCorrect
-                            ? 'border-emerald-500/70 border-dashed bg-emerald-500/5 text-emerald-700 dark:text-emerald-400 font-semibold'
-                            : 'border-border bg-muted/40 opacity-40 text-muted-foreground'
-                        : isSelected
-                          ? 'border-primary bg-primary/10'
-                          : 'cursor-pointer border-border bg-card hover:border-primary hover:bg-primary/5'
-                    )}
-                    aria-label={`Choice ${idx + 1}`}
-                    aria-pressed={isSelected}
-                  >
-                    {choice.imageUrl ? (
-                      <Image
-                        loader={imageLoader}
-                        unoptimized
-                        src={choice.imageUrl}
-                        alt={`Choice ${idx + 1}`}
-                        width={200}
-                        height={150}
-                        className="h-32 w-full rounded-md object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-32 w-full items-center justify-center rounded-md bg-muted/30">
-                        <span className="text-xs text-muted-foreground">No image</span>
-                      </div>
-                    )}
-                    {choice.text ? (
-                      <span className="text-sm font-medium">{choice.text}</span>
-                    ) : null}
-                  </button>
-                )
-              })}
-          </div>
+        {inStudyPhase ? (
+          <MemoryFlashStudy
+            studyText={
+              typeof questionMeta.studyText === 'string' ? questionMeta.studyText : undefined
+            }
+            studyImageUrl={
+              typeof questionMeta.studyImageUrl === 'string'
+                ? questionMeta.studyImageUrl
+                : undefined
+            }
+            studyDurationMs={studyDurationMs!}
+            onDone={() => setStudyDoneForQuestionId(currentQuestion.id)}
+          />
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2">
-            {currentQuestion.choices
-              .filter((c) => !hiddenChoiceIds.includes(c.id))
-              .map((choice, idx) => {
-                const isSelected = selectedChoiceIds.includes(choice.id)
-                const isCorrect = choice.isCorrect === true
-                return (
-                  <button
-                    key={choice.id}
-                    type="button"
-                    onClick={() => onChoiceSelect(choice.id)}
-                    disabled={isAnswered}
-                    className={cn(
-                      'flex min-h-[56px] items-center gap-3 rounded-md border p-4 text-left text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                      isAnswered
-                        ? isSelected
-                          ? isCorrect
-                            ? 'border-emerald-500 bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 font-semibold'
-                            : 'border-destructive bg-destructive/15 text-destructive font-semibold'
-                          : isCorrect
-                            ? 'border-emerald-500/70 border-dashed bg-emerald-500/5 text-emerald-700 dark:text-emerald-400 font-semibold'
-                            : 'border-border bg-muted/40 text-muted-foreground opacity-40'
-                        : isSelected
-                          ? 'border-primary bg-primary/10 text-foreground'
-                          : 'cursor-pointer border-border bg-card hover:border-primary hover:bg-primary/5'
-                    )}
-                    aria-label={`Choice ${idx + 1}: ${choice.text}`}
-                    aria-pressed={isSelected}
-                  >
-                    <span
-                      className={cn(
-                        'flex h-7 w-7 shrink-0 items-center justify-center rounded-sm border text-xs font-bold transition-colors',
-                        isAnswered
-                          ? isSelected
-                            ? isCorrect
-                              ? 'border-emerald-500 bg-emerald-500 text-primary-foreground'
-                              : 'border-destructive bg-destructive text-destructive-foreground'
-                            : isCorrect
-                              ? 'border-emerald-500/70 text-emerald-600 dark:text-emerald-400'
-                              : 'border-border text-muted-foreground'
-                          : isSelected
-                            ? 'border-primary bg-primary text-primary-foreground'
-                            : 'border-border'
-                      )}
-                    >
-                      {idx + 1}
-                    </span>
-                    {choice.text}
-                  </button>
+          <>
+            <div className="mb-6 space-y-4">
+              {showHeaderImage ? (
+                revealMode ? (
+                  <ImageReveal
+                    src={questionImageSrc!}
+                    alt={`Question illustration: ${renderedPrompt}`}
+                    mode={revealMode}
+                    progress={
+                      1 - Math.min(1, Math.max(0, timeRemainingMs / (effectiveTimeLimitSec * 1000)))
+                    }
+                    revealed={isAnswered}
+                  />
+                ) : (
+                  <div className="relative overflow-hidden rounded-md border border-border/60 bg-muted/20">
+                    <Image
+                      loader={imageLoader}
+                      unoptimized
+                      src={questionImageSrc!}
+                      alt={`Question illustration: ${renderedPrompt}`}
+                      width={1200}
+                      height={675}
+                      sizes="(max-width: 768px) 100vw, 768px"
+                      className="h-auto max-h-[320px] w-full object-contain"
+                    />
+                  </div>
                 )
-              })}
-          </div>
+              ) : null}
+
+              <div className="flex items-center gap-4">
+                <CountdownRing
+                  timeLimitSec={effectiveTimeLimitSec}
+                  timeRemainingMs={timeRemainingMs}
+                />
+                <p className="flex-1 text-xl font-semibold leading-snug">{renderedPrompt}</p>
+              </div>
+
+              {audioUrl ? <AudioClipPlayer src={audioUrl} /> : null}
+            </div>
+
+            <QuestionTypeHint
+              type={isAnagramQuestion ? 'ANAGRAM' : currentQuestion.type}
+              isAnswered={isAnswered}
+            />
+
+            {isOrderQuestion ? (
+              <OrderQuestion
+                choices={currentQuestion.choices}
+                isAnswered={isAnswered}
+                onSubmit={(orderedIds) => onAnswer(orderedIds)}
+              />
+            ) : isMatchQuestion ? (
+              <MatchQuestion
+                choices={currentQuestion.choices}
+                isAnswered={isAnswered}
+                onSubmit={(pairs) => onAnswer([], false, { pairs })}
+              />
+            ) : isNumberGuessQuestion ? (
+              <NumberGuessQuestion
+                question={currentQuestion}
+                isAnswered={isAnswered}
+                onSubmit={(value) => onAnswer([], false, { numberAnswer: value })}
+              />
+            ) : isGroupsQuestion ? (
+              <GroupsQuestion
+                question={currentQuestion}
+                isAnswered={isAnswered}
+                onSubmit={(groups) => onAnswer([], false, { groups })}
+              />
+            ) : isAnagramQuestion ? (
+              <AnagramQuestion
+                question={currentQuestion}
+                isAnswered={isAnswered}
+                onSubmit={(text) => onAnswer([], false, { textAnswer: text })}
+              />
+            ) : currentQuestion.type === 'FILL_BLANK' ? (
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="fill-blank-input" className="sr-only">
+                    Your answer
+                  </label>
+                  <input
+                    id="fill-blank-input"
+                    type="text"
+                    aria-label="Your answer"
+                    value={textAnswer ?? ''}
+                    onChange={(e) => onTextChange?.(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && textAnswer?.trim()) {
+                        onTextSubmit?.(textAnswer)
+                      }
+                    }}
+                    disabled={isAnswered}
+                    placeholder="Type your answer…"
+                    className="w-full rounded-md border border-border bg-card px-4 py-3 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+                  />
+                </div>
+                {isAnswered ? (
+                  <FillBlankResult question={currentQuestion} givenAnswer={textAnswer ?? ''} />
+                ) : null}
+              </div>
+            ) : isMapQuestion ? (
+              <div className="space-y-4">
+                <MapDisplay
+                  mapRegion={mapRegion}
+                  selectedCountryId={selectedCountryId}
+                  disabled={isAnswered}
+                  onCountryClick={handleCountryClick}
+                  className="max-w-lg mx-auto"
+                />
+                {selectedCountryId && !isAnswered && (
+                  <p className="text-center text-sm text-muted-foreground">
+                    You selected:{' '}
+                    <span className="font-semibold text-foreground">
+                      {currentQuestion.choices.find(
+                        (c) => (c.meta as Record<string, string>)?.regionId === selectedCountryId
+                      )?.text ?? selectedCountryId}
+                    </span>
+                  </p>
+                )}
+              </div>
+            ) : isImageChoice ? (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {currentQuestion.choices
+                  .filter((c) => !hiddenChoiceIds.includes(c.id))
+                  .map((choice, idx) => {
+                    const isSelected = selectedChoiceIds.includes(choice.id)
+                    const isCorrect = choice.isCorrect === true
+                    return (
+                      <button
+                        key={choice.id}
+                        type="button"
+                        onClick={() => onChoiceSelect(choice.id)}
+                        disabled={isAnswered}
+                        className={cn(
+                          'relative flex flex-col items-center gap-2 overflow-hidden rounded-md border p-2 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                          isAnswered
+                            ? isSelected
+                              ? isCorrect
+                                ? 'border-emerald-500 bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 font-semibold'
+                                : 'border-destructive bg-destructive/15 text-destructive font-semibold'
+                              : isCorrect
+                                ? 'border-emerald-500/70 border-dashed bg-emerald-500/5 text-emerald-700 dark:text-emerald-400 font-semibold'
+                                : 'border-border bg-muted/40 opacity-40 text-muted-foreground'
+                            : isSelected
+                              ? 'border-primary bg-primary/10'
+                              : 'cursor-pointer border-border bg-card hover:border-primary hover:bg-primary/5'
+                        )}
+                        aria-label={`Choice ${idx + 1}`}
+                        aria-pressed={isSelected}
+                      >
+                        {choice.imageUrl ? (
+                          <Image
+                            loader={imageLoader}
+                            unoptimized
+                            src={choice.imageUrl}
+                            alt={`Choice ${idx + 1}`}
+                            width={200}
+                            height={150}
+                            className="h-32 w-full rounded-md object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-32 w-full items-center justify-center rounded-md bg-muted/30">
+                            <span className="text-xs text-muted-foreground">No image</span>
+                          </div>
+                        )}
+                        {choice.text ? (
+                          <span className="text-sm font-medium">{choice.text}</span>
+                        ) : null}
+                        {isAnswered && choiceValueLabel(choice) ? (
+                          <span className="rounded-sm bg-background/70 px-2 py-0.5 text-xs font-bold tabular-nums">
+                            {choiceValueLabel(choice)}
+                          </span>
+                        ) : null}
+                      </button>
+                    )
+                  })}
+              </div>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {currentQuestion.choices
+                  .filter((c) => !hiddenChoiceIds.includes(c.id))
+                  .map((choice, idx) => {
+                    const isSelected = selectedChoiceIds.includes(choice.id)
+                    const isCorrect = choice.isCorrect === true
+                    return (
+                      <button
+                        key={choice.id}
+                        type="button"
+                        onClick={() => onChoiceSelect(choice.id)}
+                        disabled={isAnswered}
+                        className={cn(
+                          'flex min-h-[56px] items-center gap-3 rounded-md border p-4 text-left text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                          isAnswered
+                            ? isSelected
+                              ? isCorrect
+                                ? 'border-emerald-500 bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 font-semibold'
+                                : 'border-destructive bg-destructive/15 text-destructive font-semibold'
+                              : isCorrect
+                                ? 'border-emerald-500/70 border-dashed bg-emerald-500/5 text-emerald-700 dark:text-emerald-400 font-semibold'
+                                : 'border-border bg-muted/40 text-muted-foreground opacity-40'
+                            : isSelected
+                              ? 'border-primary bg-primary/10 text-foreground'
+                              : 'cursor-pointer border-border bg-card hover:border-primary hover:bg-primary/5'
+                        )}
+                        aria-label={`Choice ${idx + 1}: ${choice.text}`}
+                        aria-pressed={isSelected}
+                      >
+                        <span
+                          className={cn(
+                            'flex h-7 w-7 shrink-0 items-center justify-center rounded-sm border text-xs font-bold transition-colors',
+                            isAnswered
+                              ? isSelected
+                                ? isCorrect
+                                  ? 'border-emerald-500 bg-emerald-500 text-primary-foreground'
+                                  : 'border-destructive bg-destructive text-destructive-foreground'
+                                : isCorrect
+                                  ? 'border-emerald-500/70 text-emerald-600 dark:text-emerald-400'
+                                  : 'border-border text-muted-foreground'
+                              : isSelected
+                                ? 'border-primary bg-primary text-primary-foreground'
+                                : 'border-border'
+                          )}
+                        >
+                          {idx + 1}
+                        </span>
+                        <span className="min-w-0 flex-1">{choice.text}</span>
+                        {isAnswered && choiceValueLabel(choice) ? (
+                          <span className="shrink-0 rounded-sm bg-background/70 px-2 py-0.5 text-xs font-bold tabular-nums">
+                            {choiceValueLabel(choice)}
+                          </span>
+                        ) : null}
+                      </button>
+                    )
+                  })}
+              </div>
+            )}
+
+            <AnimatePresence>
+              {!isAnswered && !hasOwnSubmit && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-6 flex justify-end"
+                >
+                  <Button onClick={onSubmit} variant="accent" disabled={!canSubmit}>
+                    Submit Answer
+                    <span className="ml-1 text-xs opacity-70">(Enter / Space)</span>
+                  </Button>
+                </motion.div>
+              )}
+
+              {isAnswered && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-6 flex justify-end"
+                >
+                  <Button onClick={onNext} variant="accent" disabled={submitting}>
+                    {isLastQuestion ? 'Finish' : 'Next'}
+                    <span className="text-xs opacity-70 ml-1">(Enter)</span>
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </>
         )}
-
-        <AnimatePresence>
-          {!isAnswered && (
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-6 flex justify-end"
-            >
-              <Button onClick={onSubmit} variant="accent" disabled={!canSubmit}>
-                Submit Answer
-                <span className="ml-1 text-xs opacity-70">(Enter / Space)</span>
-              </Button>
-            </motion.div>
-          )}
-
-          {isAnswered && (
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-6 flex justify-end"
-            >
-              <Button onClick={onNext} variant="accent" disabled={submitting}>
-                {isLastQuestion ? 'Finish' : 'Next'}
-                <span className="text-xs opacity-70 ml-1">(Enter)</span>
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </motion.div>
     </AnimatePresence>
   )
+}
+
+/** Post-answer feedback for FILL_BLANK questions with meta-based answers. */
+function FillBlankResult({ question, givenAnswer }: { question: Question; givenAnswer: string }) {
+  const meta = (question.meta ?? {}) as Record<string, unknown>
+  const acceptedAnswers = Array.isArray(meta.acceptedAnswers)
+    ? meta.acceptedAnswers.filter((a): a is string => typeof a === 'string' && a.length > 0)
+    : question.choices.filter((c) => c.isCorrect).map((c) => c.text)
+  if (acceptedAnswers.length === 0) return null
+
+  const correct = matchesAcceptedAnswer(givenAnswer, acceptedAnswers, meta.fuzzy === true)
+  return (
+    <div
+      className={cn(
+        'rounded-md border p-3 text-sm font-medium',
+        correct
+          ? 'border-emerald-500 bg-emerald-500/15 text-emerald-800 dark:text-emerald-400'
+          : 'border-destructive bg-destructive/10 text-destructive'
+      )}
+    >
+      {correct ? (
+        'Correct!'
+      ) : (
+        <>
+          Correct answer: <span className="font-bold">{acceptedAnswers[0]}</span>
+        </>
+      )}
+    </div>
+  )
+}
+
+/** VERSUS — value badge revealed after answering. */
+function choiceValueLabel(choice: Choice): string | null {
+  const meta = (choice.meta ?? {}) as Record<string, unknown>
+  if (typeof meta.valueLabel === 'string' && meta.valueLabel) return meta.valueLabel
+  if (typeof meta.value === 'number' && Number.isFinite(meta.value)) {
+    return meta.value.toLocaleString()
+  }
+  return null
 }
 
 const TYPE_HINTS: Record<string, string> = {
@@ -405,6 +565,11 @@ const TYPE_HINTS: Record<string, string> = {
   FILL_BLANK: 'Type your answer below.',
   MAP_SELECT: 'Look at the map and choose the correct answer.',
   HOTSPOT: 'Click on a zone on the image to answer.',
+  ORDER: 'Arrange the items in the correct order (top = first).',
+  MATCH: 'Match each item on the left with its partner on the right.',
+  NUMBER_GUESS: 'Take your best guess — the closer you are, the more points you earn.',
+  GROUPS: 'Find the groups of related items.',
+  ANAGRAM: 'Unscramble the letters to form the answer.',
 }
 
 function QuestionTypeHint({ type, isAnswered }: { type: string; isAnswered: boolean }) {

@@ -43,6 +43,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   // changes (quizzes published/unpublished) while the duel is running.
   const candidateQuestions = await prisma.question.findMany({
     where: {
+      // Duels render a plain choice grid — exclude interactive formats
+      type: { notIn: ['ORDER', 'MATCH', 'NUMBER_GUESS', 'GROUPS', 'FILL_BLANK'] },
       quiz: {
         isPublished: true,
         ...(duel.categoryId ? { categoryId: duel.categoryId } : {}),

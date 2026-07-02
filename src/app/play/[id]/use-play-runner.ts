@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/components/ui/toast'
 import { usePlaySessionStore } from '@/store/play-session'
+import type { AnswerExtras } from '@/store/play-session'
 import { copy } from '@/lib/copy'
 import { getQuizPath } from '@/lib/quiz-url'
 import type { Question, QuizData } from './play-view.types'
@@ -59,6 +60,10 @@ export function usePlayRunner(quizId: string, mode?: 'DAILY' | 'PRACTICE' | 'BLI
       choiceIds: ans.choiceIds,
       timeTakenMs: ans.timeTakenMs,
       textAnswer: ans.textAnswer,
+      textAnswers: ans.textAnswers,
+      numberAnswer: ans.numberAnswer,
+      pairs: ans.pairs,
+      groups: ans.groups,
     }))
     try {
       const res = await fetch('/api/play/submit', {
@@ -118,13 +123,18 @@ export function usePlayRunner(quizId: string, mode?: 'DAILY' | 'PRACTICE' | 'BLI
 
   // handleAnswer
   const handleAnswer = useCallback(
-    (choiceIds: string[], timeout = false, textAnswer?: string) => {
+    (choiceIds: string[], timeout = false, extras?: AnswerExtras) => {
       if (!currentQuestion || isAnswered) return
       // Don't clear the quiz-level timer on answer
       if (!hasQuizTimer) clearTimer()
       const elapsed = Date.now() - questionStartRef.current
       const timeTakenMs = Math.min(elapsed, currentQuestion.timeLimitSec * 1000)
-      store.answer(currentQuestion.id, timeout ? [] : choiceIds, timeTakenMs, textAnswer)
+      store.answer(
+        currentQuestion.id,
+        timeout ? [] : choiceIds,
+        timeTakenMs,
+        timeout ? undefined : extras
+      )
       setQuestionUI((prev) => ({ ...prev, selectedChoiceIds: timeout ? [] : choiceIds }))
     },
     [currentQuestion, isAnswered, clearTimer, store, hasQuizTimer]
@@ -259,7 +269,7 @@ export function usePlayRunner(quizId: string, mode?: 'DAILY' | 'PRACTICE' | 'BLI
         (c) => c.text.trim().toLowerCase() === trimmed
       )
       const choiceIds = matchedChoice ? [matchedChoice.id] : []
-      handleAnswer(choiceIds, false, text)
+      handleAnswer(choiceIds, false, { textAnswer: text })
     },
     [currentQuestion, isAnswered, handleAnswer]
   )

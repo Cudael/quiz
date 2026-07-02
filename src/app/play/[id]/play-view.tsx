@@ -76,6 +76,10 @@ export function PlayView({ quizId, mode }: PlayViewProps) {
     return questionUI.selectedChoiceIds.length > 0
   })()
   const isLastQuestion = store.currentQuestionIndex >= questions.length - 1
+  const handlePanelSubmit =
+    currentQuestion.type === 'FILL_BLANK'
+      ? () => handleTextSubmit(questionUI.textAnswer)
+      : handleSubmitSelection
 
   return (
     <div className="container mx-auto max-w-2xl px-4 py-8">
@@ -109,7 +113,7 @@ export function PlayView({ quizId, mode }: PlayViewProps) {
         isLastQuestion={isLastQuestion}
         submitting={store.status === 'submitting'}
         onChoiceSelect={handleChoiceSelect}
-        onSubmit={handleSubmitSelection}
+        onSubmit={handlePanelSubmit}
         onAnswer={handleAnswer}
         onNext={goNext}
         onTextSubmit={handleTextSubmit}

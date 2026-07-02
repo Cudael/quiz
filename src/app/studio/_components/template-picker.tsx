@@ -1,9 +1,46 @@
 'use client'
 
+import {
+  ArrowDownUp,
+  Brain,
+  CircleSlash2,
+  Grid3x3,
+  Keyboard,
+  Link2,
+  Scale,
+  ScanEye,
+  Shuffle,
+  SlidersHorizontal,
+  Volume2,
+  type LucideIcon,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { QuizFormat } from '@/store/quiz-creator-store'
 
+const FORMAT_ICONS: Partial<Record<QuizFormat, LucideIcon>> = {
+  ORDER: ArrowDownUp,
+  MATCH: Link2,
+  ODD_ONE_OUT: CircleSlash2,
+  TYPE_ANSWER: Keyboard,
+  NUMBER_GUESS: SlidersHorizontal,
+  IMAGE_REVEAL: ScanEye,
+  AUDIO_CHOICE: Volume2,
+  VERSUS: Scale,
+  CONNECTIONS: Grid3x3,
+  ANAGRAM: Shuffle,
+  MEMORY_FLASH: Brain,
+}
+
 function FormatPreview({ format }: { format: QuizFormat }) {
+  const Icon = FORMAT_ICONS[format]
+  if (Icon) {
+    return (
+      <div className="flex h-18 items-center justify-center rounded-md bg-muted/40 p-2">
+        <Icon className="h-8 w-8 text-muted-foreground/60" strokeWidth={1.5} />
+      </div>
+    )
+  }
+
   if (format === 'TEXT_CHOICE') {
     return (
       <div className="flex h-18 flex-col gap-1.5 rounded-md bg-muted/40 p-2">
@@ -126,6 +163,94 @@ export const QUIZ_TEMPLATES: QuizTemplate[] = [
     timeLimitSec: 20,
     questionCount: 0,
   },
+  {
+    id: 'order',
+    format: 'ORDER',
+    name: 'Put in Order',
+    color: 'text-quiz-green',
+    timeLimitSec: 30,
+    questionCount: 5,
+  },
+  {
+    id: 'match',
+    format: 'MATCH',
+    name: 'Matching Pairs',
+    color: 'text-primary',
+    timeLimitSec: 40,
+    questionCount: 5,
+  },
+  {
+    id: 'odd-one-out',
+    format: 'ODD_ONE_OUT',
+    name: 'Odd One Out',
+    color: 'text-warning',
+    timeLimitSec: 20,
+    questionCount: 5,
+  },
+  {
+    id: 'type-answer',
+    format: 'TYPE_ANSWER',
+    name: 'Type the Answer',
+    color: 'text-quiz-orange',
+    timeLimitSec: 25,
+    questionCount: 5,
+  },
+  {
+    id: 'number-guess',
+    format: 'NUMBER_GUESS',
+    name: 'Number Guess',
+    color: 'text-primary',
+    timeLimitSec: 20,
+    questionCount: 5,
+  },
+  {
+    id: 'image-reveal',
+    format: 'IMAGE_REVEAL',
+    name: 'Image Reveal',
+    color: 'text-purple-500',
+    timeLimitSec: 20,
+    questionCount: 5,
+  },
+  {
+    id: 'audio-choice',
+    format: 'AUDIO_CHOICE',
+    name: 'Audio Quiz',
+    color: 'text-quiz-green',
+    timeLimitSec: 30,
+    questionCount: 5,
+  },
+  {
+    id: 'versus',
+    format: 'VERSUS',
+    name: 'Higher or Lower',
+    color: 'text-warning',
+    timeLimitSec: 15,
+    questionCount: 5,
+  },
+  {
+    id: 'connections',
+    format: 'CONNECTIONS',
+    name: 'Connections',
+    color: 'text-primary',
+    timeLimitSec: 120,
+    questionCount: 1,
+  },
+  {
+    id: 'anagram',
+    format: 'ANAGRAM',
+    name: 'Anagram',
+    color: 'text-quiz-orange',
+    timeLimitSec: 30,
+    questionCount: 5,
+  },
+  {
+    id: 'memory-flash',
+    format: 'MEMORY_FLASH',
+    name: 'Memory Flash',
+    color: 'text-purple-500',
+    timeLimitSec: 30,
+    questionCount: 5,
+  },
 ]
 
 interface TemplatePickerProps {
@@ -139,6 +264,8 @@ export function TemplatePicker({ selectedId, onSelect }: TemplatePickerProps) {
     'image-choice': 'border-purple-500 ring-purple-500',
     'hotspot-choice': 'border-quiz-orange ring-quiz-orange',
   }
+  const selectedBorderFor = (templateId: string) =>
+    selectedBorderByTemplateId[templateId] ?? 'border-primary ring-primary'
 
   return (
     <div className="space-y-3">
@@ -153,7 +280,7 @@ export function TemplatePicker({ selectedId, onSelect }: TemplatePickerProps) {
               className={cn(
                 'rounded-md border p-2 text-left transition-all hover:border-primary/50',
                 isSelected && 'ring-2',
-                isSelected && selectedBorderByTemplateId[template.id]
+                isSelected && selectedBorderFor(template.id)
               )}
             >
               <FormatPreview format={template.format} />

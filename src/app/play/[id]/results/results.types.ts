@@ -11,6 +11,7 @@ export interface ResultQuestion {
   type: string
   prompt: string
   explanation: string | null
+  meta?: unknown
   choices: ResultChoice[]
 }
 
