@@ -42,8 +42,8 @@ export function AiQuestionGenerator({ quizId }: AiQuestionGeneratorProps) {
         <h2 className="text-sm font-bold">AI question ideas</h2>
       </div>
       <p className="mb-3 text-xs text-muted-foreground">
-        Generate draft questions with AI and append them to this quiz. Review every question before
-        publishing — AI can make mistakes.
+        Generate draft questions matching this quiz&apos;s format. For image-based formats, image
+        fields will be left empty. Review every question before publishing — AI can make mistakes.
       </p>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
         <Input

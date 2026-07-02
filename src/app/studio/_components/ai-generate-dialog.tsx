@@ -27,6 +27,24 @@ const DIFFICULTIES = [
 
 const COUNTS = [5, 10, 15, 20]
 
+const FORMATS: { value: string; label: string; group: string }[] = [
+  { value: 'TEXT_CHOICE', label: 'Text Choice', group: 'Standard' },
+  { value: 'IMAGE_CHOICE', label: 'Image Choice', group: 'Image' },
+  { value: 'MAP_CHOICE', label: 'Map Choice', group: 'Image' },
+  { value: 'IMAGE_HOTSPOT', label: 'Image Hotspot', group: 'Image' },
+  { value: 'IMAGE_REVEAL', label: 'Image Reveal', group: 'Image' },
+  { value: 'AUDIO_CHOICE', label: 'Audio Choice', group: 'Media' },
+  { value: 'MEMORY_FLASH', label: 'Memory Flash', group: 'Media' },
+  { value: 'ORDER', label: 'Order / Ranking', group: 'Interactive' },
+  { value: 'MATCH', label: 'Match Pairs', group: 'Interactive' },
+  { value: 'CONNECTIONS', label: 'Connections', group: 'Interactive' },
+  { value: 'ODD_ONE_OUT', label: 'Odd One Out', group: 'Special' },
+  { value: 'VERSUS', label: 'Versus', group: 'Special' },
+  { value: 'TYPE_ANSWER', label: 'Type Answer', group: 'Text' },
+  { value: 'ANAGRAM', label: 'Anagram', group: 'Text' },
+  { value: 'NUMBER_GUESS', label: 'Number Guess', group: 'Text' },
+]
+
 export function AiGenerateDialog({ open, onClose, categories }: AiGenerateDialogProps) {
   const router = useRouter()
   const { addToast } = useToast()
@@ -35,6 +53,7 @@ export function AiGenerateDialog({ open, onClose, categories }: AiGenerateDialog
   const [categoryId, setCategoryId] = React.useState(categories[0]?.id ?? '')
   const [count, setCount] = React.useState(10)
   const [difficulty, setDifficulty] = React.useState<'EASY' | 'MEDIUM' | 'HARD'>('MEDIUM')
+  const [format, setFormat] = React.useState('TEXT_CHOICE')
 
   async function handleGenerate() {
     if (!topic.trim() || !categoryId) return
@@ -46,6 +65,7 @@ export function AiGenerateDialog({ open, onClose, categories }: AiGenerateDialog
       fd.set('categoryId', categoryId)
       fd.set('count', String(count))
       fd.set('difficulty', difficulty)
+      fd.set('format', format)
 
       const result = await generateQuizWithAi(fd)
 
@@ -62,6 +82,8 @@ export function AiGenerateDialog({ open, onClose, categories }: AiGenerateDialog
       setGenerating(false)
     }
   }
+
+  const formatLabel = FORMATS.find((f) => f.value === format)?.label ?? format
 
   return (
     <Modal open={open} onClose={onClose} title="Generate Quiz with AI" size="md">
@@ -80,22 +102,42 @@ export function AiGenerateDialog({ open, onClose, categories }: AiGenerateDialog
           />
         </div>
 
-        <div className="space-y-1.5">
-          <label htmlFor="ai-category" className="text-sm font-medium">
-            Category
-          </label>
-          <select
-            id="ai-category"
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-          >
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <label htmlFor="ai-category" className="text-sm font-medium">
+              Category
+            </label>
+            <select
+              id="ai-category"
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
+              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+            >
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-1.5">
+            <label htmlFor="ai-format" className="text-sm font-medium">
+              Format
+            </label>
+            <select
+              id="ai-format"
+              value={format}
+              onChange={(e) => setFormat(e.target.value)}
+              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+            >
+              {FORMATS.map((f) => (
+                <option key={f.value} value={f.value}>
+                  {f.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -139,9 +181,11 @@ export function AiGenerateDialog({ open, onClose, categories }: AiGenerateDialog
         </div>
 
         <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-700 dark:text-amber-400">
-          <strong>Review before publishing:</strong> The AI will generate a complete quiz with
-          title, description, and {count} questions. Please review all questions and answers for
-          accuracy before publishing — AI-generated content may contain errors.
+          <strong>Review before publishing:</strong> The AI will generate a{' '}
+          <strong>{formatLabel}</strong> quiz with title, description, and {count} questions. For
+          image-based formats, image fields will be left empty for you to fill in later. Please
+          review all questions and answers for accuracy before publishing — AI-generated content may
+          contain errors.
         </div>
 
         <div className="flex gap-3 justify-end">
