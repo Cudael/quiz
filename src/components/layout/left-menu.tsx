@@ -24,6 +24,8 @@ import {
   UserPlus,
   BarChart3,
   GraduationCap,
+  CalendarDays,
+  ListMusic,
 } from 'lucide-react'
 import { Logo } from '@/components/ui/logo'
 import { Avatar } from '@/components/ui/avatar'
@@ -52,6 +54,7 @@ interface MenuSection {
 const EXPLORE: MenuSection = {
   title: 'Explore',
   items: [
+    { href: '/for-you', label: 'For You', icon: Sparkles, description: 'Picked just for you' },
     { href: '/categories', label: 'Categories', icon: Layers, description: 'Browse by topic' },
     { href: '/popular', label: 'Popular', icon: Star, description: 'All-time favorites' },
     { href: '/trending', label: 'Trending', icon: TrendingUp, description: "What's hot now" },
@@ -60,6 +63,12 @@ const EXPLORE: MenuSection = {
       label: 'Collections',
       icon: Bookmark,
       description: 'Curated quiz sets',
+    },
+    {
+      href: '/playlists',
+      label: 'My Playlists',
+      icon: ListMusic,
+      description: 'Your saved quiz sets',
     },
     {
       href: '/random-quiz',
@@ -74,12 +83,30 @@ const EXPLORE: MenuSection = {
 const PLAY: MenuSection = {
   title: 'Play & Compete',
   items: [
+    {
+      href: '/daily',
+      label: 'Daily Quiz',
+      icon: CalendarDays,
+      description: 'One quiz, once a day',
+    },
     { href: '/duel', label: 'Duel Mode', icon: Swords, description: '1v1 real-time battle' },
     {
       href: '/challenges',
       label: 'Challenges',
       icon: Flame,
       description: 'Daily, weekly, monthly',
+    },
+    {
+      href: '/practice',
+      label: 'Practice',
+      icon: GraduationCap,
+      description: 'Replay missed questions',
+    },
+    {
+      href: '/survival',
+      label: 'Survival',
+      icon: Flame,
+      description: 'One life, endless questions',
     },
     {
       href: '/leaderboard',

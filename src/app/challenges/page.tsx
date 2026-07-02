@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button'
 import { prisma } from '@/server/prisma'
 import { absoluteUrl } from '@/lib/site'
 import { auth } from '@/server/auth'
+import { ensureDefaultQuests, getQuestBoard } from '@/server/quests'
+import { QuestBoard } from './_components/quest-board'
 
 export const metadata: Metadata = {
   title: 'Quiz Challenges | BusQuiz',
@@ -21,6 +23,9 @@ export const metadata: Metadata = {
 export default async function ChallengesPage() {
   const session = await auth()
   const userId = session?.user?.id ?? null
+
+  await ensureDefaultQuests()
+  const quests = await getQuestBoard(userId)
 
   // Get high-difficulty quizzes for weekly challenge
   const hardQuizzes = await prisma.quiz.findMany({
@@ -106,6 +111,8 @@ export default async function ChallengesPage() {
           and prove you&apos;re the ultimate quiz champion.
         </p>
       </div>
+
+      <QuestBoard quests={quests} isSignedIn={Boolean(userId)} />
 
       {/* Challenge cards */}
       <div className="grid gap-6 lg:grid-cols-3 mb-12">

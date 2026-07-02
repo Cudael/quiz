@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/server/prisma'
+import { auth } from '@/server/auth'
 import { signPlayToken } from '@/server/play-token'
 import { checkRateLimit, getClientIp } from '@/server/rate-limit'
 
@@ -43,6 +44,35 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: 'Quiz not found' }, { status: 404 })
   }
 
+  // Practice mode: serve only the questions the signed-in viewer most recently missed.
+  let servedQuestions = quiz.questions
+  const requestedMode = req.nextUrl.searchParams.get('mode')
+  if (requestedMode === 'practice') {
+    const session = await auth()
+    if (session?.user?.id) {
+      const recentAnswers = await prisma.questionAnswer.findMany({
+        where: {
+          questionId: { in: quiz.questions.map((q) => q.id) },
+          session: { userId: session.user.id, quizId: quiz.id },
+        },
+        orderBy: { session: { createdAt: 'desc' } },
+        take: 1000,
+        select: { questionId: true, isCorrect: true },
+      })
+      // First occurrence per question = most recent answer.
+      const latest = new Map<string, boolean>()
+      for (const answer of recentAnswers) {
+        if (!latest.has(answer.questionId)) latest.set(answer.questionId, answer.isCorrect)
+      }
+      const missedIds = new Set(
+        [...latest.entries()].filter(([, correct]) => !correct).map(([id]) => id)
+      )
+      if (missedIds.size > 0) {
+        servedQuestions = quiz.questions.filter((q) => missedIds.has(q.id))
+      }
+    }
+  }
+
   const playToken = await signPlayToken(quiz.id)
 
   return NextResponse.json({
@@ -56,9 +86,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       author: quiz.author,
       playCount: quiz.playCount,
       avgScore: quiz.avgScore,
-      timeLimitSec: quiz.defaultTimeLimitSec,
+      // Blitz mode: hard 60-second timer for the whole quiz.
+      timeLimitSec: requestedMode === 'blitz' ? 60 : quiz.defaultTimeLimitSec,
     },
-    questions: quiz.questions.map((q) => ({
+    questions: servedQuestions.map((q) => ({
       id: q.id,
       type: q.type,
       prompt: q.prompt,

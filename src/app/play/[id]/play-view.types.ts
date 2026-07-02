@@ -28,4 +28,5 @@ export interface QuizData {
 
 export interface PlayViewProps {
   quizId: string
+  mode?: 'DAILY' | 'PRACTICE' | 'BLITZ'
 }

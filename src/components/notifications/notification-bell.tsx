@@ -2,7 +2,16 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Award, Bell, PlayCircle, UserPlus } from 'lucide-react'
+import {
+  Award,
+  Bell,
+  MessageSquare,
+  PlayCircle,
+  Swords,
+  Trophy,
+  UserPlus,
+  UsersRound,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { getQuizPath } from '@/lib/quiz-url'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -13,7 +22,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-type NotificationType = 'BADGE_EARNED' | 'NEW_FOLLOWER' | 'QUIZ_PLAYED'
+type NotificationType =
+  | 'BADGE_EARNED'
+  | 'NEW_FOLLOWER'
+  | 'QUIZ_PLAYED'
+  | 'DUEL_REMATCH'
+  | 'QUEST_COMPLETED'
+  | 'SEASON_RESULT'
+  | 'QUIZ_COMMENT'
+  | 'COLLAB_INVITE'
 
 interface NotificationItem {
   id: string
@@ -89,12 +106,43 @@ function getNotificationHref(notification: NotificationItem) {
     })
   }
 
+  if (notification.type === 'DUEL_REMATCH') {
+    const duelId = meta.duelId
+    return typeof duelId === 'string' && duelId.trim().length > 0 ? `/duel/${duelId}` : '/duel'
+  }
+
+  if (notification.type === 'QUEST_COMPLETED') {
+    return '/challenges'
+  }
+
+  if (notification.type === 'SEASON_RESULT') {
+    return '/leaderboard?period=season'
+  }
+
+  if (notification.type === 'QUIZ_COMMENT' || notification.type === 'COLLAB_INVITE') {
+    const quizSlug = meta.quizSlug
+    const quizId = meta.quizId
+    if (notification.type === 'COLLAB_INVITE' && typeof quizId === 'string') {
+      return `/studio/quiz/${quizId}/edit`
+    }
+    if (typeof quizId !== 'string' || quizId.trim().length === 0) return null
+    return getQuizPath({
+      id: quizId,
+      slug: typeof quizSlug === 'string' && quizSlug.trim().length > 0 ? quizSlug : null,
+    })
+  }
+
   return null
 }
 
 function notificationIcon(type: NotificationType) {
   if (type === 'BADGE_EARNED') return Award
   if (type === 'NEW_FOLLOWER') return UserPlus
+  if (type === 'DUEL_REMATCH') return Swords
+  if (type === 'QUEST_COMPLETED') return Trophy
+  if (type === 'SEASON_RESULT') return Trophy
+  if (type === 'QUIZ_COMMENT') return MessageSquare
+  if (type === 'COLLAB_INVITE') return UsersRound
   return PlayCircle
 }
 

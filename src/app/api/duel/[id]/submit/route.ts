@@ -3,8 +3,10 @@ import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/server/auth'
 import { scoreQuestion } from '@/domain/scoring'
+import { computeEloUpdates } from '@/domain/elo'
 import { pickDuelQuestionIds } from '@/server/duel'
 import { prisma } from '@/server/prisma'
+import { recordQuestEventWithClient } from '@/server/quests'
 import { checkRateLimit, getClientIp } from '@/server/rate-limit'
 
 const SUBMIT_RATE_LIMIT = { limit: 30, windowMs: 5 * 60 * 1000 } as const
@@ -176,6 +178,48 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           finishedAt: now,
         },
       })
+
+      // Rate registered players against each other now that all scores are final.
+      const finalParticipants = await tx.duelParticipant.findMany({
+        where: { duelId: duel.id, userId: { not: null } },
+        select: { userId: true, score: true },
+      })
+      if (finalParticipants.length >= 2) {
+        const users = await tx.user.findMany({
+          where: { id: { in: finalParticipants.map((entry) => entry.userId!) } },
+          select: { id: true, duelRating: true },
+        })
+        const ratingById = new Map(users.map((user) => [user.id, user.duelRating]))
+        const updates = computeEloUpdates(
+          finalParticipants.map((entry) => ({
+            id: entry.userId!,
+            rating: ratingById.get(entry.userId!) ?? 1200,
+            score: entry.score,
+          }))
+        )
+        for (const update of updates) {
+          await tx.user.update({
+            where: { id: update.id },
+            data: { duelRating: update.newRating, duelGames: { increment: 1 } },
+          })
+        }
+      }
+
+      // Quest progress for every registered player in the duel.
+      const allParticipants = await tx.duelParticipant.findMany({
+        where: { duelId: duel.id },
+        select: { userId: true, score: true },
+      })
+      const topScore = Math.max(...allParticipants.map((entry) => entry.score))
+      for (const entry of allParticipants) {
+        if (!entry.userId) continue
+        await recordQuestEventWithClient(
+          tx,
+          entry.userId,
+          { type: 'duelPlayed', won: entry.score === topScore },
+          now
+        )
+      }
     }
   })
 

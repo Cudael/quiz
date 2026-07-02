@@ -14,6 +14,29 @@ export type ActionResult =
 export async function assertOwnership(quizId: string, userId: string, role?: string) {
   const quiz = await prisma.quiz.findUnique({
     where: { id: quizId },
+    select: {
+      id: true,
+      authorId: true,
+      collaborators: { where: { userId }, select: { userId: true } },
+    },
+  })
+
+  if (!quiz) {
+    return { ok: false as const, error: 'NOT_FOUND' as const, message: 'Quiz not found.' }
+  }
+
+  const isCollaborator = quiz.collaborators.length > 0
+  if (quiz.authorId !== userId && role !== 'ADMIN' && !isCollaborator) {
+    return { ok: false as const, error: 'FORBIDDEN' as const, message: 'Not allowed.' }
+  }
+
+  return { ok: true as const }
+}
+
+/** Stricter check for owner-only operations (managing collaborators, deleting). */
+export async function assertQuizOwner(quizId: string, userId: string, role?: string) {
+  const quiz = await prisma.quiz.findUnique({
+    where: { id: quizId },
     select: { id: true, authorId: true },
   })
 

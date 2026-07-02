@@ -6,7 +6,14 @@ import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
 import { draftQuizSchema, quizSchema } from '@/schemas'
 import { generateUniqueSlug } from '@/lib/slugify'
-import { assertEmailVerified, assertOwnership, quizIdSchema, type ActionResult } from './_shared'
+import {
+  assertEmailVerified,
+  assertOwnership,
+  assertQuizOwner,
+  quizIdSchema,
+  type ActionResult,
+} from './_shared'
+import { saveRevision } from './revision-actions'
 
 const quizInputSchema = quizSchema
 
@@ -44,6 +51,14 @@ export async function togglePublish(formData: FormData): Promise<ActionResult> {
     data: { isPublished: nextState },
   })
 
+  // Publishing creates an automatic revision snapshot so authors can roll back.
+  if (nextState) {
+    const snapshotForm = new FormData()
+    snapshotForm.set('quizId', quizId)
+    snapshotForm.set('note', 'Published')
+    await saveRevision(snapshotForm)
+  }
+
   revalidatePath('/studio')
   return { ok: true }
 }
@@ -60,7 +75,8 @@ export async function deleteQuiz(formData: FormData): Promise<ActionResult> {
   }
 
   const quizId = parsed.data
-  const allowed = await assertOwnership(quizId, session.user.id, session.user.role)
+  // Deleting is owner-only — collaborators may edit but not delete.
+  const allowed = await assertQuizOwner(quizId, session.user.id, session.user.role)
   if (!allowed.ok) {
     return allowed
   }

@@ -1,26 +1,11 @@
-import { createHash, timingSafeEqual } from 'node:crypto'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/server/prisma'
+import { isAuthorizedCronRequest } from '@/server/cron-auth'
 
 const GUEST_RETENTION_DAYS = 30
 const MAX_GUEST_USERS_PER_RUN = 200
 const MAX_GUEST_PLAY_SESSIONS_PER_RUN = 2000
 const MAX_GUEST_DUEL_PARTICIPANTS_PER_RUN = 2000
-
-function isAuthorizedCronRequest(request: Request): boolean {
-  const secret = process.env.CRON_SECRET
-  if (!secret) {
-    return false
-  }
-
-  const authorization = request.headers.get('authorization') ?? ''
-  // Hash both values before comparing so the comparison is constant-time
-  // regardless of input length (timingSafeEqual requires equal-length buffers,
-  // and a raw length check would leak the secret's length).
-  const provided = createHash('sha256').update(authorization).digest()
-  const expected = createHash('sha256').update(`Bearer ${secret}`).digest()
-  return timingSafeEqual(provided, expected)
-}
 
 export async function GET(request: Request) {
   if (!isAuthorizedCronRequest(request)) {

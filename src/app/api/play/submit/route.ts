@@ -10,6 +10,7 @@ import { levelForXp } from '@/domain/leveling'
 import { computeStreak } from '@/domain/streak'
 import { HOME_POPULAR_QUIZZES_TAG, HOME_TRENDING_QUIZZES_TAG } from '@/server/home-quiz-cache'
 import { LEADERBOARD_TAG } from '@/server/leaderboard'
+import { recordQuestEventWithClient } from '@/server/quests'
 import { submitPlaySchema } from '@/schemas'
 import { checkRateLimit, getClientIp } from '@/server/rate-limit'
 
@@ -38,11 +39,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 
-  const { playToken, quizId, answers, guestName } = parsed.data
+  const { playToken, quizId, answers, guestName, mode } = parsed.data
 
   const tokenResult = await verifyPlayToken(playToken, quizId)
   if (!tokenResult.valid) {
     return NextResponse.json({ error: 'Invalid or expired play token' }, { status: 401 })
+  }
+
+  // DAILY mode is only valid for today's daily pick; otherwise fall back to STANDARD.
+  let sessionMode: 'STANDARD' | 'DAILY' | 'PRACTICE' | 'BLITZ' = mode ?? 'STANDARD'
+  if (sessionMode === 'DAILY') {
+    const todayKey = new Date().toISOString().slice(0, 10)
+    const dailyPick = await prisma.dailyQuiz.findUnique({
+      where: { date: todayKey },
+      select: { quizId: true },
+    })
+    if (dailyPick?.quizId !== quizId) {
+      sessionMode = 'STANDARD'
+    }
   }
 
   const quiz = await prisma.quiz.findUnique({
@@ -52,6 +66,7 @@ export async function POST(req: NextRequest) {
         include: { choices: true },
         orderBy: { order: 'asc' },
       },
+      category: { select: { slug: true } },
     },
   })
   if (!quiz) {
@@ -131,7 +146,9 @@ export async function POST(req: NextRequest) {
   // Use evaluated (deduplicated + clamped) answers for the total time, so that
   // duplicate submissions and out-of-range timeTakenMs values cannot inflate the total.
   const totalTimeTakenMs = evaluatedAnswers.reduce((sum, a) => sum + a.timeTakenMs, 0)
-  const xpEarned = Math.round(score / 10)
+  // Practice runs are for review only — no XP, streak, badge, or quest rewards.
+  const isPractice = sessionMode === 'PRACTICE'
+  const xpEarned = isPractice ? 0 : Math.round(score / 10)
 
   if (evaluatedAnswers.length === 0) {
     console.warn(
@@ -153,6 +170,7 @@ export async function POST(req: NextRequest) {
         correctCount,
         totalCount,
         timeTakenMs: totalTimeTakenMs,
+        mode: sessionMode,
       },
     })
 
@@ -172,7 +190,7 @@ export async function POST(req: NextRequest) {
     let leveledUp = false
     let newlyAwardedBadges: Awaited<ReturnType<typeof evaluateBadgesWithClient>> = []
 
-    if (authSession?.user?.id) {
+    if (authSession?.user?.id && !isPractice) {
       const currentUser = await tx.user.findUnique({
         where: { id: authSession.user.id },
         select: {
@@ -180,6 +198,7 @@ export async function POST(req: NextRequest) {
           level: true,
           streakDays: true,
           bestStreak: true,
+          streakFreezes: true,
           lastPlayedAt: true,
         },
       })
@@ -189,6 +208,7 @@ export async function POST(req: NextRequest) {
           lastPlayedAt: currentUser.lastPlayedAt,
           currentStreakDays: currentUser.streakDays,
           bestStreak: currentUser.bestStreak,
+          streakFreezes: currentUser.streakFreezes,
           now,
         })
 
@@ -203,30 +223,45 @@ export async function POST(req: NextRequest) {
             level: newLevel,
             streakDays: streakResult.newStreakDays,
             bestStreak: streakResult.newBestStreakDays,
+            streakFreezes: streakResult.newStreakFreezes,
             lastPlayedAt: now,
           },
         })
 
         newlyAwardedBadges = await evaluateBadgesWithClient(tx, authSession.user.id, playSession.id)
+
+        await recordQuestEventWithClient(
+          tx,
+          authSession.user.id,
+          {
+            type: 'quizPlayed',
+            categorySlug: quiz.category?.slug ?? '',
+            isPerfect: totalCount > 0 && correctCount === totalCount,
+            xpEarned,
+          },
+          now
+        )
       }
     } else {
       newLevel = levelForXp(xpEarned)
       leveledUp = newLevel > 1
     }
 
-    const quizScores = await tx.playSession.aggregate({
-      where: { quizId },
-      _avg: { score: true },
-      _count: { _all: true },
-    })
+    if (!isPractice) {
+      const quizScores = await tx.playSession.aggregate({
+        where: { quizId, mode: { not: 'PRACTICE' } },
+        _avg: { score: true },
+        _count: { _all: true },
+      })
 
-    await tx.quiz.update({
-      where: { id: quizId },
-      data: {
-        playCount: quizScores._count._all,
-        avgScore: quizScores._avg.score ?? 0,
-      },
-    })
+      await tx.quiz.update({
+        where: { id: quizId },
+        data: {
+          playCount: quizScores._count._all,
+          avgScore: quizScores._avg.score ?? 0,
+        },
+      })
+    }
 
     return {
       sessionId: playSession.id,
@@ -246,7 +281,7 @@ export async function POST(req: NextRequest) {
 
   // Safety net: re-evaluate badges outside the transaction in case
   // transaction isolation prevented collectStats from seeing the new session.
-  if (authSession?.user?.id && result.newlyAwardedBadges.length === 0) {
+  if (authSession?.user?.id && !isPractice && result.newlyAwardedBadges.length === 0) {
     const safetyBadges = await evaluateBadges(authSession.user.id, result.sessionId)
     if (safetyBadges.length > 0) {
       return NextResponse.json({ ...result, newlyAwardedBadges: safetyBadges })

@@ -27,6 +27,7 @@ export function DuelEntry({ categories }: DuelEntryProps) {
   const [categoryId, setCategoryId] = useState('')
   const [questionCount, setQuestionCount] = useState(10)
   const [timeLimitSec, setTimeLimitSec] = useState(20)
+  const [maxPlayers, setMaxPlayers] = useState(2)
   const [code, setCode] = useState('')
   const [submittingCreate, setSubmittingCreate] = useState(false)
   const [submittingJoin, setSubmittingJoin] = useState(false)
@@ -91,6 +92,7 @@ export function DuelEntry({ categories }: DuelEntryProps) {
                     categoryId: categoryId || undefined,
                     questionCount,
                     timeLimitSec,
+                    maxPlayers,
                   }),
                 })
 
@@ -156,6 +158,25 @@ export function DuelEntry({ categories }: DuelEntryProps) {
                   <option value={30}>30 seconds</option>
                 </select>
               </div>
+            </div>
+
+            <div className="space-y-1">
+              <label htmlFor="duel-max-players" className="text-sm font-medium">
+                Lobby size
+              </label>
+              <select
+                id="duel-max-players"
+                value={maxPlayers}
+                onChange={(event) => setMaxPlayers(Number(event.target.value))}
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value={2}>1v1 (2 players)</option>
+                {[3, 4, 5, 6, 7, 8, 9, 10].map((size) => (
+                  <option key={size} value={size}>
+                    Party — up to {size} players
+                  </option>
+                ))}
+              </select>
             </div>
 
             <Button type="submit" variant="accent" className="w-full" disabled={submittingCreate}>

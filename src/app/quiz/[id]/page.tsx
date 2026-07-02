@@ -13,9 +13,11 @@ import { getDisplayAuthorName } from '@/lib/author-display'
 import { prisma } from '@/server/prisma'
 import { auth } from '@/server/auth'
 import { ReportQuizForm } from '../report-quiz-form'
+import { SaveToPlaylist } from '../save-to-playlist'
 import { RateQuizForm } from '../rate-quiz-form'
 import { RecommendedQuizzes } from './_components/recommended-quizzes'
 import { YouMightAlsoLike } from './_components/you-might-also-like'
+import { QuizComments } from './_components/quiz-comments'
 import { absoluteUrl } from '@/lib/site'
 
 const difficultyVariant: Record<string, 'success' | 'warning' | 'destructive'> = {
@@ -87,7 +89,7 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
     notFound()
   }
 
-  const [ratingAgg, userRating] = await Promise.all([
+  const [ratingAgg, userRating, viewerPlaylists] = await Promise.all([
     prisma.rating.aggregate({
       where: { quizId: quiz.id },
       _avg: { stars: true },
@@ -101,6 +103,17 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
           select: { stars: true },
         })
       : null,
+    session?.user?.id
+      ? prisma.playlist.findMany({
+          where: { ownerId: session.user.id },
+          orderBy: { updatedAt: 'desc' },
+          select: {
+            id: true,
+            title: true,
+            items: { where: { quizId: quiz.id }, select: { quizId: true } },
+          },
+        })
+      : [],
   ])
 
   if (!quiz) {
@@ -243,17 +256,30 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
                 </div>
 
                 {/* Play button — prominent */}
-                <Button
-                  asChild
-                  size="lg"
-                  variant="accent"
-                  className="w-full sm:w-fit rounded-md font-bold"
-                >
-                  <Link href={`/play/${quiz.id}`}>
-                    <Zap className="mr-2 h-5 w-5" />
-                    Play Quiz
-                  </Link>
-                </Button>
+                <div className="flex w-full flex-col gap-2 sm:w-fit sm:flex-row">
+                  <Button
+                    asChild
+                    size="lg"
+                    variant="accent"
+                    className="w-full sm:w-fit rounded-md font-bold"
+                  >
+                    <Link href={`/play/${quiz.id}`}>
+                      <Zap className="mr-2 h-5 w-5" />
+                      Play Quiz
+                    </Link>
+                  </Button>
+                  <Button
+                    asChild
+                    size="lg"
+                    variant="outline"
+                    className="w-full sm:w-fit rounded-md font-bold"
+                  >
+                    <Link href={`/play/${quiz.id}?mode=blitz`}>
+                      <Clock className="mr-2 h-5 w-5" />
+                      Blitz (60s)
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </div>
 
@@ -311,9 +337,23 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
             />
           </div>
 
-          <div>
+          <div className="flex flex-wrap items-center gap-2">
             <ReportQuizForm quizId={quiz.id} />
+            <SaveToPlaylist
+              quizId={quiz.id}
+              isSignedIn={Boolean(session?.user?.id)}
+              playlists={viewerPlaylists.map((playlist) => ({
+                id: playlist.id,
+                title: playlist.title,
+                hasQuiz: playlist.items.length > 0,
+              }))}
+            />
           </div>
+
+          {/* Comments */}
+          <Suspense>
+            <QuizComments quizId={quiz.id} quizAuthorId={quiz.author.id} />
+          </Suspense>
         </div>
 
         {/* Sidebar — Recommended Quizzes */}

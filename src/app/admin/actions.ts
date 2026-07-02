@@ -18,6 +18,8 @@ const REPORT_ACTION_MAP = {
   DISMISS: 'REPORT_DISMISS',
   UNPUBLISH: 'REPORT_UNPUBLISH',
   DELETE: 'REPORT_DELETE',
+  HIDE_COMMENT: 'REPORT_HIDE_COMMENT',
+  DELETE_COMMENT: 'REPORT_DELETE_COMMENT',
 } as const
 
 async function assertAdmin() {
@@ -101,7 +103,7 @@ export async function resolveReport(formData: FormData): Promise<AdminResult> {
 
   const schema = z.object({
     reportId: z.string().cuid(),
-    resolution: z.enum(['DISMISS', 'UNPUBLISH', 'DELETE']),
+    resolution: z.enum(['DISMISS', 'UNPUBLISH', 'DELETE', 'HIDE_COMMENT', 'DELETE_COMMENT']),
   })
   const parsed = schema.safeParse({
     reportId: formData.get('reportId'),
@@ -117,6 +119,13 @@ export async function resolveReport(formData: FormData): Promise<AdminResult> {
   })
   if (!report) {
     return { ok: false, error: 'NOT_FOUND', message: 'Report not found.' }
+  }
+
+  if (
+    (parsed.data.resolution === 'HIDE_COMMENT' || parsed.data.resolution === 'DELETE_COMMENT') &&
+    !report.commentId
+  ) {
+    return { ok: false, error: 'VALIDATION_ERROR', message: 'Report is not about a comment.' }
   }
 
   await prisma.$transaction(async (tx) => {
@@ -135,6 +144,15 @@ export async function resolveReport(formData: FormData): Promise<AdminResult> {
     if (parsed.data.resolution === 'DELETE') {
       await tx.quiz.delete({ where: { id: report.quizId } })
     }
+    if (parsed.data.resolution === 'HIDE_COMMENT' && report.commentId) {
+      await tx.quizComment.update({
+        where: { id: report.commentId },
+        data: { isHidden: true },
+      })
+    }
+    if (parsed.data.resolution === 'DELETE_COMMENT' && report.commentId) {
+      await tx.quizComment.delete({ where: { id: report.commentId } })
+    }
 
     await tx.adminAction.create({
       data: {
@@ -142,7 +160,10 @@ export async function resolveReport(formData: FormData): Promise<AdminResult> {
         action: REPORT_ACTION_MAP[parsed.data.resolution],
         targetType: 'Report',
         targetId: report.id,
-        meta: { quizId: report.quizId },
+        meta: {
+          quizId: report.quizId,
+          ...(report.commentId ? { commentId: report.commentId } : {}),
+        },
       },
     })
   })

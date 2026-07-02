@@ -35,8 +35,15 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/(.*)',
+        // All routes except /embed/* get the full security header set.
+        source: '/((?!embed/).*)',
         headers: securityHeaders,
+      },
+      {
+        // Embed routes are designed to be iframed by third-party sites, so
+        // X-Frame-Options is omitted (CSP frame-ancestors is set in middleware).
+        source: '/embed/:path*',
+        headers: securityHeaders.filter((header) => header.key !== 'X-Frame-Options'),
       },
     ]
   },

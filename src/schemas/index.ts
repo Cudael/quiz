@@ -56,6 +56,8 @@ export const submitPlaySchema = z.object({
   quizId: z.string().min(1).max(100),
   answers: z.array(submitAnswerInputSchema).max(200),
   guestName: z.string().max(60).optional(),
+  // Tolerate legacy/unknown mode values from older clients by treating them as unset.
+  mode: z.enum(['STANDARD', 'DAILY', 'PRACTICE', 'BLITZ']).optional().catch(undefined),
 })
 
 export const questionAnswerSchema = z.object({
@@ -77,6 +79,7 @@ export const createDuelSchema = z.object({
     .int()
     .refine((value) => [10, 20, 30].includes(value))
     .optional(),
+  maxPlayers: z.number().int().min(2).max(10).optional(),
 })
 
 export const joinDuelSchema = z.object({
@@ -90,6 +93,18 @@ export const ratingSchema = z.object({
 
 export const reportSchema = z.object({
   quizId: z.string().cuid(),
+  reason: z.enum(['SPAM', 'INAPPROPRIATE', 'INCORRECT_ANSWERS', 'COPYRIGHT', 'OTHER']),
+  details: z.string().trim().max(500).optional(),
+})
+
+export const commentSchema = z.object({
+  quizId: z.string().cuid(),
+  body: z.string().trim().min(1).max(1000),
+  parentId: z.string().cuid().optional(),
+})
+
+export const commentReportSchema = z.object({
+  commentId: z.string().cuid(),
   reason: z.enum(['SPAM', 'INAPPROPRIATE', 'INCORRECT_ANSWERS', 'COPYRIGHT', 'OTHER']),
   details: z.string().trim().max(500).optional(),
 })
@@ -137,6 +152,7 @@ export const userPreferencesSchema = z
   .object({
     defaultDifficulty: z.enum(['EASY', 'MEDIUM', 'HARD', 'ANY']).optional(),
     reducedMotion: z.boolean().optional(),
+    weeklyDigest: z.boolean().optional(),
   })
   .strict()
 

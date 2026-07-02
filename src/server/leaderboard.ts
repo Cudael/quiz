@@ -68,9 +68,16 @@ export function getLeaderboardRows(params: {
   sort: SortFilter
   categories: string[]
   quizId?: string
+  userIds?: string[]
 }) {
-  const { period, sort, categories, quizId } = params
+  const { period, sort, categories, quizId, userIds } = params
   const sortedCategories = categories.slice().sort()
+
+  // Friend-scoped boards are per-viewer, so skip the shared cache.
+  if (userIds) {
+    return fetchLeaderboardRows({ period, sort, categories: sortedCategories, quizId, userIds })
+  }
+
   // Build a stable cache key from the query parameters.
   const key = [period, sort, sortedCategories.join(','), quizId ?? ''].join('|')
   return unstable_cache(
@@ -85,13 +92,17 @@ async function fetchLeaderboardRows({
   sort,
   categories,
   quizId,
+  userIds,
 }: {
   period: PeriodFilter
   sort: SortFilter
   categories: string[]
   quizId?: string
+  userIds?: string[]
 }) {
   const periodStart = getPeriodStart(period)
+
+  if (userIds && userIds.length === 0) return []
 
   const rows = await prisma.$queryRaw<RawLeaderboardRow[]>(Prisma.sql`
     SELECT
@@ -113,9 +124,11 @@ async function fetchLeaderboardRows({
     LEFT JOIN "Quiz" q ON q."id" = ps."quizId"
     LEFT JOIN "Category" c ON c."id" = q."categoryId"
     WHERE 1 = 1
+      AND ps."mode" <> 'PRACTICE'
       ${periodStart ? Prisma.sql`AND ps."createdAt" >= ${periodStart}` : Prisma.empty}
       ${quizId ? Prisma.sql`AND ps."quizId" = ${quizId}` : Prisma.empty}
       ${categories.length ? Prisma.sql`AND c."slug" IN (${Prisma.join(categories)})` : Prisma.empty}
+      ${userIds ? Prisma.sql`AND ps."userId" IN (${Prisma.join(userIds)})` : Prisma.empty}
     GROUP BY ps."userId", ps."guestName", u."username", u."image", u."name"
     ORDER BY ${orderByClause(sort)}
   `)

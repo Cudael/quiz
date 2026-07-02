@@ -20,7 +20,7 @@ export function DuelLobby({ state, participantCount, submittingStart, onStart }:
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-center text-sm text-muted-foreground">
-            Share this invite code. Players joined: {participantCount}
+            Share this invite code. Players joined: {participantCount} / {state.duel.maxPlayers}
           </p>
           <ul className="space-y-2">
             {state.participants.map((participant) => (

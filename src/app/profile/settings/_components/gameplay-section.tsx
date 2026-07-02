@@ -7,12 +7,16 @@ import type { DefaultDifficulty } from '../settings-client.types'
 interface GameplaySectionProps {
   defaultDifficulty: DefaultDifficulty
   setDefaultDifficulty: Dispatch<SetStateAction<DefaultDifficulty>>
+  weeklyDigest: boolean
+  setWeeklyDigest: Dispatch<SetStateAction<boolean>>
   onSave: () => void
 }
 
 export function GameplaySection({
   defaultDifficulty,
   setDefaultDifficulty,
+  weeklyDigest,
+  setWeeklyDigest,
   onSave,
 }: GameplaySectionProps) {
   return (
@@ -37,6 +41,15 @@ export function GameplaySection({
             <option value="HARD">Hard</option>
           </select>
         </div>
+        <label className="flex items-center gap-2 text-sm font-medium">
+          <input
+            checked={weeklyDigest}
+            className="h-4 w-4"
+            onChange={(event) => setWeeklyDigest(event.target.checked)}
+            type="checkbox"
+          />
+          Email me a weekly digest of trending quizzes and my stats
+        </label>
       </div>
       <Button className="mt-4" onClick={onSave}>
         Save preferences

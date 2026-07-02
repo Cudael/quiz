@@ -9,7 +9,7 @@ import { getQuizPath } from '@/lib/quiz-url'
 import type { Question, QuizData } from './play-view.types'
 import { getSoundPreference, SOUND_PREFERENCE_STORAGE_KEY } from './play-view.utils'
 
-export function usePlayRunner(quizId: string) {
+export function usePlayRunner(quizId: string, mode?: 'DAILY' | 'PRACTICE' | 'BLITZ') {
   const router = useRouter()
   const { addToast } = useToast()
 
@@ -64,7 +64,12 @@ export function usePlayRunner(quizId: string) {
       const res = await fetch('/api/play/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ playToken: playTokenRef.current, quizId, answers }),
+        body: JSON.stringify({
+          playToken: playTokenRef.current,
+          quizId,
+          answers,
+          ...(mode ? { mode } : {}),
+        }),
       })
       if (!res.ok) {
         const err = await res.json()
@@ -89,7 +94,7 @@ export function usePlayRunner(quizId: string) {
       addToast(msg, 'error')
       store.setStatus('playing')
     }
-  }, [store, quizId, router, addToast, clearTimer])
+  }, [store, quizId, mode, router, addToast, clearTimer])
 
   useEffect(() => {
     onFinishRef.current = handleFinish
@@ -278,7 +283,11 @@ export function usePlayRunner(quizId: string) {
     let cancelled = false
     async function fetchQuiz() {
       try {
-        const res = await fetch(`/api/quiz/${quizId}/play`)
+        const res = await fetch(
+          `/api/quiz/${quizId}/play${
+            mode === 'PRACTICE' ? '?mode=practice' : mode === 'BLITZ' ? '?mode=blitz' : ''
+          }`
+        )
         if (!res.ok) throw new Error('Failed to load quiz')
         const data = await res.json()
         if (!cancelled) {
@@ -300,7 +309,7 @@ export function usePlayRunner(quizId: string) {
       cancelled = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quizId])
+  }, [quizId, mode])
 
   const goNext = useCallback(() => {
     onNextRef.current?.()

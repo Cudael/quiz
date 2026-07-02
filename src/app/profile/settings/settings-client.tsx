@@ -23,6 +23,7 @@ export function SettingsClient({
   const { addToast } = useToast()
   const [profile, setProfile] = useState(initialProfile)
   const [defaultDifficulty, setDefaultDifficulty] = useState(preferences.defaultDifficulty ?? 'ANY')
+  const [weeklyDigest, setWeeklyDigest] = useState(preferences.weeklyDigest ?? true)
   const [reducedMotion, setReducedMotion] = useState(() => {
     if (typeof window === 'undefined') return preferences.reducedMotion ?? false
     const stored = localStorage.getItem(REDUCED_MOTION_STORAGE_KEY)
@@ -39,6 +40,7 @@ export function SettingsClient({
         preferences: {
           defaultDifficulty,
           reducedMotion,
+          weeklyDigest,
         },
       }),
     })
@@ -70,6 +72,8 @@ export function SettingsClient({
       <GameplaySection
         defaultDifficulty={defaultDifficulty}
         setDefaultDifficulty={setDefaultDifficulty}
+        weeklyDigest={weeklyDigest}
+        setWeeklyDigest={setWeeklyDigest}
         onSave={() => void savePreferences()}
       />
 

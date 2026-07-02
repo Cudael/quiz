@@ -43,6 +43,14 @@ export default async function AdminReportsPage({
             author: { select: { name: true, username: true, role: true } },
           },
         },
+        comment: {
+          select: {
+            id: true,
+            body: true,
+            isHidden: true,
+            author: { select: { name: true, username: true } },
+          },
+        },
         reporter: { select: { name: true, username: true } },
       },
       orderBy: { createdAt: 'desc' },
@@ -101,6 +109,7 @@ export default async function AdminReportsPage({
                     </Link>
                     <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                       <Badge variant="outline">{report.reason}</Badge>
+                      {report.comment ? <Badge variant="purple">Comment</Badge> : null}
                       <span>
                         by{' '}
                         {report.reporter?.username ? (
@@ -119,6 +128,19 @@ export default async function AdminReportsPage({
                     <p className="text-sm text-muted-foreground">
                       {report.details ?? 'No extra details provided.'}
                     </p>
+                    {report.comment ? (
+                      <blockquote className="rounded-md border-l-2 border-border bg-muted/40 px-3 py-2 text-sm">
+                        <span className="font-medium">
+                          {report.comment.author.name ?? 'Unknown'}:
+                        </span>{' '}
+                        {report.comment.body}
+                        {report.comment.isHidden ? (
+                          <Badge className="ml-2" variant="warning">
+                            Hidden
+                          </Badge>
+                        ) : null}
+                      </blockquote>
+                    ) : null}
                   </div>
                   <div className="text-sm text-muted-foreground">
                     Author:{' '}
@@ -144,20 +166,41 @@ export default async function AdminReportsPage({
                         Dismiss
                       </Button>
                     </form>
-                    <form action={resolveAction}>
-                      <input name="reportId" type="hidden" value={report.id} />
-                      <input name="resolution" type="hidden" value="UNPUBLISH" />
-                      <Button size="sm" type="submit" variant="outline">
-                        Unpublish Quiz
-                      </Button>
-                    </form>
-                    <form action={resolveAction}>
-                      <input name="reportId" type="hidden" value={report.id} />
-                      <input name="resolution" type="hidden" value="DELETE" />
-                      <Button size="sm" type="submit" variant="destructive">
-                        Delete Quiz
-                      </Button>
-                    </form>
+                    {report.comment ? (
+                      <>
+                        <form action={resolveAction}>
+                          <input name="reportId" type="hidden" value={report.id} />
+                          <input name="resolution" type="hidden" value="HIDE_COMMENT" />
+                          <Button size="sm" type="submit" variant="outline">
+                            Hide Comment
+                          </Button>
+                        </form>
+                        <form action={resolveAction}>
+                          <input name="reportId" type="hidden" value={report.id} />
+                          <input name="resolution" type="hidden" value="DELETE_COMMENT" />
+                          <Button size="sm" type="submit" variant="destructive">
+                            Delete Comment
+                          </Button>
+                        </form>
+                      </>
+                    ) : (
+                      <>
+                        <form action={resolveAction}>
+                          <input name="reportId" type="hidden" value={report.id} />
+                          <input name="resolution" type="hidden" value="UNPUBLISH" />
+                          <Button size="sm" type="submit" variant="outline">
+                            Unpublish Quiz
+                          </Button>
+                        </form>
+                        <form action={resolveAction}>
+                          <input name="reportId" type="hidden" value={report.id} />
+                          <input name="resolution" type="hidden" value="DELETE" />
+                          <Button size="sm" type="submit" variant="destructive">
+                            Delete Quiz
+                          </Button>
+                        </form>
+                      </>
+                    )}
                   </div>
                 ) : null}
               </CardContent>

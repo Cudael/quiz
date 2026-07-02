@@ -115,6 +115,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       categoryId: duel.categoryId,
       questionCount: duel.questionCount,
       timeLimitSec: duel.timeLimitSec,
+      maxPlayers: duel.maxPlayers,
       finishedAt: duel.finishedAt,
     },
     participants,

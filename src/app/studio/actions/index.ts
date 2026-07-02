@@ -7,6 +7,8 @@ export { togglePublish, deleteQuiz, createQuiz, updateQuiz, saveDraft } from './
 export { importQuestions } from './import-actions'
 export { suggestCategory } from './category-actions'
 export { generateQuizWithAi } from './ai-generate'
+export { addCollaborator, removeCollaborator } from './collaborator-actions'
+export { saveRevision, restoreRevision } from './revision-actions'
 
 export { createQuizAndReturnId, type QuizMetaActionResult } from './quiz-meta-actions'
 export {

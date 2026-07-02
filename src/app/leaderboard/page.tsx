@@ -24,7 +24,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const params = parseLeaderboardSearchParams(await searchParams)
   const periodLabel =
-    params.period === 'today' ? 'Today' : params.period === 'week' ? 'This Week' : 'All-time'
+    params.period === 'today'
+      ? 'Today'
+      : params.period === 'week'
+        ? 'This Week'
+        : params.period === 'season'
+          ? 'This Season'
+          : 'All-time'
   const quiz = params.quizId
     ? await prisma.quiz.findUnique({
         where: { id: params.quizId },
@@ -59,7 +65,20 @@ export default async function LeaderboardPage({
 }) {
   const params = parseLeaderboardSearchParams(await searchParams)
   const session = await auth()
-  const { categories: categoryParams, page, period, quizId, sort } = params
+  const { categories: categoryParams, page, period, quizId, scope, sort } = params
+
+  let friendIds: string[] | undefined
+  if (scope === 'friends') {
+    if (session?.user?.id) {
+      const following = await prisma.follow.findMany({
+        where: { followerId: session.user.id },
+        select: { followingId: true },
+      })
+      friendIds = [session.user.id, ...following.map((f) => f.followingId)]
+    } else {
+      friendIds = []
+    }
+  }
 
   const [categories, quiz, rankedRows] = await Promise.all([
     prisma.category.findMany({
@@ -77,6 +96,7 @@ export default async function LeaderboardPage({
       sort,
       categories: categoryParams,
       quizId,
+      userIds: friendIds,
     }),
   ])
 
@@ -116,6 +136,8 @@ export default async function LeaderboardPage({
       <LeaderboardFilters
         period={period}
         sort={sort}
+        scope={scope}
+        isSignedIn={!!session?.user?.id}
         categoryParams={categoryParams}
         quizId={quizId}
         categories={categories}
@@ -124,8 +146,18 @@ export default async function LeaderboardPage({
       {pageRows.length === 0 ? (
         <EmptyState
           icon={<Trophy className="h-8 w-8 text-muted-foreground" />}
-          title={copy.emptyStates.leaderboard}
-          description="Try changing period, mode, or categories."
+          title={
+            scope === 'friends' && !session?.user?.id
+              ? 'Sign in to see your friends leaderboard'
+              : copy.emptyStates.leaderboard
+          }
+          description={
+            scope === 'friends'
+              ? session?.user?.id
+                ? 'Follow other players to compete with them here.'
+                : 'The friends board ranks you against people you follow.'
+              : 'Try changing period, mode, or categories.'
+          }
         />
       ) : (
         <LeaderboardTable pageRows={pageRows} currentUserId={session?.user?.id} />
@@ -136,6 +168,7 @@ export default async function LeaderboardPage({
         totalPages={totalPages}
         period={period}
         sort={sort}
+        scope={scope}
         categoryParams={categoryParams}
         quizId={quizId}
       />

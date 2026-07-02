@@ -30,13 +30,22 @@ export async function POST(req: NextRequest) {
 
   const duel = await prisma.duel.findUnique({
     where: { code: parsed.data.code },
-    select: { id: true, code: true, status: true },
+    select: {
+      id: true,
+      code: true,
+      status: true,
+      maxPlayers: true,
+      _count: { select: { participants: true } },
+    },
   })
   if (!duel) {
     return NextResponse.json({ error: 'Duel not found' }, { status: 404 })
   }
   if (duel.status !== 'WAITING') {
     return NextResponse.json({ error: 'Duel already started' }, { status: 409 })
+  }
+  if (duel._count.participants >= duel.maxPlayers) {
+    return NextResponse.json({ error: 'Duel lobby is full' }, { status: 409 })
   }
 
   const cookieStore = await cookies()

@@ -17,7 +17,7 @@ const r2ImageHost = (() => {
   }
 })()
 
-function buildCsp(nonce: string): string {
+function buildCsp(nonce: string, allowFraming = false): string {
   const isGaEnabled = !!process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
   // External script hosts for analytics
@@ -70,16 +70,17 @@ function buildCsp(nonce: string): string {
     `connect-src 'self'${connectSrcHosts}${analyticsConnectSrc.length ? ' ' + analyticsConnectSrc.join(' ') : ''}`,
     // frame-ancestors 'self' supersedes X-Frame-Options in modern browsers;
     // both are kept for backwards compatibility with older clients.
-    "frame-ancestors 'self'",
+    // Embed routes allow any ancestor so third-party sites can iframe them.
+    allowFraming ? 'frame-ancestors *' : "frame-ancestors 'self'",
   ].join('; ')
 }
 
 export default auth((req) => {
   // Use 128 bits of cryptographic randomness for the nonce.
   const nonce = Buffer.from(crypto.getRandomValues(new Uint8Array(16))).toString('base64')
-  const csp = buildCsp(nonce)
 
   const { pathname } = req.nextUrl
+  const csp = buildCsp(nonce, pathname.startsWith('/embed'))
   const isGuestOnlyAuth = GUEST_ONLY_ROUTES.some((route) => pathname.startsWith(route))
   const isProtected = pathname.startsWith('/studio') || pathname.startsWith('/admin')
 

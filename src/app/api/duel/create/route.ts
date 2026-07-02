@@ -49,6 +49,7 @@ export async function POST(req: NextRequest) {
           categoryId: parsed.data.categoryId ?? null,
           questionCount: parsed.data.questionCount ?? 10,
           timeLimitSec: parsed.data.timeLimitSec ?? 20,
+          maxPlayers: parsed.data.maxPlayers ?? 2,
           participants: {
             create: {
               userId: session.user.id,

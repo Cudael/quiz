@@ -8,6 +8,7 @@ import { ThemeProvider } from '@/components/theme/theme-provider'
 import { ToastProvider } from '@/components/ui/toast'
 import { AuthProvider } from '@/components/auth/auth-provider'
 import { AppShell } from '@/components/layout/app-shell'
+import { ServiceWorkerRegistration } from '@/components/pwa/service-worker-registration'
 import { absoluteUrl, siteConfig } from '@/lib/site'
 import { Analytics } from './analytics'
 
@@ -73,6 +74,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Suspense fallback={null}>
           <Analytics />
         </Suspense>
+
+        <ServiceWorkerRegistration />
 
         <AuthProvider>
           <ThemeProvider defaultTheme="system">

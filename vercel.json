@@ -3,6 +3,14 @@
     {
       "path": "/api/cron/cleanup-guests",
       "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/finalize-season",
+      "schedule": "10 0 1 * *"
+    },
+    {
+      "path": "/api/cron/weekly-digest",
+      "schedule": "0 9 * * 1"
     }
   ]
 }

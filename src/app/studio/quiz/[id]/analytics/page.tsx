@@ -118,6 +118,8 @@ export default async function QuizAnalyticsPage({ params }: { params: Promise<{ 
       correctRate,
       averageAnswerMs,
       mostPickedWrong,
+      choiceCounts,
+      skipRate: attempts > 0 ? Math.round(((attempts - answerCount) / attempts) * 100) : null,
       needsAttention:
         answerCount > 0 &&
         (correctRate === null || correctRate < 45 || (mostPickedWrong?.count ?? 0) > correctCount),
@@ -128,6 +130,22 @@ export default async function QuizAnalyticsPage({ params }: { params: Promise<{ 
     .filter((question) => question.correctRate !== null)
     .sort((a, b) => (a.correctRate ?? 100) - (b.correctRate ?? 100))
     .slice(0, 3)
+
+  // Plays per day over the last 30 days.
+  const dayMs = 24 * 60 * 60 * 1000
+  const todayStart = new Date(new Date().toISOString().slice(0, 10))
+  const trendDays = Array.from({ length: 30 }, (_, i) => {
+    const start = new Date(todayStart.getTime() - (29 - i) * dayMs)
+    return { start, count: 0 }
+  })
+  for (const playSession of quiz.sessions) {
+    const diff = Math.floor(
+      (playSession.createdAt.getTime() - trendDays[0].start.getTime()) / dayMs
+    )
+    if (diff >= 0 && diff < 30) trendDays[diff].count++
+  }
+  const trendMax = Math.max(1, ...trendDays.map((d) => d.count))
+  const trendTotal = trendDays.reduce((sum, d) => sum + d.count, 0)
 
   return (
     <div className="container mx-auto space-y-6 px-4 py-10 md:px-6">
@@ -190,6 +208,29 @@ export default async function QuizAnalyticsPage({ params }: { params: Promise<{ 
           value={ratingAverage ? ratingAverage.toFixed(1) : '—'}
         />
       </section>
+
+      {mostMissed.length > 0 && (
+        <section className="rounded-md border bg-card p-5">
+          <div className="mb-1 flex items-end justify-between">
+            <h2 className="text-lg font-bold">Plays — last 30 days</h2>
+            <span className="text-xs text-muted-foreground">{trendTotal} plays</span>
+          </div>
+          <div className="mt-3 flex h-20 items-end gap-0.5" aria-hidden>
+            {trendDays.map((day) => (
+              <div
+                key={day.start.toISOString()}
+                title={`${day.start.toISOString().slice(0, 10)}: ${day.count} plays`}
+                className={`flex-1 rounded-t-sm ${day.count > 0 ? 'bg-quiz-purple' : 'bg-muted'}`}
+                style={{ height: `${Math.max(6, (day.count / trendMax) * 100)}%` }}
+              />
+            ))}
+          </div>
+          <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
+            <span>{trendDays[0].start.toISOString().slice(5, 10)}</span>
+            <span>today</span>
+          </div>
+        </section>
+      )}
 
       {mostMissed.length > 0 && (
         <section className="rounded-md border bg-card p-5">
@@ -256,6 +297,35 @@ export default async function QuizAnalyticsPage({ params }: { params: Promise<{ 
                   />
                 </div>
               </div>
+              {question.answerCount > 0 && (
+                <div className="mt-3 space-y-1.5 border-t pt-3">
+                  {question.choiceCounts.map((choice) => {
+                    const share = Math.round((choice.count / question.answerCount) * 100)
+                    return (
+                      <div key={choice.id} className="flex items-center gap-2 text-xs">
+                        <span
+                          className={`w-40 truncate sm:w-56 ${choice.isCorrect ? 'font-semibold text-quiz-green' : 'text-muted-foreground'}`}
+                        >
+                          {choice.isCorrect ? '✓ ' : ''}
+                          {choice.text}
+                        </span>
+                        <div className="h-2 flex-1 overflow-hidden rounded-sm bg-muted">
+                          <div
+                            className={`h-full ${choice.isCorrect ? 'bg-quiz-green' : 'bg-quiz-orange'}`}
+                            style={{ width: `${share}%` }}
+                          />
+                        </div>
+                        <span className="w-10 text-right font-semibold">{share}%</span>
+                      </div>
+                    )
+                  })}
+                  {question.skipRate !== null && question.skipRate > 0 ? (
+                    <p className="text-[11px] text-muted-foreground">
+                      {question.skipRate}% of attempts never answered this question.
+                    </p>
+                  ) : null}
+                </div>
+              )}
             </article>
           ))}
         </div>

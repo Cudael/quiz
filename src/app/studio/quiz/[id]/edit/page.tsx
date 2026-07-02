@@ -2,6 +2,8 @@ import { notFound, redirect } from 'next/navigation'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
 import { QuizCreatorShell } from '@/app/studio/_components/quiz-creator-shell'
+import { CollaboratorManager } from '@/app/studio/_components/collaborator-manager'
+import { AiQuestionGenerator } from '@/app/studio/_components/ai-question-generator'
 
 export default async function EditQuizPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
@@ -24,6 +26,12 @@ export default async function EditQuizPage({ params }: { params: Promise<{ id: s
       defaultTimeLimitSec: true,
       isPublished: true,
       authorId: true,
+      collaborators: {
+        select: {
+          userId: true,
+          user: { select: { id: true, name: true, username: true, image: true } },
+        },
+      },
       questions: {
         orderBy: { order: 'asc' },
         include: { choices: true },
@@ -35,7 +43,9 @@ export default async function EditQuizPage({ params }: { params: Promise<{ id: s
     notFound()
   }
 
-  if (quiz.authorId !== session.user.id && session.user.role !== 'ADMIN') {
+  const isCollaborator = quiz.collaborators.some((c) => c.userId === session.user.id)
+  const isOwner = quiz.authorId === session.user.id || session.user.role === 'ADMIN'
+  if (!isOwner && !isCollaborator) {
     redirect('/studio')
   }
 
@@ -45,21 +55,40 @@ export default async function EditQuizPage({ params }: { params: Promise<{ id: s
   })
 
   return (
-    <QuizCreatorShell
-      mode="edit"
-      quizId={quiz.id}
-      initialData={{
-        quiz,
-        questions: quiz.questions.map((q) => ({
-          ...q,
-          meta: q.meta as Record<string, unknown> | null,
-          choices: q.choices.map((c) => ({
-            ...c,
-            meta: c.meta as Record<string, unknown> | null,
+    <>
+      <QuizCreatorShell
+        mode="edit"
+        quizId={quiz.id}
+        initialData={{
+          quiz,
+          questions: quiz.questions.map((q) => ({
+            ...q,
+            meta: q.meta as Record<string, unknown> | null,
+            choices: q.choices.map((c) => ({
+              ...c,
+              meta: c.meta as Record<string, unknown> | null,
+            })),
           })),
-        })),
-      }}
-      categories={categories}
-    />
+        }}
+        categories={categories}
+      />
+      <div className="container mx-auto max-w-4xl space-y-4 px-4 pb-4">
+        <AiQuestionGenerator quizId={quiz.id} />
+      </div>
+      <CollaboratorManager
+        quizId={quiz.id}
+        collaborators={quiz.collaborators}
+        isOwner={isOwner}
+        viewerId={session.user.id}
+      />
+      <div className="container mx-auto max-w-4xl px-4 pb-10 -mt-6">
+        <a
+          href={`/studio/quiz/${quiz.id}/revisions`}
+          className="text-sm font-medium text-muted-foreground underline hover:text-foreground"
+        >
+          View version history →
+        </a>
+      </div>
+    </>
   )
 }

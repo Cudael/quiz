@@ -1,5 +1,6 @@
 'use client'
 
+import { usePathname } from 'next/navigation'
 import { Navbar } from '@/components/layout/navbar'
 import { SiteFooter } from '@/components/layout/site-footer'
 import { EmailVerificationBanner } from '@/components/auth/email-verification-banner'
@@ -11,6 +12,13 @@ export function AppShell({
   children: React.ReactNode
   categoryBar?: React.ReactNode
 }) {
+  const pathname = usePathname()
+
+  // Embed routes render bare content designed for iframes — no site chrome.
+  if (pathname?.startsWith('/embed')) {
+    return <main id="main-content">{children}</main>
+  }
+
   return (
     <>
       <a

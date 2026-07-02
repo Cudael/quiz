@@ -19,7 +19,7 @@ const FALLBACK_CATEGORY_GRADIENT = 'var(--background-image-card-gradient)'
 const PERSONALIZATION_SESSION_LOOKBACK_DAYS = 365
 const PERSONALIZATION_SESSION_READ_CAP = 500
 
-const QUIZ_CARD_SELECT_WITH_RATINGS = {
+export const QUIZ_CARD_SELECT_WITH_RATINGS = {
   id: true,
   title: true,
   slug: true,
@@ -85,6 +85,8 @@ function mapQuizCard(quiz: HomeQuizRecord, completedQuizIds?: Set<string>): Quiz
     completed: completedQuizIds?.has(quiz.id) ?? undefined,
   }
 }
+
+export { mapQuizCard }
 
 export async function getHomePageData(): Promise<HomePageData> {
   const [

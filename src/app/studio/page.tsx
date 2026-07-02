@@ -26,11 +26,14 @@ export default async function StudioPage({
 
   const { tab } = await searchParams
   const activeTab = tab === 'drafts' ? 'drafts' : 'published'
+  const ownershipFilter = {
+    OR: [{ authorId: session.user.id }, { collaborators: { some: { userId: session.user.id } } }],
+  }
 
   const [quizzes, categories, publishedCount, draftCount] = await Promise.all([
     prisma.quiz.findMany({
       where: {
-        authorId: session.user.id,
+        ...ownershipFilter,
         isPublished: activeTab === 'published',
       },
       select: {
@@ -54,8 +57,8 @@ export default async function StudioPage({
       orderBy: { name: 'asc' },
       select: { id: true, name: true },
     }),
-    prisma.quiz.count({ where: { authorId: session.user.id, isPublished: true } }),
-    prisma.quiz.count({ where: { authorId: session.user.id, isPublished: false } }),
+    prisma.quiz.count({ where: { ...ownershipFilter, isPublished: true } }),
+    prisma.quiz.count({ where: { ...ownershipFilter, isPublished: false } }),
   ])
 
   const isAdmin = session.user.role === 'ADMIN'

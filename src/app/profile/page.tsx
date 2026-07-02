@@ -79,9 +79,16 @@ export default async function ProfilePage() {
           label="Streak"
           value={<StreakFlame value={user.streakDays} best={user.bestStreak} size="sm" />}
           sub={
-            user.bestStreak > 0
-              ? `Best: ${user.bestStreak} day${user.bestStreak > 1 ? 's' : ''}`
-              : undefined
+            [
+              user.bestStreak > 0
+                ? `Best: ${user.bestStreak} day${user.bestStreak > 1 ? 's' : ''}`
+                : null,
+              user.streakFreezes > 0
+                ? `🧊 ${user.streakFreezes} freeze${user.streakFreezes > 1 ? 's' : ''}`
+                : null,
+            ]
+              .filter(Boolean)
+              .join(' · ') || undefined
           }
         />
 

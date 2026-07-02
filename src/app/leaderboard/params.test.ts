@@ -19,10 +19,23 @@ describe('leaderboard params', () => {
     ).toEqual({
       period: 'week',
       sort: 'best',
+      scope: 'global',
       page: 3,
       categories: ['science', 'history'],
       quizId: 'quiz-123',
     })
+  })
+
+  it('parses the friends scope and season period', () => {
+    expect(parseLeaderboardSearchParams({ scope: 'friends', period: 'season' })).toEqual({
+      period: 'season',
+      sort: 'total',
+      scope: 'friends',
+      page: 1,
+      categories: [],
+      quizId: undefined,
+    })
+    expect(parseLeaderboardSearchParams({ scope: 'bogus' }).scope).toBe('global')
   })
 
   it('builds URL params using the new period key', () => {
@@ -35,6 +48,9 @@ describe('leaderboard params', () => {
         quizId: 'quiz-123',
       })
     ).toBe('period=today&sort=accuracy&page=2&quizId=quiz-123&category=science')
+    expect(
+      buildLeaderboardQuery({ period: 'all', sort: 'total', scope: 'friends', categories: [] })
+    ).toBe('period=all&scope=friends')
   })
 
   it('toggles category filters and computes supported periods', () => {
@@ -43,5 +59,7 @@ describe('leaderboard params', () => {
     expect(getPeriodStart('all')).toBeUndefined()
     expect(getPeriodStart('week')).toBeInstanceOf(Date)
     expect(getPeriodStart('today')).toBeInstanceOf(Date)
+    expect(getPeriodStart('season')).toBeInstanceOf(Date)
+    expect(getPeriodStart('season')?.getUTCDate()).toBe(1)
   })
 })

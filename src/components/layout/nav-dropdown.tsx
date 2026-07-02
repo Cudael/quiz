@@ -52,7 +52,9 @@ const SECTIONS: MenuSection[] = [
     items: [
       { href: '/popular', label: 'Popular' },
       { href: '/trending', label: 'Trending' },
+      { href: '/for-you', label: 'For You' },
       { href: '/collections', label: 'Collections' },
+      { href: '/playlists', label: 'My Playlists' },
       { href: '/random-quiz', label: 'Random Quiz', highlighted: true },
     ],
   },
@@ -60,8 +62,11 @@ const SECTIONS: MenuSection[] = [
     title: 'Play & Compete',
     icon: Swords,
     items: [
+      { href: '/daily', label: 'Daily Quiz' },
       { href: '/duel', label: 'Duel Mode' },
       { href: '/challenges', label: 'Challenges' },
+      { href: '/practice', label: 'Practice' },
+      { href: '/survival', label: 'Survival' },
       { href: '/leaderboard', label: 'Leaderboard' },
     ],
   },

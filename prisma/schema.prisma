@@ -65,6 +65,24 @@ enum NotificationType {
   BADGE_EARNED
   NEW_FOLLOWER
   QUIZ_PLAYED
+  DUEL_REMATCH
+  QUEST_COMPLETED
+  SEASON_RESULT
+  QUIZ_COMMENT
+  COLLAB_INVITE
+}
+
+enum PlayMode {
+  STANDARD
+  DAILY
+  PRACTICE
+  BLITZ
+}
+
+enum QuestPeriod {
+  DAILY
+  WEEKLY
+  MONTHLY
 }
 
 model User {
@@ -83,6 +101,9 @@ model User {
   level         Int       @default(1)
   streakDays    Int       @default(0)
   bestStreak    Int       @default(0)
+  streakFreezes Int       @default(0)
+  duelRating    Int       @default(1200)
+  duelGames     Int       @default(0)
   lastPlayedAt  DateTime?
   createdAt     DateTime  @default(now())
 
@@ -103,6 +124,12 @@ model User {
   duelParticipations  DuelParticipant[]    @relation("DuelParticipations")
   ratings             Rating[]
   feedback            Feedback[]
+  comments            QuizComment[]        @relation("QuizComments")
+  seasonResults       SeasonResult[]
+  userQuests          UserQuest[]
+  survivalRuns        SurvivalRun[]
+  playlists           Playlist[]           @relation("OwnedPlaylists")
+  quizCollaborations  QuizCollaborator[]   @relation("QuizCollaborations")
 }
 
 model Category {
@@ -118,6 +145,7 @@ model Category {
   createdBy   User?    @relation("CreatedCategories", fields: [createdById], references: [id])
   quizzes     Quiz[]
   duels       Duel[]
+  survivalRuns SurvivalRun[]
   createdAt   DateTime @default(now())
 }
 
@@ -146,6 +174,11 @@ model Quiz {
   reports     Report[]
   favoritedBy FavoriteQuiz[] @relation("FavoritedBy")
   ratings     Rating[]
+  comments      QuizComment[]
+  revisions     QuizRevision[]
+  collaborators QuizCollaborator[]
+  playlistItems PlaylistItem[]
+  dailyPicks    DailyQuiz[]
 
   @@index([categoryId])
   @@index([authorId])
@@ -207,6 +240,7 @@ model PlaySession {
   correctCount Int
   totalCount   Int
   timeTakenMs  Int
+  mode         PlayMode @default(STANDARD)
   createdAt    DateTime @default(now())
   answers      QuestionAnswer[]
 
@@ -214,6 +248,7 @@ model PlaySession {
   @@index([userId])
   @@index([guestKey])
   @@index([createdAt])
+  @@index([mode, createdAt])
 }
 
 model Duel {
@@ -225,6 +260,8 @@ model Duel {
   category            Category?         @relation(fields: [categoryId], references: [id])
   questionCount       Int               @default(10)
   timeLimitSec        Int               @default(20)
+  maxPlayers          Int               @default(2)
+  rematchOfId         String?
   status              DuelStatus        @default(WAITING)
   // Question IDs locked in when the duel starts; submissions are validated
   // against this immutable set so the question pool cannot shift mid-duel.
@@ -366,6 +403,8 @@ model Report {
   id           String       @id @default(cuid())
   quizId       String
   quiz         Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  commentId    String?
+  comment      QuizComment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
   reporterId   String?
   reporter     User?        @relation("ReportedBy", fields: [reporterId], references: [id])
   reason       ReportReason
@@ -376,6 +415,7 @@ model Report {
   resolvedById String?
 
   @@index([quizId])
+  @@index([commentId])
   @@index([status])
 }
 
@@ -434,4 +474,143 @@ model Feedback {
 
   @@index([status])
   @@index([userId])
+}
+
+model QuizComment {
+  id        String        @id @default(cuid())
+  quizId    String
+  quiz      Quiz          @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User          @relation("QuizComments", fields: [authorId], references: [id], onDelete: Cascade)
+  parentId  String?
+  parent    QuizComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   QuizComment[] @relation("CommentReplies")
+  body      String
+  isHidden  Boolean       @default(false)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  reports   Report[]
+
+  @@index([quizId, createdAt])
+  @@index([authorId])
+}
+
+model SeasonResult {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  season    String // "YYYY-MM"
+  rank      Int
+  score     Int
+  plays     Int
+  createdAt DateTime @default(now())
+
+  @@unique([season, userId])
+  @@index([season, rank])
+  @@index([userId])
+}
+
+model Quest {
+  id          String      @id @default(cuid())
+  slug        String      @unique
+  title       String
+  description String
+  criteria    Json // e.g. { "type": "playQuizzes", "count": 3, "categorySlug": "science" }
+  xpReward    Int         @default(50)
+  period      QuestPeriod @default(WEEKLY)
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+
+  userQuests UserQuest[]
+}
+
+model UserQuest {
+  userId      String
+  questId     String
+  periodKey   String // e.g. "2026-07-02" (daily), "2026-W27" (weekly), "2026-07" (monthly)
+  progress    Int       @default(0)
+  target      Int
+  completedAt DateTime?
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quest       Quest     @relation(fields: [questId], references: [id], onDelete: Cascade)
+
+  @@id([userId, questId, periodKey])
+  @@index([userId, periodKey])
+}
+
+model SurvivalRun {
+  id           String    @id @default(cuid())
+  userId       String?
+  user         User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  guestName    String?
+  guestKey     String?
+  categoryId   String?
+  category     Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  correctCount Int
+  createdAt    DateTime  @default(now())
+
+  @@index([categoryId, correctCount])
+  @@index([correctCount])
+  @@index([userId])
+}
+
+model DailyQuiz {
+  id        String   @id @default(cuid())
+  date      String   @unique // "YYYY-MM-DD" (UTC)
+  quizId    String
+  quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model QuizRevision {
+  id          String   @id @default(cuid())
+  quizId      String
+  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  version     Int
+  snapshot    Json // full quiz + questions snapshot
+  note        String?
+  createdById String?
+  createdAt   DateTime @default(now())
+
+  @@unique([quizId, version])
+  @@index([quizId])
+}
+
+model QuizCollaborator {
+  quizId      String
+  userId      String
+  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  user        User     @relation("QuizCollaborations", fields: [userId], references: [id], onDelete: Cascade)
+  invitedById String
+  createdAt   DateTime @default(now())
+
+  @@id([quizId, userId])
+  @@index([userId])
+}
+
+model Playlist {
+  id          String         @id @default(cuid())
+  slug        String         @unique
+  title       String
+  description String?
+  isPublic    Boolean        @default(true)
+  ownerId     String
+  owner       User           @relation("OwnedPlaylists", fields: [ownerId], references: [id], onDelete: Cascade)
+  items       PlaylistItem[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([ownerId])
+}
+
+model PlaylistItem {
+  playlistId String
+  quizId     String
+  order      Int      @default(0)
+  playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  quiz       Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  addedAt    DateTime @default(now())
+
+  @@id([playlistId, quizId])
+  @@index([quizId])
 }

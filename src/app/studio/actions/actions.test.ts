@@ -33,7 +33,7 @@ describe('studio actions auth checks', () => {
       user: { id: 'user_a', role: 'USER' },
     })
     prismaMock.quiz.findUnique
-      .mockResolvedValueOnce({ id: 'quiz_1', authorId: 'user_b' })
+      .mockResolvedValueOnce({ id: 'quiz_1', authorId: 'user_b', collaborators: [] })
       .mockResolvedValueOnce({ isPublished: false })
 
     const formData = new FormData()

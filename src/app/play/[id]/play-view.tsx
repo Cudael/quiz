@@ -9,7 +9,7 @@ import type { PlayViewProps } from './play-view.types'
 import { usePlayRunner } from './use-play-runner'
 import { copy } from '@/lib/copy'
 
-export function PlayView({ quizId }: PlayViewProps) {
+export function PlayView({ quizId, mode }: PlayViewProps) {
   const reduceMotion = useReducedMotion()
   const {
     store,
@@ -32,7 +32,7 @@ export function PlayView({ quizId }: PlayViewProps) {
     handleAnswer,
     goNext,
     quitToQuiz,
-  } = usePlayRunner(quizId)
+  } = usePlayRunner(quizId, mode)
 
   if (loading) {
     return (

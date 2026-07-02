@@ -206,6 +206,17 @@ export default async function UserProfilePage({
             </div>
             <div className="space-y-4">
               <StreakFlame value={user.streakDays} best={user.bestStreak} size="lg" />
+              {user.duelGames > 0 ? (
+                <div className="rounded-md border border-border p-3 text-sm">
+                  <p className="text-muted-foreground">Duel Rating</p>
+                  <p className="text-xl font-semibold">
+                    {user.duelRating}
+                    <span className="ml-2 text-xs font-normal text-muted-foreground">
+                      {user.duelGames} rated {user.duelGames === 1 ? 'duel' : 'duels'}
+                    </span>
+                  </p>
+                </div>
+              ) : null}
               <div className="rounded-md border border-border p-3 text-sm">
                 <p className="text-muted-foreground">Followers</p>
                 <p className="text-xl font-semibold">{user._count.followers}</p>

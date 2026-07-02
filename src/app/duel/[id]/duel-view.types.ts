@@ -30,6 +30,7 @@ export interface DuelStatePayload {
     categoryId: string | null
     questionCount: number
     timeLimitSec: number
+    maxPlayers: number
     finishedAt: string | null
   }
   participants: DuelParticipant[]

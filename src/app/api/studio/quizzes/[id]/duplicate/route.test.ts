@@ -37,7 +37,10 @@ describe('POST /api/studio/quizzes/[id]/duplicate', () => {
 
   it('duplicates the quiz with copied questions and reset stats', async () => {
     authMock.mockResolvedValue({ user: { id: 'user_1', role: 'USER' } })
-    prismaMock.quiz.findUnique.mockResolvedValue({
+    // Default null so the slug-uniqueness check terminates; the first call
+    // (fetching the source quiz) returns the quiz via mockResolvedValueOnce.
+    prismaMock.quiz.findUnique.mockResolvedValue(null)
+    prismaMock.quiz.findUnique.mockResolvedValueOnce({
       id: 'quiz_1',
       title: 'Science Quiz',
       description: 'A quiz',

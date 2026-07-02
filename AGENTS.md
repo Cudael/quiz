@@ -28,30 +28,41 @@ src/
     analytics.tsx       Analytics integration
     api/                API route handlers
       auth/             [...nextauth], forgot-password, register, reset-password, verify-email
-      duel/             create, join, [id] (state), start, submit
+      cron/             cleanup-guests, finalize-season, weekly-digest (all require CRON_SECRET)
+      duel/             create, join, [id] (state), start, submit, [id]/rematch
       notifications/    GET list, PATCH read
-      play/             submit (score, XP, badges)
+      play/             submit (score, XP, badges; mode param STANDARD/DAILY/PRACTICE/BLITZ)
       profile/          PATCH/DELETE (canonical), profile/ (compat PATCH alias),
                         password, preferences
-      quiz/[id]/        play (token endpoint)
+      quiz/[id]/        play (token endpoint; ?mode=practice serves missed questions,
+                        ?mode=blitz forces 60s quiz timer)
       studio/quizzes/   CRUD endpoints
+      survival/         questions (random batch GET), submit (run validation POST)
       upload/           Image upload to R2
+      v1/               Public read-only API (CORS *, rate-limited): quizzes,
+                        quizzes/[id] (id or slug, no correct-answer flags), categories
     about/              About page + accessibility sub-page
     admin/              Admin dashboard, users, quizzes, categories, reports, feedback,
                         suggestions, audit-log, statistics, forbidden
     badges/             Public badges catalog
     blog/               Blog listing + [slug] dynamic pages
     categories/         Category browser + [slug] detail
-    challenges/         Daily/weekly/monthly quiz challenges
+    challenges/         Daily/weekly/monthly quiz challenges + quest board
     collections/        Curated quiz collections + [slug] detail
     contact/            Contact page
-    duel/               Duel entry + [id] active session
+    daily/              Daily quiz (deterministic pick, today's board)
+    duel/               Duel entry + [id] active session (supports group duels + rematch)
+    embed/              /embed/quiz/[id] iframe-able quiz card (bare chrome, framing allowed)
     feedback/           Feedback form (auth required)
+    for-you/            Personalized quiz feed (auth required)
     forgot-password/    Password reset request
-    leaderboard/        Global leaderboard with filters + pagination
+    leaderboard/        Global leaderboard with filters + pagination (friends + season filters)
     learn/              Learning hub
-    play/[id]           Quiz play session + results/ sub-route
+    offline/            Offline fallback page (PWA service worker)
+    play/[id]           Quiz play session + results/ sub-route (?mode=daily|practice|blitz)
+    playlists/          User playlists + [slug] public detail
     popular/            Top 50 quizzes by play count
+    practice/           Practice hub — replay missed questions (auth required)
     privacy/            Privacy policy
     profile/            User profile, badges, completed, quizzes, settings
     quiz/[id]           Quiz detail/info page
@@ -64,9 +75,11 @@ src/
     stats/              Global platform statistics
     studio/             Quiz Studio dashboard (auth required)
       quiz/new/         New quiz creation
-      quiz/[id]/edit/   Quiz editor
-      quiz/[id]/analytics/ Quiz analytics
+      quiz/[id]/edit/   Quiz editor (co-authors allowed; AI question generator)
+      quiz/[id]/analytics/ Quiz analytics (choice distribution, plays trend)
       quiz/[id]/import/ Bulk question import (CSV/JSON)
+      quiz/[id]/revisions/ Version history (snapshots, restore — owner only)
+    survival/           Survival mode — one life, endless questions
     terms/              Terms of service
     trending/           Trending quizzes this week
     trivia-facts/       Curated trivia facts
@@ -81,6 +94,7 @@ src/
     auth/               Auth controls, provider, email verification banner, OAuth buttons,
                         sign-in form, sign-up form
     notifications/      Notification bell with inbox dropdown
+    pwa/                Service worker registration (offline support; worker at public/sw.js)
     theme/              Theme provider, toggle, theme switching tests
     home/               Home server component, HomePageClient, colocated sections/:
                         hero-cards, hero-insight-box, quiz-featured-grid, quiz-sections,
@@ -90,7 +104,8 @@ src/
                           auth.ts, auth.config.ts, authorize-email-password.ts,
                           prisma.ts, play-token.ts, password.ts, rate-limit.ts,
                           leaderboard.ts, email.ts, home-quiz-cache.ts, home-page-data.ts,
-                          token-hash.ts, duel.ts
+                          token-hash.ts, duel.ts, cron-auth.ts, daily.ts, for-you.ts,
+                          quests.ts, season.ts
   domain/               Pure domain logic:
                           badges.ts, leveling.ts, scoring.ts, streak.ts,
                           quiz-import.ts, quiz-bulk-import.ts, quiz-constants.ts
@@ -161,11 +176,11 @@ PostgreSQL via Prisma ORM. `prisma/schema.prisma` uses `provider = "postgresql"`
 
 ### Key models
 
-User, Category, Quiz, Question, Choice, PlaySession, QuestionAnswer, Duel, DuelParticipant, Rating, Badge, UserBadge, Follow, FavoriteQuiz, Notification, Report, CategorySuggestion, AdminAction, Feedback, Account, Session, VerificationToken.
+User, Category, Quiz, Question, Choice, PlaySession, QuestionAnswer, Duel, DuelParticipant, Rating, Badge, UserBadge, Follow, FavoriteQuiz, Notification, Report, CategorySuggestion, AdminAction, Feedback, Account, Session, VerificationToken, QuizComment, SeasonResult, Quest, UserQuest, SurvivalRun, DailyQuiz, QuizRevision, QuizCollaborator, Playlist, PlaylistItem.
 
 ### Key enums
 
-Role (USER/ADMIN), Difficulty (EASY/MEDIUM/HARD), QuestionType (SINGLE/TRUEFALSE/FILL_BLANK/MAP_SELECT/HOTSPOT), QuizFormat (TEXT_CHOICE/IMAGE_CHOICE/MAP_CHOICE/IMAGE_HOTSPOT), DuelStatus (WAITING/IN_PROGRESS/FINISHED), ReportReason, ReportStatus, SuggestionStatus, NotificationType, FeedbackType, FeedbackStatus.
+Role (USER/ADMIN), Difficulty (EASY/MEDIUM/HARD), QuestionType (SINGLE/TRUEFALSE/FILL_BLANK/MAP_SELECT/HOTSPOT), QuizFormat (TEXT_CHOICE/IMAGE_CHOICE/MAP_CHOICE/IMAGE_HOTSPOT), DuelStatus (WAITING/IN_PROGRESS/FINISHED), PlayMode (STANDARD/DAILY/PRACTICE/BLITZ), ReportReason, ReportStatus (reports can target quizzes or comments), SuggestionStatus, NotificationType, FeedbackType, FeedbackStatus, QuestPeriod.
 
 ## Auth
 
@@ -189,8 +204,8 @@ Minimum env: `DATABASE_URL` + `AUTH_SECRET`. OAuth providers are optional; their
 
 - **Route protection**: `/studio*` and `/admin*` require auth. Unauthenticated → `/api/auth/signin`. Non-admin on `/admin*` → rewrite to `/admin/forbidden`.
 - **Guest-only routes**: `/sign-in` and `/sign-up` redirect authenticated users to `/profile`.
-- **CSP**: Dynamic Content-Security-Policy with per-request nonce for scripts. Tailwind v4 requires `style-src 'unsafe-inline'`.
-- **Security headers**: Set in `next.config.ts` (X-Frame-Options, X-Content-Type-Options, HSTS, Referrer-Policy, Permissions-Policy).
+- **CSP**: Dynamic Content-Security-Policy with per-request nonce for scripts. Tailwind v4 requires `style-src 'unsafe-inline'`. `/embed/*` routes get `frame-ancestors *` (all other routes `frame-ancestors 'self'`).
+- **Security headers**: Set in `next.config.ts` (X-Frame-Options, X-Content-Type-Options, HSTS, Referrer-Policy, Permissions-Policy). X-Frame-Options is omitted for `/embed/*` so third-party sites can iframe embed widgets.
 
 ## Documentation Policy
 
@@ -234,10 +249,22 @@ Pure business logic in `src/domain/` (no framework dependencies):
 - `badges.ts` — Badge criteria evaluation
 - `leveling.ts` — XP/level calculations (formula: `100 * (n-1) * n / 2`)
 - `scoring.ts` — Quiz scoring (70% win threshold)
-- `streak.ts` — Streak tracking (36-hour grace period)
+- `streak.ts` — Streak tracking (36-hour grace period; streak freezes consume `User.streakFreezes`)
 - `quiz-import.ts` — Single quiz import parsing
 - `quiz-bulk-import.ts` — Bulk CSV/JSON import
 - `quiz-constants.ts` — Shared quiz constants
+
+### Play modes
+
+`PlaySession.mode` (PlayMode enum): STANDARD (default), DAILY (validated against today's `DailyQuiz` pick, downgraded to STANDARD on mismatch), PRACTICE (serves previously missed questions; no XP/streak/badges/quests, excluded from quiz aggregates and leaderboards), BLITZ (60-second quiz-level timer, normal rewards). Clients pass `?mode=` to `/play/[id]`, `GET /api/quiz/[id]/play`, and `mode` in the `POST /api/play/submit` body (legacy values like `classic` are ignored via `.catch(undefined)` — do not remove).
+
+### Gamification services (src/server/)
+
+- `quests.ts` — Daily/weekly/monthly quests (ensureDefaultQuests, getQuestBoard, progress on submit)
+- `season.ts` — Monthly seasonal leaderboard finalization (SeasonResult + badges)
+- `daily.ts` — Deterministic daily quiz pick (FNV-1a hash of UTC date)
+- `for-you.ts` — Personalized feed (followed authors + category affinity + fresh quizzes)
+- Duels support up to `Duel.maxPlayers` participants, rematches (`rematchOfId`, `POST /api/duel/[id]/rematch`), and Elo ratings (`User.duelRating`/`duelGames`, updated on duel finish)
 
 ## Zustand Stores
 
@@ -248,8 +275,11 @@ Pure business logic in `src/domain/` (no framework dependencies):
 
 GitHub Actions (`.github/workflows/ci.yml`): On push/PR to `main` — checkout, Node 20, `npm ci`, `prisma generate`, `npm run lint`, `npm run typecheck`, `npm test -- --run`.
 
-Vercel deployment with cron job: `GET /api/cron/cleanup-guests` daily at 3:00 AM UTC.
-Cron endpoint security: requires `Authorization: Bearer <CRON_SECRET>` and performs bounded guest-only cleanup.
+Vercel deployment with cron jobs (all require `Authorization: Bearer <CRON_SECRET>`):
+
+- `GET /api/cron/cleanup-guests` — daily 3:00 UTC, bounded guest-only cleanup
+- `GET /api/cron/finalize-season` — monthly (1st, 0:10 UTC), snapshots season leaderboard + awards badges
+- `GET /api/cron/weekly-digest` — Mondays 9:00 UTC, emails trending quizzes + per-user stats to verified users who haven't opted out (`preferences.weeklyDigest !== false`)
 
 ## Documentation
 
