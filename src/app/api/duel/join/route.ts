@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import { Prisma } from '@prisma/client'
 import { auth } from '@/server/auth'
 import { joinDuelSchema } from '@/schemas'
 import { prisma } from '@/server/prisma'
@@ -55,14 +56,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Already joined' }, { status: 400 })
   }
 
-  await prisma.duelParticipant.create({
-    data: {
-      duelId: duel.id,
-      userId: session?.user?.id ?? null,
-      guestName: session?.user?.id ? null : 'Guest',
-      guestKey: session?.user?.id ? null : guestKey,
-    },
-  })
+  try {
+    await prisma.duelParticipant.create({
+      data: {
+        duelId: duel.id,
+        userId: session?.user?.id ?? null,
+        guestName: session?.user?.id ? null : 'Guest',
+        guestKey: session?.user?.id ? null : guestKey,
+      },
+    })
+  } catch (error) {
+    // Unique constraint on (duelId, userId) / (duelId, guestKey) catches the
+    // race where two concurrent requests both pass the findFirst check.
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      return NextResponse.json({ error: 'Already joined' }, { status: 400 })
+    }
+    throw error
+  }
 
   const response = NextResponse.json({ duelId: duel.id, code: duel.code })
   return response

@@ -21,6 +21,7 @@ const store = new Map<string, RateLimitEntry>()
 
 // Lazily initialised so the module can be imported without env vars present.
 let redis: Redis | null = null
+let warnedMissingRedis = false
 
 function getRedis(): Redis | null {
   if (redis !== null) return redis
@@ -28,6 +29,13 @@ function getRedis(): Redis | null {
   const token = process.env.UPSTASH_REDIS_REST_TOKEN
   if (url && token) {
     redis = new Redis({ url, token })
+  } else if (process.env.NODE_ENV === 'production' && !warnedMissingRedis) {
+    warnedMissingRedis = true
+    console.error(
+      '[rate-limit] UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN are not set. ' +
+        'Rate limiting is degraded to per-instance in-memory counters, which can be ' +
+        'bypassed across serverless instances. Configure Upstash Redis in production.'
+    )
   }
   return redis
 }
@@ -60,9 +68,10 @@ export async function checkRateLimit(key: string, config: RateLimitConfig): Prom
         await client.pexpire(redisKey, config.windowMs)
       }
       return count <= config.limit
-    } catch {
+    } catch (error) {
       // Redis unavailable — fall through to in-memory limiter so the app
       // continues to function (with degraded cross-instance enforcement).
+      console.warn('[rate-limit] Redis unavailable, falling back to in-memory limiter', error)
     }
   }
 

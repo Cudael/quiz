@@ -43,7 +43,11 @@ export const authConfig: NextAuthConfig = {
   pages: {
     signIn: '/sign-in',
   },
-  session: { strategy: 'jwt' },
+  session: {
+    strategy: 'jwt',
+    // Explicit session lifetime (matches the NextAuth default of 30 days).
+    maxAge: 30 * 24 * 60 * 60,
+  },
   trustHost: true,
   callbacks: {
     authorized({ auth }) {

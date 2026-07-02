@@ -217,18 +217,21 @@ model PlaySession {
 }
 
 model Duel {
-  id            String            @id @default(cuid())
-  code          String            @unique
-  hostId        String
-  host          User              @relation("HostedDuels", fields: [hostId], references: [id])
-  categoryId    String?
-  category      Category?         @relation(fields: [categoryId], references: [id])
-  questionCount Int               @default(10)
-  timeLimitSec  Int               @default(20)
-  status        DuelStatus        @default(WAITING)
-  createdAt     DateTime          @default(now())
-  finishedAt    DateTime?
-  participants  DuelParticipant[]
+  id                  String            @id @default(cuid())
+  code                String            @unique
+  hostId              String
+  host                User              @relation("HostedDuels", fields: [hostId], references: [id])
+  categoryId          String?
+  category            Category?         @relation(fields: [categoryId], references: [id])
+  questionCount       Int               @default(10)
+  timeLimitSec        Int               @default(20)
+  status              DuelStatus        @default(WAITING)
+  // Question IDs locked in when the duel starts; submissions are validated
+  // against this immutable set so the question pool cannot shift mid-duel.
+  selectedQuestionIds String[]          @default([])
+  createdAt           DateTime          @default(now())
+  finishedAt          DateTime?
+  participants        DuelParticipant[]
 }
 
 model DuelParticipant {
@@ -245,6 +248,8 @@ model DuelParticipant {
   finishedAt   DateTime?
   joinedAt     DateTime  @default(now())
 
+  @@unique([duelId, userId])
+  @@unique([duelId, guestKey])
   @@index([duelId])
   @@index([userId])
 }

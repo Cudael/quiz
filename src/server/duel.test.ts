@@ -3,8 +3,13 @@ import { generateDuelCode, pickDuelQuestionIds } from '@/server/duel'
 
 describe('generateDuelCode', () => {
   it('generates a 6-character uppercase alphanumeric code', () => {
-    const code = generateDuelCode(() => 0.5)
+    const code = generateDuelCode()
     expect(code).toMatch(/^[A-Z0-9]{6}$/)
+  })
+
+  it('generates distinct codes across invocations', () => {
+    const codes = new Set(Array.from({ length: 100 }, () => generateDuelCode()))
+    expect(codes.size).toBeGreaterThan(90)
   })
 })
 

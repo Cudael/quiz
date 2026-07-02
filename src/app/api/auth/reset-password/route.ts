@@ -67,19 +67,28 @@ export async function POST(request: Request) {
   const email = verificationToken.identifier.slice('reset:'.length)
 
   const passwordHash = await hashPassword(newPassword)
-  await prisma.user.update({
-    where: { email },
-    data: { passwordHash },
-  })
 
-  await prisma.verificationToken.delete({
-    where: {
-      identifier_token: {
-        identifier: verificationToken.identifier,
-        token: verificationToken.token,
-      },
-    },
-  })
+  // Update the password and consume the token atomically. If a concurrent
+  // request already consumed the token, the delete fails and the password
+  // update is rolled back — the token can only be used once.
+  try {
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { email },
+        data: { passwordHash },
+      }),
+      prisma.verificationToken.delete({
+        where: {
+          identifier_token: {
+            identifier: verificationToken.identifier,
+            token: verificationToken.token,
+          },
+        },
+      }),
+    ])
+  } catch {
+    return NextResponse.json({ error: 'Invalid or expired reset link.' }, { status: 400 })
+  }
 
   return NextResponse.json({ ok: true })
 }

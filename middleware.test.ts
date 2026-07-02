@@ -38,14 +38,20 @@ function createRequest(pathname: string, hasUser: boolean): MiddlewareRequest {
 
 describe('middleware guest-only auth redirects', () => {
   it('redirects authenticated users away from /sign-in to /profile', async () => {
-    const response = await middleware(createRequest('/sign-in', true) as never)
+    const response = (await middleware(
+      createRequest('/sign-in', true) as never,
+      {} as never
+    )) as Response
 
     expect(response.status).toBe(307)
     expect(response.headers.get('location')).toBe('http://localhost/profile')
   })
 
   it('redirects authenticated users away from /sign-up to /profile', async () => {
-    const response = await middleware(createRequest('/sign-up', true) as never)
+    const response = (await middleware(
+      createRequest('/sign-up', true) as never,
+      {} as never
+    )) as Response
 
     expect(response.status).toBe(307)
     expect(response.headers.get('location')).toBe('http://localhost/profile')

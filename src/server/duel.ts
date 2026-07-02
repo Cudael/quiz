@@ -1,10 +1,19 @@
 const DUEL_CODE_CHARSET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+const DUEL_CODE_LENGTH = 6
+// Largest multiple of the charset length that fits in a byte (36 * 7 = 252).
+// Bytes at or above this value are rejected to avoid modulo bias.
+const DUEL_CODE_BYTE_LIMIT = Math.floor(256 / DUEL_CODE_CHARSET.length) * DUEL_CODE_CHARSET.length
 
-export function generateDuelCode(randomFn: () => number = Math.random) {
+export function generateDuelCode() {
   let result = ''
-  for (let i = 0; i < 6; i++) {
-    const index = Math.floor(randomFn() * DUEL_CODE_CHARSET.length)
-    result += DUEL_CODE_CHARSET[index]
+  while (result.length < DUEL_CODE_LENGTH) {
+    const bytes = crypto.getRandomValues(new Uint8Array(DUEL_CODE_LENGTH * 2))
+    for (const byte of bytes) {
+      if (result.length === DUEL_CODE_LENGTH) break
+      if (byte < DUEL_CODE_BYTE_LIMIT) {
+        result += DUEL_CODE_CHARSET[byte % DUEL_CODE_CHARSET.length]
+      }
+    }
   }
   return result
 }

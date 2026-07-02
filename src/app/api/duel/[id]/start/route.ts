@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/server/auth'
+import { pickDuelQuestionIds } from '@/server/duel'
 import { prisma } from '@/server/prisma'
 import { checkRateLimit, getClientIp } from '@/server/rate-limit'
 
@@ -37,11 +38,34 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: 'At least 2 participants are required' }, { status: 400 })
   }
 
+  // Lock in the question set at start time so submissions are always
+  // validated against the same immutable set, even if the question pool
+  // changes (quizzes published/unpublished) while the duel is running.
+  const candidateQuestions = await prisma.question.findMany({
+    where: {
+      quiz: {
+        isPublished: true,
+        ...(duel.categoryId ? { categoryId: duel.categoryId } : {}),
+      },
+    },
+    orderBy: { id: 'asc' },
+    select: { id: true },
+  })
+  const selectedQuestionIds = pickDuelQuestionIds(
+    candidateQuestions.map((question) => question.id),
+    duel.id,
+    duel.questionCount
+  )
+  if (selectedQuestionIds.length === 0) {
+    return NextResponse.json({ error: 'No questions available for this duel' }, { status: 409 })
+  }
+
   await prisma.$transaction([
     prisma.duel.update({
       where: { id: duel.id },
       data: {
         status: 'IN_PROGRESS',
+        selectedQuestionIds,
         finishedAt: null,
       },
     }),

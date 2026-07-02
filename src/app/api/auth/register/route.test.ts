@@ -72,7 +72,7 @@ describe('POST /api/auth/register', () => {
     )
   })
 
-  it('returns 409 when the email already exists', async () => {
+  it('returns 400 with a generic error when the email already exists (no enumeration)', async () => {
     prismaMock.user.findUnique.mockResolvedValue({ id: 'existing' })
 
     const response = await POST(
@@ -83,7 +83,7 @@ describe('POST /api/auth/register', () => {
       })
     )
 
-    expect(response.status).toBe(409)
+    expect(response.status).toBe(400)
     await expect(response.json()).resolves.toEqual({ error: 'Unable to register account.' })
     expect(prismaMock.user.create).not.toHaveBeenCalled()
   })

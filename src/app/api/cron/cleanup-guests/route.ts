@@ -1,3 +1,4 @@
+import { createHash, timingSafeEqual } from 'node:crypto'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/server/prisma'
 
@@ -12,8 +13,13 @@ function isAuthorizedCronRequest(request: Request): boolean {
     return false
   }
 
-  const authorization = request.headers.get('authorization')
-  return authorization === `Bearer ${secret}`
+  const authorization = request.headers.get('authorization') ?? ''
+  // Hash both values before comparing so the comparison is constant-time
+  // regardless of input length (timingSafeEqual requires equal-length buffers,
+  // and a raw length check would leak the secret's length).
+  const provided = createHash('sha256').update(authorization).digest()
+  const expected = createHash('sha256').update(`Bearer ${secret}`).digest()
+  return timingSafeEqual(provided, expected)
 }
 
 export async function GET(request: Request) {

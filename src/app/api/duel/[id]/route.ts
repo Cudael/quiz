@@ -81,11 +81,17 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       },
     })
 
-    const selectedIds = pickDuelQuestionIds(
-      candidateQuestions.map((question) => question.id),
-      duel.id,
-      duel.questionCount
-    )
+    // Serve the immutable question set locked in when the duel started.
+    // Fall back to the deterministic pick for duels started before the
+    // selectedQuestionIds column existed.
+    const selectedIds =
+      duel.selectedQuestionIds.length > 0
+        ? duel.selectedQuestionIds
+        : pickDuelQuestionIds(
+            candidateQuestions.map((question) => question.id),
+            duel.id,
+            duel.questionCount
+          )
     const questionsById = new Map(candidateQuestions.map((question) => [question.id, question]))
 
     questions = selectedIds

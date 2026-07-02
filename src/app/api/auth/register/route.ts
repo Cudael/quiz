@@ -45,7 +45,9 @@ export async function POST(request: Request) {
   })
 
   if (existingUser) {
-    return NextResponse.json({ error: 'Unable to register account.' }, { status: 409 })
+    // Same status code and message as all other registration failures so the
+    // response does not reveal whether an email address is already registered.
+    return NextResponse.json({ error: 'Unable to register account.' }, { status: 400 })
   }
 
   try {
@@ -78,7 +80,7 @@ export async function POST(request: Request) {
     await sendVerificationEmail(email, verifyUrl.toString())
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-      return NextResponse.json({ error: 'Unable to register account.' }, { status: 409 })
+      return NextResponse.json({ error: 'Unable to register account.' }, { status: 400 })
     }
 
     return NextResponse.json({ error: 'Unable to register account.' }, { status: 400 })

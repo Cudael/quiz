@@ -95,11 +95,23 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     },
   })
 
-  const selectedQuestionIds = pickDuelQuestionIds(
-    candidateQuestions.map((question) => question.id),
-    duel.id,
-    duel.questionCount
-  )
+  // Use the immutable question set locked in when the duel started.
+  // Fall back to the deterministic pick for duels started before the
+  // selectedQuestionIds column existed.
+  const selectedQuestionIds =
+    duel.selectedQuestionIds.length > 0
+      ? duel.selectedQuestionIds
+      : pickDuelQuestionIds(
+          candidateQuestions.map((question) => question.id),
+          duel.id,
+          duel.questionCount
+        )
+  const allowedQuestionIds = new Set(selectedQuestionIds)
+  for (const answer of parsed.data.answers) {
+    if (!allowedQuestionIds.has(answer.questionId)) {
+      return NextResponse.json({ error: 'Invalid question for this duel' }, { status: 400 })
+    }
+  }
   const questionById = new Map(candidateQuestions.map((question) => [question.id, question]))
   const selectedQuestions = selectedQuestionIds
     .map((questionId) => questionById.get(questionId))
