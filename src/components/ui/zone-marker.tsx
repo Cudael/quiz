@@ -28,6 +28,8 @@ export interface ZoneMarkerProps {
   labelClass?: string
   draggable?: boolean
   fading?: boolean
+  /** Inverse zoom scale so markers stay proportionally sized when parent is zoomed. */
+  scale?: number
   onDragEnd?: (x: number, y: number) => void
   children?: React.ReactNode
 }
@@ -43,6 +45,7 @@ export function ZoneMarker({
   labelClass = 'text-quiz-orange',
   draggable = false,
   fading = false,
+  scale = 1,
   onDragEnd,
   children,
 }: ZoneMarkerProps) {
@@ -84,7 +87,7 @@ export function ZoneMarker({
       style={{
         left: `${x}%`,
         top: `${y}%`,
-        transform: 'translate(-50%, -50%)',
+        transform: scale !== 1 ? `translate(-50%, -50%) scale(${scale})` : 'translate(-50%, -50%)',
         // Percentage width resolves against the positioned container,
         // so markers scale with the rendered image
         width: `${diameter}%`,
