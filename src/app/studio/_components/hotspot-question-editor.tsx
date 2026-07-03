@@ -121,6 +121,7 @@ export function HotspotQuestionEditor() {
       if (zoom <= 1) return
       const target = e.target as HTMLElement
       if (target.closest('[data-zone-marker]')) return
+      e.preventDefault()
       setIsPanning(true)
       panStartRef.current = { x: e.clientX, y: e.clientY, panX: panOffset.x, panY: panOffset.y }
     },
@@ -128,7 +129,7 @@ export function HotspotQuestionEditor() {
   )
 
   const handlePanMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
+    (e: MouseEvent) => {
       if (!isPanning) return
       const dx = e.clientX - panStartRef.current.x
       const dy = e.clientY - panStartRef.current.y
@@ -143,6 +144,17 @@ export function HotspotQuestionEditor() {
   const handlePanEnd = useCallback(() => {
     setIsPanning(false)
   }, [])
+
+  // Attach mousemove/mouseup on window so panning works even when cursor leaves the image
+  useEffect(() => {
+    if (!isPanning) return
+    window.addEventListener('mousemove', handlePanMove)
+    window.addEventListener('mouseup', handlePanEnd)
+    return () => {
+      window.removeEventListener('mousemove', handlePanMove)
+      window.removeEventListener('mouseup', handlePanEnd)
+    }
+  }, [isPanning, handlePanMove, handlePanEnd])
 
   const handleResetZoom = useCallback(() => {
     setZoom(1)
@@ -460,9 +472,6 @@ export function HotspotQuestionEditor() {
               }
               onClick={handleImageClick}
               onMouseDown={handlePanStart}
-              onMouseMove={handlePanMove}
-              onMouseUp={handlePanEnd}
-              onMouseLeave={handlePanEnd}
             >
               <div
                 className="relative origin-top-left"
