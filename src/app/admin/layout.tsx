@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import {
   BarChart3,
   BookOpen,
+  FileSearch,
   Flag,
   LayoutDashboard,
   Lightbulb,
@@ -74,6 +75,10 @@ export default async function AdminLayout({ children }: { children: ReactNode })
             <AdminNavLink href="/admin/quizzes/import">
               <Upload className="h-4 w-4" />
               <span>Bulk Import</span>
+            </AdminNavLink>
+            <AdminNavLink href="/admin/quizzes/review-drafts">
+              <FileSearch className="h-4 w-4" />
+              <span>Review Drafts</span>
             </AdminNavLink>
             <AdminNavLink href="/admin/categories">
               <Tag className="h-4 w-4" />
