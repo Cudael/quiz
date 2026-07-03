@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useMemo } from 'react'
 import Image from 'next/image'
-import { PlusCircle, Trash2, Target } from 'lucide-react'
+import { Minus, Plus, PlusCircle, RotateCcw, Trash2, Target } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ImageUpload } from './image-upload'
@@ -27,6 +27,11 @@ export function HotspotQuestionEditor() {
     radius: 4,
   })
   const imageContainerRef = useRef<HTMLDivElement>(null)
+  const imageNaturalRef = useRef<{ width: number; height: number } | null>(null)
+  const [zoom, setZoom] = useState(1)
+  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 })
+  const [isPanning, setIsPanning] = useState(false)
+  const panStartRef = useRef({ x: 0, y: 0, panX: 0, panY: 0 })
 
   const allZones = useMemo(() => {
     const zoneOwnerMap = new Map<string, string>()
@@ -55,14 +60,102 @@ export function HotspotQuestionEditor() {
     return zones
   }, [questions])
 
-  const handleImageClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!imageContainerRef.current) return
-    const rect = imageContainerRef.current.getBoundingClientRect()
-    const x = ((e.clientX - rect.left) / rect.width) * 100
-    const y = ((e.clientY - rect.top) / rect.height) * 100
-    setSelectedZone({ x, y })
-    setZoneForm((f) => ({ name: '', radius: f.radius }))
+  /** Convert a screen (client) point to image-space percentage coordinates. */
+  const screenToPercent = useCallback(
+    (clientX: number, clientY: number): { x: number; y: number } | null => {
+      if (!imageContainerRef.current || !imageNaturalRef.current) return null
+      const rect = imageContainerRef.current.getBoundingClientRect()
+      const imgWidth = imageNaturalRef.current.width
+      const imgHeight = imageNaturalRef.current.height
+      const relX = clientX - rect.left
+      const relY = clientY - rect.top
+      const imgX = (relX - panOffset.x) / zoom
+      const imgY = (relY - panOffset.y) / zoom
+      return {
+        x: (imgX / imgWidth) * 100,
+        y: (imgY / imgHeight) * 100,
+      }
+    },
+    [zoom, panOffset]
+  )
+
+  const handleImageClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (isPanning) return
+      const pct = screenToPercent(e.clientX, e.clientY)
+      if (!pct) return
+      setSelectedZone({ x: pct.x, y: pct.y })
+      setZoneForm((f) => ({ name: '', radius: f.radius }))
+    },
+    [screenToPercent, isPanning]
+  )
+
+  /** Wheel zoom — zoom toward cursor position. */
+  const handleWheel = useCallback(
+    (e: React.WheelEvent<HTMLDivElement>) => {
+      e.preventDefault()
+      if (!imageContainerRef.current || !imageNaturalRef.current) return
+      const rect = imageContainerRef.current.getBoundingClientRect()
+      const cursorX = e.clientX - rect.left
+      const cursorY = e.clientY - rect.top
+      const newZoom = Math.min(5, Math.max(1, zoom - e.deltaY * 0.005))
+      const ratio = newZoom / zoom
+      const newPanX = cursorX - ratio * (cursorX - panOffset.x)
+      const newPanY = cursorY - ratio * (cursorY - panOffset.y)
+      setZoom(newZoom)
+      setPanOffset({ x: newPanX, y: newPanY })
+    },
+    [zoom, panOffset]
+  )
+
+  const handlePanStart = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (zoom <= 1) return
+      const target = e.target as HTMLElement
+      if (target.closest('[data-zone-marker]')) return
+      setIsPanning(true)
+      panStartRef.current = { x: e.clientX, y: e.clientY, panX: panOffset.x, panY: panOffset.y }
+    },
+    [zoom, panOffset]
+  )
+
+  const handlePanMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!isPanning) return
+      const dx = e.clientX - panStartRef.current.x
+      const dy = e.clientY - panStartRef.current.y
+      setPanOffset({
+        x: panStartRef.current.panX + dx,
+        y: panStartRef.current.panY + dy,
+      })
+    },
+    [isPanning]
+  )
+
+  const handlePanEnd = useCallback(() => {
+    setIsPanning(false)
   }, [])
+
+  const handleResetZoom = useCallback(() => {
+    setZoom(1)
+    setPanOffset({ x: 0, y: 0 })
+  }, [])
+
+  const handleZoomStep = useCallback(
+    (step: number) => {
+      if (!imageContainerRef.current || !imageNaturalRef.current) return
+      const rect = imageContainerRef.current.getBoundingClientRect()
+      const newZoom = Math.min(5, Math.max(1, zoom + step))
+      const cx = rect.width / 2
+      const cy = rect.height / 2
+      const ratio = newZoom / zoom
+      const newPanX = cx - ratio * (cx - panOffset.x)
+      const newPanY = cy - ratio * (cy - panOffset.y)
+      setZoom(newZoom)
+      setPanOffset({ x: newPanX, y: newPanY })
+    },
+    [zoom, panOffset]
+  )
 
   /** Set or replace the shared image and keep every question in sync. */
   const handleSharedImageChange = useCallback(
@@ -313,52 +406,111 @@ export function HotspotQuestionEditor() {
               </div>
             </div>
 
+            {/* Zoom controls */}
+            <div className="mb-2 flex items-center gap-1">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => handleZoomStep(-0.5)}
+                disabled={zoom <= 1}
+              >
+                <Minus className="h-3.5 w-3.5" />
+              </Button>
+              <span className="min-w-[3.5rem] text-center text-xs font-medium tabular-nums">
+                {Math.round(zoom * 100)}%
+              </span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => handleZoomStep(0.5)}
+                disabled={zoom >= 5}
+              >
+                <Plus className="h-3.5 w-3.5" />
+              </Button>
+              {zoom !== 1 && (
+                <Button type="button" variant="ghost" size="sm" onClick={handleResetZoom}>
+                  <RotateCcw className="h-3.5 w-3.5" />
+                </Button>
+              )}
+              <span className="ml-2 text-xs text-muted-foreground">
+                Scroll to zoom &middot; Drag to pan
+              </span>
+            </div>
+
             <div
               ref={imageContainerRef}
               data-zone-container
-              className="relative overflow-hidden rounded-md border border-border/40 bg-card cursor-crosshair"
+              className="relative overflow-hidden rounded-md border border-border/40 bg-card"
+              style={
+                isPanning
+                  ? { cursor: 'grabbing' }
+                  : zoom > 1
+                    ? { cursor: 'grab' }
+                    : { cursor: 'crosshair' }
+              }
               onClick={handleImageClick}
+              onWheel={handleWheel}
+              onMouseDown={handlePanStart}
+              onMouseMove={handlePanMove}
+              onMouseUp={handlePanEnd}
+              onMouseLeave={handlePanEnd}
             >
-              <Image
-                src={sharedImageUrl}
-                alt="Quiz image"
-                width={1200}
-                height={675}
-                unoptimized
-                className="h-auto w-full object-contain"
-              />
-
-              {/* Existing zones — draggable */}
-              {allZones.map((zone) => (
-                <ZoneMarker
-                  key={zone.id}
-                  x={zone.x}
-                  y={zone.y}
-                  radius={zone.radius}
-                  name={zone.name}
-                  showLabel
-                  borderClass="border-2 border-quiz-orange"
-                  labelClass="text-quiz-orange"
-                  draggable
-                  onDragEnd={(newX, newY) => handleZoneReposition(zone.id, newX, newY)}
-                />
-              ))}
-
-              {/* Selected placement marker */}
-              {selectedZone && (
-                <div
-                  className="absolute pointer-events-none"
-                  style={{
-                    left: `${selectedZone.x}%`,
-                    top: `${selectedZone.y}%`,
-                    transform: 'translate(-50%, -50%)',
-                    width: `${zoneDiameterPercent(zoneForm.radius)}%`,
+              <div
+                className="relative origin-top-left"
+                style={{
+                  transform: `scale(${zoom}) translate(${panOffset.x / zoom}px, ${panOffset.y / zoom}px)`,
+                }}
+              >
+                <Image
+                  src={sharedImageUrl}
+                  alt="Quiz image"
+                  width={1200}
+                  height={675}
+                  unoptimized
+                  className="h-auto w-full object-contain"
+                  onLoad={(e) => {
+                    const img = e.currentTarget as HTMLImageElement
+                    imageNaturalRef.current = {
+                      width: img.naturalWidth,
+                      height: img.naturalHeight,
+                    }
                   }}
-                >
-                  <div className="aspect-square w-full min-h-2 min-w-2 animate-pulse rounded-full border-2 border-quiz-orange bg-quiz-orange/30" />
-                  <Target className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-4 w-4 text-quiz-orange" />
-                </div>
-              )}
+                />
+
+                {/* Existing zones — draggable */}
+                {allZones.map((zone) => (
+                  <ZoneMarker
+                    key={zone.id}
+                    x={zone.x}
+                    y={zone.y}
+                    radius={zone.radius}
+                    name={zone.name}
+                    showLabel
+                    borderClass="border-2 border-quiz-orange"
+                    labelClass="text-quiz-orange"
+                    draggable={!isPanning}
+                    onDragEnd={(newX, newY) => handleZoneReposition(zone.id, newX, newY)}
+                  />
+                ))}
+
+                {/* Selected placement marker */}
+                {selectedZone && (
+                  <div
+                    className="absolute pointer-events-none"
+                    style={{
+                      left: `${selectedZone.x}%`,
+                      top: `${selectedZone.y}%`,
+                      transform: 'translate(-50%, -50%)',
+                      width: `${zoneDiameterPercent(zoneForm.radius)}%`,
+                    }}
+                  >
+                    <div className="aspect-square w-full min-h-2 min-w-2 animate-pulse rounded-full border-2 border-quiz-orange bg-quiz-orange/30" />
+                    <Target className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-4 w-4 text-quiz-orange" />
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Zone form — below image */}
