@@ -58,7 +58,6 @@ export function ZoneMarker({
     if (!draggable || !onDragEnd) return
     e.stopPropagation()
     e.preventDefault()
-    ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
 
     const container = (e.currentTarget as HTMLElement).closest('[data-zone-container]')
 
@@ -81,7 +80,6 @@ export function ZoneMarker({
     }
 
     const handlePointerUp = () => {
-      ;(e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId)
       document.removeEventListener('pointermove', handlePointerMove)
       document.removeEventListener('pointerup', handlePointerUp)
       document.removeEventListener('pointercancel', handlePointerUp)
@@ -95,7 +93,7 @@ export function ZoneMarker({
 
   return (
     <div
-      className={`absolute ${draggable ? 'pointer-events-auto cursor-grab touch-none active:cursor-grabbing hover:ring-2 hover:ring-quiz-orange/50' : 'pointer-events-none'} transition-opacity duration-700 ${fading ? 'opacity-0' : 'opacity-100'} rounded-full`}
+      className={`absolute ${draggable ? 'pointer-events-auto cursor-pointer touch-none active:cursor-grabbing hover:ring-2 hover:ring-quiz-orange/50' : 'pointer-events-none'} transition-opacity duration-700 ${fading ? 'opacity-0' : 'opacity-100'} rounded-full`}
       style={{
         left: `${x}%`,
         top: `${y}%`,
