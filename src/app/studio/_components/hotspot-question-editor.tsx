@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useRef, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
 import { Minus, Plus, PlusCircle, RotateCcw, Trash2, Target } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -92,7 +92,7 @@ export function HotspotQuestionEditor() {
 
   /** Wheel zoom — zoom toward cursor position. */
   const handleWheel = useCallback(
-    (e: React.WheelEvent<HTMLDivElement>) => {
+    (e: WheelEvent) => {
       e.preventDefault()
       if (!imageContainerRef.current || !imageNaturalRef.current) return
       const rect = imageContainerRef.current.getBoundingClientRect()
@@ -107,6 +107,14 @@ export function HotspotQuestionEditor() {
     },
     [zoom, panOffset]
   )
+
+  // Attach native wheel listener with { passive: false } so preventDefault stops page scroll
+  useEffect(() => {
+    const el = imageContainerRef.current
+    if (!el) return
+    el.addEventListener('wheel', handleWheel, { passive: false })
+    return () => el.removeEventListener('wheel', handleWheel)
+  }, [handleWheel])
 
   const handlePanStart = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -451,7 +459,6 @@ export function HotspotQuestionEditor() {
                     : { cursor: 'crosshair' }
               }
               onClick={handleImageClick}
-              onWheel={handleWheel}
               onMouseDown={handlePanStart}
               onMouseMove={handlePanMove}
               onMouseUp={handlePanEnd}
