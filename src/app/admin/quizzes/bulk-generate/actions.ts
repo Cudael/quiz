@@ -12,7 +12,7 @@ import {
   buildQuestionCreateData,
   ALL_FORMATS,
   type QuizFormat,
-} from '@/app/studio/actions/ai-generate'
+} from '@/server/ai-generate-utils'
 
 // ---------------------------------------------------------------------------
 // Schema
