@@ -1,10 +1,12 @@
 'use client'
 
 import * as React from 'react'
+import { Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Modal } from '@/components/ui/modal'
 import { cn } from '@/lib/utils'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
+import { ImageSearchDialog } from './image-search-dialog'
 import { ImageUpload } from './image-upload'
 import { QUIZ_TEMPLATES, TemplatePicker } from './template-picker'
 import { makeQuestionForFormat } from './format-defaults'
@@ -59,6 +61,8 @@ function isClassicChoiceFormat(format: QuizFormat) {
 
 export function StepMeta({ categories }: StepMetaProps) {
   const [pendingTemplate, setPendingTemplate] = React.useState<QuizTemplate | null>(null)
+  const [imageSearchOpen, setImageSearchOpen] = React.useState(false)
+  const [imageSearchKey, setImageSearchKey] = React.useState(0)
   const {
     title,
     description,
@@ -206,12 +210,26 @@ export function StepMeta({ categories }: StepMetaProps) {
           </div>
 
           {/* Cover image */}
-          <ImageUpload
-            value={imageUrl}
-            onChange={(v) => setMeta({ imageUrl: v })}
-            label="Cover image (optional)"
-            aspectRatio="16/9"
-          />
+          <div className="space-y-2">
+            <ImageUpload
+              value={imageUrl}
+              onChange={(v) => setMeta({ imageUrl: v })}
+              label="Cover image (optional)"
+              aspectRatio="16/9"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setImageSearchKey((k) => k + 1)
+                setImageSearchOpen(true)
+              }}
+            >
+              <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+              Find free image with AI
+            </Button>
+          </div>
 
           <div className="space-y-1">
             <p className="block text-sm font-medium">Total time limit (whole quiz)</p>
@@ -271,6 +289,15 @@ export function StepMeta({ categories }: StepMetaProps) {
           </Button>
         </div>
       </Modal>
+
+      <ImageSearchDialog
+        key={imageSearchKey}
+        open={imageSearchOpen}
+        onClose={() => setImageSearchOpen(false)}
+        onSelect={(url) => setMeta({ imageUrl: url })}
+        defaultQuery={title}
+        description={description}
+      />
     </>
   )
 }
