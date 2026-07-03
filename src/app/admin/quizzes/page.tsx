@@ -1,6 +1,6 @@
 import type { Prisma } from '@prisma/client'
 import Link from 'next/link'
-import { Upload } from 'lucide-react'
+import { Sparkles, Upload } from 'lucide-react'
 import { prisma } from '@/server/prisma'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -99,12 +99,20 @@ export default async function AdminQuizzesPage({
         title="Quizzes"
         description={`${totalCount} quizzes`}
         actions={
-          <Button asChild variant="outline">
-            <Link href="/admin/quizzes/import">
-              <Upload className="h-4 w-4" />
-              Bulk Import
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button asChild variant="outline">
+              <Link href="/admin/quizzes/bulk-generate">
+                <Sparkles className="h-4 w-4" />
+                Bulk AI Generate
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/admin/quizzes/import">
+                <Upload className="h-4 w-4" />
+                Bulk Import
+              </Link>
+            </Button>
+          </div>
         }
       />
 

@@ -38,7 +38,7 @@ type AiQuestionsResult =
       message: string
     }
 
-const ALL_FORMATS = [
+export const ALL_FORMATS = [
   'TEXT_CHOICE',
   'IMAGE_CHOICE',
   'MAP_CHOICE',
@@ -56,7 +56,7 @@ const ALL_FORMATS = [
   'MEMORY_FLASH',
 ] as const
 
-type QuizFormat = (typeof ALL_FORMATS)[number]
+export type QuizFormat = (typeof ALL_FORMATS)[number]
 
 type QuestionType = 'SINGLE' | 'ORDER' | 'MATCH' | 'NUMBER_GUESS' | 'GROUPS' | 'FILL_BLANK'
 
@@ -90,7 +90,7 @@ const IMAGE_FORMATS: Set<QuizFormat> = new Set([
   'MEMORY_FLASH',
 ])
 
-interface GeneratedChoice {
+export interface GeneratedChoice {
   text: string
   isCorrect?: boolean
   position?: number
@@ -100,7 +100,7 @@ interface GeneratedChoice {
   value?: number
 }
 
-interface GeneratedQuestion {
+export interface GeneratedQuestion {
   prompt: string
   choices: GeneratedChoice[]
   explanation: string
@@ -122,7 +122,7 @@ interface GeneratedQuestion {
   studyDurationMs?: number
 }
 
-interface GeneratedQuiz {
+export interface GeneratedQuiz {
   title: string
   description: string
   questions: GeneratedQuestion[]
@@ -435,7 +435,12 @@ Rules:
 - title should be catchy and specific to the topic`
 }
 
-function buildPrompt(topic: string, count: number, difficulty: string, format: QuizFormat): string {
+export function buildPrompt(
+  topic: string,
+  count: number,
+  difficulty: string,
+  format: QuizFormat
+): string {
   switch (format) {
     case 'ORDER':
       return buildOrderPrompt(topic, count, difficulty)
@@ -460,7 +465,7 @@ function buildPrompt(topic: string, count: number, difficulty: string, format: Q
 // OpenAI call
 // ---------------------------------------------------------------------------
 
-async function callOpenAI(prompt: string): Promise<GeneratedQuiz> {
+export async function callOpenAI(prompt: string): Promise<GeneratedQuiz> {
   const apiKey = process.env.OPENAI_API_KEY
   if (!apiKey) {
     throw new Error('OPENAI_API_KEY is not configured')
@@ -518,7 +523,7 @@ async function callOpenAI(prompt: string): Promise<GeneratedQuiz> {
 // Validation & normalisation per format
 // ---------------------------------------------------------------------------
 
-function validateAndNormalize(generated: GeneratedQuiz, format: QuizFormat): GeneratedQuiz {
+export function validateAndNormalize(generated: GeneratedQuiz, format: QuizFormat): GeneratedQuiz {
   const isMetaOnly = META_ONLY_FORMATS.has(format)
 
   for (const q of generated.questions) {
@@ -741,7 +746,7 @@ function buildChoiceMeta(c: GeneratedChoice, format: QuizFormat): Record<string,
   }
 }
 
-function buildQuestionCreateData(
+export function buildQuestionCreateData(
   q: GeneratedQuestion,
   format: QuizFormat,
   quizId: string,
