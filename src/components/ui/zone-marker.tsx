@@ -30,6 +30,8 @@ export interface ZoneMarkerProps {
   fading?: boolean
   /** Inverse zoom scale so markers stay proportionally sized when parent is zoomed. */
   scale?: number
+  /** When provided, used to convert client coords to image-space percentages (zoom-aware). */
+  getCoords?: (clientX: number, clientY: number) => { x: number; y: number } | null
   onDragEnd?: (x: number, y: number) => void
   children?: React.ReactNode
 }
@@ -46,6 +48,7 @@ export function ZoneMarker({
   draggable = false,
   fading = false,
   scale = 1,
+  getCoords,
   onDragEnd,
   children,
 }: ZoneMarkerProps) {
@@ -55,21 +58,30 @@ export function ZoneMarker({
     if (!draggable || !onDragEnd) return
     e.stopPropagation()
     e.preventDefault()
+    ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
 
     const container = (e.currentTarget as HTMLElement).closest('[data-zone-container]')
-    if (!container) return
 
     let lastX = x
     let lastY = y
 
     const handlePointerMove = (moveEvent: PointerEvent) => {
       moveEvent.preventDefault()
-      const rect = container.getBoundingClientRect()
-      lastX = Math.min(100, Math.max(0, ((moveEvent.clientX - rect.left) / rect.width) * 100))
-      lastY = Math.min(100, Math.max(0, ((moveEvent.clientY - rect.top) / rect.height) * 100))
+      if (getCoords) {
+        const pct = getCoords(moveEvent.clientX, moveEvent.clientY)
+        if (pct) {
+          lastX = Math.min(100, Math.max(0, pct.x))
+          lastY = Math.min(100, Math.max(0, pct.y))
+        }
+      } else if (container) {
+        const rect = container.getBoundingClientRect()
+        lastX = Math.min(100, Math.max(0, ((moveEvent.clientX - rect.left) / rect.width) * 100))
+        lastY = Math.min(100, Math.max(0, ((moveEvent.clientY - rect.top) / rect.height) * 100))
+      }
     }
 
     const handlePointerUp = () => {
+      ;(e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId)
       document.removeEventListener('pointermove', handlePointerMove)
       document.removeEventListener('pointerup', handlePointerUp)
       document.removeEventListener('pointercancel', handlePointerUp)
@@ -83,7 +95,7 @@ export function ZoneMarker({
 
   return (
     <div
-      className={`absolute ${draggable ? 'pointer-events-auto cursor-grab touch-none active:cursor-grabbing' : 'pointer-events-none'} transition-opacity duration-700 ${fading ? 'opacity-0' : 'opacity-100'}`}
+      className={`absolute ${draggable ? 'pointer-events-auto cursor-grab touch-none active:cursor-grabbing hover:ring-2 hover:ring-quiz-orange/50' : 'pointer-events-none'} transition-opacity duration-700 ${fading ? 'opacity-0' : 'opacity-100'} rounded-full`}
       style={{
         left: `${x}%`,
         top: `${y}%`,

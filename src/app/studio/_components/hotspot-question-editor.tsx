@@ -508,6 +508,7 @@ export function HotspotQuestionEditor() {
                     labelClass="text-quiz-orange"
                     draggable={!isPanning}
                     scale={1 / zoom}
+                    getCoords={screenToPercent}
                     onDragEnd={(newX, newY) => handleZoneReposition(zone.id, newX, newY)}
                   />
                 ))}
