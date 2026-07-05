@@ -17,6 +17,10 @@ import { parseLeaderboardSearchParams, type LeaderboardSearchParams } from './pa
 
 const PAGE_SIZE = 50
 
+// CDN cache: serve stale for 60s to absorb crawler/bot traffic.
+// The underlying DB query is already cached for 300s via unstable_cache.
+export const revalidate = 60
+
 export async function generateMetadata({
   searchParams,
 }: {
@@ -41,10 +45,18 @@ export async function generateMetadata({
   const suffix = [quiz?.title, categoryLabel].filter(Boolean).join(' • ')
   const title = `Leaderboard — ${periodLabel}${suffix ? ` • ${suffix}` : ''} | BusQuiz`
 
+  // Only index the base leaderboard; filtered views are crawl bait
+  const hasFilters =
+    params.period !== 'all' ||
+    params.sort !== 'total' ||
+    !!params.quizId ||
+    params.categories.length > 0
+
   return {
     title,
     description:
       'See top performers, filter by mode and category, and chase your next personal best.',
+    robots: hasFilters ? { index: false } : undefined,
     openGraph: {
       title,
       description: 'Track top players on the BusQuiz leaderboard.',
