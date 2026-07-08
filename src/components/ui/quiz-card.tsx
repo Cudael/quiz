@@ -341,21 +341,32 @@ export const QuizCardFeatured = React.memo(function QuizCardFeatured({
           </div>
         </div>
 
-        {/* Info bar */}
-        <div className="flex flex-col gap-1 bg-card px-3 py-2.5">
-          <h3 className="line-clamp-1 w-full truncate text-sm font-bold leading-tight text-foreground">
-            {quiz.title}
-          </h3>
-          <div className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
+        {/* Info section — fills the remaining height with real content instead of dead space */}
+        <div className="flex flex-1 flex-col gap-2 bg-card px-4 py-3.5">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="line-clamp-2 flex-1 text-base font-extrabold leading-tight text-foreground sm:text-lg">
+              {quiz.title}
+            </h3>
+            <div className="shrink-0">
+              <ArcadePlayButton size="md" />
+            </div>
+          </div>
+          {quiz.authorName && (
+            <p className="truncate text-xs text-muted-foreground">by {quiz.authorName}</p>
+          )}
+          <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-medium text-muted-foreground">
             {quiz.avgRating !== undefined && (
-              <span className="shrink-0 text-quiz-yellow">★ {quiz.avgRating.toFixed(1)}</span>
-            )}
-            {quiz.authorName && <span className="truncate">· by {quiz.authorName}</span>}
-            {quiz.playCount !== undefined && (
-              <span className="shrink-0 tabular-nums">
-                · {formatPlayCount(quiz.playCount)} plays
+              <span className="text-quiz-yellow">
+                ★ {quiz.avgRating.toFixed(1)}
+                {quiz.ratingCount !== undefined && quiz.ratingCount > 0 && (
+                  <span className="text-muted-foreground"> ({quiz.ratingCount})</span>
+                )}
               </span>
             )}
+            {quiz.playCount !== undefined && (
+              <span>🎮 {formatPlayCount(quiz.playCount)} plays</span>
+            )}
+            {quiz.avgScore !== undefined && <span>📊 {Math.round(quiz.avgScore)}% avg</span>}
             {quiz.completed && <PlayedBadge />}
           </div>
         </div>
