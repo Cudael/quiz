@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Menu, Swords } from 'lucide-react'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Logo } from '@/components/ui/logo'
 import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
@@ -30,6 +30,7 @@ const navLinks: NavLink[] = [
 export function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const menuButtonRef = useRef<HTMLButtonElement | null>(null)
+  const panelRef = useRef<HTMLDivElement | null>(null)
   const pathname = usePathname()
   const { data: session } = useSession()
 
@@ -37,6 +38,24 @@ export function Navbar() {
     setDropdownOpen(false)
     menuButtonRef.current?.focus()
   }, [])
+
+  // The header uses `backdrop-blur`, which makes it a containing block for
+  // `position: fixed` descendants — a fixed click-catcher inside it would only
+  // cover the navbar bar, not the rest of the page. Detect outside clicks directly.
+  useEffect(() => {
+    if (!dropdownOpen) return
+
+    function onPointerDown(event: PointerEvent) {
+      const target = event.target as Node
+      if (panelRef.current?.contains(target) || menuButtonRef.current?.contains(target)) {
+        return
+      }
+      setDropdownOpen(false)
+    }
+
+    document.addEventListener('pointerdown', onPointerDown)
+    return () => document.removeEventListener('pointerdown', onPointerDown)
+  }, [dropdownOpen])
 
   function isActive(href: string) {
     return pathname === href || pathname.startsWith(href + '/')
@@ -102,7 +121,7 @@ export function Navbar() {
           <AuthControls />
         </div>
 
-        <NavDropdown open={dropdownOpen} onClose={closeDropdown} />
+        <NavDropdown open={dropdownOpen} onClose={closeDropdown} panelRef={panelRef} />
       </div>
     </header>
   )

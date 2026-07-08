@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect } from 'react'
+import type { RefObject } from 'react'
 import {
   Layers,
   Swords,
@@ -19,6 +20,7 @@ import { cn } from '@/lib/utils'
 interface NavDropdownProps {
   open: boolean
   onClose: () => void
+  panelRef: RefObject<HTMLDivElement | null>
 }
 
 interface MenuSection {
@@ -104,7 +106,7 @@ const SOCIALS = [
   { href: 'https://www.instagram.com/BusQuiz', label: 'Instagram', icon: Instagram },
 ]
 
-export function NavDropdown({ open, onClose }: NavDropdownProps) {
+export function NavDropdown({ open, onClose, panelRef }: NavDropdownProps) {
   const pathname = usePathname()
 
   function isActive(href: string) {
@@ -131,85 +133,82 @@ export function NavDropdown({ open, onClose }: NavDropdownProps) {
   if (!open) return null
 
   return (
-    <>
-      {/* Backdrop */}
-      <div className="fixed inset-0 z-40" onClick={onClose} aria-hidden="true" />
+    <div
+      ref={panelRef}
+      className="absolute top-14 left-0 right-0 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+    >
+      <div className="rounded-md border border-border/40 bg-card shadow-2xl">
+        <div className="p-6 md:p-8">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-3 lg:grid-cols-6">
+            {SECTIONS.map((section) => {
+              const SectionIcon = section.icon
+              return (
+                <div key={section.title}>
+                  <p className="flex items-center gap-2 mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground/70">
+                    <SectionIcon className="h-3.5 w-3.5 shrink-0" />
+                    {section.title}
+                  </p>
+                  <ul className="space-y-0.5">
+                    {section.items.map((item) => {
+                      const active = isActive(item.href)
+                      return (
+                        <li key={item.href}>
+                          <Link
+                            href={item.href}
+                            onClick={onClose}
+                            className={cn(
+                              'block rounded-md px-2 py-1.5 -mx-2 text-sm font-medium transition-colors',
+                              active
+                                ? 'bg-primary/8 text-primary font-bold'
+                                : item.highlighted
+                                  ? 'text-quiz-orange hover:bg-quiz-orange/5 hover:text-quiz-orange'
+                                  : 'text-foreground/70 hover:bg-accent hover:text-foreground'
+                            )}
+                          >
+                            {item.label}
+                          </Link>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                  {section.footer && (
+                    <Link
+                      href={section.footer.href}
+                      onClick={onClose}
+                      className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      {section.footer.label}
+                      <ArrowRight className="h-3 w-3" />
+                    </Link>
+                  )}
+                </div>
+              )
+            })}
+          </div>
 
-      {/* Container-width dropdown panel */}
-      <div className="absolute top-14 left-0 right-0 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-        <div className="rounded-md border border-border/40 bg-card shadow-2xl">
-          <div className="p-6 md:p-8">
-            <div className="grid grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-3 lg:grid-cols-6">
-              {SECTIONS.map((section) => {
-                const SectionIcon = section.icon
-                return (
-                  <div key={section.title}>
-                    <p className="flex items-center gap-2 mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground/70">
-                      <SectionIcon className="h-3.5 w-3.5 shrink-0" />
-                      {section.title}
-                    </p>
-                    <ul className="space-y-0.5">
-                      {section.items.map((item) => {
-                        const active = isActive(item.href)
-                        return (
-                          <li key={item.href}>
-                            <Link
-                              href={item.href}
-                              onClick={onClose}
-                              className={cn(
-                                'block rounded-md px-2 py-1.5 -mx-2 text-sm font-medium transition-colors',
-                                active
-                                  ? 'bg-primary/8 text-primary font-bold'
-                                  : item.highlighted
-                                    ? 'text-quiz-orange hover:bg-quiz-orange/5 hover:text-quiz-orange'
-                                    : 'text-foreground/70 hover:bg-accent hover:text-foreground'
-                              )}
-                            >
-                              {item.label}
-                            </Link>
-                          </li>
-                        )
-                      })}
-                    </ul>
-                    {section.footer && (
-                      <Link
-                        href={section.footer.href}
-                        onClick={onClose}
-                        className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-primary transition-colors"
-                      >
-                        {section.footer.label}
-                        <ArrowRight className="h-3 w-3" />
-                      </Link>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-
-            {/* Social icons */}
-            <div className="mt-6 flex items-center gap-4 border-t border-border/30 pt-4">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
-                Follow us
-              </span>
-              {SOCIALS.map((social) => {
-                const SocialIcon = social.icon
-                return (
-                  <a
-                    key={social.href}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={social.label}
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/50 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary hover:bg-primary/5"
-                  >
-                    <SocialIcon className="h-3.5 w-3.5" />
-                  </a>
-                )
-              })}
-            </div>
+          {/* Social icons */}
+          <div className="mt-6 flex items-center gap-4 border-t border-border/30 pt-4">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
+              Follow us
+            </span>
+            {SOCIALS.map((social) => {
+              const SocialIcon = social.icon
+              return (
+                <a
+                  key={social.href}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.label}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/50 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary hover:bg-primary/5"
+                >
+                  <SocialIcon className="h-3.5 w-3.5" />
+                </a>
+              )
+            })}
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }
