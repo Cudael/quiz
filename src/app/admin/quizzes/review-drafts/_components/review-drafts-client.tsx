@@ -2,11 +2,16 @@
 
 import * as React from 'react'
 import Link from 'next/link'
-import { Check, Copy, ExternalLink, FileDown } from 'lucide-react'
+import { Check, ChevronDown, ChevronUp, Copy, ExternalLink, FileDown } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/components/ui/toast'
+
+/** Drafts with more questions than this are collapsed by default. */
+const AUTO_COLLAPSE_QUESTION_THRESHOLD = 8
+/** Choices beyond this count are hidden behind a "show more" toggle per question. */
+const CHOICE_PREVIEW_LIMIT = 8
 
 interface ChoiceData {
   id: string
@@ -150,9 +155,79 @@ function buildPlainTextExport(drafts: DraftData[]): string {
   return lines.join('\n')
 }
 
+/** Choice list for a question, truncated behind a toggle once it gets long
+ *  (e.g. Image Hotspot questions with one choice per clickable zone). */
+function QuestionChoices({ choices }: { choices: ChoiceData[] }) {
+  const [expanded, setExpanded] = React.useState(false)
+  const isLong = choices.length > CHOICE_PREVIEW_LIMIT
+  const visibleChoices = expanded || !isLong ? choices : choices.slice(0, CHOICE_PREVIEW_LIMIT)
+  const hiddenCount = choices.length - visibleChoices.length
+
+  return (
+    <div className="space-y-1">
+      {visibleChoices.map((c) => (
+        <div
+          key={c.id}
+          className={`flex items-center gap-2 rounded px-3 py-1.5 text-sm ${
+            c.isCorrect ? 'bg-quiz-green/10 font-medium text-quiz-green' : 'text-muted-foreground'
+          }`}
+        >
+          <span
+            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded text-xs ${
+              c.isCorrect
+                ? 'bg-quiz-green text-primary-foreground'
+                : 'border border-muted-foreground/30'
+            }`}
+          >
+            {c.isCorrect ? '✓' : ''}
+          </span>
+          <span>{c.text}</span>
+          {c.isCorrect && <span className="ml-auto text-xs font-semibold">CORRECT</span>}
+        </div>
+      ))}
+      {hiddenCount > 0 && (
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          className="w-full rounded px-3 py-1.5 text-left text-xs font-medium text-primary hover:underline"
+        >
+          + {hiddenCount} more choice{hiddenCount === 1 ? '' : 's'}
+        </button>
+      )}
+      {expanded && isLong && (
+        <button
+          type="button"
+          onClick={() => setExpanded(false)}
+          className="w-full rounded px-3 py-1.5 text-left text-xs font-medium text-muted-foreground hover:underline"
+        >
+          Show fewer
+        </button>
+      )}
+    </div>
+  )
+}
+
 export function ReviewDraftsClient({ drafts }: ReviewDraftsClientProps) {
   const { addToast } = useToast()
   const [copied, setCopied] = React.useState(false)
+  const [collapsedIds, setCollapsedIds] = React.useState<Set<string>>(
+    () =>
+      new Set(
+        drafts.filter((d) => d.questions.length > AUTO_COLLAPSE_QUESTION_THRESHOLD).map((d) => d.id)
+      )
+  )
+
+  const toggleDraft = React.useCallback((id: string) => {
+    setCollapsedIds((current) => {
+      const next = new Set(current)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+      return next
+    })
+  }, [])
 
   const handleCopy = React.useCallback(async () => {
     const text = buildPlainTextExport(drafts)
@@ -185,7 +260,19 @@ export function ReviewDraftsClient({ drafts }: ReviewDraftsClientProps) {
           {drafts.length} draft{drafts.length === 1 ? '' : 's'} \u00b7 {totalQuestions} question
           {totalQuestions === 1 ? '' : 's'} total
         </p>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" onClick={() => setCollapsedIds(new Set())}>
+            <ChevronDown className="h-4 w-4" />
+            Expand all
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCollapsedIds(new Set(drafts.map((d) => d.id)))}
+          >
+            <ChevronUp className="h-4 w-4" />
+            Collapse all
+          </Button>
           <Button variant="outline" size="sm" onClick={handleCopy}>
             {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
             {copied ? 'Copied' : 'Copy all as text'}
@@ -198,120 +285,112 @@ export function ReviewDraftsClient({ drafts }: ReviewDraftsClientProps) {
       </div>
 
       <div className="space-y-8">
-        {drafts.map((draft) => (
-          <Card key={draft.id} id={`draft-${draft.id}`}>
-            <CardHeader>
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <CardTitle className="text-xl">{draft.title}</CardTitle>
-                  <CardDescription className="mt-1">{draft.description}</CardDescription>
+        {drafts.map((draft) => {
+          const collapsed = collapsedIds.has(draft.id)
+          return (
+            <Card key={draft.id} id={`draft-${draft.id}`}>
+              <CardHeader>
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={() => toggleDraft(draft.id)}
+                    className="flex flex-1 items-start gap-2 text-left"
+                    aria-expanded={!collapsed}
+                  >
+                    {collapsed ? (
+                      <ChevronDown className="mt-1 h-4 w-4 shrink-0 text-muted-foreground" />
+                    ) : (
+                      <ChevronUp className="mt-1 h-4 w-4 shrink-0 text-muted-foreground" />
+                    )}
+                    <div>
+                      <CardTitle className="text-xl">{draft.title}</CardTitle>
+                      <CardDescription className="mt-1">{draft.description}</CardDescription>
+                    </div>
+                  </button>
+                  <Button asChild variant="outline" size="sm">
+                    <Link href={`/studio/quiz/${draft.id}/edit`}>
+                      Edit
+                      <ExternalLink className="ml-1 h-3 w-3" />
+                    </Link>
+                  </Button>
                 </div>
-                <Button asChild variant="outline" size="sm">
-                  <Link href={`/studio/quiz/${draft.id}/edit`}>
-                    Edit
-                    <ExternalLink className="ml-1 h-3 w-3" />
-                  </Link>
-                </Button>
-              </div>
-              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                <Badge variant="info">{draft.categoryName}</Badge>
-                <Badge
-                  variant={
-                    draft.difficulty === 'EASY'
-                      ? 'success'
-                      : draft.difficulty === 'HARD'
-                        ? 'destructive'
-                        : 'warning'
-                  }
-                >
-                  {formatDifficulty(draft.difficulty)}
-                </Badge>
-                <Badge variant="purple">{draft.format.replace(/_/g, ' ')}</Badge>
-                <span>
-                  {draft.questions.length} question{draft.questions.length === 1 ? '' : 's'}
-                </span>
-                <span>by {draft.authorName}</span>
-              </div>
-            </CardHeader>
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                  <Badge variant="info">{draft.categoryName}</Badge>
+                  <Badge
+                    variant={
+                      draft.difficulty === 'EASY'
+                        ? 'success'
+                        : draft.difficulty === 'HARD'
+                          ? 'destructive'
+                          : 'warning'
+                    }
+                  >
+                    {formatDifficulty(draft.difficulty)}
+                  </Badge>
+                  <Badge variant="purple">{draft.format.replace(/_/g, ' ')}</Badge>
+                  <span>
+                    {draft.questions.length} question{draft.questions.length === 1 ? '' : 's'}
+                  </span>
+                  <span>by {draft.authorName}</span>
+                </div>
+              </CardHeader>
 
-            <CardContent className="space-y-6">
-              {draft.questions.map((q) => (
-                <div key={q.id} className="rounded-md border border-border bg-muted/30 p-4">
-                  <div className="mb-2 flex items-start gap-2">
-                    <span className="mt-0.5 shrink-0 rounded bg-primary/10 px-1.5 py-0.5 text-xs font-bold text-primary">
-                      Q{q.order + 1}
-                    </span>
-                    <span className="text-xs font-medium text-muted-foreground">
-                      {getQuestionLabel(q)}
-                    </span>
-                  </div>
-
-                  <p className="mb-3 font-medium">{q.prompt}</p>
-
-                  {q.type === 'NUMBER_GUESS' && (
-                    <div className="rounded bg-quiz-green/5 px-3 py-2 text-sm">
-                      <span className="font-semibold text-quiz-green">Answer: </span>
-                      <span>{getCorrectAnswer(q)}</span>
-                      {typeof q.meta?.unit === 'string' && q.meta.unit && (
-                        <span className="ml-1 text-muted-foreground">
-                          ({q.meta.unit as string})
+              {!collapsed && (
+                <CardContent className="space-y-6">
+                  {draft.questions.map((q) => (
+                    <div key={q.id} className="rounded-md border border-border bg-muted/30 p-4">
+                      <div className="mb-2 flex items-start gap-2">
+                        <span className="mt-0.5 shrink-0 rounded bg-primary/10 px-1.5 py-0.5 text-xs font-bold text-primary">
+                          Q{q.order + 1}
                         </span>
-                      )}
-                      {q.meta?.min != null && q.meta?.max != null && (
-                        <span className="ml-2 text-xs text-muted-foreground">
-                          Range: {String(q.meta.min)}\u2013{String(q.meta.max)} \u00b7 Tolerance:
-                          \u00b1{String(q.meta.tolerance ?? 0)}
+                        <span className="text-xs font-medium text-muted-foreground">
+                          {getQuestionLabel(q)}
                         </span>
-                      )}
-                    </div>
-                  )}
+                      </div>
 
-                  {q.type === 'FILL_BLANK' && (
-                    <div className="rounded bg-quiz-green/5 px-3 py-2 text-sm">
-                      <span className="font-semibold text-quiz-green">Accepted: </span>
-                      <span>{getCorrectAnswer(q)}</span>
-                    </div>
-                  )}
+                      <p className="mb-3 font-medium">{q.prompt}</p>
 
-                  {q.type !== 'NUMBER_GUESS' && q.type !== 'FILL_BLANK' && (
-                    <div className="space-y-1">
-                      {q.choices.map((c) => (
-                        <div
-                          key={c.id}
-                          className={`flex items-center gap-2 rounded px-3 py-1.5 text-sm ${
-                            c.isCorrect
-                              ? 'bg-quiz-green/10 font-medium text-quiz-green'
-                              : 'text-muted-foreground'
-                          }`}
-                        >
-                          <span
-                            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded text-xs ${
-                              c.isCorrect
-                                ? 'bg-quiz-green text-primary-foreground'
-                                : 'border border-muted-foreground/30'
-                            }`}
-                          >
-                            {c.isCorrect ? '\u2713' : ''}
-                          </span>
-                          <span>{c.text}</span>
-                          {c.isCorrect && (
-                            <span className="ml-auto text-xs font-semibold">CORRECT</span>
+                      {q.type === 'NUMBER_GUESS' && (
+                        <div className="rounded bg-quiz-green/5 px-3 py-2 text-sm">
+                          <span className="font-semibold text-quiz-green">Answer: </span>
+                          <span>{getCorrectAnswer(q)}</span>
+                          {typeof q.meta?.unit === 'string' && q.meta.unit && (
+                            <span className="ml-1 text-muted-foreground">
+                              ({q.meta.unit as string})
+                            </span>
+                          )}
+                          {q.meta?.min != null && q.meta?.max != null && (
+                            <span className="ml-2 text-xs text-muted-foreground">
+                              Range: {String(q.meta.min)}\u2013{String(q.meta.max)} \u00b7
+                              Tolerance: \u00b1{String(q.meta.tolerance ?? 0)}
+                            </span>
                           )}
                         </div>
-                      ))}
-                    </div>
-                  )}
+                      )}
 
-                  {q.explanation && (
-                    <p className="mt-2 text-xs text-muted-foreground italic">
-                      {'\uD83D\uDCA1'} {q.explanation}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        ))}
+                      {q.type === 'FILL_BLANK' && (
+                        <div className="rounded bg-quiz-green/5 px-3 py-2 text-sm">
+                          <span className="font-semibold text-quiz-green">Accepted: </span>
+                          <span>{getCorrectAnswer(q)}</span>
+                        </div>
+                      )}
+
+                      {q.type !== 'NUMBER_GUESS' && q.type !== 'FILL_BLANK' && (
+                        <QuestionChoices choices={q.choices} />
+                      )}
+
+                      {q.explanation && (
+                        <p className="mt-2 text-xs text-muted-foreground italic">
+                          {'\uD83D\uDCA1'} {q.explanation}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </CardContent>
+              )}
+            </Card>
+          )
+        })}
       </div>
     </>
   )
