@@ -93,6 +93,7 @@ export function ZoneMarker({
 
   return (
     <div
+      data-zone-marker
       className={`absolute ${draggable ? 'pointer-events-auto cursor-pointer touch-none active:cursor-grabbing hover:ring-2 hover:ring-quiz-orange/50' : 'pointer-events-none'} transition-opacity duration-700 ${fading ? 'opacity-0' : 'opacity-100'} rounded-full`}
       style={{
         left: `${x}%`,
