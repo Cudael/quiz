@@ -57,12 +57,12 @@ export async function generateMetadata({
 
   if (!quiz) {
     return {
-      title: 'Quiz not found | BusQuiz',
+      title: 'Quiz not found',
       description: 'This quiz could not be found.',
     }
   }
 
-  const title = `${quiz.title} by ${getDisplayAuthorName(quiz.author)} • ${quiz.category.name} | BusQuiz`
+  const title = `${quiz.title} by ${getDisplayAuthorName(quiz.author)} • ${quiz.category.name}`
   const description = quiz.description || `Take ${quiz.title} and climb the leaderboard on BusQuiz.`
   const path = `/quiz/${slug}`
   const url = absoluteUrl(path)

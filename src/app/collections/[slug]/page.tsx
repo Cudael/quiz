@@ -22,14 +22,14 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params
   const collection = getQuizCollection(slug)
-  if (!collection) return { title: 'Collection not found | BusQuiz' }
+  if (!collection) return { title: 'Collection not found' }
 
   return {
-    title: `${collection.title} | BusQuiz`,
+    title: collection.title,
     description: collection.description,
     alternates: { canonical: `/collections/${collection.slug}` },
     openGraph: {
-      title: `${collection.title} | BusQuiz`,
+      title: collection.title,
       description: collection.description,
       url: absoluteUrl(`/collections/${collection.slug}`),
     },

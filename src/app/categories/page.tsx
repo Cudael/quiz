@@ -11,7 +11,7 @@ import { getQuizPath } from '@/lib/quiz-url'
 import { categoryIcons } from '@/lib/category-icons'
 
 export const metadata: Metadata = {
-  title: 'Quiz Categories | BusQuiz',
+  title: 'Quiz Categories',
   description: 'Browse quiz categories and jump into your next challenge.',
   alternates: {
     canonical: '/categories',

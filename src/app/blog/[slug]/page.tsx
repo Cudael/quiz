@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   if (!post) return {}
 
   return {
-    title: `${post.title} — BusQuiz Blog`,
+    title: `${post.title} — Blog`,
     description: post.description,
     alternates: {
       canonical: `/blog/${post.slug}`,

@@ -4,7 +4,7 @@ import { prisma } from '@/server/prisma'
 import { absoluteUrl } from '@/lib/site'
 
 export const metadata: Metadata = {
-  title: 'Global Quiz Stats | BusQuiz',
+  title: 'Global Quiz Stats',
   description: 'Live statistics from the BusQuiz platform. Total quizzes, players, plays and more.',
   alternates: { canonical: '/stats' },
   openGraph: {

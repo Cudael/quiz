@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { absoluteUrl } from '@/lib/site'
 
 export const metadata: Metadata = {
-  title: 'Contact | BusQuiz',
+  title: 'Contact',
   description: 'Get in touch with the BusQuiz team for support, privacy requests, or general help.',
   alternates: { canonical: '/contact' },
   openGraph: {

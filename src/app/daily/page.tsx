@@ -1,25 +1,48 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
+import { cache } from 'react'
 import { CalendarDays, CheckCircle2, Flame, Users, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
-import { getDailyQuiz, getDailyKey } from '@/server/daily'
+import { getDailyQuiz as getDailyQuizUncached, getDailyKey } from '@/server/daily'
 import { absoluteUrl } from '@/lib/site'
 import { getQuizPath } from '@/lib/quiz-url'
 
-export const metadata: Metadata = {
-  title: 'Daily Quiz | BusQuiz',
-  description:
-    'One quiz, once a day, for everyone. Play today’s daily quiz and see how you stack up.',
-  alternates: { canonical: '/daily' },
-  openGraph: {
-    title: 'Daily Quiz | BusQuiz',
-    description: 'One quiz, once a day, for everyone. Can you top today’s board?',
-    url: absoluteUrl('/daily'),
-  },
+const getDailyQuiz = cache(getDailyQuizUncached)
+
+export async function generateMetadata(): Promise<Metadata> {
+  const daily = await getDailyQuiz()
+  if (!daily) {
+    return {
+      title: 'Daily Quiz',
+      description:
+        'One quiz, once a day, for everyone. Play today’s daily quiz and see how you stack up.',
+      alternates: { canonical: '/daily' },
+    }
+  }
+
+  const title = `Daily Quiz — ${daily.quiz.title}`
+  const description = `Today's daily quiz: ${daily.quiz.title} (${daily.quiz.category.name}). One quiz, once a day, same for everyone — see how you stack up.`
+
+  return {
+    title,
+    description,
+    alternates: { canonical: '/daily' },
+    openGraph: {
+      title,
+      description,
+      url: absoluteUrl('/daily'),
+      images: daily.quiz.coverImage ? [daily.quiz.coverImage] : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+  }
 }
 
 export const dynamic = 'force-dynamic'

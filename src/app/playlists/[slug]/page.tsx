@@ -7,6 +7,7 @@ import { prisma } from '@/server/prisma'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { QuizCard } from '@/components/ui/quiz-card'
+import { absoluteUrl } from '@/lib/site'
 import { removeFromPlaylist } from '../actions'
 
 export async function generateMetadata({
@@ -22,9 +23,22 @@ export async function generateMetadata({
   if (!playlist || !playlist.isPublic) {
     return { title: 'Playlist', robots: { index: false } }
   }
+  const title = `${playlist.title} — Quiz Playlist`
+  const description = playlist.description ?? `A hand-picked playlist of quizzes: ${playlist.title}`
   return {
-    title: `${playlist.title} — Quiz Playlist`,
-    description: playlist.description ?? `A hand-picked playlist of quizzes: ${playlist.title}`,
+    title,
+    description,
+    alternates: { canonical: `/playlists/${slug}` },
+    openGraph: {
+      title,
+      description,
+      url: absoluteUrl(`/playlists/${slug}`),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
   }
 }
 

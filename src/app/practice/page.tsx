@@ -9,7 +9,7 @@ import { prisma } from '@/server/prisma'
 import { getQuizPath } from '@/lib/quiz-url'
 
 export const metadata: Metadata = {
-  title: 'Practice Mode | BusQuiz',
+  title: 'Practice Mode',
   description: 'Review and replay the questions you got wrong — no pressure, no XP, just learning.',
   robots: { index: false },
 }

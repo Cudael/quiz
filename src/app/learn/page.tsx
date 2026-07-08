@@ -16,7 +16,7 @@ import { absoluteUrl } from '@/lib/site'
 import { getAllBlogPosts } from '@/content/blog-posts'
 
 export const metadata: Metadata = {
-  title: 'Learn | BusQuiz',
+  title: 'Learn',
   description:
     'Expand your knowledge with quizzes, trivia facts, and blog articles. The smarter way to learn.',
   alternates: { canonical: '/learn' },

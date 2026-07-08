@@ -5,7 +5,7 @@ import { absoluteUrl } from '@/lib/site'
 import { SurvivalGame } from './survival-game'
 
 export const metadata: Metadata = {
-  title: 'Survival Mode | BusQuiz',
+  title: 'Survival Mode',
   description:
     'How long can you last? Answer questions until you get one wrong. One life, no second chances.',
   alternates: { canonical: '/survival' },

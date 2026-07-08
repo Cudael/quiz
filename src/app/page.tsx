@@ -9,6 +9,9 @@ export const metadata: Metadata = {
   title: 'Free Online Quiz & Trivia Platform',
   description:
     'Test your knowledge across hundreds of categories. Create quizzes, compete on leaderboards, and earn badges.',
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     title: 'Free Online Quiz & Trivia Platform',
     description:

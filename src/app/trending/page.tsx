@@ -10,7 +10,7 @@ import { WEEK_IN_MS } from '@/lib/time'
 import { getDisplayAuthorName } from '@/lib/author-display'
 
 export const metadata: Metadata = {
-  title: 'Trending Quizzes | BusQuiz',
+  title: 'Trending Quizzes',
   description:
     'The quizzes everyone is playing this week. See what is trending on BusQuiz right now.',
   alternates: { canonical: '/trending' },

@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { absoluteUrl } from '@/lib/site'
 
 export const metadata: Metadata = {
-  title: 'Terms of Service | BusQuiz',
+  title: 'Terms of Service',
   description:
     'Read the terms and conditions for using BusQuiz, including account rules, content guidelines, and limitations.',
   alternates: { canonical: '/terms' },

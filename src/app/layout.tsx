@@ -31,14 +31,12 @@ export const metadata: Metadata = {
     type: 'website',
     siteName: 'BusQuiz',
     locale: 'en_US',
-    images: ['/og-default.png'],
   },
   twitter: {
     card: 'summary_large_image',
     title: siteConfig.title,
     description: siteConfig.description,
     site: '@PlayBusQuiz',
-    images: ['/og-default.png'],
   },
 }
 

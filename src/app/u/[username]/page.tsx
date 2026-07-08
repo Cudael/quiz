@@ -25,7 +25,7 @@ export async function generateMetadata({
 
   if (!user) {
     return {
-      title: 'Profile not found | BusQuiz',
+      title: 'Profile not found',
       description: 'This player profile could not be found.',
     }
   }

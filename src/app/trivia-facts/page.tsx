@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { absoluteUrl } from '@/lib/site'
 
 export const metadata: Metadata = {
-  title: 'Trivia Facts | BusQuiz',
+  title: 'Trivia Facts',
   description:
     'Fascinating trivia facts that will blow your mind. Learn something new every day with BusQuiz.',
   alternates: { canonical: '/trivia-facts' },

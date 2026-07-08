@@ -9,7 +9,7 @@ import { absoluteUrl } from '@/lib/site'
 import { getDisplayAuthorName } from '@/lib/author-display'
 
 export const metadata: Metadata = {
-  title: 'Most Popular Quizzes | BusQuiz',
+  title: 'Most Popular Quizzes',
   description:
     'The all-time most played quizzes on BusQuiz. See what thousands of players are enjoying.',
   alternates: { canonical: '/popular' },

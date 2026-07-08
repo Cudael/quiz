@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { absoluteUrl } from '@/lib/site'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | BusQuiz',
+  title: 'Privacy Policy',
   description:
     'Learn what BusQuiz collects, how it is used, and how to contact us about privacy requests.',
   alternates: { canonical: '/privacy' },

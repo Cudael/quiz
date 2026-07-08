@@ -91,13 +91,13 @@ export async function generateMetadata({
 
   if (!category) {
     return {
-      title: 'Category not found | BusQuiz',
+      title: 'Category not found',
       description: 'This category could not be found.',
       alternates: { canonical: `/categories/${slug}` },
     }
   }
 
-  const title = `${category.name} Quizzes | BusQuiz`
+  const title = `${category.name} Quizzes`
   const description =
     category.description || `Play quizzes in the ${category.name} category on BusQuiz.`
   const url = absoluteUrl(`/categories/${category.slug}`)

@@ -20,7 +20,7 @@ const BADGE_EMOJIS: Record<string, string> = {
 }
 
 export const metadata: Metadata = {
-  title: 'Earn Badges | BusQuiz',
+  title: 'Earn Badges',
   description:
     'Play quizzes, build streaks, and unlock achievements. See all available badges on BusQuiz.',
   alternates: { canonical: '/badges' },

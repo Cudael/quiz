@@ -43,7 +43,7 @@ export async function generateMetadata({
     : null
   const categoryLabel = params.categories[0]
   const suffix = [quiz?.title, categoryLabel].filter(Boolean).join(' • ')
-  const title = `Leaderboard — ${periodLabel}${suffix ? ` • ${suffix}` : ''} | BusQuiz`
+  const title = `Leaderboard — ${periodLabel}${suffix ? ` • ${suffix}` : ''}`
 
   // Only index the base leaderboard; filtered views are crawl bait
   const hasFilters =

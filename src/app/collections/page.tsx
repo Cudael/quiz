@@ -7,7 +7,7 @@ import { absoluteUrl } from '@/lib/site'
 import { serializeJsonLd } from '@/lib/seo'
 
 export const metadata: Metadata = {
-  title: 'Quiz Collections | BusQuiz',
+  title: 'Quiz Collections',
   description: 'Browse curated quiz collections for focused trivia practice and quick challenges.',
   alternates: { canonical: '/collections' },
   openGraph: {

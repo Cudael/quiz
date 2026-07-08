@@ -54,6 +54,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
+      url: absoluteUrl('/daily'),
+      lastModified: STATIC_LAST_MODIFIED,
+      changeFrequency: 'daily',
+      priority: 0.7,
+    },
+    {
       url: absoluteUrl('/badges'),
       lastModified: STATIC_LAST_MODIFIED,
       changeFrequency: 'weekly',

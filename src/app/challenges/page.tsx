@@ -9,7 +9,7 @@ import { ensureDefaultQuests, getQuestBoard } from '@/server/quests'
 import { QuestBoard } from './_components/quest-board'
 
 export const metadata: Metadata = {
-  title: 'Quiz Challenges | BusQuiz',
+  title: 'Quiz Challenges',
   description:
     'Daily, weekly, and monthly quiz challenges. Keep your streak alive and climb the leaderboard.',
   alternates: { canonical: '/challenges' },
