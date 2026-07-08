@@ -81,9 +81,8 @@ function ArcadePlayButton({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
         sizes[size],
         'flex items-center justify-center rounded-full',
         'bg-foreground',
-        'shadow-[0_4px_0_0_hsl(var(--foreground)/0.35),0_0_0_3px_hsl(var(--foreground)/0.15)]',
-        'transition-all duration-150',
-        'group-hover:shadow-[0_2px_0_0_hsl(var(--foreground)/0.35),0_0_0_3px_hsl(var(--foreground)/0.2)] group-hover:translate-y-[2px]'
+        'transition-transform duration-150',
+        'group-hover:scale-105'
       )}
       aria-hidden="true"
     >
@@ -310,8 +309,8 @@ export const QuizCardFeatured = React.memo(function QuizCardFeatured({
   return (
     <Link href={getQuizPath(quiz)} className={cn('group block min-w-0 w-full h-full', className)}>
       <div className="flex h-full flex-col overflow-hidden rounded-md border bg-card transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-hard-sm">
-        {/* Square image area */}
-        <div className="relative aspect-square w-full">
+        {/* Image area — grows to fill available height instead of leaving dead space below */}
+        <div className="relative w-full flex-1 min-h-55">
           <div
             className="absolute inset-0"
             style={{ backgroundImage: getFallbackGradient(quiz.category.color) }}
@@ -341,33 +340,25 @@ export const QuizCardFeatured = React.memo(function QuizCardFeatured({
           </div>
         </div>
 
-        {/* Info section — fills the remaining height with real content instead of dead space */}
-        <div className="flex flex-1 flex-col gap-2 bg-card px-4 py-3.5">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="line-clamp-2 flex-1 text-base font-extrabold leading-tight text-foreground sm:text-lg">
+        {/* Info footer — compact and fixed-height, like the other card variants */}
+        <div className="flex shrink-0 items-center justify-between gap-3 bg-card px-4 py-3">
+          <div className="min-w-0 flex-1">
+            <h3 className="truncate text-base font-extrabold leading-tight text-foreground sm:text-lg">
               {quiz.title}
             </h3>
-            <div className="shrink-0">
-              <ArcadePlayButton size="md" />
+            <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs font-medium text-muted-foreground">
+              {quiz.authorName && <span className="truncate">by {quiz.authorName}</span>}
+              {quiz.avgRating !== undefined && (
+                <span className="shrink-0 text-quiz-yellow">★ {quiz.avgRating.toFixed(1)}</span>
+              )}
+              {quiz.playCount !== undefined && (
+                <span className="shrink-0">· {formatPlayCount(quiz.playCount)} plays</span>
+              )}
+              {quiz.completed && <PlayedBadge />}
             </div>
           </div>
-          {quiz.authorName && (
-            <p className="truncate text-xs text-muted-foreground">by {quiz.authorName}</p>
-          )}
-          <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-medium text-muted-foreground">
-            {quiz.avgRating !== undefined && (
-              <span className="text-quiz-yellow">
-                ★ {quiz.avgRating.toFixed(1)}
-                {quiz.ratingCount !== undefined && quiz.ratingCount > 0 && (
-                  <span className="text-muted-foreground"> ({quiz.ratingCount})</span>
-                )}
-              </span>
-            )}
-            {quiz.playCount !== undefined && (
-              <span>🎮 {formatPlayCount(quiz.playCount)} plays</span>
-            )}
-            {quiz.avgScore !== undefined && <span>📊 {Math.round(quiz.avgScore)}% avg</span>}
-            {quiz.completed && <PlayedBadge />}
+          <div className="shrink-0">
+            <ArcadePlayButton size="md" />
           </div>
         </div>
       </div>
