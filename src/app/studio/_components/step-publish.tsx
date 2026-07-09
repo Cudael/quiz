@@ -229,7 +229,7 @@ export function StepPublish({ quizId, quizSlug: initialSlug }: StepPublishProps)
         setMeta({ isPublished: true })
         setLastSaved(new Date())
         addToast('Quiz published! 🎉', 'success')
-        router.push(`/quiz/${newQuizSlug}`)
+        router.push(`/studio/quiz/${newQuizId}/published`)
         return
       }
 
@@ -266,9 +266,14 @@ export function StepPublish({ quizId, quizSlug: initialSlug }: StepPublishProps)
         return
       }
 
-      setMeta({ isPublished: !isPublished })
+      const wasPublished = isPublished
+      setMeta({ isPublished: !wasPublished })
       setLastSaved(new Date())
-      addToast(isPublished ? 'Quiz unpublished.' : 'Quiz published! 🎉', 'success')
+      addToast(wasPublished ? 'Quiz unpublished.' : 'Quiz published! 🎉', 'success')
+      if (!wasPublished) {
+        router.push(`/studio/quiz/${quizId}/published`)
+        return
+      }
     } catch (error) {
       console.error(error)
       addToast('Could not update quiz publishing status.', 'error')
