@@ -16,6 +16,22 @@ interface ZoneFormState {
   radius: number
 }
 
+/** Clamp pan so the zoomed image can never expose empty space past its own edges. */
+function clampPan(
+  x: number,
+  y: number,
+  zoomLevel: number,
+  width: number,
+  height: number
+): { x: number; y: number } {
+  const minX = width * (1 - zoomLevel)
+  const minY = height * (1 - zoomLevel)
+  return {
+    x: Math.min(0, Math.max(minX, x)),
+    y: Math.min(0, Math.max(minY, y)),
+  }
+}
+
 export function HotspotQuestionEditor() {
   const { questions, sharedImageUrl, addQuestion, updateQuestion, setMeta, setQuestions } =
     useQuizCreatorStore()
@@ -115,10 +131,9 @@ export function HotspotQuestionEditor() {
         setPanOffset({ x: 0, y: 0 })
       } else {
         const ratio = newZoom / zoom
-        setPanOffset({
-          x: cursorX - ratio * (cursorX - panOffset.x),
-          y: cursorY - ratio * (cursorY - panOffset.y),
-        })
+        const rawX = cursorX - ratio * (cursorX - panOffset.x)
+        const rawY = cursorY - ratio * (cursorY - panOffset.y)
+        setPanOffset(clampPan(rawX, rawY, newZoom, rect.width, rect.height))
       }
     },
     [zoom, panOffset]
@@ -149,12 +164,14 @@ export function HotspotQuestionEditor() {
       if (!isPanning) return
       const dx = e.clientX - panStartRef.current.x
       const dy = e.clientY - panStartRef.current.y
-      setPanOffset({
-        x: panStartRef.current.panX + dx,
-        y: panStartRef.current.panY + dy,
-      })
+      const rawX = panStartRef.current.panX + dx
+      const rawY = panStartRef.current.panY + dy
+      const rect = imageContainerRef.current?.getBoundingClientRect()
+      setPanOffset(
+        rect ? clampPan(rawX, rawY, zoom, rect.width, rect.height) : { x: rawX, y: rawY }
+      )
     },
-    [isPanning]
+    [isPanning, zoom]
   )
 
   const handlePanEnd = useCallback(() => {
@@ -191,10 +208,9 @@ export function HotspotQuestionEditor() {
         const cx = rect.width / 2
         const cy = rect.height / 2
         const ratio = newZoom / zoom
-        setPanOffset({
-          x: cx - ratio * (cx - panOffset.x),
-          y: cy - ratio * (cy - panOffset.y),
-        })
+        const rawX = cx - ratio * (cx - panOffset.x)
+        const rawY = cy - ratio * (cy - panOffset.y)
+        setPanOffset(clampPan(rawX, rawY, newZoom, rect.width, rect.height))
       }
     },
     [zoom, panOffset]
