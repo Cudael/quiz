@@ -12,6 +12,7 @@ export function useDuelSession(duelId: string) {
   const [state, setState] = useState<DuelStatePayload | null>(null)
   const [loading, setLoading] = useState(true)
   const [submittingStart, setSubmittingStart] = useState(false)
+  const [submittingJoin, setSubmittingJoin] = useState(false)
   const [answers, setAnswers] = useState<Record<string, DuelAnswer>>({})
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [timeRemainingMs, setTimeRemainingMs] = useState<number | null>(null)
@@ -195,6 +196,20 @@ export function useDuelSession(duelId: string) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasAnsweredCurrent, currentQuestion?.id, currentQuestion?.type, submitted])
 
+  const joinDuel = useCallback(async () => {
+    setSubmittingJoin(true)
+    try {
+      const response = await fetch(`/api/duel/${duelId}/join`, { method: 'POST' })
+      if (!response.ok) {
+        addToast(await readErrorMessage(response, 'Could not join duel.'), 'error')
+        return
+      }
+      await fetchState()
+    } finally {
+      setSubmittingJoin(false)
+    }
+  }, [duelId, addToast, fetchState])
+
   const startDuel = useCallback(async () => {
     setSubmittingStart(true)
     try {
@@ -213,6 +228,7 @@ export function useDuelSession(duelId: string) {
     state,
     loading,
     submittingStart,
+    submittingJoin,
     answers,
     setAnswers,
     currentQuestionIndex,
@@ -227,5 +243,6 @@ export function useDuelSession(duelId: string) {
     viewerParticipant,
     questionStartRef,
     startDuel,
+    joinDuel,
   }
 }

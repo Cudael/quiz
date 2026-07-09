@@ -2,35 +2,23 @@ import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { Prisma } from '@prisma/client'
 import { auth } from '@/server/auth'
-import { joinDuelSchema } from '@/schemas'
 import { prisma } from '@/server/prisma'
 import { checkRateLimit, getClientIp } from '@/server/rate-limit'
 
 const JOIN_RATE_LIMIT = { limit: 20, windowMs: 5 * 60 * 1000 } as const
 const GUEST_COOKIE_MAX_AGE_SEC = 60 * 60 * 24 * 365
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const ip = getClientIp(req)
   if (!(await checkRateLimit(`duel-join:${ip}`, JOIN_RATE_LIMIT))) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
   }
 
   const session = await auth()
-
-  let rawBody: unknown
-  try {
-    rawBody = await req.json()
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
-  }
-
-  const parsed = joinDuelSchema.safeParse(rawBody)
-  if (!parsed.success) {
-    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
-  }
+  const { id } = await params
 
   const duel = await prisma.duel.findUnique({
-    where: { code: parsed.data.code },
+    where: { id },
     select: {
       id: true,
       code: true,

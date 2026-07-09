@@ -15,6 +15,7 @@ export function DuelView({ duelId }: DuelViewProps) {
     state,
     loading,
     submittingStart,
+    submittingJoin,
     answers,
     setAnswers,
     currentQuestionIndex,
@@ -29,6 +30,7 @@ export function DuelView({ duelId }: DuelViewProps) {
     viewerParticipant,
     questionStartRef,
     startDuel,
+    joinDuel,
   } = useDuelSession(duelId)
 
   if (loading || !state) {
@@ -55,8 +57,12 @@ export function DuelView({ duelId }: DuelViewProps) {
         state={state}
         participantCount={participantCount}
         submittingStart={submittingStart}
+        submittingJoin={submittingJoin}
         onStart={() => {
           startDuel().catch(() => {})
+        }}
+        onJoin={() => {
+          joinDuel().catch(() => {})
         }}
       />
     )
@@ -64,6 +70,26 @@ export function DuelView({ duelId }: DuelViewProps) {
 
   if (state.duel.status === 'FINISHED') {
     return <DuelResults state={state} />
+  }
+
+  // A visitor who arrived after the duel already started (e.g. a stale link)
+  // was never added as a participant and has nothing to play — show a clear
+  // message instead of falling through to a broken question panel.
+  if (!state.isHost && !state.viewerParticipantId) {
+    return (
+      <div className="container mx-auto max-w-2xl px-4 py-10">
+        <Card>
+          <CardHeader>
+            <CardTitle>This duel has already started</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              You&apos;ll need to join before the next round begins, or create a new duel to play.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   if (viewerParticipant?.finished || submitted) {
