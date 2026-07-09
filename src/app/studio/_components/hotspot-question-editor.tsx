@@ -21,6 +21,7 @@ export function HotspotQuestionEditor() {
     useQuizCreatorStore()
   const defaultTimeLimitSec = useQuizCreatorStore((state) => state.defaultTimeLimitSec)
 
+  const [isPlacingZone, setIsPlacingZone] = useState(false)
   const [selectedZone, setSelectedZone] = useState<{ x: number; y: number } | null>(null)
   const [zoneForm, setZoneForm] = useState<ZoneFormState>({
     name: '',
@@ -83,7 +84,9 @@ export function HotspotQuestionEditor() {
 
   const handleImageClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (isPanning) return
+      // Only place a zone when the author has explicitly turned on "Add
+      // Zone" mode — otherwise every click/pan attempt would start one.
+      if (isPanning || !isPlacingZone) return
       // Clicking an existing marker bubbles up to this handler too — only
       // start a new-zone placement when the click actually hit empty space.
       const target = e.target as HTMLElement
@@ -93,7 +96,7 @@ export function HotspotQuestionEditor() {
       setSelectedZone({ x: pct.x, y: pct.y })
       setZoneForm((f) => ({ name: '', radius: f.radius }))
     },
-    [screenToPercent, isPanning]
+    [screenToPercent, isPanning, isPlacingZone]
   )
 
   /** Wheel zoom — zoom toward cursor position. */
@@ -105,11 +108,18 @@ export function HotspotQuestionEditor() {
       const cursorX = e.clientX - rect.left
       const cursorY = e.clientY - rect.top
       const newZoom = Math.min(5, Math.max(1, zoom - e.deltaY * 0.005))
-      const ratio = newZoom / zoom
-      const newPanX = cursorX - ratio * (cursorX - panOffset.x)
-      const newPanY = cursorY - ratio * (cursorY - panOffset.y)
       setZoom(newZoom)
-      setPanOffset({ x: newPanX, y: newPanY })
+      // Back at 100%, there's nothing to pan — force-center so zooming back
+      // out always returns to the original view instead of drifting.
+      if (newZoom <= 1) {
+        setPanOffset({ x: 0, y: 0 })
+      } else {
+        const ratio = newZoom / zoom
+        setPanOffset({
+          x: cursorX - ratio * (cursorX - panOffset.x),
+          y: cursorY - ratio * (cursorY - panOffset.y),
+        })
+      }
     },
     [zoom, panOffset]
   )
@@ -172,13 +182,20 @@ export function HotspotQuestionEditor() {
       if (!imageContainerRef.current || !imageNaturalRef.current) return
       const rect = imageContainerRef.current.getBoundingClientRect()
       const newZoom = Math.min(5, Math.max(1, zoom + step))
-      const cx = rect.width / 2
-      const cy = rect.height / 2
-      const ratio = newZoom / zoom
-      const newPanX = cx - ratio * (cx - panOffset.x)
-      const newPanY = cy - ratio * (cy - panOffset.y)
       setZoom(newZoom)
-      setPanOffset({ x: newPanX, y: newPanY })
+      // Back at 100%, there's nothing to pan — force-center so zooming back
+      // out always returns to the original view instead of drifting.
+      if (newZoom <= 1) {
+        setPanOffset({ x: 0, y: 0 })
+      } else {
+        const cx = rect.width / 2
+        const cy = rect.height / 2
+        const ratio = newZoom / zoom
+        setPanOffset({
+          x: cx - ratio * (cx - panOffset.x),
+          y: cy - ratio * (cy - panOffset.y),
+        })
+      }
     },
     [zoom, panOffset]
   )
@@ -391,8 +408,9 @@ export function HotspotQuestionEditor() {
       <div className="rounded-md border border-quiz-orange/20 bg-quiz-orange/5 px-4 py-3">
         <p className="text-sm font-semibold text-quiz-orange">Image Hotspot Quiz</p>
         <p className="mt-0.5 text-sm text-muted-foreground">
-          Upload an image and click on it to place zones. Drag existing zones to reposition them.
-          Each zone becomes a question where players must click that area of the image.
+          Upload an image, then click &quot;Add zone&quot; and click on the image to place a zone.
+          Drag existing zones to reposition them. Each zone becomes a question where players must
+          click that area of the image.
         </p>
       </div>
 
@@ -414,13 +432,29 @@ export function HotspotQuestionEditor() {
           {/* Image section — full width */}
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <p className="text-sm font-medium">Click to place a zone, drag to reposition</p>
+              <p className="text-sm font-medium">
+                {isPlacingZone
+                  ? 'Click on the image to place a zone'
+                  : 'Drag existing zones to reposition them'}
+              </p>
               <div className="flex items-center gap-2">
                 {selectedZone && (
                   <Badge variant="secondary" className="text-xs">
                     Selected: ({selectedZone.x.toFixed(1)}, {selectedZone.y.toFixed(1)})
                   </Badge>
                 )}
+                <Button
+                  type="button"
+                  variant={isPlacingZone ? 'accent' : 'outline'}
+                  size="sm"
+                  onClick={() => {
+                    setIsPlacingZone((prev) => !prev)
+                    setSelectedZone(null)
+                  }}
+                >
+                  <PlusCircle className="h-3.5 w-3.5" />
+                  {isPlacingZone ? 'Cancel adding zone' : 'Add zone'}
+                </Button>
                 <Button
                   type="button"
                   variant="outline"
@@ -472,9 +506,11 @@ export function HotspotQuestionEditor() {
               style={
                 isPanning
                   ? { cursor: 'grabbing' }
-                  : zoom > 1
-                    ? { cursor: 'grab' }
-                    : { cursor: 'crosshair' }
+                  : isPlacingZone
+                    ? { cursor: 'crosshair' }
+                    : zoom > 1
+                      ? { cursor: 'grab' }
+                      : { cursor: 'default' }
               }
               onClick={handleImageClick}
               onMouseDown={handlePanStart}
