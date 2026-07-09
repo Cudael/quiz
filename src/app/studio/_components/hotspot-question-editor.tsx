@@ -60,20 +60,22 @@ export function HotspotQuestionEditor() {
     return zones
   }, [questions])
 
-  /** Convert a screen (client) point to image-space percentage coordinates. */
+  /** Convert a screen (client) point to image-space percentage coordinates.
+   *  Percentages must be measured against the image's *rendered* box (`rect`),
+   *  not its natural pixel resolution — those only match by coincidence, so
+   *  dividing by natural width/height systematically skewed positions toward
+   *  the top-left corner on any image displayed smaller than its source file. */
   const screenToPercent = useCallback(
     (clientX: number, clientY: number): { x: number; y: number } | null => {
       if (!imageContainerRef.current || !imageNaturalRef.current) return null
       const rect = imageContainerRef.current.getBoundingClientRect()
-      const imgWidth = imageNaturalRef.current.width
-      const imgHeight = imageNaturalRef.current.height
       const relX = clientX - rect.left
       const relY = clientY - rect.top
       const imgX = (relX - panOffset.x) / zoom
       const imgY = (relY - panOffset.y) / zoom
       return {
-        x: (imgX / imgWidth) * 100,
-        y: (imgY / imgHeight) * 100,
+        x: (imgX / rect.width) * 100,
+        y: (imgY / rect.height) * 100,
       }
     },
     [zoom, panOffset]
