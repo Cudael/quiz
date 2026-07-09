@@ -32,7 +32,7 @@ export function Navbar() {
   const menuButtonRef = useRef<HTMLButtonElement | null>(null)
   const panelRef = useRef<HTMLDivElement | null>(null)
   const pathname = usePathname()
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
 
   const closeDropdown = useCallback(() => {
     setDropdownOpen(false)
@@ -117,7 +117,11 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-2">
-          {session?.user ? <NotificationBell /> : null}
+          {status === 'loading' ? (
+            <div className="h-8 w-8 animate-pulse rounded-md bg-muted" aria-hidden="true" />
+          ) : session?.user ? (
+            <NotificationBell />
+          ) : null}
           <AuthControls />
         </div>
 

@@ -27,7 +27,14 @@ export function AuthControls() {
   const router = useRouter()
 
   if (status === 'loading') {
-    return null
+    // Match the trigger button's approximate footprint so the navbar doesn't
+    // shift/collapse while the session is resolving on first paint.
+    return (
+      <div
+        className="h-9 w-9 animate-pulse rounded-md bg-muted md:h-9 md:w-36"
+        aria-hidden="true"
+      />
+    )
   }
 
   if (!session?.user) {
