@@ -14,6 +14,27 @@ const imageUrlSchema = z.preprocess(
   z.url().optional()
 )
 
+// Icon and color aren't shown anywhere in the create/edit UI as pickers, so
+// leaving them blank should fall back to a generic look rather than blocking
+// submission — these are the same values category-bar/category-browser
+// already fall back to for unrecognized icon keys.
+const DEFAULT_CATEGORY_ICON = 'HelpCircle'
+const DEFAULT_CATEGORY_COLOR = '#64748b'
+
+const iconSchema = z.preprocess(
+  (value) => (typeof value === 'string' && value.trim() === '' ? undefined : value),
+  z.string().trim().min(1).max(40).optional()
+)
+
+const colorSchema = z.preprocess(
+  (value) => (typeof value === 'string' && value.trim() === '' ? undefined : value),
+  z
+    .string()
+    .trim()
+    .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/)
+    .optional()
+)
+
 async function assertAdmin() {
   const session = await auth()
   if (!session?.user?.id) {
@@ -33,11 +54,8 @@ export async function updateCategory(
       categoryId: z.string().cuid(),
       name: z.string().trim().min(2).max(80),
       description: z.string().trim().min(5).max(200),
-      icon: z.string().trim().min(1).max(40),
-      color: z
-        .string()
-        .trim()
-        .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/),
+      icon: iconSchema,
+      color: colorSchema,
       imageUrl: imageUrlSchema,
       parentSlug: z.preprocess(
         (v) => (typeof v === 'string' && v.trim() === '' ? null : v),
@@ -67,8 +85,8 @@ export async function updateCategory(
       data: {
         name: parsed.data.name,
         description: parsed.data.description,
-        icon: parsed.data.icon,
-        color: parsed.data.color,
+        icon: parsed.data.icon ?? DEFAULT_CATEGORY_ICON,
+        color: parsed.data.color ?? DEFAULT_CATEGORY_COLOR,
         imageUrl: parsed.data.imageUrl ?? null,
         parentSlug: parsed.data.parentSlug ?? null,
       },
@@ -82,8 +100,8 @@ export async function updateCategory(
         targetId: parsed.data.categoryId,
         meta: {
           name: parsed.data.name,
-          icon: parsed.data.icon,
-          color: parsed.data.color,
+          icon: parsed.data.icon ?? DEFAULT_CATEGORY_ICON,
+          color: parsed.data.color ?? DEFAULT_CATEGORY_COLOR,
           imageUrl: parsed.data.imageUrl ?? null,
           parentSlug: parsed.data.parentSlug ?? null,
         },
@@ -144,11 +162,8 @@ export async function createCategory(
     .object({
       name: z.string().trim().min(2).max(80),
       description: z.string().trim().min(5).max(200),
-      icon: z.string().trim().min(1).max(40),
-      color: z
-        .string()
-        .trim()
-        .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/),
+      icon: iconSchema,
+      color: colorSchema,
       imageUrl: imageUrlSchema,
       parentSlug: z.preprocess(
         (v) => (typeof v === 'string' && v.trim() === '' ? null : v),
@@ -179,8 +194,8 @@ export async function createCategory(
         slug,
         name: parsed.data.name,
         description: parsed.data.description,
-        icon: parsed.data.icon,
-        color: parsed.data.color,
+        icon: parsed.data.icon ?? DEFAULT_CATEGORY_ICON,
+        color: parsed.data.color ?? DEFAULT_CATEGORY_COLOR,
         imageUrl: parsed.data.imageUrl ?? null,
         parentSlug: parsed.data.parentSlug ?? null,
       },
@@ -195,8 +210,8 @@ export async function createCategory(
         meta: {
           name: parsed.data.name,
           slug,
-          icon: parsed.data.icon,
-          color: parsed.data.color,
+          icon: parsed.data.icon ?? DEFAULT_CATEGORY_ICON,
+          color: parsed.data.color ?? DEFAULT_CATEGORY_COLOR,
           parentSlug: parsed.data.parentSlug ?? null,
         },
       },

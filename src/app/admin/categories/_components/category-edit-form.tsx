@@ -54,22 +54,22 @@ export function CategoryEditForm({ category, parentCategories, onCancel }: Categ
       </label>
 
       <label className="space-y-1 text-sm">
-        <span className="text-muted-foreground">Icon</span>
+        <span className="text-muted-foreground">Icon (optional)</span>
         <input
           className="w-full rounded-md border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
           defaultValue={category.icon}
           name="icon"
-          required
+          placeholder="Defaults to a generic icon"
         />
       </label>
 
       <label className="space-y-1 text-sm">
-        <span className="text-muted-foreground">Color</span>
+        <span className="text-muted-foreground">Color (optional)</span>
         <input
           className="w-full rounded-md border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
           defaultValue={category.color}
           name="color"
-          required
+          placeholder="#rrggbb — defaults to gray"
         />
       </label>
 
