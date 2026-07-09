@@ -13,13 +13,6 @@ export function normalizeAnswer(value: string) {
   return value.trim().toLowerCase()
 }
 
-export function getOptimisticPoints(timeLimitSec: number, timeTakenMs: number) {
-  const timeLimitMs = timeLimitSec * 1000
-  const clampedTime = Math.min(Math.max(0, timeTakenMs), timeLimitMs)
-  return scoreQuestion({
-    correct: true,
-    timeRemainingMs: timeLimitMs - clampedTime,
-    timeLimitMs,
-    streak: 0,
-  })
+export function getOptimisticPoints() {
+  return scoreQuestion({ correct: true })
 }

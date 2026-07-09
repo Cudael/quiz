@@ -3,60 +3,37 @@ import { scoreQuestion, xpForLevel, levelForXp, computeStreak } from '@/domain/s
 
 describe('scoreQuestion', () => {
   it('returns 0 for wrong answer', () => {
-    expect(scoreQuestion({ correct: false, timeRemainingMs: 5000, timeLimitMs: 20000 })).toBe(0)
+    expect(scoreQuestion({ correct: false })).toBe(0)
   })
 
-  it('returns base + speedBonus for correct answer', () => {
-    // Full time remaining → speedBonus = 100, total = 200
-    expect(scoreQuestion({ correct: true, timeRemainingMs: 20000, timeLimitMs: 20000 })).toBe(200)
+  it('returns 10 for a fully correct answer', () => {
+    expect(scoreQuestion({ correct: true })).toBe(10)
   })
 
-  it('returns only base when no time remains', () => {
-    expect(scoreQuestion({ correct: true, timeRemainingMs: 0, timeLimitMs: 20000 })).toBe(100)
+  it('returns 0 for credit of 0', () => {
+    expect(scoreQuestion({ credit: 0 })).toBe(0)
   })
 
-  it('rounds speed bonus', () => {
-    // 7500ms remaining / 20000ms limit = 0.375 → round(100 * 0.375) = 38
-    expect(scoreQuestion({ correct: true, timeRemainingMs: 7500, timeLimitMs: 20000 })).toBe(138)
+  it('returns 10 for credit of 1', () => {
+    expect(scoreQuestion({ credit: 1 })).toBe(10)
   })
 
-  it('applies no multiplier at streak < 3', () => {
-    const score = scoreQuestion({
-      correct: true,
-      timeRemainingMs: 20000,
-      timeLimitMs: 20000,
-      streak: 2,
-    })
-    expect(score).toBe(200)
+  it('scales proportionally for partial credit', () => {
+    // 0.75 credit (e.g. 3 of 4 matched) → round(10 * 0.75) = 8
+    expect(scoreQuestion({ credit: 0.75 })).toBe(8)
   })
 
-  it('applies 1.25x multiplier at streak 3', () => {
-    const base = scoreQuestion({
-      correct: true,
-      timeRemainingMs: 20000,
-      timeLimitMs: 20000,
-    })
-    const withStreak = scoreQuestion({
-      correct: true,
-      timeRemainingMs: 20000,
-      timeLimitMs: 20000,
-      streak: 3,
-    })
-    expect(withStreak).toBe(Math.round(base * 1.25))
+  it('rounds partial credit to the nearest point', () => {
+    // 0.33 credit → round(10 * 0.33) = 3
+    expect(scoreQuestion({ credit: 0.33 })).toBe(3)
   })
 
-  it('handles timeLimitMs = 0 gracefully', () => {
-    expect(scoreQuestion({ correct: true, timeRemainingMs: 0, timeLimitMs: 0 })).toBe(100)
+  it('clamps credit above 1 to a max of 10', () => {
+    expect(scoreQuestion({ credit: 1.5 })).toBe(10)
   })
 
-  it('clamps speed bonus to 0 when timeRemainingMs is negative', () => {
-    // Negative timeRemainingMs (e.g. client sent negative timeTakenMs) should not inflate score
-    expect(scoreQuestion({ correct: true, timeRemainingMs: -5000, timeLimitMs: 20000 })).toBe(100)
-  })
-
-  it('clamps speed ratio to 1 when timeRemainingMs exceeds timeLimitMs', () => {
-    // timeRemainingMs > timeLimitMs should not give more than 100% speed bonus
-    expect(scoreQuestion({ correct: true, timeRemainingMs: 30000, timeLimitMs: 20000 })).toBe(200)
+  it('clamps negative credit to 0', () => {
+    expect(scoreQuestion({ credit: -0.5 })).toBe(0)
   })
 })
 

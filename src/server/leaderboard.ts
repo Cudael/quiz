@@ -104,16 +104,15 @@ async function fetchLeaderboardRows({
 
   if (userIds && userIds.length === 0) return []
 
+  // Guests have no durable identity and are excluded from the leaderboard —
+  // only sessions tied to a real account are ranked.
   const rows = await prisma.$queryRaw<RawLeaderboardRow[]>(Prisma.sql`
     SELECT
-      CASE
-        WHEN ps."userId" IS NOT NULL THEN 'user:' || ps."userId"
-        ELSE 'guest:' || COALESCE(ps."guestName", 'Guest')
-      END AS "key",
+      'user:' || ps."userId" AS "key",
       ps."userId" AS "userId",
       u."username" AS "username",
       u."image" AS "image",
-      COALESCE(u."name", ps."guestName", 'Guest') AS "displayName",
+      COALESCE(u."name", 'User') AS "displayName",
       SUM(ps."score") AS "totalScore",
       MAX(ps."score") AS "bestScore",
       COUNT(*) AS "plays",
@@ -123,13 +122,13 @@ async function fetchLeaderboardRows({
     LEFT JOIN "User" u ON u."id" = ps."userId"
     LEFT JOIN "Quiz" q ON q."id" = ps."quizId"
     LEFT JOIN "Category" c ON c."id" = q."categoryId"
-    WHERE 1 = 1
+    WHERE ps."userId" IS NOT NULL
       AND ps."mode" <> 'PRACTICE'
       ${periodStart ? Prisma.sql`AND ps."createdAt" >= ${periodStart}` : Prisma.empty}
       ${quizId ? Prisma.sql`AND ps."quizId" = ${quizId}` : Prisma.empty}
       ${categories.length ? Prisma.sql`AND c."slug" IN (${Prisma.join(categories)})` : Prisma.empty}
       ${userIds ? Prisma.sql`AND ps."userId" IN (${Prisma.join(userIds)})` : Prisma.empty}
-    GROUP BY ps."userId", ps."guestName", u."username", u."image", u."name"
+    GROUP BY ps."userId", u."username", u."image", u."name"
     ORDER BY ${orderByClause(sort)}
   `)
 

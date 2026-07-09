@@ -142,16 +142,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const isCorrect =
       selectedChoiceIds.length === correctChoiceIds.length &&
       selectedChoiceIds.every((choiceId, index) => correctChoiceIds[index] === choiceId)
-    const timeLimitMs = duel.timeLimitSec * 1000
-    const clampedTimeTakenMs = Math.min(Math.max(0, submitted.timeTakenMs), timeLimitMs)
     if (isCorrect) {
       correctCount += 1
-      score += scoreQuestion({
-        correct: true,
-        timeRemainingMs: timeLimitMs - clampedTimeTakenMs,
-        timeLimitMs,
-        streak: 0,
-      })
+      score += scoreQuestion({ correct: true })
     }
   }
 

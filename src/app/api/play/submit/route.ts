@@ -76,6 +76,25 @@ export async function POST(req: NextRequest) {
     guestKey = crypto.randomUUID()
   }
 
+  // Questions this user has already answered correctly before, for this quiz —
+  // replaying and re-answering them correctly earns 0 points to prevent farming.
+  // Only enforced for signed-in users; guests have no durable identity and are
+  // excluded from the leaderboard entirely, so there's no farming incentive to guard against.
+  const previouslyCorrectIds = authSession?.user?.id
+    ? new Set(
+        (
+          await prisma.questionAnswer.findMany({
+            where: {
+              questionId: { in: quiz.questions.map((q) => q.id) },
+              isCorrect: true,
+              session: { userId: authSession.user.id, quizId },
+            },
+            select: { questionId: true },
+          })
+        ).map((a) => a.questionId)
+      )
+    : new Set<string>()
+
   let score = 0
   let correctCount = 0
   const totalCount = quiz.questions.length
@@ -120,14 +139,8 @@ export async function POST(req: NextRequest) {
     if (isCorrect) {
       correctCount++
     }
-    if (credit > 0) {
-      const timeRemainingMs = timeLimitMs - timeTakenMs
-      score += scoreQuestion({
-        credit,
-        timeRemainingMs,
-        timeLimitMs,
-        streak: 0,
-      })
+    if (credit > 0 && !previouslyCorrectIds.has(question.id)) {
+      score += scoreQuestion({ credit })
     }
   }
 
@@ -136,7 +149,7 @@ export async function POST(req: NextRequest) {
   const totalTimeTakenMs = evaluatedAnswers.reduce((sum, a) => sum + a.timeTakenMs, 0)
   // Practice runs are for review only — no XP, streak, badge, or quest rewards.
   const isPractice = sessionMode === 'PRACTICE'
-  const xpEarned = isPractice ? 0 : Math.round(score / 10)
+  const xpEarned = isPractice ? 0 : score
 
   if (evaluatedAnswers.length === 0) {
     console.warn(

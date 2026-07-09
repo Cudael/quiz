@@ -85,9 +85,7 @@ export function DuelQuestionPanel({
                     if (currentQuestion.type !== 'MULTIPLE') {
                       // Question advances automatically after a 400ms highlight delay
                       // via the useEffect in useDuelSession.
-                      setLocalScore(
-                        (prev) => prev + getOptimisticPoints(state.duel.timeLimitSec, timeTakenMs)
-                      )
+                      setLocalScore((prev) => prev + getOptimisticPoints())
                     }
                   }}
                 >
@@ -101,9 +99,7 @@ export function DuelQuestionPanel({
                   const saved = answers[currentQuestion.id]
                   if (!saved || saved.choiceIds.length === 0) return
                   setCurrentQuestionIndex((index) => index + 1)
-                  setLocalScore(
-                    (prev) => prev + getOptimisticPoints(state.duel.timeLimitSec, saved.timeTakenMs)
-                  )
+                  setLocalScore((prev) => prev + getOptimisticPoints())
                 }}
               >
                 Lock answer
