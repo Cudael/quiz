@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
-import { Minus, Plus, PlusCircle, RotateCcw, Trash2, Target } from 'lucide-react'
+import { Minus, Plus, PlusCircle, RotateCcw, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ImageUpload } from './image-upload'
@@ -84,6 +84,10 @@ export function HotspotQuestionEditor() {
   const handleImageClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (isPanning) return
+      // Clicking an existing marker bubbles up to this handler too — only
+      // start a new-zone placement when the click actually hit empty space.
+      const target = e.target as HTMLElement
+      if (target.closest('[data-zone-marker]')) return
       const pct = screenToPercent(e.clientX, e.clientY)
       if (!pct) return
       setSelectedZone({ x: pct.x, y: pct.y })
@@ -527,7 +531,6 @@ export function HotspotQuestionEditor() {
                     }}
                   >
                     <div className="aspect-square w-full min-h-2 min-w-2 animate-pulse rounded-full border-2 border-quiz-orange bg-quiz-orange/30" />
-                    <Target className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-4 w-4 text-quiz-orange" />
                   </div>
                 )}
               </div>
