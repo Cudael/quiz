@@ -79,7 +79,9 @@ export function useDuelSession(duelId: string) {
 
     const interval = setInterval(() => {
       if (stateRef.current?.duel.status === 'FINISHED') return
-      fetchState(false).catch(() => {})
+      // Questions are only needed once the duel leaves the WAITING lobby —
+      // fetch them once that's true so the question panel actually loads.
+      fetchState(stateRef.current?.duel.status !== 'WAITING').catch(() => {})
     }, 5000)
     return () => {
       active = false
@@ -218,7 +220,7 @@ export function useDuelSession(duelId: string) {
         addToast(await readErrorMessage(response, 'Could not start duel.'), 'error')
         return
       }
-      await fetchState()
+      await fetchState(true)
     } finally {
       setSubmittingStart(false)
     }
