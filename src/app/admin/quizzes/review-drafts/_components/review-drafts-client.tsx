@@ -2,11 +2,24 @@
 
 import * as React from 'react'
 import Link from 'next/link'
-import { Check, ChevronDown, ChevronUp, Copy, ExternalLink, FileDown } from 'lucide-react'
+import {
+  Check,
+  ChevronDown,
+  ChevronUp,
+  Copy,
+  ExternalLink,
+  FileDown,
+  Loader2,
+  Sparkles,
+} from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/components/ui/toast'
+import { formatCorrectAnswer } from '@/domain/format-correct-answer'
+import { factCheckQuiz } from '../../actions'
+import { FactCheckBadge } from '../../_components/fact-check-badge'
+import type { FactCheckVerdict } from '@/server/fact-check-utils'
 
 /** Drafts with more questions than this are collapsed by default. */
 const AUTO_COLLAPSE_QUESTION_THRESHOLD = 8
@@ -49,45 +62,7 @@ interface ReviewDraftsClientProps {
   drafts: DraftData[]
 }
 
-function getCorrectAnswer(q: QuestionData): string {
-  switch (q.type) {
-    case 'ORDER':
-      return q.choices
-        .filter((c) => c.meta?.position != null)
-        .sort((a, b) => Number(a.meta!.position) - Number(b.meta!.position))
-        .map((c) => c.text)
-        .join(' \u2192 ')
-    case 'MATCH': {
-      const pairs: string[] = []
-      const lChoices = q.choices.filter((c) => c.meta?.side === 'L')
-      const rByKey = new Map(
-        q.choices.filter((c) => c.meta?.side === 'R').map((c) => [c.meta?.matchKey as string, c])
-      )
-      for (const l of lChoices) {
-        const key = l.meta?.matchKey as string
-        const r = rByKey.get(key)
-        pairs.push(`${l.text} \u2194 ${r?.text ?? '?'}`)
-      }
-      return pairs.join('; ')
-    }
-    case 'GROUPS': {
-      const groups = new Map<string, string[]>()
-      for (const c of q.choices) {
-        const key = (c.meta?.groupKey as string) ?? 'default'
-        if (!groups.has(key)) groups.set(key, [])
-        groups.get(key)!.push(c.text)
-      }
-      const groupLabels = (q.meta?.groups as string[]) ?? [...groups.keys()]
-      return groupLabels.map((g) => `${g}: [${groups.get(g)?.join(', ') ?? ''}]`).join(' | ')
-    }
-    case 'NUMBER_GUESS':
-      return String(q.meta?.answer ?? '?')
-    case 'FILL_BLANK':
-      return (q.meta?.acceptedAnswers as string[])?.join(' / ') ?? '?'
-    default:
-      return q.choices.find((c) => c.isCorrect)?.text ?? 'No correct answer set'
-  }
-}
+const getCorrectAnswer = formatCorrectAnswer
 
 function getQuestionLabel(q: QuestionData): string {
   const typeLabel: Record<string, string> = {
@@ -229,6 +204,42 @@ export function ReviewDraftsClient({ drafts }: ReviewDraftsClientProps) {
     })
   }, [])
 
+  const [factChecking, setFactChecking] = React.useState<Set<string>>(new Set())
+  const [factCheckResults, setFactCheckResults] = React.useState<
+    Record<string, FactCheckVerdict[]>
+  >({})
+
+  const handleFactCheck = React.useCallback(
+    async (draft: DraftData) => {
+      setFactChecking((current) => new Set(current).add(draft.id))
+      try {
+        const result = await factCheckQuiz(draft.id)
+        if (!result.ok) {
+          addToast(result.message, 'error')
+          return
+        }
+        setFactCheckResults((current) => ({ ...current, [draft.id]: result.verdicts }))
+        if (result.flaggedCount === 0) {
+          addToast(`"${draft.title}": all answers look correct.`, 'success')
+        } else {
+          addToast(
+            `"${draft.title}": ${result.flaggedCount} question${result.flaggedCount === 1 ? '' : 's'} flagged for review — filed as a report.`,
+            'warning'
+          )
+        }
+      } catch {
+        addToast('Fact-check failed. Please try again.', 'error')
+      } finally {
+        setFactChecking((current) => {
+          const next = new Set(current)
+          next.delete(draft.id)
+          return next
+        })
+      }
+    },
+    [addToast]
+  )
+
   const handleCopy = React.useCallback(async () => {
     const text = buildPlainTextExport(drafts)
     await navigator.clipboard.writeText(text)
@@ -307,12 +318,29 @@ export function ReviewDraftsClient({ drafts }: ReviewDraftsClientProps) {
                       <CardDescription className="mt-1">{draft.description}</CardDescription>
                     </div>
                   </button>
-                  <Button asChild variant="outline" size="sm">
-                    <Link href={`/studio/quiz/${draft.id}/edit`}>
-                      Edit
-                      <ExternalLink className="ml-1 h-3 w-3" />
-                    </Link>
-                  </Button>
+                  <div className="flex shrink-0 gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={factChecking.has(draft.id)}
+                      onClick={() => {
+                        handleFactCheck(draft).catch(() => {})
+                      }}
+                    >
+                      {factChecking.has(draft.id) ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Sparkles className="h-4 w-4" />
+                      )}
+                      {factChecking.has(draft.id) ? 'Checking…' : 'Fact-check with AI'}
+                    </Button>
+                    <Button asChild variant="outline" size="sm">
+                      <Link href={`/studio/quiz/${draft.id}/edit`}>
+                        Edit
+                        <ExternalLink className="ml-1 h-3 w-3" />
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                   <Badge variant="info">{draft.categoryName}</Badge>
@@ -337,55 +365,76 @@ export function ReviewDraftsClient({ drafts }: ReviewDraftsClientProps) {
 
               {!collapsed && (
                 <CardContent className="space-y-6">
-                  {draft.questions.map((q) => (
-                    <div key={q.id} className="rounded-md border border-border bg-muted/30 p-4">
-                      <div className="mb-2 flex items-start gap-2">
-                        <span className="mt-0.5 shrink-0 rounded bg-primary/10 px-1.5 py-0.5 text-xs font-bold text-primary">
-                          Q{q.order + 1}
-                        </span>
-                        <span className="text-xs font-medium text-muted-foreground">
-                          {getQuestionLabel(q)}
-                        </span>
+                  {draft.questions.map((q) => {
+                    const verdict = factCheckResults[draft.id]?.find(
+                      (v) => v.questionOrder === q.order
+                    )
+                    return (
+                      <div key={q.id} className="rounded-md border border-border bg-muted/30 p-4">
+                        <div className="mb-2 flex items-start justify-between gap-2">
+                          <div className="flex items-start gap-2">
+                            <span className="mt-0.5 shrink-0 rounded bg-primary/10 px-1.5 py-0.5 text-xs font-bold text-primary">
+                              Q{q.order + 1}
+                            </span>
+                            <span className="text-xs font-medium text-muted-foreground">
+                              {getQuestionLabel(q)}
+                            </span>
+                          </div>
+                          {verdict && <FactCheckBadge verdict={verdict.verdict} />}
+                        </div>
+
+                        <p className="mb-3 font-medium">{q.prompt}</p>
+
+                        {q.type === 'NUMBER_GUESS' && (
+                          <div className="rounded bg-quiz-green/5 px-3 py-2 text-sm">
+                            <span className="font-semibold text-quiz-green">Answer: </span>
+                            <span>{getCorrectAnswer(q)}</span>
+                            {typeof q.meta?.unit === 'string' && q.meta.unit && (
+                              <span className="ml-1 text-muted-foreground">
+                                ({q.meta.unit as string})
+                              </span>
+                            )}
+                            {q.meta?.min != null && q.meta?.max != null && (
+                              <span className="ml-2 text-xs text-muted-foreground">
+                                Range: {String(q.meta.min)}\u2013{String(q.meta.max)} \u00b7
+                                Tolerance: \u00b1{String(q.meta.tolerance ?? 0)}
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                        {q.type === 'FILL_BLANK' && (
+                          <div className="rounded bg-quiz-green/5 px-3 py-2 text-sm">
+                            <span className="font-semibold text-quiz-green">Accepted: </span>
+                            <span>{getCorrectAnswer(q)}</span>
+                          </div>
+                        )}
+
+                        {q.type !== 'NUMBER_GUESS' && q.type !== 'FILL_BLANK' && (
+                          <QuestionChoices choices={q.choices} />
+                        )}
+
+                        {q.explanation && (
+                          <p className="mt-2 text-xs text-muted-foreground italic">
+                            {'\uD83D\uDCA1'} {q.explanation}
+                          </p>
+                        )}
+
+                        {verdict && verdict.verdict !== 'correct' && (
+                          <div className="mt-2 rounded border border-destructive/20 bg-destructive/5 px-3 py-2 text-xs">
+                            <span className="font-semibold text-destructive">AI reasoning: </span>
+                            {verdict.reasoning}
+                            {verdict.suggestedAnswer && (
+                              <span className="mt-1 block">
+                                <span className="font-semibold">Suggested answer: </span>
+                                {verdict.suggestedAnswer}
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
-
-                      <p className="mb-3 font-medium">{q.prompt}</p>
-
-                      {q.type === 'NUMBER_GUESS' && (
-                        <div className="rounded bg-quiz-green/5 px-3 py-2 text-sm">
-                          <span className="font-semibold text-quiz-green">Answer: </span>
-                          <span>{getCorrectAnswer(q)}</span>
-                          {typeof q.meta?.unit === 'string' && q.meta.unit && (
-                            <span className="ml-1 text-muted-foreground">
-                              ({q.meta.unit as string})
-                            </span>
-                          )}
-                          {q.meta?.min != null && q.meta?.max != null && (
-                            <span className="ml-2 text-xs text-muted-foreground">
-                              Range: {String(q.meta.min)}\u2013{String(q.meta.max)} \u00b7
-                              Tolerance: \u00b1{String(q.meta.tolerance ?? 0)}
-                            </span>
-                          )}
-                        </div>
-                      )}
-
-                      {q.type === 'FILL_BLANK' && (
-                        <div className="rounded bg-quiz-green/5 px-3 py-2 text-sm">
-                          <span className="font-semibold text-quiz-green">Accepted: </span>
-                          <span>{getCorrectAnswer(q)}</span>
-                        </div>
-                      )}
-
-                      {q.type !== 'NUMBER_GUESS' && q.type !== 'FILL_BLANK' && (
-                        <QuestionChoices choices={q.choices} />
-                      )}
-
-                      {q.explanation && (
-                        <p className="mt-2 text-xs text-muted-foreground italic">
-                          {'\uD83D\uDCA1'} {q.explanation}
-                        </p>
-                      )}
-                    </div>
-                  ))}
+                    )
+                  })}
                 </CardContent>
               )}
             </Card>

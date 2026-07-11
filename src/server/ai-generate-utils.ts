@@ -444,7 +444,7 @@ export async function callOpenAI(prompt: string): Promise<GeneratedQuiz> {
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: 'gpt-5.4-mini',
+      model: 'gpt-5.6-sol',
       messages: [
         {
           role: 'system',
