@@ -9,6 +9,7 @@ import { PageHeader } from '@/components/ui/page-header'
 import { cn } from '@/lib/utils'
 import { getDisplayAuthorName } from '@/lib/author-display'
 import { getQuizPath } from '@/lib/quiz-url'
+import { getLatestFactChecks } from '@/server/fact-check-utils'
 import { AdminQuizActions } from './_components/quiz-actions'
 
 const PAGE_SIZE = 25
@@ -89,6 +90,8 @@ export default async function AdminQuizzesPage({
       orderBy: { name: 'asc' },
     }),
   ])
+
+  const lastFactChecks = await getLatestFactChecks(quizzes.map((quiz) => quiz.id))
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
   const currentPage = pageIndex + 1
@@ -245,6 +248,7 @@ export default async function AdminQuizzesPage({
                           quizTitle={quiz.title}
                           isPublished={quiz.isPublished}
                           nextPublish={quiz.isPublished ? 'false' : 'true'}
+                          lastFactCheck={lastFactChecks[quiz.id]}
                         />
                       </td>
                     </tr>

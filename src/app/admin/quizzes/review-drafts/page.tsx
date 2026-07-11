@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react'
 import { prisma } from '@/server/prisma'
 import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/ui/page-header'
+import { getLatestFactChecks } from '@/server/fact-check-utils'
 import { ReviewDraftsClient } from './_components/review-drafts-client'
 
 export const metadata: Metadata = {
@@ -27,6 +28,8 @@ export default async function ReviewDraftsPage() {
     orderBy: { updatedAt: 'desc' },
   })
 
+  const lastFactChecks = await getLatestFactChecks(drafts.map((draft) => draft.id))
+
   const serialized = drafts.map((draft) => ({
     id: draft.id,
     title: draft.title,
@@ -38,6 +41,7 @@ export default async function ReviewDraftsPage() {
     categoryName: draft.category.name,
     categorySlug: draft.category.slug,
     updatedAt: draft.updatedAt.toISOString(),
+    lastFactCheck: lastFactChecks[draft.id],
     questions: draft.questions.map((q) => ({
       id: q.id,
       prompt: q.prompt,

@@ -3,7 +3,9 @@
 import * as React from 'react'
 import Link from 'next/link'
 import {
+  AlertTriangle,
   Check,
+  CheckCircle2,
   ChevronDown,
   ChevronUp,
   Copy,
@@ -17,9 +19,10 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/components/ui/toast'
 import { formatCorrectAnswer } from '@/domain/format-correct-answer'
+import { formatRelativeTime } from '@/lib/time'
 import { factCheckQuiz } from '../../actions'
 import { FactCheckBadge } from '../../_components/fact-check-badge'
-import type { FactCheckVerdict } from '@/server/fact-check-utils'
+import type { FactCheckVerdict, LatestFactCheck } from '@/server/fact-check-utils'
 
 /** Drafts with more questions than this are collapsed by default. */
 const AUTO_COLLAPSE_QUESTION_THRESHOLD = 8
@@ -55,6 +58,7 @@ interface DraftData {
   categoryName: string
   categorySlug: string
   updatedAt: string
+  lastFactCheck?: LatestFactCheck
   questions: QuestionData[]
 }
 
@@ -208,6 +212,13 @@ export function ReviewDraftsClient({ drafts }: ReviewDraftsClientProps) {
   const [factCheckResults, setFactCheckResults] = React.useState<
     Record<string, FactCheckVerdict[]>
   >({})
+  const [lastChecks, setLastChecks] = React.useState<Record<string, LatestFactCheck>>(() => {
+    const initial: Record<string, LatestFactCheck> = {}
+    for (const draft of drafts) {
+      if (draft.lastFactCheck) initial[draft.id] = draft.lastFactCheck
+    }
+    return initial
+  })
 
   const handleFactCheck = React.useCallback(
     async (draft: DraftData) => {
@@ -219,6 +230,14 @@ export function ReviewDraftsClient({ drafts }: ReviewDraftsClientProps) {
           return
         }
         setFactCheckResults((current) => ({ ...current, [draft.id]: result.verdicts }))
+        setLastChecks((current) => ({
+          ...current,
+          [draft.id]: {
+            checkedAt: new Date().toISOString(),
+            flaggedCount: result.flaggedCount,
+            totalQuestions: result.questions.length,
+          },
+        }))
         if (result.flaggedCount === 0) {
           addToast(`"${draft.title}": all answers look correct.`, 'success')
         } else {
@@ -318,28 +337,46 @@ export function ReviewDraftsClient({ drafts }: ReviewDraftsClientProps) {
                       <CardDescription className="mt-1">{draft.description}</CardDescription>
                     </div>
                   </button>
-                  <div className="flex shrink-0 gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={factChecking.has(draft.id)}
-                      onClick={() => {
-                        handleFactCheck(draft).catch(() => {})
-                      }}
-                    >
-                      {factChecking.has(draft.id) ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Sparkles className="h-4 w-4" />
-                      )}
-                      {factChecking.has(draft.id) ? 'Checking…' : 'Fact-check with AI'}
-                    </Button>
-                    <Button asChild variant="outline" size="sm">
-                      <Link href={`/studio/quiz/${draft.id}/edit`}>
-                        Edit
-                        <ExternalLink className="ml-1 h-3 w-3" />
-                      </Link>
-                    </Button>
+                  <div className="flex shrink-0 flex-col items-end gap-1.5">
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={factChecking.has(draft.id)}
+                        onClick={() => {
+                          handleFactCheck(draft).catch(() => {})
+                        }}
+                      >
+                        {factChecking.has(draft.id) ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Sparkles className="h-4 w-4" />
+                        )}
+                        {factChecking.has(draft.id) ? 'Checking…' : 'Fact-check with AI'}
+                      </Button>
+                      <Button asChild variant="outline" size="sm">
+                        <Link href={`/studio/quiz/${draft.id}/edit`}>
+                          Edit
+                          <ExternalLink className="ml-1 h-3 w-3" />
+                        </Link>
+                      </Button>
+                    </div>
+                    {lastChecks[draft.id] && (
+                      <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                        {lastChecks[draft.id].flaggedCount === 0 ? (
+                          <>
+                            <CheckCircle2 className="h-3.5 w-3.5 text-quiz-green" />
+                            Fact-checked
+                          </>
+                        ) : (
+                          <>
+                            <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
+                            {lastChecks[draft.id].flaggedCount} flagged
+                          </>
+                        )}
+                        <span>· {formatRelativeTime(lastChecks[draft.id].checkedAt)}</span>
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">

@@ -1,3 +1,4 @@
+import { prisma } from '@/server/prisma'
 import { formatCorrectAnswer } from '@/domain/format-correct-answer'
 
 export interface FactCheckQuestionInput {
@@ -127,4 +128,40 @@ export async function factCheckQuestions(
   }
 
   return results
+}
+
+export interface LatestFactCheck {
+  checkedAt: string
+  flaggedCount: number
+  totalQuestions: number
+}
+
+/** Latest AI fact-check per quiz, derived from the AdminAction audit log —
+ *  every fact-check run already logs one, so no separate table is needed. */
+export async function getLatestFactChecks(
+  quizIds: string[]
+): Promise<Record<string, LatestFactCheck>> {
+  if (quizIds.length === 0) return {}
+
+  const actions = await prisma.adminAction.findMany({
+    where: {
+      action: 'QUIZ_AI_FACT_CHECK',
+      targetType: 'Quiz',
+      targetId: { in: quizIds },
+    },
+    orderBy: { createdAt: 'desc' },
+    select: { targetId: true, createdAt: true, meta: true },
+  })
+
+  const result: Record<string, LatestFactCheck> = {}
+  for (const action of actions) {
+    if (result[action.targetId]) continue // already recorded the most recent run
+    const meta = action.meta as { totalQuestions?: number; flaggedCount?: number } | null
+    result[action.targetId] = {
+      checkedAt: action.createdAt.toISOString(),
+      flaggedCount: typeof meta?.flaggedCount === 'number' ? meta.flaggedCount : 0,
+      totalQuestions: typeof meta?.totalQuestions === 'number' ? meta.totalQuestions : 0,
+    }
+  }
+  return result
 }

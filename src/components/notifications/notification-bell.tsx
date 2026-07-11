@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { getQuizPath } from '@/lib/quiz-url'
+import { formatRelativeTime } from '@/lib/time'
 import { EmptyState } from '@/components/ui/empty-state'
 import {
   DropdownMenu,
@@ -45,36 +46,6 @@ interface NotificationItem {
 interface NotificationsResponse {
   notifications: NotificationItem[]
   unreadCount: number
-}
-
-function formatRelativeTime(timestamp: string) {
-  const then = new Date(timestamp).getTime()
-  if (Number.isNaN(then)) {
-    return ''
-  }
-
-  const deltaSeconds = Math.floor((Date.now() - then) / 1000)
-  if (deltaSeconds < 60) {
-    return 'just now'
-  }
-
-  const steps = [
-    { unit: 'year', seconds: 60 * 60 * 24 * 365 },
-    { unit: 'month', seconds: 60 * 60 * 24 * 30 },
-    { unit: 'week', seconds: 60 * 60 * 24 * 7 },
-    { unit: 'day', seconds: 60 * 60 * 24 },
-    { unit: 'hour', seconds: 60 * 60 },
-    { unit: 'minute', seconds: 60 },
-  ] as const
-
-  for (const step of steps) {
-    if (deltaSeconds >= step.seconds) {
-      const value = Math.floor(deltaSeconds / step.seconds)
-      return new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' }).format(-value, step.unit)
-    }
-  }
-
-  return 'just now'
 }
 
 function parseMeta(meta: Record<string, unknown> | null): Record<string, unknown> | null {

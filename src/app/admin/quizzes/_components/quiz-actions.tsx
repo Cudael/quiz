@@ -3,11 +3,12 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Loader2, Sparkles } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, Loader2, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Modal } from '@/components/ui/modal'
 import { useToast } from '@/components/ui/toast'
 import { getQuizPath } from '@/lib/quiz-url'
+import { formatRelativeTime } from '@/lib/time'
 import { FactCheckBadge } from './fact-check-badge'
 import {
   deleteQuiz,
@@ -15,6 +16,7 @@ import {
   toggleQuizPublished,
   type FactCheckActionResult,
 } from '../actions'
+import type { LatestFactCheck } from '@/server/fact-check-utils'
 
 interface AdminQuizActionsProps {
   quizId: string
@@ -22,6 +24,7 @@ interface AdminQuizActionsProps {
   quizTitle: string
   isPublished: boolean
   nextPublish: string
+  lastFactCheck?: LatestFactCheck
 }
 
 export function AdminQuizActions({
@@ -30,6 +33,7 @@ export function AdminQuizActions({
   quizTitle,
   isPublished,
   nextPublish,
+  lastFactCheck,
 }: AdminQuizActionsProps) {
   const router = useRouter()
   const { addToast } = useToast()
@@ -39,6 +43,7 @@ export function AdminQuizActions({
   const [factChecking, setFactChecking] = useState(false)
   const [factCheckModalOpen, setFactCheckModalOpen] = useState(false)
   const [factCheckResult, setFactCheckResult] = useState<FactCheckActionResult | null>(null)
+  const [lastCheck, setLastCheck] = useState<LatestFactCheck | undefined>(lastFactCheck)
 
   async function handlePublish() {
     setPublishing(true)
@@ -75,8 +80,18 @@ export function AdminQuizActions({
       if (!result.ok) {
         addToast(result.message, 'error')
       } else if (result.flaggedCount === 0) {
+        setLastCheck({
+          checkedAt: new Date().toISOString(),
+          flaggedCount: 0,
+          totalQuestions: result.questions.length,
+        })
         addToast(`"${quizTitle}": all answers look correct.`, 'success')
       } else {
+        setLastCheck({
+          checkedAt: new Date().toISOString(),
+          flaggedCount: result.flaggedCount,
+          totalQuestions: result.questions.length,
+        })
         addToast(
           `"${quizTitle}": ${result.flaggedCount} question${result.flaggedCount === 1 ? '' : 's'} flagged — filed as a report.`,
           'warning'
@@ -113,6 +128,23 @@ export function AdminQuizActions({
           Delete
         </Button>
       </div>
+
+      {lastCheck && (
+        <p className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
+          {lastCheck.flaggedCount === 0 ? (
+            <>
+              <CheckCircle2 className="h-3.5 w-3.5 text-quiz-green" />
+              Fact-checked
+            </>
+          ) : (
+            <>
+              <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
+              {lastCheck.flaggedCount} flagged
+            </>
+          )}
+          <span>· {formatRelativeTime(lastCheck.checkedAt)}</span>
+        </p>
+      )}
 
       <Modal
         open={deleteModalOpen}
