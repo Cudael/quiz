@@ -21,6 +21,15 @@ async function readErrorMessage(response: Response, fallback: string) {
   }
 }
 
+// The share link carries the duel's database id, not its 6-character join
+// code — they're different values, so a pasted link can never work as a
+// code. Detect it and route straight there instead of trying to "join".
+const DUEL_LINK_PATTERN = /\/duel\/([a-zA-Z0-9_-]{6,})/
+
+function extractDuelIdFromLink(value: string): string | null {
+  return value.match(DUEL_LINK_PATTERN)?.[1] ?? null
+}
+
 export function DuelEntry({ categories }: DuelEntryProps) {
   const router = useRouter()
   const { addToast } = useToast()
@@ -220,10 +229,22 @@ export function DuelEntry({ categories }: DuelEntryProps) {
             <Input
               value={code}
               onChange={(event) => setCode(event.target.value.toUpperCase().slice(0, 6))}
+              onPaste={(event) => {
+                const pasted = event.clipboardData.getData('text')
+                const linkedDuelId = extractDuelIdFromLink(pasted)
+                if (linkedDuelId) {
+                  event.preventDefault()
+                  router.push(`/duel/${linkedDuelId}`)
+                }
+              }}
               placeholder="Enter invite code"
               maxLength={6}
               required
             />
+            <p className="text-xs text-muted-foreground">
+              That&apos;s the 6-character code, not the link — paste a duel link here too and
+              we&apos;ll take you straight there.
+            </p>
             <Button type="submit" variant="outline" className="w-full" disabled={submittingJoin}>
               {submittingJoin ? 'Joining…' : 'Join Duel'}
             </Button>

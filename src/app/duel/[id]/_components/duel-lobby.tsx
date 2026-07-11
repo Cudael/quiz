@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { Check, Copy } from 'lucide-react'
+import { Check, Copy, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { DuelStatePayload } from '../duel-view.types'
@@ -28,6 +28,9 @@ export function DuelLobby({
   // link — this is the path that used to dead-end forever (see the "Start
   // Duel" button below only ever rendering for the host).
   const canJoin = !state.isHost && !state.viewerParticipantId
+  // A joined guest isn't the host and has nothing left to click — without an
+  // explicit status they can't tell whether anything is happening at all.
+  const isWaitingGuest = !state.isHost && !!state.viewerParticipantId
 
   const getShareUrl = () => {
     if (typeof window === 'undefined') return `/duel/${state.duel.id}`
@@ -76,15 +79,28 @@ export function DuelLobby({
               {submittingJoin ? 'Joining…' : 'Join Duel'}
             </Button>
           ) : null}
+          {isWaitingGuest ? (
+            <div className="flex items-center justify-center gap-2 rounded-md border border-dashed border-border px-3 py-2.5 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              You&apos;re in! Waiting for the host to start the duel…
+            </div>
+          ) : null}
           {state.isHost ? (
-            <Button
-              className="w-full"
-              variant="accent"
-              disabled={participantCount < 2 || submittingStart}
-              onClick={onStart}
-            >
-              {submittingStart ? 'Starting…' : 'Start Duel'}
-            </Button>
+            <div className="space-y-1.5">
+              <Button
+                className="w-full"
+                variant="accent"
+                disabled={participantCount < 2 || submittingStart}
+                onClick={onStart}
+              >
+                {submittingStart ? 'Starting…' : 'Start Duel'}
+              </Button>
+              {participantCount < 2 ? (
+                <p className="text-center text-xs text-muted-foreground">
+                  Waiting for at least one more player to join.
+                </p>
+              ) : null}
+            </div>
           ) : null}
         </CardContent>
       </Card>
