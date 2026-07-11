@@ -83,174 +83,176 @@ export function DuelEntry({ categories }: DuelEntryProps) {
         ))}
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Create a Duel</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form
-            className="space-y-4"
-            onSubmit={async (event) => {
-              event.preventDefault()
-              setSubmittingCreate(true)
-              try {
-                const response = await fetch('/api/duel/create', {
-                  method: 'POST',
-                  headers: { 'content-type': 'application/json' },
-                  body: JSON.stringify({
-                    categoryId: categoryId || undefined,
-                    questionCount,
-                    timeLimitSec,
-                    maxPlayers,
-                  }),
-                })
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5 lg:items-start">
+        <Card className="lg:col-span-3">
+          <CardHeader>
+            <CardTitle>Create a Duel</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form
+              className="space-y-4"
+              onSubmit={async (event) => {
+                event.preventDefault()
+                setSubmittingCreate(true)
+                try {
+                  const response = await fetch('/api/duel/create', {
+                    method: 'POST',
+                    headers: { 'content-type': 'application/json' },
+                    body: JSON.stringify({
+                      categoryId: categoryId || undefined,
+                      questionCount,
+                      timeLimitSec,
+                      maxPlayers,
+                    }),
+                  })
 
-                if (!response.ok) {
-                  addToast(await readErrorMessage(response, 'Could not create duel.'), 'error')
-                  return
-                }
+                  if (!response.ok) {
+                    addToast(await readErrorMessage(response, 'Could not create duel.'), 'error')
+                    return
+                  }
 
-                const payload = (await response.json()) as { duelId: string }
-                router.push(`/duel/${payload.duelId}`)
-              } finally {
-                setSubmittingCreate(false)
-              }
-            }}
-          >
-            <div className="space-y-1">
-              <label htmlFor="duel-category" className="text-sm font-medium">
-                Category
-              </label>
-              <select
-                id="duel-category"
-                value={categoryId}
-                onChange={(event) => setCategoryId(event.target.value)}
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-base md:text-sm"
-              >
-                <option value="">Random (all categories)</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1">
-                <label htmlFor="duel-question-count" className="text-sm font-medium">
-                  Questions
-                </label>
-                <select
-                  id="duel-question-count"
-                  value={questionCount}
-                  onChange={(event) => setQuestionCount(Number(event.target.value))}
-                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-base md:text-sm"
-                >
-                  <option value={5}>5</option>
-                  <option value={10}>10</option>
-                  <option value={15}>15</option>
-                </select>
-              </div>
-              <div className="space-y-1">
-                <label htmlFor="duel-time-limit" className="text-sm font-medium">
-                  Time per question
-                </label>
-                <select
-                  id="duel-time-limit"
-                  value={timeLimitSec}
-                  onChange={(event) => setTimeLimitSec(Number(event.target.value))}
-                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-base md:text-sm"
-                >
-                  <option value={10}>10 seconds</option>
-                  <option value={20}>20 seconds</option>
-                  <option value={30}>30 seconds</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label htmlFor="duel-max-players" className="text-sm font-medium">
-                Lobby size
-              </label>
-              <select
-                id="duel-max-players"
-                value={maxPlayers}
-                onChange={(event) => setMaxPlayers(Number(event.target.value))}
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-base md:text-sm"
-              >
-                <option value={2}>1v1 (2 players)</option>
-                {[3, 4, 5, 6, 7, 8, 9, 10].map((size) => (
-                  <option key={size} value={size}>
-                    Party — up to {size} players
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <Button type="submit" variant="accent" className="w-full" disabled={submittingCreate}>
-              {submittingCreate ? 'Creating…' : 'Create Duel'}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Join a Duel</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form
-            className="space-y-3"
-            onSubmit={async (event) => {
-              event.preventDefault()
-              setSubmittingJoin(true)
-              try {
-                const response = await fetch('/api/duel/join', {
-                  method: 'POST',
-                  headers: { 'content-type': 'application/json' },
-                  body: JSON.stringify({
-                    code: code.trim().toUpperCase(),
-                  }),
-                })
-
-                if (!response.ok) {
-                  addToast(await readErrorMessage(response, 'Could not join duel.'), 'error')
-                  return
-                }
-
-                const payload = (await response.json()) as { duelId: string }
-                router.push(`/duel/${payload.duelId}`)
-              } finally {
-                setSubmittingJoin(false)
-              }
-            }}
-          >
-            <Input
-              value={code}
-              onChange={(event) => setCode(event.target.value.toUpperCase().slice(0, 6))}
-              onPaste={(event) => {
-                const pasted = event.clipboardData.getData('text')
-                const linkedDuelId = extractDuelIdFromLink(pasted)
-                if (linkedDuelId) {
-                  event.preventDefault()
-                  router.push(`/duel/${linkedDuelId}`)
+                  const payload = (await response.json()) as { duelId: string }
+                  router.push(`/duel/${payload.duelId}`)
+                } finally {
+                  setSubmittingCreate(false)
                 }
               }}
-              placeholder="Enter invite code"
-              maxLength={6}
-              required
-            />
-            <p className="text-xs text-muted-foreground">
-              That&apos;s the 6-character code, not the link — paste a duel link here too and
-              we&apos;ll take you straight there.
-            </p>
-            <Button type="submit" variant="outline" className="w-full" disabled={submittingJoin}>
-              {submittingJoin ? 'Joining…' : 'Join Duel'}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+            >
+              <div className="space-y-1">
+                <label htmlFor="duel-category" className="text-sm font-medium">
+                  Category
+                </label>
+                <select
+                  id="duel-category"
+                  value={categoryId}
+                  onChange={(event) => setCategoryId(event.target.value)}
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-base md:text-sm"
+                >
+                  <option value="">Random (all categories)</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <label htmlFor="duel-question-count" className="text-sm font-medium">
+                    Questions
+                  </label>
+                  <select
+                    id="duel-question-count"
+                    value={questionCount}
+                    onChange={(event) => setQuestionCount(Number(event.target.value))}
+                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-base md:text-sm"
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={15}>15</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label htmlFor="duel-time-limit" className="text-sm font-medium">
+                    Time per question
+                  </label>
+                  <select
+                    id="duel-time-limit"
+                    value={timeLimitSec}
+                    onChange={(event) => setTimeLimitSec(Number(event.target.value))}
+                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-base md:text-sm"
+                  >
+                    <option value={10}>10 seconds</option>
+                    <option value={20}>20 seconds</option>
+                    <option value={30}>30 seconds</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label htmlFor="duel-max-players" className="text-sm font-medium">
+                  Lobby size
+                </label>
+                <select
+                  id="duel-max-players"
+                  value={maxPlayers}
+                  onChange={(event) => setMaxPlayers(Number(event.target.value))}
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-base md:text-sm"
+                >
+                  <option value={2}>1v1 (2 players)</option>
+                  {[3, 4, 5, 6, 7, 8, 9, 10].map((size) => (
+                    <option key={size} value={size}>
+                      Party — up to {size} players
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <Button type="submit" variant="accent" className="w-full" disabled={submittingCreate}>
+                {submittingCreate ? 'Creating…' : 'Create Duel'}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Join a Duel</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form
+              className="space-y-3"
+              onSubmit={async (event) => {
+                event.preventDefault()
+                setSubmittingJoin(true)
+                try {
+                  const response = await fetch('/api/duel/join', {
+                    method: 'POST',
+                    headers: { 'content-type': 'application/json' },
+                    body: JSON.stringify({
+                      code: code.trim().toUpperCase(),
+                    }),
+                  })
+
+                  if (!response.ok) {
+                    addToast(await readErrorMessage(response, 'Could not join duel.'), 'error')
+                    return
+                  }
+
+                  const payload = (await response.json()) as { duelId: string }
+                  router.push(`/duel/${payload.duelId}`)
+                } finally {
+                  setSubmittingJoin(false)
+                }
+              }}
+            >
+              <Input
+                value={code}
+                onChange={(event) => setCode(event.target.value.toUpperCase().slice(0, 6))}
+                onPaste={(event) => {
+                  const pasted = event.clipboardData.getData('text')
+                  const linkedDuelId = extractDuelIdFromLink(pasted)
+                  if (linkedDuelId) {
+                    event.preventDefault()
+                    router.push(`/duel/${linkedDuelId}`)
+                  }
+                }}
+                placeholder="Enter invite code"
+                maxLength={6}
+                required
+              />
+              <p className="text-xs text-muted-foreground">
+                That&apos;s the 6-character code, not the link — paste a duel link here too and
+                we&apos;ll take you straight there.
+              </p>
+              <Button type="submit" variant="outline" className="w-full" disabled={submittingJoin}>
+                {submittingJoin ? 'Joining…' : 'Join Duel'}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

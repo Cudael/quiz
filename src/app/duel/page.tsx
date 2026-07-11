@@ -26,7 +26,7 @@ export default async function DuelPage() {
   })
 
   return (
-    <div className="container mx-auto max-w-3xl px-4 py-10">
+    <div className="container mx-auto max-w-5xl px-4 py-10">
       <DuelEntry categories={categories} />
     </div>
   )
