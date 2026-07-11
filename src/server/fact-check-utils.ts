@@ -78,7 +78,8 @@ export async function factCheckQuestions(
         },
         { role: 'user', content: prompt },
       ],
-      temperature: 0.2,
+      temperature: 1,
+      reasoning_effort: 'high',
       response_format: { type: 'json_object' },
     }),
   })

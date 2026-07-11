@@ -453,7 +453,8 @@ export async function callOpenAI(prompt: string): Promise<GeneratedQuiz> {
         },
         { role: 'user', content: prompt },
       ],
-      temperature: 0.7,
+      temperature: 1,
+      reasoning_effort: 'high',
       response_format: { type: 'json_object' },
     }),
   })
