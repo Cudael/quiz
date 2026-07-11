@@ -602,7 +602,7 @@ export function HotspotQuestionEditor() {
                     onChange={(e) => setZoneForm((f) => ({ ...f, name: e.target.value }))}
                     placeholder="e.g., Latvia"
                     autoFocus
-                    className="w-full rounded border border-input bg-background px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full rounded border border-input bg-background px-2 py-1.5 text-base focus:outline-none focus:ring-2 focus:ring-primary md:text-sm"
                   />
                 </div>
                 <div className="space-y-1">
@@ -682,7 +682,7 @@ export function HotspotQuestionEditor() {
                               type="text"
                               value={prompt}
                               onChange={(e) => handlePromptChange(questionId, e.target.value)}
-                              className="w-full rounded border border-input bg-background px-2 py-1 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary"
+                              className="w-full rounded border border-input bg-background px-2 py-1 text-base font-medium focus:outline-none focus:ring-2 focus:ring-primary md:text-sm"
                             />
                           </div>
 
@@ -700,7 +700,7 @@ export function HotspotQuestionEditor() {
                               onChange={(e) =>
                                 handleZoneNameChange(questionId, zone.id, e.target.value)
                               }
-                              className="w-24 min-w-0 flex-1 rounded border border-input bg-background px-1.5 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+                              className="w-24 min-w-0 flex-1 rounded border border-input bg-background px-1.5 py-0.5 text-base focus:outline-none focus:ring-1 focus:ring-primary md:text-xs"
                             />
                           </div>
 
@@ -744,7 +744,7 @@ export function HotspotQuestionEditor() {
                               onChange={(e) =>
                                 handleTimeLimitChange(questionId, Number(e.target.value))
                               }
-                              className="w-16 rounded border border-input bg-background px-1.5 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+                              className="w-16 rounded border border-input bg-background px-1.5 py-0.5 text-base focus:outline-none focus:ring-1 focus:ring-primary md:text-xs"
                             />
                             <span className="text-xs text-muted-foreground">seconds</span>
                           </div>

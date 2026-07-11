@@ -56,7 +56,7 @@ export function AiQuestionGenerator({ quizId }: AiQuestionGeneratorProps) {
         />
         <select
           aria-label="Number of questions"
-          className="h-9 rounded-md border bg-background px-2 text-sm"
+          className="h-9 rounded-md border bg-background px-2 text-base md:text-sm"
           disabled={isPending}
           onChange={(event) => setCount(event.target.value)}
           value={count}
@@ -69,7 +69,7 @@ export function AiQuestionGenerator({ quizId }: AiQuestionGeneratorProps) {
         </select>
         <select
           aria-label="Difficulty"
-          className="h-9 rounded-md border bg-background px-2 text-sm"
+          className="h-9 rounded-md border bg-background px-2 text-base md:text-sm"
           disabled={isPending}
           onChange={(event) => setDifficulty(event.target.value)}
           value={difficulty}

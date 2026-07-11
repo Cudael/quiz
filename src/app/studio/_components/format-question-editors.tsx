@@ -28,7 +28,7 @@ function updateMeta(question: DraftQuestion, patch: Record<string, unknown>) {
   return { meta: { ...metaOf(question), ...patch } }
 }
 
-const inputClass = 'w-full rounded-md border bg-background px-3 py-1.5 text-sm'
+const inputClass = 'w-full rounded-md border bg-background px-3 py-1.5 text-base md:text-sm'
 const labelClass = 'block text-sm font-medium'
 const hintClass = 'text-xs text-muted-foreground'
 
@@ -398,7 +398,7 @@ export function TypeAnswerFields({ question, onUpdate }: EditorProps) {
           )
         }
         placeholder={'Mount Everest\nEverest'}
-        className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+        className="w-full rounded-md border bg-background px-3 py-2 text-base md:text-sm"
       />
       <label className="flex items-center gap-2 text-sm">
         <input
@@ -539,7 +539,7 @@ export function MemoryFlashFields({ question, onUpdate }: EditorProps) {
         onChange={(e) => onUpdate(updateMeta(question, { studyText: e.target.value }))}
         placeholder="Text to memorize (optional if you add an image)…"
         aria-label="Study text"
-        className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+        className="w-full rounded-md border bg-background px-3 py-2 text-base md:text-sm"
       />
       <div className="space-y-1">
         <p className="text-xs font-medium">Study image (optional)</p>

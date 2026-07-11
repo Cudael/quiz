@@ -70,7 +70,7 @@ export function Navbar() {
             ref={menuButtonRef}
             variant="ghost"
             size="icon"
-            className="rounded-md"
+            className="h-11 w-11 rounded-md"
             onClick={() => setDropdownOpen(!dropdownOpen)}
             aria-label="Open navigation menu"
             aria-expanded={dropdownOpen}

@@ -60,7 +60,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       <div
         aria-live="polite"
         aria-atomic="false"
-        className="fixed bottom-4 right-4 z-50 flex flex-col gap-2"
+        className="fixed inset-x-4 bottom-4 z-50 flex flex-col items-stretch gap-2 sm:inset-x-auto sm:right-4 sm:items-end"
       >
         <AnimatePresence>
           {toasts.map((toast) => {
@@ -72,7 +72,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 animate={{ opacity: 1, x: 0, scale: 1 }}
                 exit={{ opacity: 0, x: 100, scale: 0.95 }}
                 className={cn(
-                  'flex items-center gap-3 rounded-md border px-4 py-3 shadow-lg backdrop-blur-sm min-w-[280px] max-w-[400px]',
+                  'flex items-center gap-3 rounded-md border px-4 py-3 shadow-lg backdrop-blur-sm w-full sm:min-w-70 sm:max-w-100 sm:w-auto',
                   variantStyles[toast.variant]
                 )}
                 role="alert"

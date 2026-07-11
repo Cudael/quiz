@@ -48,7 +48,7 @@ export function HeroInsightBox({ currentUser, totalQuizCount, quickLinks }: Hero
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="What do you want to learn today?"
-              className="h-12 w-full rounded-md border border-border/60 bg-muted/30 pl-11 pr-10 text-sm transition-all focus:bg-background focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="h-12 w-full rounded-md border border-border/60 bg-muted/30 pl-11 pr-10 text-base transition-all focus:bg-background focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20 md:text-sm"
               aria-label="Search quizzes"
             />
             {query.length > 0 && (

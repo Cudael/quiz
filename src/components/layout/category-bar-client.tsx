@@ -92,7 +92,7 @@ export function CategoryBarClient({ categories }: { categories: CategoryBarItem[
         {showLeftGradient && (
           <button
             onClick={() => scroll('left')}
-            className="absolute left-2 top-1/2 z-20 -translate-y-1/2 rounded-full border border-border/60 bg-background/90 p-1.5 shadow-md transition-colors hover:bg-accent/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="absolute left-2 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border/60 bg-background/90 shadow-md transition-colors hover:bg-accent/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label="Scroll left"
           >
             <ChevronLeft className="h-3.5 w-3.5" />
@@ -102,7 +102,7 @@ export function CategoryBarClient({ categories }: { categories: CategoryBarItem[
         {showRightGradient && (
           <button
             onClick={() => scroll('right')}
-            className="absolute right-2 top-1/2 z-20 -translate-y-1/2 rounded-full border border-border/60 bg-background/90 p-1.5 shadow-md transition-colors hover:bg-accent/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="absolute right-2 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border/60 bg-background/90 shadow-md transition-colors hover:bg-accent/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label="Scroll right"
           >
             <ChevronRight className="h-3.5 w-3.5" />

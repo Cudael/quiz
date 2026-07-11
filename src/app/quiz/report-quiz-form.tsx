@@ -39,7 +39,7 @@ export function ReportQuizForm({ quizId }: { quizId: string }) {
               name="reason"
               required
               defaultValue={reasons[0]}
-              className="w-full rounded-md border px-3 py-2"
+              className="w-full rounded-md border px-3 py-2 text-base md:text-sm"
             >
               {reasons.map((reason) => (
                 <option key={reason} value={reason}>
@@ -53,7 +53,7 @@ export function ReportQuizForm({ quizId }: { quizId: string }) {
             <textarea
               name="details"
               maxLength={500}
-              className="min-h-24 w-full rounded-md border px-3 py-2"
+              className="min-h-24 w-full rounded-md border px-3 py-2 text-base md:text-sm"
               placeholder="Optional details (max 500 chars)"
             />
           </label>

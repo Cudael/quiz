@@ -82,7 +82,7 @@ export function NumberGuessQuestion({ question, isAnswered, onSubmit }: NumberGu
               const parsed = Number(e.target.value)
               if (Number.isFinite(parsed)) setValue(parsed)
             }}
-            className="w-40 rounded-md border border-border bg-background px-3 py-1.5 text-sm tabular-nums disabled:opacity-60"
+            className="w-40 rounded-md border border-border bg-background px-3 py-1.5 text-base tabular-nums disabled:opacity-60 md:text-sm"
           />
         </div>
       </div>

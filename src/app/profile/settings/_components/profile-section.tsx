@@ -72,7 +72,7 @@ export function ProfileSection({ profile, setProfile }: ProfileSectionProps) {
           </label>
           <textarea
             id="settings-bio"
-            className="min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 md:text-sm"
             value={profile.bio}
             onChange={(event) => setProfile((prev) => ({ ...prev, bio: event.target.value }))}
             maxLength={280}

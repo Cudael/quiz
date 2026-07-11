@@ -23,7 +23,7 @@ export function AppearanceSection({ reducedMotion, setReducedMotion }: Appearanc
             id="settings-theme"
             value={theme}
             onChange={(event) => setTheme(event.target.value as 'light' | 'dark' | 'system')}
-            className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 md:text-sm"
           >
             <option value="light">Light</option>
             <option value="dark">Dark</option>

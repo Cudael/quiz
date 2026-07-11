@@ -65,7 +65,7 @@ export function PlayHeader({
       <button
         type="button"
         onClick={onToggleSound}
-        className="rounded-full p-1.5 transition-colors hover:bg-muted sm:p-2"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-muted"
         aria-pressed={!soundEnabled}
         aria-label={soundEnabled ? 'Mute sound' : 'Unmute sound'}
         title={soundEnabled ? 'Mute sound' : 'Unmute sound'}
@@ -75,7 +75,7 @@ export function PlayHeader({
       <button
         type="button"
         onClick={onOpenQuit}
-        className="rounded-full p-1.5 transition-colors hover:bg-muted sm:p-2"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-muted"
         aria-label="Quit quiz"
       >
         <X className="h-5 w-5" />

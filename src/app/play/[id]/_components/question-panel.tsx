@@ -353,7 +353,7 @@ export function QuestionPanel({
                     }}
                     disabled={isAnswered}
                     placeholder="Type your answer…"
-                    className="w-full rounded-md border border-border bg-card px-4 py-3 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+                    className="w-full rounded-md border border-border bg-card px-4 py-3 text-base font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60 md:text-sm"
                   />
                 </div>
                 {isAnswered ? (

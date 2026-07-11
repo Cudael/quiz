@@ -137,7 +137,7 @@ export function AiGenerateDialog({ open, onClose, categories }: AiGenerateDialog
             onChange={(e) => setTopic(e.target.value)}
             placeholder='e.g., "World War II", "JavaScript basics", "Space exploration", "Famous painters"'
             rows={3}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+            className="w-full rounded-md border border-input bg-background px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-primary resize-none md:text-sm"
           />
         </div>
 
@@ -150,7 +150,7 @@ export function AiGenerateDialog({ open, onClose, categories }: AiGenerateDialog
               id="ai-category"
               value={parentCategoryId}
               onChange={(e) => handleParentChange(e.target.value)}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              className="h-10 w-full rounded-md border border-input bg-background px-3 text-base md:text-sm"
             >
               {tree.parents.map((cat) => (
                 <option key={cat.id} value={cat.id}>
@@ -192,7 +192,7 @@ export function AiGenerateDialog({ open, onClose, categories }: AiGenerateDialog
               id="ai-format"
               value={format}
               onChange={(e) => setFormat(e.target.value)}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              className="h-10 w-full rounded-md border border-input bg-background px-3 text-base md:text-sm"
             >
               {FORMATS.map((f) => (
                 <option key={f.value} value={f.value}>
@@ -210,7 +210,7 @@ export function AiGenerateDialog({ open, onClose, categories }: AiGenerateDialog
               id="ai-count"
               value={count}
               onChange={(e) => setCount(Number(e.target.value))}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              className="h-10 w-full rounded-md border border-input bg-background px-3 text-base md:text-sm"
             >
               {COUNTS.map((n) => (
                 <option key={n} value={n}>

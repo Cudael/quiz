@@ -198,7 +198,7 @@ export function CategoryBrowser({ parentCategories }: CategoryBrowserProps) {
             onChange={(e) => handleSearchChange(e.target.value)}
             placeholder="Search categories…"
             data-global-search="true"
-            className="w-full rounded-md border border-input bg-background py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            className="w-full rounded-md border border-input bg-background py-2.5 pl-10 pr-4 text-base focus:outline-none focus:ring-2 focus:ring-ring md:text-sm"
           />
         </div>
       </div>

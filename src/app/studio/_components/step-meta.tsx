@@ -127,7 +127,7 @@ export function StepMeta({ categories }: StepMetaProps) {
               value={title}
               onChange={(e) => setMeta({ title: e.target.value })}
               maxLength={120}
-              className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+              className="w-full rounded-md border bg-background px-3 py-2 text-base md:text-sm"
             />
           </div>
 
@@ -145,7 +145,7 @@ export function StepMeta({ categories }: StepMetaProps) {
               onChange={(e) => setMeta({ description: e.target.value })}
               maxLength={500}
               rows={4}
-              className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+              className="w-full rounded-md border bg-background px-3 py-2 text-base md:text-sm"
             />
           </div>
 
@@ -158,7 +158,7 @@ export function StepMeta({ categories }: StepMetaProps) {
               id="quiz-category"
               value={categoryId}
               onChange={(e) => setMeta({ categoryId: e.target.value })}
-              className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+              className="w-full rounded-md border bg-background px-3 py-2 text-base md:text-sm"
             >
               <option value="">Select a category…</option>
               {(() => {

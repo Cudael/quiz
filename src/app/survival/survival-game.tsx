@@ -206,7 +206,7 @@ export function SurvivalGame({ categories }: { categories: { slug: string; name:
           id="survival-category"
           value={categorySlug}
           onChange={(e) => setCategorySlug(e.target.value)}
-          className="mx-auto mb-4 block w-full max-w-xs rounded-md border border-border bg-background px-3 py-2 text-sm"
+          className="mx-auto mb-4 block w-full max-w-xs rounded-md border border-border bg-background px-3 py-2 text-base md:text-sm"
         >
           <option value="">All categories</option>
           {categories.map((c) => (

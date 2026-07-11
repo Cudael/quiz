@@ -103,7 +103,7 @@ export function ImageSearchDialog({
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch(1)}
               placeholder="Search free images..."
-              className="w-full rounded-md border border-input bg-background py-2 pl-10 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full rounded-md border border-input bg-background py-2 pl-10 pr-3 text-base focus:outline-none focus:ring-2 focus:ring-primary md:text-sm"
             />
           </div>
           <Button onClick={() => handleSearch(1)} disabled={searching || !query.trim()}>

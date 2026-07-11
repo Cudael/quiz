@@ -100,7 +100,7 @@ export function QuestionCard({
               value={question.prompt}
               onChange={(e) => onUpdate({ prompt: e.target.value })}
               rows={3}
-              className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+              className="w-full rounded-md border bg-background px-3 py-2 text-base md:text-sm"
               placeholder="Enter your question..."
             />
           </div>
@@ -189,7 +189,7 @@ export function QuestionCard({
                           onChange={(e) => updateChoice(choice.localId, { text: e.target.value })}
                           placeholder="Caption (optional)"
                           aria-label={`Choice ${i + 1} caption`}
-                          className="w-full rounded-md border bg-background px-2 py-1 text-xs"
+                          className="w-full rounded-md border bg-background px-2 py-1 text-base md:text-xs"
                         />
                       </div>
                     ) : (
@@ -198,7 +198,7 @@ export function QuestionCard({
                         value={choice.text}
                         onChange={(e) => updateChoice(choice.localId, { text: e.target.value })}
                         placeholder={`Choice ${i + 1}`}
-                        className="min-w-0 flex-1 rounded-md border bg-background px-3 py-1.5 text-sm"
+                        className="min-w-0 flex-1 rounded-md border bg-background px-3 py-1.5 text-base md:text-sm"
                       />
                     )}
                     {choice.isCorrect && (
@@ -257,7 +257,7 @@ export function QuestionCard({
                 }
               }}
               aria-label="Custom time limit in seconds"
-              className="w-16 rounded-md border bg-background px-2 py-1 text-xs"
+              className="w-16 rounded-md border bg-background px-2 py-1 text-base md:text-xs"
             />
             <span className="text-xs text-muted-foreground">seconds per question</span>
           </div>
@@ -278,7 +278,7 @@ export function QuestionCard({
                 rows={2}
                 maxLength={500}
                 placeholder="Explain the correct answer..."
-                className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                className="w-full rounded-md border bg-background px-3 py-2 text-base md:text-sm"
               />
             )}
           </div>

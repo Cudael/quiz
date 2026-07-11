@@ -116,7 +116,7 @@ export function DuelEntry({ categories }: DuelEntryProps) {
                 id="duel-category"
                 value={categoryId}
                 onChange={(event) => setCategoryId(event.target.value)}
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-base md:text-sm"
               >
                 <option value="">Random (all categories)</option>
                 {categories.map((category) => (
@@ -136,7 +136,7 @@ export function DuelEntry({ categories }: DuelEntryProps) {
                   id="duel-question-count"
                   value={questionCount}
                   onChange={(event) => setQuestionCount(Number(event.target.value))}
-                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-base md:text-sm"
                 >
                   <option value={5}>5</option>
                   <option value={10}>10</option>
@@ -151,7 +151,7 @@ export function DuelEntry({ categories }: DuelEntryProps) {
                   id="duel-time-limit"
                   value={timeLimitSec}
                   onChange={(event) => setTimeLimitSec(Number(event.target.value))}
-                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-base md:text-sm"
                 >
                   <option value={10}>10 seconds</option>
                   <option value={20}>20 seconds</option>
@@ -168,7 +168,7 @@ export function DuelEntry({ categories }: DuelEntryProps) {
                 id="duel-max-players"
                 value={maxPlayers}
                 onChange={(event) => setMaxPlayers(Number(event.target.value))}
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-base md:text-sm"
               >
                 <option value={2}>1v1 (2 players)</option>
                 {[3, 4, 5, 6, 7, 8, 9, 10].map((size) => (

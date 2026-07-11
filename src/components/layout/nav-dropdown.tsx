@@ -137,7 +137,7 @@ export function NavDropdown({ open, onClose, panelRef }: NavDropdownProps) {
       ref={panelRef}
       className="absolute top-14 left-0 right-0 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
     >
-      <div className="rounded-md border border-border/40 bg-card shadow-2xl">
+      <div className="max-h-[calc(100vh-5rem)] overflow-y-auto rounded-md border border-border/40 bg-card shadow-2xl">
         <div className="p-6 md:p-8">
           <div className="grid grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-3 lg:grid-cols-6">
             {SECTIONS.map((section) => {
@@ -200,7 +200,7 @@ export function NavDropdown({ open, onClose, panelRef }: NavDropdownProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={social.label}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/50 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary hover:bg-primary/5"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-border/50 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary hover:bg-primary/5"
                 >
                   <SocialIcon className="h-3.5 w-3.5" />
                 </a>

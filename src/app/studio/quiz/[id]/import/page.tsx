@@ -55,7 +55,7 @@ export default async function QuizImportPage({ params }: { params: Promise<{ id:
           <select
             name="format"
             defaultValue="csv"
-            className="w-full rounded-md border bg-background px-3 py-2"
+            className="w-full rounded-md border bg-background px-3 py-2 text-base md:text-sm"
           >
             <option value="csv">CSV</option>
             <option value="json">JSON</option>
@@ -66,7 +66,7 @@ export default async function QuizImportPage({ params }: { params: Promise<{ id:
           <textarea
             name="content"
             required
-            className="min-h-64 w-full rounded-md border bg-background px-3 py-2 font-mono text-xs"
+            className="min-h-64 w-full rounded-md border bg-background px-3 py-2 font-mono text-base md:text-xs"
           />
         </label>
         <Button type="submit">Import questions</Button>

@@ -87,7 +87,7 @@ function CommentComposer({
         rows={parentId ? 2 : 3}
         maxLength={1000}
         autoFocus={autoFocus}
-        className="w-full rounded-md border border-border bg-background p-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+        className="w-full rounded-md border border-border bg-background p-3 text-base outline-none focus:ring-2 focus:ring-ring md:text-sm"
       />
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted-foreground">{body.length} / 1000</span>

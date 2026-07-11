@@ -58,7 +58,7 @@ export function FeedbackForm({ defaultEmail }: { defaultEmail: string }) {
               id="feedback-type"
               name="type"
               required
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              className="h-10 w-full rounded-md border border-input bg-background px-3 text-base md:text-sm"
             >
               {FEEDBACK_TYPES.map((type) => (
                 <option key={type.value} value={type.value}>
@@ -80,7 +80,7 @@ export function FeedbackForm({ defaultEmail }: { defaultEmail: string }) {
               maxLength={5000}
               rows={6}
               placeholder="Tell us what's on your mind..."
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-primary resize-y md:text-sm"
             />
           </div>
 
@@ -94,7 +94,7 @@ export function FeedbackForm({ defaultEmail }: { defaultEmail: string }) {
               type="email"
               defaultValue={defaultEmail}
               placeholder="your@email.com"
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="h-10 w-full rounded-md border border-input bg-background px-3 text-base focus:outline-none focus:ring-2 focus:ring-primary md:text-sm"
             />
             <p className="text-xs text-muted-foreground">
               We&apos;ll only use this to follow up on your feedback.
