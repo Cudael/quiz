@@ -9,16 +9,13 @@ import type { Choice } from '../play-view.types'
 interface OrderQuestionProps {
   choices: Choice[]
   isAnswered: boolean
+  /** Correct 1-based position per choice id — server reveal, post-answer. */
+  positions?: Record<string, number>
   onSubmit: (orderedChoiceIds: string[]) => void
 }
 
-function positionOf(choice: Choice): number | null {
-  const position = (choice.meta as Record<string, unknown> | null)?.position
-  return typeof position === 'number' && Number.isFinite(position) ? position : null
-}
-
 /** ORDER — arrange items into the correct sequence using move buttons. */
-export function OrderQuestion({ choices, isAnswered, onSubmit }: OrderQuestionProps) {
+export function OrderQuestion({ choices, isAnswered, positions, onSubmit }: OrderQuestionProps) {
   const [ordered, setOrdered] = useState<Choice[]>(choices)
 
   const move = (index: number, delta: -1 | 1) => {
@@ -34,14 +31,14 @@ export function OrderQuestion({ choices, isAnswered, onSubmit }: OrderQuestionPr
     <div className="space-y-4">
       <ol className="space-y-2">
         {ordered.map((choice, index) => {
-          const correctPosition = positionOf(choice)
+          const correctPosition = positions?.[choice.id] ?? null
           const isExact = isAnswered && correctPosition === index + 1
           return (
             <li
               key={choice.id}
               className={cn(
                 'flex items-center gap-3 rounded-md border p-3 text-sm font-medium transition-colors',
-                isAnswered
+                isAnswered && positions
                   ? isExact
                     ? 'border-emerald-500 bg-emerald-500/15 text-emerald-800 dark:text-emerald-400'
                     : 'border-destructive bg-destructive/10 text-destructive'

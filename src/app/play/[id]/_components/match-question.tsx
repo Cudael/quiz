@@ -8,6 +8,8 @@ import type { Choice } from '../play-view.types'
 interface MatchQuestionProps {
   choices: Choice[]
   isAnswered: boolean
+  /** Correct left/right pairings — server reveal, post-answer. */
+  correctPairs?: Array<{ leftId: string; rightId: string }>
   onSubmit: (pairs: Array<{ leftId: string; rightId: string }>) => void
 }
 
@@ -16,7 +18,7 @@ function metaOf(choice: Choice): Record<string, unknown> {
 }
 
 /** MATCH — tap an item on the left, then its partner on the right. */
-export function MatchQuestion({ choices, isAnswered, onSubmit }: MatchQuestionProps) {
+export function MatchQuestion({ choices, isAnswered, correctPairs, onSubmit }: MatchQuestionProps) {
   const left = useMemo(() => choices.filter((c) => metaOf(c).side === 'L'), [choices])
   const right = useMemo(() => choices.filter((c) => metaOf(c).side === 'R'), [choices])
 
@@ -51,14 +53,13 @@ export function MatchQuestion({ choices, isAnswered, onSubmit }: MatchQuestionPr
   }
 
   const isPairCorrect = (leftId: string, rightId: string) => {
-    const l = left.find((c) => c.id === leftId)
-    const r = right.find((c) => c.id === rightId)
-    return !!l && !!r && metaOf(l).matchKey === metaOf(r).matchKey
+    return (correctPairs ?? []).some((p) => p.leftId === leftId && p.rightId === rightId)
   }
 
   const correctPartnerText = (leftChoice: Choice) => {
-    const partner = right.find((r) => metaOf(r).matchKey === metaOf(leftChoice).matchKey)
-    return partner?.text ?? ''
+    const pair = (correctPairs ?? []).find((p) => p.leftId === leftChoice.id)
+    if (!pair) return ''
+    return right.find((r) => r.id === pair.rightId)?.text ?? ''
   }
 
   const pairNumberByRightId = (rightId: string) => {
@@ -133,21 +134,24 @@ export function MatchQuestion({ choices, isAnswered, onSubmit }: MatchQuestionPr
           {left.map((choice) => {
             const rightId = pairedRightByLeft[choice.id]
             const rightChoice = right.find((r) => r.id === rightId)
+            const pending = !correctPairs
             const correct = rightId ? isPairCorrect(choice.id, rightId) : false
             return (
               <li
                 key={choice.id}
                 className={cn(
                   'flex flex-wrap items-center gap-2 rounded-md border p-3 text-sm font-medium',
-                  correct
-                    ? 'border-emerald-500 bg-emerald-500/15 text-emerald-800 dark:text-emerald-400'
-                    : 'border-destructive bg-destructive/10 text-destructive'
+                  pending
+                    ? 'border-border bg-card'
+                    : correct
+                      ? 'border-emerald-500 bg-emerald-500/15 text-emerald-800 dark:text-emerald-400'
+                      : 'border-destructive bg-destructive/10 text-destructive'
                 )}
               >
                 <span className="min-w-0">{choice.text}</span>
                 <span aria-hidden>→</span>
                 <span className="min-w-0">{rightChoice?.text ?? '—'}</span>
-                {!correct && (
+                {!pending && !correct && (
                   <span className="ml-auto text-xs font-semibold">
                     Correct: {correctPartnerText(choice)}
                   </span>

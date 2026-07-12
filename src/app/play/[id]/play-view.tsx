@@ -18,6 +18,7 @@ export function PlayView({ quizId, mode }: PlayViewProps) {
     loading,
     currentQuestion,
     isAnswered,
+    currentFeedback,
     timeRemainingMs,
     questionUI,
     soundEnabled,
@@ -30,6 +31,7 @@ export function PlayView({ quizId, mode }: PlayViewProps) {
     handleTextSubmit,
     handleSubmitSelection,
     handleAnswer,
+    probeGroup,
     goNext,
     quitToQuiz,
   } = usePlayRunner(quizId, mode)
@@ -109,12 +111,14 @@ export function PlayView({ quizId, mode }: PlayViewProps) {
         selectedChoiceIds={questionUI.selectedChoiceIds}
         hiddenChoiceIds={questionUI.hiddenChoiceIds}
         isAnswered={isAnswered}
+        feedback={currentFeedback}
         canSubmit={canSubmitCurrentAnswer}
         isLastQuestion={isLastQuestion}
         submitting={store.status === 'submitting'}
         onChoiceSelect={handleChoiceSelect}
         onSubmit={handlePanelSubmit}
         onAnswer={handleAnswer}
+        onProbeGroup={probeGroup}
         onNext={goNext}
         onTextSubmit={handleTextSubmit}
         textAnswer={questionUI.textAnswer}

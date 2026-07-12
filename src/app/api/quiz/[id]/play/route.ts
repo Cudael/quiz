@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/server/prisma'
 import { auth } from '@/server/auth'
 import { signPlayToken } from '@/server/play-token'
+import { sanitizeChoiceForPlay, sanitizeQuestionMetaForPlay } from '@/server/play-safety'
 import { checkRateLimit, getClientIp } from '@/server/rate-limit'
 
 const PLAY_RATE_LIMIT = { limit: 60, windowMs: 5 * 60 * 1000 } as const
@@ -89,6 +90,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       // Blitz mode: hard 60-second timer for the whole quiz.
       timeLimitSec: requestedMode === 'blitz' ? 60 : quiz.defaultTimeLimitSec,
     },
+    // Answer key (isCorrect, accepted answers, positions, group/match keys)
+    // is stripped — feedback comes from POST /api/play/check after answering.
     questions: servedQuestions.map((q) => ({
       id: q.id,
       type: q.type,
@@ -96,8 +99,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       imageUrl: q.imageUrl,
       timeLimitSec: q.timeLimitSec,
       order: q.order,
-      meta: q.meta,
-      choices: shuffleArray(q.choices),
+      meta: sanitizeQuestionMetaForPlay(q),
+      choices: shuffleArray(q.choices.map(sanitizeChoiceForPlay)),
     })),
     playToken,
   })

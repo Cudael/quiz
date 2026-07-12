@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/server/prisma'
+import { sanitizeChoiceForPlay, sanitizeQuestionMetaForPlay } from '@/server/play-safety'
 import { checkRateLimit, getClientIp } from '@/server/rate-limit'
 
 const QUESTIONS_RATE_LIMIT = { limit: 30, windowMs: 60 * 1000 } as const
@@ -60,10 +61,15 @@ export async function GET(req: NextRequest) {
     },
   })
 
+  // Answer key is stripped — feedback comes from POST /api/survival/check.
   return NextResponse.json({
     questions: shuffleArray(questions).map((q) => ({
-      ...q,
-      choices: shuffleArray(q.choices),
+      id: q.id,
+      type: q.type,
+      prompt: q.prompt,
+      imageUrl: q.imageUrl,
+      meta: sanitizeQuestionMetaForPlay(q),
+      choices: shuffleArray(q.choices.map(sanitizeChoiceForPlay)),
     })),
   })
 }

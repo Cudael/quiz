@@ -2,8 +2,24 @@ export interface Choice {
   id: string
   text: string
   imageUrl?: string | null
-  isCorrect?: boolean
   meta?: Record<string, unknown> | null
+}
+
+/** Server-provided feedback after an answer is locked in — the client never
+ *  receives the answer key up front. Mirrors POST /api/play/check. */
+export interface AnswerFeedback {
+  credit: number
+  isCorrect: boolean
+  reveal: {
+    correctChoiceIds: string[]
+    choiceValues: Record<string, string>
+    positions: Record<string, number>
+    correctPairs: Array<{ leftId: string; rightId: string }>
+    groups: Array<{ label: string; choiceIds: string[] }>
+    acceptedAnswers: string[]
+    numberAnswer: number | null
+    correctZoneId: string | null
+  }
 }
 
 export interface Question {

@@ -144,9 +144,38 @@ describe('PlayView', () => {
   })
 
   it('supports fill-in-the-blank answers and submits the matched choice id', async () => {
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValueOnce(
+    const fetchMock = vi.fn().mockImplementation((url: unknown) => {
+      const target = String(url)
+      if (target.includes('/api/play/check')) {
+        return Promise.resolve(
+          createFetchResponse({
+            credit: 1,
+            isCorrect: true,
+            reveal: {
+              correctChoiceIds: ['choice-1'],
+              choiceValues: {},
+              positions: {},
+              correctPairs: [],
+              groups: [],
+              acceptedAnswers: ['Paris'],
+              numberAnswer: null,
+              correctZoneId: null,
+            },
+          })
+        )
+      }
+      if (target.includes('/api/play/submit')) {
+        return Promise.resolve(
+          createFetchResponse({
+            sessionId: 'session-1',
+            xpEarned: 12,
+            leveledUp: false,
+            newLevel: 1,
+            newlyAwardedBadges: [],
+          })
+        )
+      }
+      return Promise.resolve(
         createFetchResponse({
           quiz: {
             id: 'quiz-1',
@@ -171,15 +200,7 @@ describe('PlayView', () => {
           playToken: 'play-token',
         })
       )
-      .mockResolvedValueOnce(
-        createFetchResponse({
-          sessionId: 'session-1',
-          xpEarned: 12,
-          leveledUp: false,
-          newLevel: 1,
-          newlyAwardedBadges: [],
-        })
-      )
+    })
     vi.stubGlobal('fetch', fetchMock)
 
     render(<PlayView quizId="quiz-1" />)
@@ -194,10 +215,15 @@ describe('PlayView', () => {
     fireEvent.click(finishButton)
 
     await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledTimes(2)
+      expect(
+        fetchMock.mock.calls.some(([target]) => String(target).includes('/api/play/submit'))
+      ).toBe(true)
     })
 
-    const submitOptions = fetchMock.mock.calls[1][1] as RequestInit
+    const submitCall = fetchMock.mock.calls.find(([target]) =>
+      String(target).includes('/api/play/submit')
+    )
+    const submitOptions = submitCall?.[1] as RequestInit
     const submitBody = JSON.parse(String(submitOptions.body))
 
     expect(submitBody.answers).toEqual([

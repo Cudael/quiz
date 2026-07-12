@@ -12,7 +12,6 @@ const TICK_MS = 100
 interface Choice {
   id: string
   text: string
-  isCorrect?: boolean
 }
 
 interface SurvivalQuestion {
@@ -39,6 +38,9 @@ export function SurvivalGame({ categories }: { categories: { slug: string; name:
   const [streak, setStreak] = useState(0)
   const [timeLeftMs, setTimeLeftMs] = useState(QUESTION_TIME_MS)
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  // Correct choice ids for the current question — revealed by the server
+  // only after an answer is locked in.
+  const [correctIds, setCorrectIds] = useState<string[] | null>(null)
   const [result, setResult] = useState<{
     correctCount: number
     bestForYou: number
@@ -116,6 +118,7 @@ export function SurvivalGame({ categories }: { categories: { slug: string; name:
       setCurrent(next)
       setQueue(rest)
       setSelectedId(null)
+      setCorrectIds(null)
       setTimeLeftMs(QUESTION_TIME_MS)
       setPhase('playing')
     },
@@ -143,7 +146,7 @@ export function SurvivalGame({ categories }: { categories: { slug: string; name:
   }, [addToast, advance, fetchBatch])
 
   const handleAnswer = useCallback(
-    (choiceId: string | null) => {
+    async (choiceId: string | null) => {
       if (!current || phase !== 'playing') return
       clearTimer()
       setSelectedId(choiceId)
@@ -152,8 +155,25 @@ export function SurvivalGame({ categories }: { categories: { slug: string; name:
         questionId: current.id,
         choiceIds: choiceId ? [choiceId] : [],
       })
-      const chosen = current.choices.find((c) => c.id === choiceId)
-      const isCorrect = Boolean(chosen?.isCorrect)
+
+      // The answer key never reaches the client — ask the server.
+      let isCorrect = false
+      try {
+        const res = await fetch('/api/survival/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ questionId: current.id, choiceId }),
+        })
+        if (!res.ok) throw new Error('check failed')
+        const data = (await res.json()) as { isCorrect: boolean; correctChoiceIds: string[] }
+        isCorrect = data.isCorrect === true
+        setCorrectIds(Array.isArray(data.correctChoiceIds) ? data.correctChoiceIds : [])
+      } catch {
+        addToast('Connection hiccup — ending the run here.', 'error')
+        void finishRun()
+        return
+      }
+
       if (isCorrect) {
         setStreak((s) => s + 1)
         setTimeout(() => {
@@ -165,7 +185,7 @@ export function SurvivalGame({ categories }: { categories: { slug: string; name:
         }, 1200)
       }
     },
-    [advance, clearTimer, current, finishRun, phase, queue]
+    [addToast, advance, clearTimer, current, finishRun, phase, queue]
   )
 
   // Question timer
@@ -190,7 +210,7 @@ export function SurvivalGame({ categories }: { categories: { slug: string; name:
   }, [handleAnswer])
   useEffect(() => {
     if (phase !== 'playing') return
-    const timeout = setTimeout(() => handleAnswerRef.current(null), QUESTION_TIME_MS)
+    const timeout = setTimeout(() => void handleAnswerRef.current(null), QUESTION_TIME_MS)
     return () => clearTimeout(timeout)
   }, [phase, current])
 
@@ -293,20 +313,23 @@ export function SurvivalGame({ categories }: { categories: { slug: string; name:
           <div className="grid gap-2 sm:grid-cols-2">
             {current.choices.map((choice) => {
               const isSelected = selectedId === choice.id
-              const showFeedback = phase === 'feedback'
+              // Neutral while the server check is in flight (correctIds null)
+              const showFeedback = phase === 'feedback' && correctIds !== null
               const highlight = showFeedback
-                ? choice.isCorrect
+                ? correctIds.includes(choice.id)
                   ? 'border-quiz-green bg-quiz-green/10'
                   : isSelected
                     ? 'border-destructive bg-destructive/10'
                     : 'border-border opacity-60'
-                : 'border-border hover:border-quiz-purple hover:bg-muted/50'
+                : isSelected
+                  ? 'border-quiz-purple bg-muted/50'
+                  : 'border-border hover:border-quiz-purple hover:bg-muted/50'
               return (
                 <button
                   key={choice.id}
                   type="button"
                   disabled={phase !== 'playing'}
-                  onClick={() => handleAnswer(choice.id)}
+                  onClick={() => void handleAnswer(choice.id)}
                   className={`min-h-14 rounded-md border p-3.5 text-left text-sm font-medium transition-all ${highlight}`}
                 >
                   {choice.text}

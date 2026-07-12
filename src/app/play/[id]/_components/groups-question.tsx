@@ -8,6 +8,10 @@ import type { Question } from '../play-view.types'
 interface GroupsQuestionProps {
   question: Question
   isAnswered: boolean
+  /** Correct grouping with labels — server reveal, post-answer. */
+  revealGroups?: Array<{ label: string; choiceIds: string[] }>
+  /** Validates one tile selection server-side without locking in an answer. */
+  onProbe: (choiceIds: string[]) => Promise<{ match: boolean; label: string | null }>
   onSubmit: (groups: string[][]) => void
 }
 
@@ -27,8 +31,15 @@ function metaOf(value: unknown): Record<string, unknown> {
   return typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : {}
 }
 
-/** GROUPS (Connections) — find the groups of related tiles. */
-export function GroupsQuestion({ question, isAnswered, onSubmit }: GroupsQuestionProps) {
+/** GROUPS (Connections) — find the groups of related tiles. Group membership
+ *  is validated server-side per guess; tiles carry no group info. */
+export function GroupsQuestion({
+  question,
+  isAnswered,
+  revealGroups,
+  onProbe,
+  onSubmit,
+}: GroupsQuestionProps) {
   const groups = useMemo<GroupDef[]>(() => {
     const raw = metaOf(question.meta).groups
     if (!Array.isArray(raw)) return []
@@ -50,21 +61,16 @@ export function GroupsQuestion({ question, isAnswered, onSubmit }: GroupsQuestio
   })()
 
   const [selectedIds, setSelectedIds] = useState<string[]>([])
-  const [solved, setSolved] = useState<Array<{ key: string; ids: string[] }>>([])
+  const [solved, setSolved] = useState<Array<{ label: string; ids: string[] }>>([])
   const [mistakes, setMistakes] = useState(0)
   const [shake, setShake] = useState(false)
+  const [probing, setProbing] = useState(false)
   const submittedRef = useRef(false)
 
   const solvedIds = useMemo(() => new Set(solved.flatMap((s) => s.ids)), [solved])
   const remainingChoices = question.choices.filter((c) => !solvedIds.has(c.id))
 
-  const groupKeyOf = (choiceId: string) => {
-    const choice = question.choices.find((c) => c.id === choiceId)
-    const key = metaOf(choice?.meta).groupKey
-    return typeof key === 'string' ? key : null
-  }
-
-  const finish = (finalSolved: Array<{ key: string; ids: string[] }>) => {
+  const finish = (finalSolved: Array<{ label: string; ids: string[] }>) => {
     if (submittedRef.current) return
     submittedRef.current = true
     const solvedGroups = finalSolved.map((s) => s.ids)
@@ -90,12 +96,14 @@ export function GroupsQuestion({ question, isAnswered, onSubmit }: GroupsQuestio
     )
   }
 
-  const checkGroup = () => {
-    if (selectedIds.length !== groupSize || submittedRef.current) return
-    const keys = selectedIds.map(groupKeyOf)
-    const allSame = keys.every((k) => k !== null && k === keys[0])
-    if (allSame) {
-      const nextSolved = [...solved, { key: keys[0]!, ids: selectedIds }]
+  const checkGroup = async () => {
+    if (selectedIds.length !== groupSize || submittedRef.current || probing) return
+    setProbing(true)
+    const { match, label } = await onProbe(selectedIds)
+    setProbing(false)
+    if (submittedRef.current) return
+    if (match) {
+      const nextSolved = [...solved, { label: label ?? 'Group', ids: selectedIds }]
       setSolved(nextSolved)
       setSelectedIds([])
       if (nextSolved.length === groups.length) finish(nextSolved)
@@ -109,10 +117,9 @@ export function GroupsQuestion({ question, isAnswered, onSubmit }: GroupsQuestio
     }
   }
 
-  const labelForKey = (key: string) => groups.find((g) => g.key === key)?.label || 'Group'
-  const colorForKey = (key: string) => {
-    const index = groups.findIndex((g) => g.key === key)
-    return GROUP_COLORS[index % GROUP_COLORS.length]
+  const colorForLabel = (label: string) => {
+    const index = solved.findIndex((s) => s.label === label)
+    return GROUP_COLORS[(index === -1 ? 0 : index) % GROUP_COLORS.length]
   }
 
   return (
@@ -120,10 +127,10 @@ export function GroupsQuestion({ question, isAnswered, onSubmit }: GroupsQuestio
       {/* Solved groups */}
       {solved.map((entry) => (
         <div
-          key={entry.key}
-          className={cn('rounded-md border p-3 text-sm', colorForKey(entry.key))}
+          key={entry.ids.join('|')}
+          className={cn('rounded-md border p-3 text-sm', colorForLabel(entry.label))}
         >
-          <p className="font-bold">{labelForKey(entry.key)}</p>
+          <p className="font-bold">{entry.label}</p>
           <p className="text-muted-foreground">
             {entry.ids
               .map((id) => question.choices.find((c) => c.id === id)?.text)
@@ -133,20 +140,20 @@ export function GroupsQuestion({ question, isAnswered, onSubmit }: GroupsQuestio
         </div>
       ))}
 
-      {/* Reveal unsolved groups after the round ends */}
+      {/* Reveal unsolved groups after the round ends (server reveal) */}
       {isAnswered &&
-        groups
-          .filter((g) => !solved.some((s) => s.key === g.key))
+        (revealGroups ?? [])
+          .filter((g) => !g.choiceIds.every((id) => solvedIds.has(id)))
           .map((group) => (
             <div
-              key={group.key}
+              key={group.choiceIds.join('|')}
               className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm"
             >
               <p className="font-bold">{group.label || 'Group'} (missed)</p>
               <p className="text-muted-foreground">
-                {question.choices
-                  .filter((c) => metaOf(c.meta).groupKey === group.key)
-                  .map((c) => c.text)
+                {group.choiceIds
+                  .map((id) => question.choices.find((c) => c.id === id)?.text)
+                  .filter(Boolean)
                   .join(', ')}
               </p>
             </div>
@@ -194,10 +201,10 @@ export function GroupsQuestion({ question, isAnswered, onSubmit }: GroupsQuestio
             <Button
               variant="accent"
               size="sm"
-              disabled={selectedIds.length !== groupSize}
-              onClick={checkGroup}
+              disabled={selectedIds.length !== groupSize || probing}
+              onClick={() => void checkGroup()}
             >
-              Check Group ({selectedIds.length}/{groupSize})
+              {probing ? 'Checking…' : `Check Group (${selectedIds.length}/${groupSize})`}
             </Button>
           </div>
         </div>

@@ -4,12 +4,13 @@ import { useMemo, useState } from 'react'
 import { Delete } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { matchesAcceptedAnswer } from '@/domain/text-answer'
-import type { Question } from '../play-view.types'
+import type { AnswerFeedback, Question } from '../play-view.types'
 
 interface AnagramQuestionProps {
   question: Question
   isAnswered: boolean
+  /** Server feedback — carries correctness and the revealed answer. */
+  feedback?: AnswerFeedback
   onSubmit: (textAnswer: string) => void
 }
 
@@ -18,52 +19,24 @@ interface Tile {
   char: string
 }
 
-/** Deterministic seeded shuffle so a refresh shows the same scramble. */
-function seededShuffle<T>(items: T[], seed: string): T[] {
-  let hash = 2166136261
-  for (let i = 0; i < seed.length; i++) {
-    hash ^= seed.charCodeAt(i)
-    hash = Math.imul(hash, 16777619)
-  }
-  const result = [...items]
-  for (let i = result.length - 1; i > 0; i--) {
-    hash = Math.imul(hash ^ (hash >>> 15), 2246822507)
-    hash = Math.imul(hash ^ (hash >>> 13), 3266489909)
-    const j = (hash >>> 0) % (i + 1)
-    ;[result[i], result[j]] = [result[j], result[i]]
-  }
-  return result
-}
-
-/** ANAGRAM — unscramble letter tiles to form the answer. */
-export function AnagramQuestion({ question, isAnswered, onSubmit }: AnagramQuestionProps) {
+/** ANAGRAM — unscramble letter tiles to form the answer. The scrambled
+ *  tiles are provided by the server; the answer itself is never sent. */
+export function AnagramQuestion({
+  question,
+  isAnswered,
+  feedback,
+  onSubmit,
+}: AnagramQuestionProps) {
   const meta = (question.meta ?? {}) as Record<string, unknown>
-  const acceptedAnswers = useMemo(
-    () =>
-      Array.isArray(meta.acceptedAnswers)
-        ? meta.acceptedAnswers.filter((a): a is string => typeof a === 'string' && a.length > 0)
-        : [],
-    [meta.acceptedAnswers]
-  )
-  const primaryAnswer = acceptedAnswers[0] ?? ''
 
   const tiles = useMemo<Tile[]>(() => {
-    const chars = primaryAnswer
-      .toUpperCase()
-      .split('')
-      .filter((c) => c !== ' ')
+    const raw = Array.isArray(meta.tiles) ? meta.tiles : []
+    return raw
+      .filter((c): c is string => typeof c === 'string' && c.length > 0)
       .map((char, id) => ({ id, char }))
-    // Reshuffle until scramble differs from the answer (bounded attempts)
-    let shuffled = seededShuffle(chars, question.id)
-    for (let attempt = 0; attempt < 5; attempt++) {
-      if (shuffled.map((t) => t.char).join('') !== chars.map((t) => t.char).join('')) break
-      shuffled = seededShuffle(chars, `${question.id}:${attempt}`)
-    }
-    return shuffled
-  }, [primaryAnswer, question.id])
+  }, [meta.tiles])
 
   const [usedTileIds, setUsedTileIds] = useState<number[]>([])
-  const [submitted, setSubmitted] = useState<string | null>(null)
 
   const composed = usedTileIds.map((id) => tiles.find((t) => t.id === id)?.char ?? '').join('')
 
@@ -79,12 +52,11 @@ export function AnagramQuestion({ question, isAnswered, onSubmit }: AnagramQuest
 
   const handleSubmit = () => {
     if (!composed) return
-    setSubmitted(composed)
     onSubmit(composed)
   }
 
-  const wasCorrect =
-    isAnswered && submitted !== null && matchesAcceptedAnswer(submitted, acceptedAnswers)
+  const wasCorrect = isAnswered && feedback?.isCorrect === true
+  const primaryAnswer = feedback?.reveal.acceptedAnswers[0] ?? ''
 
   return (
     <div className="space-y-4">
@@ -92,7 +64,7 @@ export function AnagramQuestion({ question, isAnswered, onSubmit }: AnagramQuest
       <div
         className={cn(
           'flex min-h-13 flex-wrap items-center gap-1.5 rounded-md border p-3',
-          isAnswered
+          isAnswered && feedback
             ? wasCorrect
               ? 'border-emerald-500 bg-emerald-500/15'
               : 'border-destructive bg-destructive/10'

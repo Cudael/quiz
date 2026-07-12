@@ -180,6 +180,37 @@ export async function signPlayToken(quizId: string): Promise<string> {
 }
 
 /**
+ * Verify a play token's signature, expiry, and quiz binding WITHOUT consuming
+ * its nonce. Used by mid-quiz endpoints (per-question answer checks) that run
+ * many times per session — the nonce must stay fresh for the final submit,
+ * which is the only place the token is consumed.
+ */
+export async function verifyPlayTokenSignature(
+  token: string,
+  expectedQuizId: string
+): Promise<{ valid: boolean; quizId?: string }> {
+  try {
+    const [payloadB64, sigB64] = token.split('.')
+    if (!payloadB64 || !sigB64) return { valid: false }
+
+    const key = await importKey(getSecret())
+    const ok = await verify(payloadB64, sigB64, key)
+    if (!ok) return { valid: false }
+
+    const payload: PlayTokenPayload = JSON.parse(
+      Buffer.from(payloadB64, 'base64url').toString('utf8')
+    )
+    if (Date.now() - payload.issuedAt > TOKEN_TTL_MS) return { valid: false }
+    if (payload.quizId !== expectedQuizId) return { valid: false }
+    if (!payload.nonce) return { valid: false }
+
+    return { valid: true, quizId: payload.quizId }
+  } catch {
+    return { valid: false }
+  }
+}
+
+/**
  * Verify a play token and return the quizId if valid, or null if tampered/expired/replayed.
  * Tokens expire after 4 hours and may only be verified (consumed) once.
  */

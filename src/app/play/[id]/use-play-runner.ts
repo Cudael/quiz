@@ -7,7 +7,7 @@ import { usePlaySessionStore } from '@/store/play-session'
 import type { AnswerExtras } from '@/store/play-session'
 import { copy } from '@/lib/copy'
 import { getQuizPath } from '@/lib/quiz-url'
-import type { Question, QuizData } from './play-view.types'
+import type { AnswerFeedback, Question, QuizData } from './play-view.types'
 import { getSoundPreference, SOUND_PREFERENCE_STORAGE_KEY } from './play-view.utils'
 
 export function usePlayRunner(quizId: string, mode?: 'DAILY' | 'PRACTICE' | 'BLITZ') {
@@ -31,6 +31,8 @@ export function usePlayRunner(quizId: string, mode?: 'DAILY' | 'PRACTICE' | 'BLI
   const [soundEnabled, setSoundEnabled] = useState(getSoundPreference)
   const [showQuitModal, setShowQuitModal] = useState(false)
   const prevQuestionIdRef = useRef<string | null>(null)
+  // Per-question server feedback (correct answers revealed post-answer).
+  const [feedbackByQuestion, setFeedbackByQuestion] = useState<Record<string, AnswerFeedback>>({})
 
   // Stable refs for callbacks used inside effects
   const onFinishRef = useRef<(() => void) | null>(null)
@@ -129,15 +131,41 @@ export function usePlayRunner(quizId: string, mode?: 'DAILY' | 'PRACTICE' | 'BLI
       if (!hasQuizTimer) clearTimer()
       const elapsed = Date.now() - questionStartRef.current
       const timeTakenMs = Math.min(elapsed, currentQuestion.timeLimitSec * 1000)
-      store.answer(
-        currentQuestion.id,
-        timeout ? [] : choiceIds,
-        timeTakenMs,
-        timeout ? undefined : extras
-      )
-      setQuestionUI((prev) => ({ ...prev, selectedChoiceIds: timeout ? [] : choiceIds }))
+      const effectiveChoiceIds = timeout ? [] : choiceIds
+      const effectiveExtras = timeout ? undefined : extras
+      store.answer(currentQuestion.id, effectiveChoiceIds, timeTakenMs, effectiveExtras)
+      setQuestionUI((prev) => ({ ...prev, selectedChoiceIds: effectiveChoiceIds }))
+
+      // The answer key never reaches the client — fetch feedback from the
+      // server now that the answer is locked in. Fire-and-forget: feedback
+      // renders when it arrives; final scoring happens at submit regardless.
+      const questionId = currentQuestion.id
+      fetch('/api/play/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          playToken: playTokenRef.current,
+          quizId,
+          questionId,
+          answer: { choiceIds: effectiveChoiceIds, ...effectiveExtras },
+        }),
+      })
+        .then(async (res) => {
+          if (!res.ok) return
+          const data = (await res.json()) as AnswerFeedback
+          // Guard against malformed responses (and simplified test mocks).
+          if (typeof data?.credit !== 'number' || typeof data.reveal !== 'object' || !data.reveal) {
+            return
+          }
+          setFeedbackByQuestion((prev) => ({ ...prev, [questionId]: data }))
+          store.addScore(Math.round(100 * data.credit))
+        })
+        .catch(() => {
+          // Feedback stays hidden; the results page still shows the full
+          // server-scored breakdown.
+        })
     },
-    [currentQuestion, isAnswered, clearTimer, store, hasQuizTimer]
+    [currentQuestion, isAnswered, clearTimer, store, hasQuizTimer, quizId]
   )
 
   useEffect(() => {
@@ -241,6 +269,32 @@ export function usePlayRunner(quizId: string, mode?: 'DAILY' | 'PRACTICE' | 'BLI
     localStorage.setItem(SOUND_PREFERENCE_STORAGE_KEY, String(soundEnabled))
   }, [soundEnabled])
 
+  // GROUPS mid-question probe — validates one tile selection server-side
+  // without locking in the answer.
+  const probeGroup = useCallback(
+    async (choiceIds: string[]): Promise<{ match: boolean; label: string | null }> => {
+      if (!currentQuestion) return { match: false, label: null }
+      try {
+        const res = await fetch('/api/play/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            playToken: playTokenRef.current,
+            quizId,
+            questionId: currentQuestion.id,
+            probeGroup: choiceIds,
+          }),
+        })
+        if (!res.ok) return { match: false, label: null }
+        const data = (await res.json()) as { probeMatch: boolean; label: string | null }
+        return { match: data.probeMatch === true, label: data.label ?? null }
+      } catch {
+        return { match: false, label: null }
+      }
+    },
+    [currentQuestion, quizId]
+  )
+
   const handleChoiceSelect = useCallback(
     (choiceId: string) => {
       if (!currentQuestion || isAnswered) return
@@ -304,6 +358,7 @@ export function usePlayRunner(quizId: string, mode?: 'DAILY' | 'PRACTICE' | 'BLI
           setQuiz(data.quiz)
           playTokenRef.current = data.playToken
           setQuestions(data.questions)
+          setFeedbackByQuestion({})
           store.start(quizId)
           setLoading(false)
         }
@@ -337,6 +392,7 @@ export function usePlayRunner(quizId: string, mode?: 'DAILY' | 'PRACTICE' | 'BLI
     loading,
     currentQuestion,
     isAnswered,
+    currentFeedback: currentQuestion ? feedbackByQuestion[currentQuestion.id] : undefined,
     timeRemainingMs,
     questionUI,
     soundEnabled,
@@ -349,6 +405,7 @@ export function usePlayRunner(quizId: string, mode?: 'DAILY' | 'PRACTICE' | 'BLI
     handleTextSubmit,
     handleSubmitSelection,
     handleAnswer,
+    probeGroup,
     goNext,
     quitToQuiz,
   }

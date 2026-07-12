@@ -2,21 +2,27 @@
 
 import { useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { evaluateAnswer } from '@/domain/evaluate-answer'
-import type { Question } from '../play-view.types'
+import type { AnswerFeedback, Question } from '../play-view.types'
 
 interface NumberGuessQuestionProps {
   question: Question
   isAnswered: boolean
+  /** Server feedback — carries the target number and earned credit. */
+  feedback?: AnswerFeedback
   onSubmit: (value: number) => void
 }
 
 /** NUMBER_GUESS — pick a value on a slider; closest wins, ±tolerance = full credit. */
-export function NumberGuessQuestion({ question, isAnswered, onSubmit }: NumberGuessQuestionProps) {
+export function NumberGuessQuestion({
+  question,
+  isAnswered,
+  feedback,
+  onSubmit,
+}: NumberGuessQuestionProps) {
   const meta = (question.meta ?? {}) as Record<string, unknown>
   const min = typeof meta.min === 'number' ? meta.min : 0
   const max = typeof meta.max === 'number' ? meta.max : 100
-  const answer = typeof meta.answer === 'number' ? meta.answer : null
+  const answer = feedback?.reveal.numberAnswer ?? null
   const unit = typeof meta.unit === 'string' ? meta.unit : ''
   const step = useMemo(() => {
     const range = max - min
@@ -30,14 +36,7 @@ export function NumberGuessQuestion({ question, isAnswered, onSubmit }: NumberGu
 
   const format = (v: number) => `${v.toLocaleString()}${unit ? ` ${unit}` : ''}`
 
-  const creditPct = useMemo(() => {
-    if (!isAnswered || submittedValue === null) return null
-    const { credit } = evaluateAnswer(
-      { id: question.id, type: 'NUMBER_GUESS', meta: question.meta ?? undefined, choices: [] },
-      { choiceIds: [], numberAnswer: submittedValue }
-    )
-    return Math.round(credit * 100)
-  }, [isAnswered, submittedValue, question.id, question.meta])
+  const creditPct = isAnswered && feedback ? Math.round(feedback.credit * 100) : null
 
   const handleSubmit = () => {
     const clamped = Math.min(max, Math.max(min, value))

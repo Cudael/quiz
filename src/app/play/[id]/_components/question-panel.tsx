@@ -1,10 +1,9 @@
 import Image from 'next/image'
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { matchesAcceptedAnswer } from '@/domain/text-answer'
-import type { Choice, Question } from '../play-view.types'
+import type { AnswerFeedback, Question } from '../play-view.types'
 import { getQuestionImageSrc, imageLoader } from '../play-view.utils'
 import { CountdownRing } from './countdown-ring'
 import { MapDisplay } from './map-display'
@@ -27,6 +26,8 @@ interface QuestionPanelProps {
   selectedChoiceIds: string[]
   hiddenChoiceIds: string[]
   isAnswered: boolean
+  /** Server feedback for the current question; undefined while in flight. */
+  feedback?: AnswerFeedback
   canSubmit: boolean
   isLastQuestion: boolean
   submitting: boolean
@@ -42,6 +43,7 @@ interface QuestionPanelProps {
       groups?: string[][]
     }
   ) => void
+  onProbeGroup: (choiceIds: string[]) => Promise<{ match: boolean; label: string | null }>
   onNext: () => void
   onTextSubmit?: (text: string) => void
   textAnswer?: string
@@ -56,17 +58,20 @@ export function QuestionPanel({
   selectedChoiceIds,
   hiddenChoiceIds,
   isAnswered,
+  feedback,
   canSubmit,
   isLastQuestion,
   submitting,
   onChoiceSelect,
   onSubmit,
   onAnswer,
+  onProbeGroup,
   onNext,
   onTextSubmit,
   textAnswer,
   onTextChange,
 }: QuestionPanelProps) {
+  const reveal = feedback?.reveal
   const renderedPrompt = currentQuestion.prompt
   const questionImageSrc = getQuestionImageSrc(currentQuestion.imageUrl)
   const showHeaderImage = !!questionImageSrc && currentQuestion.type !== 'HOTSPOT'
@@ -127,18 +132,30 @@ export function QuestionPanel({
       )
       if (matchingChoice) {
         onAnswer([matchingChoice.id])
-        // If correct, start fade-out then mark zone as completed
-        if (matchingChoice.isCorrect) {
-          setFadingZoneIds((prev) => (prev.includes(zoneId) ? prev : [...prev, zoneId]))
-          setTimeout(() => {
-            setFadingZoneIds((prev) => prev.filter((id) => id !== zoneId))
-            setCompletedZoneIds((prev) => (prev.includes(zoneId) ? prev : [...prev, zoneId]))
-          }, 800)
-        }
       }
     },
     [isAnswered, currentQuestion.choices, onAnswer]
   )
+
+  // Correct-pick fade runs once server feedback confirms the click was right.
+  const hotspotFeedbackHandledRef = useRef<string | null>(null)
+  useEffect(() => {
+    if (currentQuestion.type !== 'HOTSPOT' || !isAnswered || !reveal) return
+    if (hotspotFeedbackHandledRef.current === currentQuestion.id) return
+    hotspotFeedbackHandledRef.current = currentQuestion.id
+    const correctZone = reveal.correctZoneId
+    if (correctZone && selectedHotspotZoneId === correctZone) {
+      // Scheduled as timeouts (not synchronous setState) so the effect body
+      // never triggers a cascading render.
+      setTimeout(() => {
+        setFadingZoneIds((prev) => (prev.includes(correctZone) ? prev : [...prev, correctZone]))
+      }, 0)
+      setTimeout(() => {
+        setFadingZoneIds((prev) => prev.filter((id) => id !== correctZone))
+        setCompletedZoneIds((prev) => (prev.includes(correctZone) ? prev : [...prev, correctZone]))
+      }, 800)
+    }
+  }, [currentQuestion.type, currentQuestion.id, isAnswered, reveal, selectedHotspotZoneId])
 
   // Get hotspot data — exclude completed zones (fading zones are still visible)
   const hotspotMeta = currentQuestion.meta as { zones?: HotspotZone[] } | undefined
@@ -155,11 +172,8 @@ export function QuestionPanel({
     return hotspotZones.some((z) => z.id === selectedHotspotZoneId) ? selectedHotspotZoneId : null
   }, [selectedHotspotZoneId, hotspotZones])
 
-  // Find the correct zone ID for result display
-  const correctChoice = currentQuestion.choices.find((c) => c.isCorrect)
-  const correctZoneId = correctChoice
-    ? ((correctChoice.meta as Record<string, string>)?.zoneId ?? null)
-    : null
+  // Correct zone comes from server feedback, revealed only after answering.
+  const correctZoneId = reveal?.correctZoneId ?? null
 
   // Use quiz-level time limit if available, otherwise per-question
   const effectiveTimeLimitSec = quizTimeLimitSec ?? currentQuestion.timeLimitSec
@@ -200,8 +214,13 @@ export function QuestionPanel({
           </p>
         )}
 
-        {/* Result feedback */}
-        {isAnswered && (
+        {/* Result feedback — waits for the server reveal */}
+        {isAnswered && !reveal && (
+          <p className="mb-4 text-center text-sm text-muted-foreground" aria-live="polite">
+            Checking…
+          </p>
+        )}
+        {isAnswered && reveal && (
           <p className="mb-4 text-center text-sm font-medium" aria-live="polite">
             {selectedHotspotZoneId === correctZoneId ? (
               <span className="text-emerald-700 dark:text-emerald-400">
@@ -308,30 +327,36 @@ export function QuestionPanel({
               <OrderQuestion
                 choices={currentQuestion.choices}
                 isAnswered={isAnswered}
+                positions={reveal?.positions}
                 onSubmit={(orderedIds) => onAnswer(orderedIds)}
               />
             ) : isMatchQuestion ? (
               <MatchQuestion
                 choices={currentQuestion.choices}
                 isAnswered={isAnswered}
+                correctPairs={reveal?.correctPairs}
                 onSubmit={(pairs) => onAnswer([], false, { pairs })}
               />
             ) : isNumberGuessQuestion ? (
               <NumberGuessQuestion
                 question={currentQuestion}
                 isAnswered={isAnswered}
+                feedback={feedback}
                 onSubmit={(value) => onAnswer([], false, { numberAnswer: value })}
               />
             ) : isGroupsQuestion ? (
               <GroupsQuestion
                 question={currentQuestion}
                 isAnswered={isAnswered}
+                revealGroups={reveal?.groups}
+                onProbe={onProbeGroup}
                 onSubmit={(groups) => onAnswer([], false, { groups })}
               />
             ) : isAnagramQuestion ? (
               <AnagramQuestion
                 question={currentQuestion}
                 isAnswered={isAnswered}
+                feedback={feedback}
                 onSubmit={(text) => onAnswer([], false, { textAnswer: text })}
               />
             ) : currentQuestion.type === 'FILL_BLANK' ? (
@@ -356,9 +381,7 @@ export function QuestionPanel({
                     className="w-full rounded-md border border-border bg-card px-4 py-3 text-base font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60 md:text-sm"
                   />
                 </div>
-                {isAnswered ? (
-                  <FillBlankResult question={currentQuestion} givenAnswer={textAnswer ?? ''} />
-                ) : null}
+                {isAnswered ? <FillBlankResult feedback={feedback} /> : null}
               </div>
             ) : isMapQuestion ? (
               <div className="space-y-4">
@@ -386,7 +409,7 @@ export function QuestionPanel({
                   .filter((c) => !hiddenChoiceIds.includes(c.id))
                   .map((choice, idx) => {
                     const isSelected = selectedChoiceIds.includes(choice.id)
-                    const isCorrect = choice.isCorrect === true
+                    const isCorrect = reveal?.correctChoiceIds.includes(choice.id) === true
                     return (
                       <button
                         key={choice.id}
@@ -396,13 +419,17 @@ export function QuestionPanel({
                         className={cn(
                           'relative flex flex-col items-center gap-2 overflow-hidden rounded-md border p-2 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                           isAnswered
-                            ? isSelected
-                              ? isCorrect
-                                ? 'border-emerald-500 bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 font-semibold'
-                                : 'border-destructive bg-destructive/15 text-destructive font-semibold'
-                              : isCorrect
-                                ? 'border-emerald-500/70 border-dashed bg-emerald-500/5 text-emerald-700 dark:text-emerald-400 font-semibold'
-                                : 'border-border bg-muted/40 opacity-40 text-muted-foreground'
+                            ? reveal
+                              ? isSelected
+                                ? isCorrect
+                                  ? 'border-emerald-500 bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 font-semibold'
+                                  : 'border-destructive bg-destructive/15 text-destructive font-semibold'
+                                : isCorrect
+                                  ? 'border-emerald-500/70 border-dashed bg-emerald-500/5 text-emerald-700 dark:text-emerald-400 font-semibold'
+                                  : 'border-border bg-muted/40 opacity-40 text-muted-foreground'
+                              : isSelected
+                                ? 'border-primary bg-primary/10'
+                                : 'border-border bg-muted/40 opacity-60'
                             : isSelected
                               ? 'border-primary bg-primary/10'
                               : 'cursor-pointer border-border bg-card hover:border-primary hover:bg-primary/5'
@@ -430,9 +457,9 @@ export function QuestionPanel({
                         {choice.text ? (
                           <span className="text-sm font-medium">{choice.text}</span>
                         ) : null}
-                        {isAnswered && choiceValueLabel(choice) ? (
+                        {isAnswered && reveal?.choiceValues[choice.id] ? (
                           <span className="rounded-sm bg-background/70 px-2 py-0.5 text-xs font-bold tabular-nums">
-                            {choiceValueLabel(choice)}
+                            {reveal.choiceValues[choice.id]}
                           </span>
                         ) : null}
                       </button>
@@ -445,7 +472,7 @@ export function QuestionPanel({
                   .filter((c) => !hiddenChoiceIds.includes(c.id))
                   .map((choice, idx) => {
                     const isSelected = selectedChoiceIds.includes(choice.id)
-                    const isCorrect = choice.isCorrect === true
+                    const isCorrect = reveal?.correctChoiceIds.includes(choice.id) === true
                     return (
                       <button
                         key={choice.id}
@@ -455,13 +482,17 @@ export function QuestionPanel({
                         className={cn(
                           'flex min-h-[56px] items-center gap-3 rounded-md border p-4 text-left text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                           isAnswered
-                            ? isSelected
-                              ? isCorrect
-                                ? 'border-emerald-500 bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 font-semibold'
-                                : 'border-destructive bg-destructive/15 text-destructive font-semibold'
-                              : isCorrect
-                                ? 'border-emerald-500/70 border-dashed bg-emerald-500/5 text-emerald-700 dark:text-emerald-400 font-semibold'
-                                : 'border-border bg-muted/40 text-muted-foreground opacity-40'
+                            ? reveal
+                              ? isSelected
+                                ? isCorrect
+                                  ? 'border-emerald-500 bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 font-semibold'
+                                  : 'border-destructive bg-destructive/15 text-destructive font-semibold'
+                                : isCorrect
+                                  ? 'border-emerald-500/70 border-dashed bg-emerald-500/5 text-emerald-700 dark:text-emerald-400 font-semibold'
+                                  : 'border-border bg-muted/40 text-muted-foreground opacity-40'
+                              : isSelected
+                                ? 'border-primary bg-primary/10 text-foreground'
+                                : 'border-border bg-muted/40 opacity-60'
                             : isSelected
                               ? 'border-primary bg-primary/10 text-foreground'
                               : 'cursor-pointer border-border bg-card hover:border-primary hover:bg-primary/5'
@@ -472,7 +503,7 @@ export function QuestionPanel({
                         <span
                           className={cn(
                             'flex h-7 w-7 shrink-0 items-center justify-center rounded-sm border text-xs font-bold transition-colors',
-                            isAnswered
+                            isAnswered && reveal
                               ? isSelected
                                 ? isCorrect
                                   ? 'border-emerald-500 bg-emerald-500 text-primary-foreground'
@@ -488,9 +519,9 @@ export function QuestionPanel({
                           {idx + 1}
                         </span>
                         <span className="min-w-0 flex-1">{choice.text}</span>
-                        {isAnswered && choiceValueLabel(choice) ? (
+                        {isAnswered && reveal?.choiceValues[choice.id] ? (
                           <span className="shrink-0 rounded-sm bg-background/70 px-2 py-0.5 text-xs font-bold tabular-nums">
-                            {choiceValueLabel(choice)}
+                            {reveal.choiceValues[choice.id]}
                           </span>
                         ) : null}
                       </button>
@@ -533,43 +564,33 @@ export function QuestionPanel({
   )
 }
 
-/** Post-answer feedback for FILL_BLANK questions with meta-based answers. */
-function FillBlankResult({ question, givenAnswer }: { question: Question; givenAnswer: string }) {
-  const meta = (question.meta ?? {}) as Record<string, unknown>
-  const acceptedAnswers = Array.isArray(meta.acceptedAnswers)
-    ? meta.acceptedAnswers.filter((a): a is string => typeof a === 'string' && a.length > 0)
-    : question.choices.filter((c) => c.isCorrect).map((c) => c.text)
-  if (acceptedAnswers.length === 0) return null
+/** Post-answer feedback for FILL_BLANK questions, driven by server reveal. */
+function FillBlankResult({ feedback }: { feedback?: AnswerFeedback }) {
+  if (!feedback) {
+    return <p className="text-sm text-muted-foreground">Checking…</p>
+  }
 
-  const correct = matchesAcceptedAnswer(givenAnswer, acceptedAnswers, meta.fuzzy === true)
+  const answerText = feedback.reveal.acceptedAnswers[0]
   return (
     <div
       className={cn(
         'rounded-md border p-3 text-sm font-medium',
-        correct
+        feedback.isCorrect
           ? 'border-emerald-500 bg-emerald-500/15 text-emerald-800 dark:text-emerald-400'
           : 'border-destructive bg-destructive/10 text-destructive'
       )}
     >
-      {correct ? (
+      {feedback.isCorrect ? (
         'Correct!'
-      ) : (
+      ) : answerText ? (
         <>
-          Correct answer: <span className="font-bold">{acceptedAnswers[0]}</span>
+          Correct answer: <span className="font-bold">{answerText}</span>
         </>
+      ) : (
+        'Not quite.'
       )}
     </div>
   )
-}
-
-/** VERSUS — value badge revealed after answering. */
-function choiceValueLabel(choice: Choice): string | null {
-  const meta = (choice.meta ?? {}) as Record<string, unknown>
-  if (typeof meta.valueLabel === 'string' && meta.valueLabel) return meta.valueLabel
-  if (typeof meta.value === 'number' && Number.isFinite(meta.value)) {
-    return meta.value.toLocaleString()
-  }
-  return null
 }
 
 const TYPE_HINTS: Record<string, string> = {
