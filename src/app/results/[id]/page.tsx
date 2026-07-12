@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/server/prisma'
 
@@ -12,4 +13,8 @@ export default async function ResultsRedirectPage({ params }: { params: Promise<
     redirect('/')
   }
   redirect(`/play/${session.quizId}/results?session=${id}`)
+}
+export const metadata: Metadata = {
+  title: 'Quiz Results',
+  robots: { index: false, follow: false },
 }

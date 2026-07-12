@@ -33,6 +33,7 @@ export default function robots(): MetadataRoute.Robots {
           '/reset-password',
           '/random-quiz',
           '/r/',
+          '/results/',
           '/duel/',
         ],
       },

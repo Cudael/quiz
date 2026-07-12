@@ -35,6 +35,10 @@ export default function HomePage() {
         '@id': absoluteUrl('/#organization'),
         name: 'BusQuiz',
         url: absoluteUrl('/'),
+        logo: {
+          '@type': 'ImageObject',
+          url: absoluteUrl('/icon-512-maskable.png'),
+        },
         sameAs: ['https://x.com/PlayBusQuiz'],
       },
       {

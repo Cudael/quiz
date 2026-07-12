@@ -1,6 +1,7 @@
 # Architecture
 
 See [R2 image lifecycle](./r2-lifecycle.md) for bucket retention and safe orphan-cleanup guidance.
+See [SEO operations](./seo.md) for metadata, sitemap, and indexability policy.
 
 BusQuiz is a **Next.js 16 App Router** application with a clear layered architecture.
 

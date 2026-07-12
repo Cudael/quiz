@@ -19,6 +19,7 @@ import { RecommendedQuizzes } from './_components/recommended-quizzes'
 import { YouMightAlsoLike } from './_components/you-might-also-like'
 import { QuizComments } from './_components/quiz-comments'
 import { absoluteUrl } from '@/lib/site'
+import { isQuizIndexable, seoDescription, seoTitle } from '@/lib/seo-metadata'
 
 const difficultyVariant: Record<string, 'success' | 'warning' | 'destructive'> = {
   EASY: 'success',
@@ -35,8 +36,9 @@ const QUIZ_META_SELECT = {
   playCount: true,
   avgScore: true,
   category: true,
-  author: { select: { id: true, name: true, image: true, role: true } },
+  author: { select: { id: true, name: true, username: true, image: true, role: true } },
   questions: { select: { id: true } },
+  reports: { where: { status: 'PENDING' as const }, select: { id: true }, take: 1 },
 } as const
 
 /** Cached quiz fetch — deduplicates across generateMetadata + page render. */
@@ -62,11 +64,21 @@ export async function generateMetadata({
     }
   }
 
-  const title = `${quiz.title} by ${getDisplayAuthorName(quiz.author)} • ${quiz.category.name}`
-  const description = quiz.description || `Take ${quiz.title} and climb the leaderboard on BusQuiz.`
+  const title = seoTitle(`${quiz.title} Quiz — ${quiz.category.name}`)
+  const description = seoDescription(
+    quiz.description,
+    `Take the ${quiz.title} quiz, test your knowledge, and climb the BusQuiz leaderboard.`
+  )
   const path = `/quiz/${slug}`
   const url = absoluteUrl(path)
-  const ogImages = quiz.coverImage ? [quiz.coverImage] : ['/og-default.png']
+  const indexable = isQuizIndexable({
+    description: quiz.description,
+    questionCount: quiz.questions.length,
+    pendingReportCount: quiz.reports.length,
+  })
+  const images = quiz.coverImage
+    ? [{ url: quiz.coverImage, alt: `${quiz.title} quiz cover` }]
+    : undefined
 
   return {
     title,
@@ -74,8 +86,9 @@ export async function generateMetadata({
     alternates: {
       canonical: path,
     },
-    openGraph: { title, description, url, images: ogImages },
-    twitter: { card: 'summary_large_image' as const, title, description, images: ogImages },
+    robots: indexable ? undefined : { index: false, follow: true },
+    openGraph: { title, description, url, images },
+    twitter: { card: 'summary_large_image' as const, title, description, images },
   }
 }
 
@@ -138,7 +151,13 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
     description: quiz.description || `Take ${quiz.title} and climb the leaderboard on BusQuiz.`,
     url: absoluteUrl(`/quiz/${slug}`),
     ...(quiz.coverImage ? { image: quiz.coverImage } : {}),
-    author: { '@type': 'Person', name: getDisplayAuthorName(quiz.author) },
+    author: {
+      '@type': 'Person',
+      name: getDisplayAuthorName(quiz.author),
+      url: quiz.author.username ? absoluteUrl(`/u/${quiz.author.username}`) : undefined,
+    },
+    publisher: { '@id': absoluteUrl('/#organization') },
+    about: { '@type': 'Thing', name: quiz.category.name },
     educationalLevel,
     numberOfQuestions: questionCount,
     ...(avgRating > 0 && ratingCount > 0

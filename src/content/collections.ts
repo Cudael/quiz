@@ -38,6 +38,39 @@ export const quizCollections: QuizCollection[] = [
     difficulties: ['EASY', 'MEDIUM'],
     sort: 'newest',
   },
+  {
+    slug: 'history-deep-dives',
+    title: 'History Quiz Deep Dives',
+    description:
+      'Explore civilizations, conflicts, leaders, and turning points through challenging history quizzes.',
+    categorySlugs: ['history'],
+    sort: 'popular',
+  },
+  {
+    slug: 'world-geography-challenge',
+    title: 'World Geography Challenge',
+    description:
+      'Test your knowledge of countries, capitals, flags, landmarks, and physical geography.',
+    categorySlugs: ['geography'],
+    difficulties: ['MEDIUM', 'HARD'],
+    sort: 'popular',
+  },
+  {
+    slug: 'technology-trivia',
+    title: 'Technology Trivia Collection',
+    description:
+      'Quiz yourself on computing, software, hardware, inventions, and the history of technology.',
+    categorySlugs: ['technology'],
+    sort: 'newest',
+  },
+  {
+    slug: 'sports-trivia-challenge',
+    title: 'Sports Trivia Challenge',
+    description:
+      'Take on quizzes about athletes, teams, tournaments, records, and unforgettable sporting moments.',
+    categorySlugs: ['sports'],
+    sort: 'popular',
+  },
 ]
 
 export function getQuizCollection(slug: string) {

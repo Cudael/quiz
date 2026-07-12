@@ -5,6 +5,7 @@ import { ArrowLeft, Calendar, Clock, Tag } from 'lucide-react'
 import { getAllBlogPosts, getBlogPost, getRelatedPosts } from '@/content/blog-posts'
 import { absoluteUrl } from '@/lib/site'
 import { serializeJsonLd } from '@/lib/seo'
+import { seoDescription, seoTitle } from '@/lib/seo-metadata'
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>
@@ -20,8 +21,8 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   if (!post) return {}
 
   return {
-    title: `${post.title} — Blog`,
-    description: post.description,
+    title: seoTitle(post.title),
+    description: seoDescription(post.description, 'Read the latest quiz tips from BusQuiz.'),
     alternates: {
       canonical: `/blog/${post.slug}`,
     },
@@ -55,15 +56,23 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     headline: post.title,
     description: post.description,
     datePublished: post.date,
+    dateModified: post.date,
+    mainEntityOfPage: absoluteUrl(`/blog/${post.slug}`),
     author: {
       '@type': 'Organization',
       name: post.author,
     },
     publisher: {
       '@type': 'Organization',
+      '@id': absoluteUrl('/#organization'),
       name: 'BusQuiz',
       url: absoluteUrl('/'),
+      logo: {
+        '@type': 'ImageObject',
+        url: absoluteUrl('/icon-512-maskable.png'),
+      },
     },
+    image: absoluteUrl(`/blog/${post.slug}/opengraph-image`),
     url: absoluteUrl(`/blog/${post.slug}`),
   }
 
@@ -72,6 +81,25 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Home', item: absoluteUrl('/') },
+              { '@type': 'ListItem', position: 2, name: 'Blog', item: absoluteUrl('/blog') },
+              {
+                '@type': 'ListItem',
+                position: 3,
+                name: post.title,
+                item: absoluteUrl(`/blog/${post.slug}`),
+              },
+            ],
+          }),
+        }}
       />
 
       <article className="container mx-auto px-4 py-10 md:px-6 md:py-16">
@@ -125,6 +153,24 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               prose-strong:text-foreground"
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
+
+          <aside className="mt-10 rounded-md border border-border/50 bg-muted/30 p-5">
+            <h2 className="text-lg font-bold">Keep exploring BusQuiz</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Put these ideas into practice with curated trivia and popular community quizzes.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold">
+              <Link href="/collections" className="text-primary hover:underline">
+                Browse curated quiz collections
+              </Link>
+              <Link href="/categories" className="text-primary hover:underline">
+                Explore quizzes by topic
+              </Link>
+              <Link href="/trending" className="text-primary hover:underline">
+                Play trending quizzes
+              </Link>
+            </div>
+          </aside>
 
           {relatedPosts.length > 0 && (
             <footer className="mt-16 border-t border-border/50 pt-8">

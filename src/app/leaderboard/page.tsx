@@ -57,6 +57,7 @@ export async function generateMetadata({
     description:
       'See top performers, filter by mode and category, and chase your next personal best.',
     robots: hasFilters ? { index: false } : undefined,
+    alternates: { canonical: '/leaderboard' },
     openGraph: {
       title,
       description: 'Track top players on the BusQuiz leaderboard.',

@@ -8,6 +8,7 @@ import { StreakFlame } from '@/components/ui/streak-flame'
 import { BadgesGrid } from '@/components/ui/badges-grid'
 import { absoluteUrl } from '@/lib/site'
 import { serializeJsonLd } from '@/lib/seo'
+import { seoDescription, seoTitle } from '@/lib/seo-metadata'
 import { toggleFollowAction } from './follow-actions'
 import { PublishedQuizzes } from './_components/published-quizzes'
 import { RecentSessions } from './_components/recent-sessions'
@@ -30,8 +31,11 @@ export async function generateMetadata({
     }
   }
 
-  const title = `${user.name} (@${user.username}) on BusQuiz — Level ${user.level}, ${user.badges.length} badges`
-  const description = `See ${user.name}'s stats, streaks, badges, and recent quiz sessions.`
+  const title = seoTitle(`${user.name} (@${user.username}) — Quiz Profile`)
+  const description = seoDescription(
+    `See ${user.name}'s quiz stats, level ${user.level} progress, ${user.badges.length} badges, and published quizzes.`,
+    `View ${user.name}'s BusQuiz profile.`
+  )
   const url = absoluteUrl(`/u/${user.username}`)
   return {
     title,

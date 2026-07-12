@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og'
 import { prisma } from '@/server/prisma'
 import { getDisplayAuthorName } from '@/lib/author-display'
 
-export const alt = 'Quiz card'
+export const alt = 'BusQuiz quiz title, category, difficulty, and creator'
 
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'

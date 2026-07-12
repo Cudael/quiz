@@ -13,6 +13,7 @@ import { getQuizPath } from '@/lib/quiz-url'
 import { prisma } from '@/server/prisma'
 import { auth } from '@/server/auth'
 import { categoryIcons } from '@/lib/category-icons'
+import { seoDescription, seoTitle } from '@/lib/seo-metadata'
 
 const PAGE_SIZE = 20
 
@@ -97,9 +98,11 @@ export async function generateMetadata({
     }
   }
 
-  const title = `${category.name} Quizzes`
-  const description =
-    category.description || `Play quizzes in the ${category.name} category on BusQuiz.`
+  const title = seoTitle(`${category.name} Quizzes`)
+  const description = seoDescription(
+    category.description,
+    `Play quizzes in the ${category.name} category on BusQuiz.`
+  )
   const url = absoluteUrl(`/categories/${category.slug}`)
 
   return {

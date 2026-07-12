@@ -22,9 +22,6 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   manifest: '/manifest.webmanifest',
-  alternates: {
-    canonical: '/',
-  },
   openGraph: {
     title: siteConfig.title,
     description: siteConfig.description,

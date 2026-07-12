@@ -10,6 +10,7 @@ import { serializeJsonLd } from '@/lib/seo'
 import { getQuizPath } from '@/lib/quiz-url'
 import { getQuizCollection, quizCollections } from '@/content/collections'
 import { prisma } from '@/server/prisma'
+import { seoDescription, seoTitle } from '@/lib/seo-metadata'
 
 export function generateStaticParams() {
   return quizCollections.map((collection) => ({ slug: collection.slug }))
@@ -24,10 +25,19 @@ export async function generateMetadata({
   const collection = getQuizCollection(slug)
   if (!collection) return { title: 'Collection not found' }
 
+  const matchingQuizCount = await prisma.quiz.count({
+    where: {
+      isPublished: true,
+      ...(collection.difficulties ? { difficulty: { in: collection.difficulties } } : {}),
+      ...(collection.categorySlugs ? { category: { slug: { in: collection.categorySlugs } } } : {}),
+    },
+  })
+
   return {
-    title: collection.title,
-    description: collection.description,
+    title: seoTitle(collection.title),
+    description: seoDescription(collection.description, 'Explore curated quizzes on BusQuiz.'),
     alternates: { canonical: `/collections/${collection.slug}` },
+    robots: matchingQuizCount >= 3 ? undefined : { index: false, follow: true },
     openGraph: {
       title: collection.title,
       description: collection.description,
@@ -115,6 +125,30 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Home', item: absoluteUrl('/') },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Collections',
+                item: absoluteUrl('/collections'),
+              },
+              {
+                '@type': 'ListItem',
+                position: 3,
+                name: collection.title,
+                item: absoluteUrl(`/collections/${collection.slug}`),
+              },
+            ],
+          }),
+        }}
       />
       <div>
         <Button variant="ghost" asChild className="mb-4 -ml-2">

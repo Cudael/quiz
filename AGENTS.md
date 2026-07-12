@@ -219,6 +219,15 @@ Minimum env: `DATABASE_URL` + `AUTH_SECRET`. OAuth providers are optional; their
 
 Functional PRs that change route contracts, endpoint behavior, or compatibility aliases must update `AGENTS.md` in the same PR so this file remains the operational source of truth.
 
+## SEO and indexability
+
+- The root layout provides shared title/Open Graph defaults but intentionally does not declare a canonical URL. Every indexable page must declare its own canonical.
+- Published quizzes are indexable and included in the sitemap only when they have at least 5 questions, a normalized description of at least 30 characters, and no pending report. Other published quizzes remain accessible with `noindex,follow`.
+- Internal search/filter variants use the base route as canonical and are `noindex,follow` where appropriate.
+- Curated collections require at least 3 matching indexable quizzes before they are indexable or included in the sitemap. Public playlists require at least 1 published quiz.
+- Reuse `src/lib/seo-metadata.ts` for bounded titles/descriptions and quiz indexability so page metadata and sitemap behavior stay consistent.
+- Private gameplay, results, Studio, admin, authentication, personalized, and compatibility routes must remain `noindex`; relevant route families are also excluded in `robots.ts`.
+
 ## Environment Variables
 
 Required: `DATABASE_URL`, `AUTH_SECRET`. See `.env.example` for the full list of 16 variables (OAuth, SMTP, R2, Redis, analytics, cron, OpenAI).

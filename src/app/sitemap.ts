@@ -4,21 +4,79 @@ import { getAllBlogPosts } from '@/content/blog-posts'
 import { quizCollections } from '@/content/collections'
 import { absoluteUrl } from '@/lib/site'
 import { getQuizPath } from '@/lib/quiz-url'
+import { isQuizIndexable } from '@/lib/seo-metadata'
 
-const STATIC_LAST_MODIFIED = new Date('2026-06-27')
+const STATIC_LAST_MODIFIED = new Date('2026-07-12')
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [categories, quizzes, publicProfiles] = await Promise.all([
-    prisma.category.findMany({ select: { slug: true, createdAt: true } }),
-    prisma.quiz.findMany({
-      where: { isPublished: true },
-      select: { id: true, title: true, slug: true, updatedAt: true },
-    }),
-    prisma.user.findMany({
-      where: { username: { not: null }, quizzes: { some: { isPublished: true } } },
-      select: { username: true, createdAt: true },
-    }),
-  ])
+  const [categories, quizzes, publicProfiles, publicPlaylists, latestPlay, latestDaily] =
+    await Promise.all([
+      prisma.category.findMany({ select: { slug: true, createdAt: true } }),
+      prisma.quiz.findMany({
+        where: { isPublished: true },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          description: true,
+          difficulty: true,
+          updatedAt: true,
+          category: { select: { slug: true } },
+          _count: {
+            select: {
+              questions: true,
+              reports: { where: { status: 'PENDING' } },
+            },
+          },
+        },
+      }),
+      prisma.user.findMany({
+        where: { username: { not: null }, quizzes: { some: { isPublished: true } } },
+        select: {
+          username: true,
+          createdAt: true,
+          quizzes: {
+            where: { isPublished: true },
+            orderBy: { updatedAt: 'desc' },
+            take: 1,
+            select: { updatedAt: true },
+          },
+        },
+      }),
+      prisma.playlist.findMany({
+        where: { isPublic: true, items: { some: { quiz: { isPublished: true } } } },
+        select: { slug: true, updatedAt: true },
+      }),
+      prisma.playSession.aggregate({ _max: { createdAt: true } }),
+      prisma.dailyQuiz.findFirst({ orderBy: { createdAt: 'desc' }, select: { createdAt: true } }),
+    ])
+
+  const indexableQuizzes = quizzes.filter((quiz) =>
+    isQuizIndexable({
+      description: quiz.description,
+      questionCount: quiz._count.questions,
+      pendingReportCount: quiz._count.reports,
+    })
+  )
+  const latestQuizUpdate = indexableQuizzes.reduce<Date | null>(
+    (latest, quiz) => (!latest || quiz.updatedAt > latest ? quiz.updatedAt : latest),
+    null
+  )
+  const categoryLastModified = new Map<string, Date>()
+  for (const quiz of indexableQuizzes) {
+    const previous = categoryLastModified.get(quiz.category.slug)
+    if (!previous || quiz.updatedAt > previous) {
+      categoryLastModified.set(quiz.category.slug, quiz.updatedAt)
+    }
+  }
+  const indexableCollections = quizCollections.filter((collection) => {
+    const matchingCount = indexableQuizzes.filter(
+      (quiz) =>
+        (!collection.categorySlugs || collection.categorySlugs.includes(quiz.category.slug)) &&
+        (!collection.difficulties || collection.difficulties.includes(quiz.difficulty))
+    ).length
+    return matchingCount >= 3
+  })
 
   const blogPosts = getAllBlogPosts()
 
@@ -31,31 +89,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: absoluteUrl('/leaderboard'),
-      lastModified: STATIC_LAST_MODIFIED,
+      lastModified: latestPlay._max.createdAt ?? STATIC_LAST_MODIFIED,
       changeFrequency: 'hourly',
       priority: 0.6,
     },
     {
       url: absoluteUrl('/categories'),
-      lastModified: STATIC_LAST_MODIFIED,
+      lastModified: latestQuizUpdate ?? STATIC_LAST_MODIFIED,
       changeFrequency: 'daily',
       priority: 0.9,
     },
     {
       url: absoluteUrl('/popular'),
-      lastModified: STATIC_LAST_MODIFIED,
+      lastModified: latestQuizUpdate ?? STATIC_LAST_MODIFIED,
       changeFrequency: 'daily',
       priority: 0.8,
     },
     {
       url: absoluteUrl('/trending'),
-      lastModified: STATIC_LAST_MODIFIED,
+      lastModified: latestPlay._max.createdAt ?? latestQuizUpdate ?? STATIC_LAST_MODIFIED,
       changeFrequency: 'daily',
       priority: 0.8,
     },
     {
       url: absoluteUrl('/daily'),
-      lastModified: STATIC_LAST_MODIFIED,
+      lastModified: latestDaily?.createdAt ?? STATIC_LAST_MODIFIED,
       changeFrequency: 'daily',
       priority: 0.7,
     },
@@ -70,6 +128,36 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: STATIC_LAST_MODIFIED,
       changeFrequency: 'monthly',
       priority: 0.6,
+    },
+    {
+      url: absoluteUrl('/about/accessibility'),
+      lastModified: STATIC_LAST_MODIFIED,
+      changeFrequency: 'monthly',
+      priority: 0.4,
+    },
+    {
+      url: absoluteUrl('/contact'),
+      lastModified: STATIC_LAST_MODIFIED,
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
+    {
+      url: absoluteUrl('/privacy'),
+      lastModified: STATIC_LAST_MODIFIED,
+      changeFrequency: 'yearly',
+      priority: 0.2,
+    },
+    {
+      url: absoluteUrl('/terms'),
+      lastModified: STATIC_LAST_MODIFIED,
+      changeFrequency: 'yearly',
+      priority: 0.2,
+    },
+    {
+      url: absoluteUrl('/survival'),
+      lastModified: latestPlay._max.createdAt ?? STATIC_LAST_MODIFIED,
+      changeFrequency: 'daily',
+      priority: 0.7,
     },
     {
       url: absoluteUrl('/learn'),
@@ -101,7 +189,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly',
       priority: 0.8,
     },
-    ...quizCollections.map((collection) => ({
+    ...indexableCollections.map((collection) => ({
       url: absoluteUrl(`/collections/${collection.slug}`),
       lastModified: STATIC_LAST_MODIFIED,
       changeFrequency: 'weekly' as const,
@@ -121,11 +209,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
     ...categories.map((category) => ({
       url: absoluteUrl(`/categories/${category.slug}`),
-      lastModified: category.createdAt,
+      lastModified: categoryLastModified.get(category.slug) ?? category.createdAt,
       changeFrequency: 'weekly' as const,
       priority: 0.7,
     })),
-    ...quizzes.map((quiz) => ({
+    ...indexableQuizzes.map((quiz) => ({
       url: absoluteUrl(getQuizPath(quiz)),
       lastModified: quiz.updatedAt,
       changeFrequency: 'weekly' as const,
@@ -136,12 +224,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ? [
             {
               url: absoluteUrl(`/u/${user.username}`),
-              lastModified: user.createdAt,
+              lastModified: user.quizzes[0]?.updatedAt ?? user.createdAt,
               changeFrequency: 'weekly' as const,
               priority: 0.5,
             },
           ]
         : []
     ),
+    ...publicPlaylists.map((playlist) => ({
+      url: absoluteUrl(`/playlists/${playlist.slug}`),
+      lastModified: playlist.updatedAt,
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
+    })),
   ]
 }

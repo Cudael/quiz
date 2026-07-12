@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Accessibility Statement',
   description: 'BusQuiz targets WCAG AA, supports reduced motion, and runs axe smoke checks in CI.',
+  alternates: { canonical: '/about/accessibility' },
 }
 
 export default function AccessibilityPage() {

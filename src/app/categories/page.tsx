@@ -10,22 +10,28 @@ import { getDisplayAuthorName } from '@/lib/author-display'
 import { getQuizPath } from '@/lib/quiz-url'
 import { categoryIcons } from '@/lib/category-icons'
 
-export const metadata: Metadata = {
-  title: 'Quiz Categories',
-  description: 'Browse quiz categories and jump into your next challenge.',
-  alternates: {
-    canonical: '/categories',
-  },
-  openGraph: {
-    title: 'BusQuiz Quiz Categories',
-    description: 'Browse quiz categories and discover new challenges.',
-    url: absoluteUrl('/categories'),
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'BusQuiz Quiz Categories',
-    description: 'Browse quiz categories and discover new challenges.',
-  },
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>
+}): Promise<Metadata> {
+  const query = (await searchParams).q?.trim()
+  return {
+    title: query ? `Search results for “${query.slice(0, 50)}”` : 'Quiz Categories',
+    description: 'Browse quiz categories and jump into your next challenge.',
+    alternates: { canonical: '/categories' },
+    robots: query ? { index: false, follow: true } : undefined,
+    openGraph: {
+      title: 'BusQuiz Quiz Categories',
+      description: 'Browse quiz categories and discover new challenges.',
+      url: absoluteUrl('/categories'),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'BusQuiz Quiz Categories',
+      description: 'Browse quiz categories and discover new challenges.',
+    },
+  }
 }
 
 interface CategoryWithQuizzes {

@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: 'Duel Mode — Challenge Friends',
   description:
     'Challenge your friends to a real-time quiz duel. Share a code, answer questions, and see who comes out on top.',
+  alternates: { canonical: '/duel' },
   openGraph: {
     title: 'Duel Mode — Challenge Friends | BusQuiz',
     description: 'Challenge your friends to a real-time quiz duel.',
