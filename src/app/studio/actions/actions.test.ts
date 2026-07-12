@@ -3,6 +3,8 @@ import { togglePublish } from '@/app/studio/actions'
 
 vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
+  revalidateTag: vi.fn(),
+  unstable_cache: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
 }))
 
 const { authMock, prismaMock } = vi.hoisted(() => ({

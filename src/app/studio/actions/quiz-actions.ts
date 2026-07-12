@@ -1,10 +1,11 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import type { Prisma } from '@prisma/client'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
 import { draftQuizSchema, quizSchema } from '@/schemas'
+import { HOME_STATIC_DATA_TAG } from '@/server/home-quiz-cache'
 import { generateUniqueSlug } from '@/lib/slugify'
 import {
   assertEmailVerified,
@@ -60,6 +61,9 @@ export async function togglePublish(formData: FormData): Promise<ActionResult> {
   }
 
   revalidatePath('/studio')
+  // Newest-quizzes list and total count on the homepage are cached — a
+  // publish/unpublish should show up there right away, not after 5 minutes.
+  revalidateTag(HOME_STATIC_DATA_TAG, 'max')
   return { ok: true }
 }
 
@@ -83,6 +87,7 @@ export async function deleteQuiz(formData: FormData): Promise<ActionResult> {
 
   await prisma.quiz.delete({ where: { id: quizId } })
   revalidatePath('/studio')
+  revalidateTag(HOME_STATIC_DATA_TAG, 'max')
   return { ok: true }
 }
 

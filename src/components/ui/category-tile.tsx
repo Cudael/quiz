@@ -3,7 +3,6 @@
 import * as React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
 interface CategoryTileProps {
@@ -27,11 +26,7 @@ export const CategoryTile = React.memo(function CategoryTile({
   className,
 }: CategoryTileProps) {
   return (
-    <motion.div
-      whileHover={{ scale: 1.02, y: -2 }}
-      whileTap={{ scale: 0.97 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-    >
+    <div className="transition-transform duration-150 ease-out hover:-translate-y-0.5 hover:scale-[1.02] active:scale-[0.97]">
       <Link
         href={`/categories/${slug}`}
         className={cn(
@@ -58,6 +53,6 @@ export const CategoryTile = React.memo(function CategoryTile({
           {quizCount !== undefined && <p className="text-xs text-white/70">{quizCount} quizzes</p>}
         </div>
       </Link>
-    </motion.div>
+    </div>
   )
 })

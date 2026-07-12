@@ -1,11 +1,12 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
 import { formatCorrectAnswer } from '@/domain/format-correct-answer'
 import { factCheckQuestions, type FactCheckVerdict } from '@/server/fact-check-utils'
+import { HOME_STATIC_DATA_TAG } from '@/server/home-quiz-cache'
 
 type AdminActionResult = { ok: true } | { ok: false; message: string }
 
@@ -69,6 +70,7 @@ export async function toggleQuizPublished(
   })
 
   revalidatePath('/admin/quizzes')
+  revalidateTag(HOME_STATIC_DATA_TAG, 'max')
   return { ok: true }
 }
 
@@ -111,6 +113,7 @@ export async function deleteQuiz(formData: FormData): Promise<{ ok: boolean; mes
   })
 
   revalidatePath('/admin/quizzes')
+  revalidateTag(HOME_STATIC_DATA_TAG, 'max')
   return { ok: true }
 }
 

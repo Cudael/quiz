@@ -8,8 +8,32 @@
  *   const variants = shouldReduce ? motionPresets.none : motionPresets.fadeUp
  */
 
+import { useEffect, useState } from 'react'
 import type { Variants, Transition } from 'framer-motion'
 import { REDUCED_MOTION_STORAGE_KEY } from '@/lib/preferences'
+
+/**
+ * Drop-in replacement for framer-motion's `useReducedMotion` for components
+ * that don't otherwise need the library — avoids pulling framer-motion into
+ * their bundle just for this OS-preference check.
+ */
+export function useReducedMotion(): boolean | null {
+  const [prefersReduced, setPrefersReduced] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)')
+    // Deferred so the initial read doesn't setState synchronously within the effect.
+    const timeoutId = setTimeout(() => setPrefersReduced(query.matches), 0)
+    const handleChange = (e: MediaQueryListEvent) => setPrefersReduced(e.matches)
+    query.addEventListener('change', handleChange)
+    return () => {
+      clearTimeout(timeoutId)
+      query.removeEventListener('change', handleChange)
+    }
+  }, [])
+
+  return prefersReduced
+}
 
 /* ─── Transition presets ─────────────────────────────────────────────────── */
 

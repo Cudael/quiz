@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useReducedMotion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
+import { useReducedMotion } from '@/lib/motion'
 
 export function AnimatedCounter({ value, duration = 1.5 }: { value: number; duration?: number }) {
   const shouldReduce = useReducedMotion()

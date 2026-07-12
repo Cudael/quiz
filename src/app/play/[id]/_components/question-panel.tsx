@@ -6,7 +6,6 @@ import { cn } from '@/lib/utils'
 import type { AnswerFeedback, Question } from '../play-view.types'
 import { getQuestionImageSrc, imageLoader } from '../play-view.utils'
 import { CountdownRing } from './countdown-ring'
-import { MapDisplay } from './map-display'
 import { HotspotDisplay } from './hotspot-display'
 import type { HotspotZone } from './hotspot-display'
 import { OrderQuestion } from './order-question'
@@ -76,7 +75,6 @@ export function QuestionPanel({
   const questionImageSrc = getQuestionImageSrc(currentQuestion.imageUrl)
   const showHeaderImage = !!questionImageSrc && currentQuestion.type !== 'HOTSPOT'
   const isImageChoice = currentQuestion.choices.some((c) => c.imageUrl)
-  const isMapQuestion = currentQuestion.type === 'MAP_SELECT'
   const isHotspotQuestion = currentQuestion.type === 'HOTSPOT'
 
   const questionMeta = (currentQuestion.meta ?? {}) as Record<string, unknown>
@@ -102,26 +100,9 @@ export function QuestionPanel({
   const inStudyPhase =
     studyDurationMs !== null && !isAnswered && studyDoneForQuestionId !== currentQuestion.id
 
-  const [selectedCountryId, setSelectedCountryId] = useState<string | null>(null)
   const [selectedHotspotZoneId, setSelectedHotspotZoneId] = useState<string | null>(null)
   const [completedZoneIds, setCompletedZoneIds] = useState<string[]>([])
   const [fadingZoneIds, setFadingZoneIds] = useState<string[]>([])
-
-  const mapRegion = (currentQuestion.meta as Record<string, string>)?.mapRegion ?? 'europe'
-
-  const handleCountryClick = useCallback(
-    (countryId: string) => {
-      if (isAnswered) return
-      setSelectedCountryId(countryId)
-      const matchingChoice = currentQuestion.choices.find(
-        (c) => (c.meta as Record<string, string>)?.regionId === countryId
-      )
-      if (matchingChoice) {
-        onChoiceSelect(matchingChoice.id)
-      }
-    },
-    [isAnswered, currentQuestion.choices, onChoiceSelect]
-  )
 
   const handleHotspotZoneClick = useCallback(
     (zoneId: string) => {
@@ -383,26 +364,6 @@ export function QuestionPanel({
                 </div>
                 {isAnswered ? <FillBlankResult feedback={feedback} /> : null}
               </div>
-            ) : isMapQuestion ? (
-              <div className="space-y-4">
-                <MapDisplay
-                  mapRegion={mapRegion}
-                  selectedCountryId={selectedCountryId}
-                  disabled={isAnswered}
-                  onCountryClick={handleCountryClick}
-                  className="max-w-lg mx-auto"
-                />
-                {selectedCountryId && !isAnswered && (
-                  <p className="text-center text-sm text-muted-foreground">
-                    You selected:{' '}
-                    <span className="font-semibold text-foreground">
-                      {currentQuestion.choices.find(
-                        (c) => (c.meta as Record<string, string>)?.regionId === selectedCountryId
-                      )?.text ?? selectedCountryId}
-                    </span>
-                  </p>
-                )}
-              </div>
             ) : isImageChoice ? (
               <div className="grid gap-3 sm:grid-cols-2">
                 {currentQuestion.choices
@@ -597,7 +558,6 @@ const TYPE_HINTS: Record<string, string> = {
   SINGLE: 'Choose one answer.',
   TRUEFALSE: 'True or false?',
   FILL_BLANK: 'Type your answer below.',
-  MAP_SELECT: 'Look at the map and choose the correct answer.',
   HOTSPOT: 'Click on a zone on the image to answer.',
   ORDER: 'Arrange the items in the correct order (top = first).',
   MATCH: 'Match each item on the left with its partner on the right.',

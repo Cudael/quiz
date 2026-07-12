@@ -23,7 +23,6 @@ enum QuestionType {
   SINGLE
   TRUEFALSE
   FILL_BLANK
-  MAP_SELECT
   HOTSPOT
   ORDER
   MATCH
@@ -34,7 +33,6 @@ enum QuestionType {
 enum QuizFormat {
   TEXT_CHOICE
   IMAGE_CHOICE
-  MAP_CHOICE
   IMAGE_HOTSPOT
   ORDER
   MATCH

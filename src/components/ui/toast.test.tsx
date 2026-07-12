@@ -1,28 +1,5 @@
-import { act, fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-
-vi.mock('framer-motion', () => ({
-  motion: {
-    div: ({
-      children,
-      initial: _framerInitial,
-      animate: _framerAnimate,
-      exit: _framerExit,
-      ...props
-    }: React.HTMLAttributes<HTMLDivElement> & {
-      initial?: unknown
-      animate?: unknown
-      exit?: unknown
-    }) => {
-      void _framerInitial
-      void _framerAnimate
-      void _framerExit
-      return <div {...props}>{children}</div>
-    },
-  },
-  AnimatePresence: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}))
-
 import { ToastProvider, useToast } from '@/components/ui/toast'
 import { renderHook } from '@testing-library/react'
 import type { ReactNode } from 'react'
@@ -60,7 +37,7 @@ describe('useToast', () => {
     expect(screen.getByText('Something happened')).toBeInTheDocument()
   })
 
-  it('removeToast removes the toast', () => {
+  it('removeToast removes the toast', async () => {
     const { result } = renderHook(() => useToast(), { wrapper })
     act(() => {
       result.current.addToast('Temp toast', 'info')
@@ -71,17 +48,22 @@ describe('useToast', () => {
       const id = result.current.toasts[0].id
       result.current.removeToast(id)
     })
-    expect(screen.queryByText('Temp toast')).not.toBeInTheDocument()
+    // Toast plays a brief exit animation before it's removed from the DOM.
+    await waitFor(() => {
+      expect(screen.queryByText('Temp toast')).not.toBeInTheDocument()
+    })
   })
 
-  it('dismiss button removes the toast', () => {
+  it('dismiss button removes the toast', async () => {
     const { result } = renderHook(() => useToast(), { wrapper })
     act(() => {
       result.current.addToast('Dismissible', 'warning')
     })
     const dismissBtn = screen.getByRole('button', { name: /dismiss/i })
     fireEvent.click(dismissBtn)
-    expect(screen.queryByText('Dismissible')).not.toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.queryByText('Dismissible')).not.toBeInTheDocument()
+    })
   })
 
   it('toast has role="alert"', () => {

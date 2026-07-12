@@ -27,7 +27,6 @@ const QUESTION_COUNTS = [5, 10, 15] as const
 const FORMATS: { value: string; label: string }[] = [
   { value: 'TEXT_CHOICE', label: 'Text Choice' },
   { value: 'IMAGE_CHOICE', label: 'Image Choice' },
-  { value: 'MAP_CHOICE', label: 'Map Choice' },
   { value: 'IMAGE_HOTSPOT', label: 'Image Hotspot' },
   { value: 'IMAGE_REVEAL', label: 'Image Reveal' },
   { value: 'AUDIO_CHOICE', label: 'Audio Choice' },

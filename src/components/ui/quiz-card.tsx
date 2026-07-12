@@ -3,9 +3,9 @@
 import * as React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion, useReducedMotion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { getQuizPath } from '@/lib/quiz-url'
+import { useReducedMotion } from '@/lib/motion'
 
 export interface QuizCardData {
   id: string
@@ -215,7 +215,7 @@ export const QuizCard = React.memo(function QuizCard({ quiz, className }: QuizCa
 
   return (
     <Link href={getQuizPath(quiz)} className={cn('group block', className)}>
-      <motion.div className="rounded-md border bg-card transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-hard">
+      <div className="rounded-md border bg-card transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-hard">
         {/* Square image area */}
         <div
           className="relative aspect-square w-full overflow-hidden rounded-t-md"
@@ -294,7 +294,7 @@ export const QuizCard = React.memo(function QuizCard({ quiz, className }: QuizCa
             </div>
           )}
         </div>
-      </motion.div>
+      </div>
     </Link>
   )
 })

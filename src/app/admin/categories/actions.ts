@@ -6,6 +6,7 @@ import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
 import { slugify } from '@/lib/slugify'
 import { CATEGORY_BAR_TAG } from '@/components/layout/category-bar'
+import { HOME_STATIC_DATA_TAG } from '@/server/home-quiz-cache'
 
 type AdminActionResult = { ok: true } | { ok: false; message: string }
 
@@ -111,6 +112,7 @@ export async function updateCategory(
 
   revalidatePath('/admin/categories')
   revalidateTag(CATEGORY_BAR_TAG, 'max')
+  revalidateTag(HOME_STATIC_DATA_TAG, 'max')
   return { ok: true }
 }
 
@@ -152,6 +154,7 @@ export async function deleteCategory(
 
   revalidatePath('/admin/categories')
   revalidateTag(CATEGORY_BAR_TAG, 'max')
+  revalidateTag(HOME_STATIC_DATA_TAG, 'max')
   return { ok: true }
 }
 
@@ -220,5 +223,6 @@ export async function createCategory(
 
   revalidatePath('/admin/categories')
   revalidateTag(CATEGORY_BAR_TAG, 'max')
+  revalidateTag(HOME_STATIC_DATA_TAG, 'max')
   return { ok: true }
 }

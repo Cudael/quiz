@@ -32,7 +32,6 @@ const COUNTS = [5, 10, 15, 20]
 const FORMATS: { value: string; label: string; group: string }[] = [
   { value: 'TEXT_CHOICE', label: 'Text Choice', group: 'Standard' },
   { value: 'IMAGE_CHOICE', label: 'Image Choice', group: 'Image' },
-  { value: 'MAP_CHOICE', label: 'Map Choice', group: 'Image' },
   { value: 'IMAGE_HOTSPOT', label: 'Image Hotspot', group: 'Image' },
   { value: 'IMAGE_REVEAL', label: 'Image Reveal', group: 'Image' },
   { value: 'AUDIO_CHOICE', label: 'Audio Choice', group: 'Media' },

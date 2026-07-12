@@ -5,7 +5,7 @@ function makeChoices(defs: Array<Partial<EvalQuestion['choices'][number]> & { id
   return defs.map((d) => ({ text: '', isCorrect: false, ...d }))
 }
 
-describe('evaluateAnswer — choice-based (SINGLE/TRUEFALSE/HOTSPOT/MAP_SELECT)', () => {
+describe('evaluateAnswer — choice-based (SINGLE/TRUEFALSE/HOTSPOT)', () => {
   const question: EvalQuestion = {
     id: 'q1',
     type: 'SINGLE',

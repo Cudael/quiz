@@ -69,7 +69,6 @@ function asRecord(value: unknown): Record<string, unknown> {
 /** Choice-meta keys the client legitimately needs BEFORE answering. */
 const SAFE_CHOICE_META_KEYS = new Set([
   'side', // MATCH — renders left/right columns
-  'regionId', // MAP_SELECT — maps country clicks to choices
   'zoneId', // HOTSPOT — maps zone clicks to choices
 ])
 

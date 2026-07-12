@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import type { HTMLAttributes, ImgHTMLAttributes, ReactNode } from 'react'
+import type { ImgHTMLAttributes, ReactNode } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import {
   QuizCard,
@@ -28,23 +28,6 @@ vi.mock('next/image', () => ({
     // eslint-disable-next-line @next/next/no-img-element
     return <img alt={alt ?? ''} {...imgProps} />
   },
-}))
-
-vi.mock('framer-motion', () => ({
-  motion: {
-    div: (
-      props: HTMLAttributes<HTMLDivElement> & {
-        whileHover?: unknown
-        transition?: unknown
-      }
-    ) => {
-      const { children, whileHover, transition, ...domProps } = props
-      void whileHover
-      void transition
-      return <div {...domProps}>{children}</div>
-    },
-  },
-  useReducedMotion: () => true,
 }))
 
 const baseQuiz: QuizCardData = {

@@ -1,14 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
-
-vi.mock('framer-motion', () => ({
-  motion: {
-    span: ({ children, ...props }: React.HTMLAttributes<HTMLSpanElement>) => (
-      <span {...props}>{children}</span>
-    ),
-  },
-}))
-
+import { describe, expect, it } from 'vitest'
 import { StreakFlame } from '@/components/ui/streak-flame'
 
 describe('StreakFlame', () => {

@@ -3,7 +3,6 @@ import { z } from 'zod'
 export const QUIZ_FORMATS = [
   'TEXT_CHOICE',
   'IMAGE_CHOICE',
-  'MAP_CHOICE',
   'IMAGE_HOTSPOT',
   'ORDER',
   'MATCH',

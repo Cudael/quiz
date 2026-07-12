@@ -1,6 +1,5 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import { ProgressBar } from '@/components/ui/progress-bar'
 import { xpForLevel, xpForNextLevel, xpProgress } from '@/domain/leveling'
 import { cn } from '@/lib/utils'
@@ -53,18 +52,17 @@ export function LevelProgress({ xp, size = 'md', className }: LevelProgressProps
               className="text-muted/30"
             />
             {/* Progress arc */}
-            <motion.circle
+            <circle
               cx={width / 2}
               cy={width / 2}
               r={radius}
               fill="none"
               strokeWidth={stroke}
               strokeDasharray={circumference}
-              strokeDashoffset={circumference}
+              strokeDashoffset={offset}
               strokeLinecap="round"
               stroke={`url(#${gradientId})`}
-              animate={{ strokeDashoffset: offset }}
-              transition={{ duration: 0.8, ease: 'easeOut' }}
+              className="transition-[stroke-dashoffset] duration-800 ease-out"
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">

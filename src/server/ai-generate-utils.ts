@@ -8,7 +8,6 @@ import { z } from 'zod'
 export const ALL_FORMATS = [
   'TEXT_CHOICE',
   'IMAGE_CHOICE',
-  'MAP_CHOICE',
   'IMAGE_HOTSPOT',
   'ORDER',
   'MATCH',
@@ -31,7 +30,6 @@ type QuestionType = 'SINGLE' | 'ORDER' | 'MATCH' | 'NUMBER_GUESS' | 'GROUPS' | '
 const FORMAT_TO_TYPE: Record<QuizFormat, QuestionType> = {
   TEXT_CHOICE: 'SINGLE',
   IMAGE_CHOICE: 'SINGLE',
-  MAP_CHOICE: 'SINGLE',
   IMAGE_HOTSPOT: 'SINGLE',
   ORDER: 'ORDER',
   MATCH: 'MATCH',

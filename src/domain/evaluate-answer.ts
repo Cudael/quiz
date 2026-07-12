@@ -296,7 +296,7 @@ export function evaluateAnswer(question: EvalQuestion, answer: SubmittedAnswer):
     case 'FILL_BLANK':
       return evaluateFillBlank(question, answer)
     default:
-      // SINGLE, TRUEFALSE, MAP_SELECT, HOTSPOT and any unknown types
+      // SINGLE, TRUEFALSE, HOTSPOT and any unknown types
       return evaluateChoiceBased(question, answer)
   }
 }

@@ -1,7 +1,7 @@
 'use client'
 
+import type { CSSProperties } from 'react'
 import { Flame } from 'lucide-react'
-import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
 interface StreakFlameProps {
@@ -29,10 +29,9 @@ export function StreakFlame({ value, best, size = 'md', className }: StreakFlame
 
   return (
     <div className={cn('inline-flex items-center gap-2', className)}>
-      <motion.span
-        animate={shouldAnimate ? { scale: [1, pulse, 1], opacity: [0.85, 1, 0.85] } : {}}
-        transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
-        className="relative inline-flex"
+      <span
+        style={shouldAnimate ? ({ '--flame-pulse-scale': pulse } as CSSProperties) : undefined}
+        className={cn('relative inline-flex', shouldAnimate && 'animate-flame-pulse')}
       >
         <Flame
           className={cn(
@@ -48,7 +47,7 @@ export function StreakFlame({ value, best, size = 'md', className }: StreakFlame
             aria-hidden="true"
           />
         )}
-      </motion.span>
+      </span>
       <span className={cn(labelSize[size], 'text-muted-foreground')}>
         current: <span className="font-black text-foreground">{value} days</span>
         {typeof best === 'number' && (

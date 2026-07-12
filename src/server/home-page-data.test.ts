@@ -2,24 +2,20 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const {
   authMock,
-  categoryFindManyMock,
   quizFindManyMock,
   quizFindFirstMock,
-  quizCountMock,
-  badgeFindManyMock,
   playSessionFindManyMock,
   getPopularQuizzesMock,
   getTrendingQuizzesMock,
+  getHomeStaticDataMock,
 } = vi.hoisted(() => ({
   authMock: vi.fn(),
-  categoryFindManyMock: vi.fn(),
   quizFindManyMock: vi.fn(),
   quizFindFirstMock: vi.fn(),
-  quizCountMock: vi.fn(),
-  badgeFindManyMock: vi.fn(),
   playSessionFindManyMock: vi.fn(),
   getPopularQuizzesMock: vi.fn(),
   getTrendingQuizzesMock: vi.fn(),
+  getHomeStaticDataMock: vi.fn(),
 }))
 
 vi.mock('@/server/auth', () => ({
@@ -29,17 +25,15 @@ vi.mock('@/server/auth', () => ({
 vi.mock('@/server/home-quiz-cache', () => ({
   getPopularQuizzes: getPopularQuizzesMock,
   getTrendingQuizzes: getTrendingQuizzesMock,
+  getHomeStaticData: getHomeStaticDataMock,
 }))
 
 vi.mock('@/server/prisma', () => ({
   prisma: {
-    category: { findMany: categoryFindManyMock },
     quiz: {
       findMany: quizFindManyMock,
       findFirst: quizFindFirstMock,
-      count: quizCountMock,
     },
-    badge: { findMany: badgeFindManyMock },
     playSession: { findMany: playSessionFindManyMock },
   },
 }))
@@ -78,25 +72,27 @@ describe('getHomePageData personalization bounds', () => {
       },
     })
 
-    categoryFindManyMock.mockResolvedValue([
-      {
-        id: 'cat-parent',
-        slug: 'general',
-        name: 'General',
-        icon: 'BookOpen',
-        color: '#123456',
-        imageUrl: null,
-        parentSlug: null,
-      },
-    ])
+    getHomeStaticDataMock.mockResolvedValue({
+      categories: [
+        {
+          id: 'cat-parent',
+          slug: 'general',
+          name: 'General',
+          icon: 'BookOpen',
+          color: '#123456',
+          imageUrl: null,
+          parentSlug: null,
+        },
+      ],
+      newestQuizzes: [makeQuiz('newest-1')],
+      badges: [],
+      totalQuizCount: 1,
+    })
 
     getPopularQuizzesMock.mockResolvedValue([])
     getTrendingQuizzesMock.mockResolvedValue([])
-    badgeFindManyMock.mockResolvedValue([])
-    quizCountMock.mockResolvedValue(1)
 
     quizFindManyMock
-      .mockResolvedValueOnce([makeQuiz('newest-1')])
       .mockResolvedValueOnce([makeQuiz('cat-1')])
       .mockResolvedValueOnce([makeQuiz('pers-1')])
 

@@ -3,6 +3,7 @@ import { auth } from '@/server/auth'
 import {
   getPopularQuizzes,
   getTrendingQuizzes,
+  getHomeStaticData,
   type HomeQuizRecord,
 } from '@/server/home-quiz-cache'
 import { getDisplayAuthorName } from '@/lib/author-display'
@@ -89,54 +90,26 @@ function mapQuizCard(quiz: HomeQuizRecord, completedQuizIds?: Set<string>): Quiz
 export { mapQuizCard }
 
 export async function getHomePageData(): Promise<HomePageData> {
-  const [
-    session,
-    categories,
-    popularQuizzesRaw,
-    trendingQuizzesRaw,
-    newestQuizzesRaw,
-    badgesRaw,
-    totalQuizCount,
-  ] = await Promise.all([
+  const [session, staticData, popularQuizzesRaw, trendingQuizzesRaw] = await Promise.all([
     auth(),
-    prisma.category.findMany({
-      select: {
-        id: true,
-        slug: true,
-        name: true,
-        icon: true,
-        color: true,
-        imageUrl: true,
-        parentSlug: true,
-      },
-      take: 100, // Bounded to prevent unbounded result sets
-    }),
+    getHomeStaticData(),
     getPopularQuizzes(),
     getTrendingQuizzes(),
-    prisma.quiz.findMany({
-      where: { isPublished: true },
-      orderBy: { createdAt: 'desc' },
-      take: 12,
-      select: QUIZ_CARD_SELECT_WITH_RATINGS,
-    }),
-    prisma.badge.findMany({
-      select: {
-        slug: true,
-        name: true,
-        description: true,
-        _count: { select: { awards: true } },
-      },
-      orderBy: { name: 'asc' },
-    }),
-    prisma.quiz.count({ where: { isPublished: true } }),
   ])
+
+  const {
+    categories,
+    newestQuizzes: newestQuizzesRaw,
+    badges: badgesRaw,
+    totalQuizCount,
+  } = staticData
 
   const badgePreviews: BadgePreview[] = badgesRaw.map((b) => ({
     slug: b.slug,
     name: b.name,
     description: b.description,
     emoji: getBadgeEmoji(b.slug),
-    earnedCount: b._count.awards,
+    earnedCount: b.earnedCount,
   }))
 
   const dayIndex = Math.floor(Date.now() / 86_400_000)
