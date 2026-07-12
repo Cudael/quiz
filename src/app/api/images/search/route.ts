@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/server/auth'
+import { checkRateLimit } from '@/server/rate-limit'
+import { logger } from '@/server/logger'
+
+const IMAGE_SEARCH_RATE_LIMIT = { limit: 30, windowMs: 60 * 60 * 1000 } as const
+const EXTERNAL_REQUEST_TIMEOUT_MS = 8_000
 
 interface UnsplashResult {
   id: string
@@ -16,10 +21,14 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Admin only' }, { status: 403 })
   }
 
+  if (!(await checkRateLimit(`image-search:${session.user.id}`, IMAGE_SEARCH_RATE_LIMIT))) {
+    return NextResponse.json({ error: 'Too many image searches' }, { status: 429 })
+  }
+
   const { searchParams } = new URL(request.url)
-  const q = searchParams.get('q')?.trim()
-  const description = searchParams.get('description')?.trim()
-  const page = Math.max(1, Number(searchParams.get('page')) || 1)
+  const q = searchParams.get('q')?.trim().slice(0, 120)
+  const description = searchParams.get('description')?.trim().slice(0, 500)
+  const page = Math.min(100, Math.max(1, Number(searchParams.get('page')) || 1))
 
   if (!q) {
     return NextResponse.json({ error: 'Missing query' }, { status: 400 })
@@ -51,6 +60,7 @@ Return ONLY the search query, nothing else. Examples:
           temperature: 0.7,
           max_tokens: 30,
         }),
+        signal: AbortSignal.timeout(EXTERNAL_REQUEST_TIMEOUT_MS),
       })
 
       if (res.ok) {
@@ -62,7 +72,11 @@ Return ONLY the search query, nothing else. Examples:
           searchQuery = aiQuery
         }
       }
-    } catch {
+    } catch (error) {
+      logger.warn('AI image-query expansion failed', {
+        userId: session.user.id,
+        error: error instanceof Error ? error.message : String(error),
+      })
       // Fall back to original query on AI failure
     }
   }
@@ -78,13 +92,28 @@ Return ONLY the search query, nothing else. Examples:
   unsplashUrl.searchParams.set('per_page', '20')
   unsplashUrl.searchParams.set('orientation', 'landscape')
 
-  const unsplashRes = await fetch(unsplashUrl.toString(), {
-    headers: { Authorization: `Client-ID ${unsplashKey}` },
-  })
+  let unsplashRes: Response
+  try {
+    unsplashRes = await fetch(unsplashUrl.toString(), {
+      headers: { Authorization: `Client-ID ${unsplashKey}` },
+      signal: AbortSignal.timeout(EXTERNAL_REQUEST_TIMEOUT_MS),
+    })
+  } catch (error) {
+    logger.warn('Unsplash image search timed out or failed', {
+      userId: session.user.id,
+      error: error instanceof Error ? error.message : String(error),
+    })
+    return NextResponse.json({ error: 'Image provider request failed' }, { status: 502 })
+  }
 
   if (!unsplashRes.ok) {
     const err = await unsplashRes.text().catch(() => 'Unknown')
-    return NextResponse.json({ error: `Unsplash error: ${err}` }, { status: 502 })
+    logger.warn('Unsplash image search failed', {
+      userId: session.user.id,
+      status: unsplashRes.status,
+      error: err.slice(0, 500),
+    })
+    return NextResponse.json({ error: 'Image provider request failed' }, { status: 502 })
   }
 
   const data = (await unsplashRes.json()) as {
@@ -107,11 +136,18 @@ Return ONLY the search query, nothing else. Examples:
     photographerUrl: img.user.links.html,
   }))
 
-  return NextResponse.json({
-    query: searchQuery,
-    originalQuery: q,
-    results,
-    total: data.total,
-    totalPages: data.total_pages,
-  })
+  return NextResponse.json(
+    {
+      query: searchQuery,
+      originalQuery: q,
+      results,
+      total: data.total,
+      totalPages: data.total_pages,
+    },
+    {
+      // Repeated searches from the same admin browser can reuse the provider
+      // result briefly without putting authenticated responses in shared caches.
+      headers: { 'Cache-Control': 'private, max-age=300' },
+    }
+  )
 }

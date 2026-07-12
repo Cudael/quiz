@@ -21,9 +21,14 @@ vi.mock('@/server/rate-limit', () => ({ checkRateLimit: checkRateLimitMock }))
 
 import { POST } from '@/app/api/upload/route'
 
-const PNG_BYTES = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00])
-const JPEG_BYTES = new Uint8Array([0xff, 0xd8, 0xff, 0xdb, 0x00])
-const GIF_BYTES = new Uint8Array([0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x00])
+const PNG_BYTES = new Uint8Array([
+  0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 13, 0x49, 0x48, 0x44, 0x52, 0, 0, 3,
+  0xe8, 0, 0, 3, 0xe8,
+])
+const JPEG_BYTES = new Uint8Array([
+  0xff, 0xd8, 0xff, 0xc0, 0, 11, 8, 3, 0xe8, 3, 0xe8, 1, 1, 0x11, 0, 0xff, 0xd9,
+])
+const GIF_BYTES = new Uint8Array([0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0xe8, 3, 0xe8, 3])
 
 function createRequest(file?: File) {
   const formData = new FormData()
@@ -139,6 +144,19 @@ describe('POST /api/upload', () => {
     await expect(response.json()).resolves.toEqual({
       error: 'Unsupported or invalid image format. Allowed: PNG, JPEG, WEBP, GIF.',
     })
+    expect(s3SendMock).not.toHaveBeenCalled()
+  })
+
+  it('rejects images with excessive decoded dimensions', async () => {
+    authMock.mockResolvedValue({ user: { id: 'user_123' } })
+    const hugePng = PNG_BYTES.slice()
+    hugePng.set([0, 0, 0x4e, 0x20], 16) // 20,000px wide
+
+    const response = await POST(
+      createRequest(new File([hugePng], 'huge.png', { type: 'image/png' }))
+    )
+
+    expect(response.status).toBe(413)
     expect(s3SendMock).not.toHaveBeenCalled()
   })
 

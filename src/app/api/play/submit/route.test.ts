@@ -11,15 +11,12 @@ const {
   getClientIpMock,
 } = vi.hoisted(() => {
   const txMock = {
+    $executeRaw: vi.fn(),
     playSession: {
       create: vi.fn(),
-      aggregate: vi.fn(),
     },
     questionAnswer: {
       createMany: vi.fn(),
-    },
-    quiz: {
-      update: vi.fn(),
     },
     user: {
       findUnique: vi.fn(),
@@ -89,8 +86,7 @@ describe('POST /api/play/submit', () => {
     getClientIpMock.mockReturnValue('1.2.3.4')
     txMock.playSession.create.mockResolvedValue({ id: 'session-1' })
     txMock.questionAnswer.createMany.mockResolvedValue({})
-    txMock.playSession.aggregate.mockResolvedValue({ _avg: { score: 120 }, _count: { _all: 1 } })
-    txMock.quiz.update.mockResolvedValue({})
+    txMock.$executeRaw.mockResolvedValue(1)
   })
 
   it('persists per-question answers using sanitized choice ids for the results page', async () => {
@@ -144,6 +140,7 @@ describe('POST /api/play/submit', () => {
         },
       ],
     })
+    expect(txMock.$executeRaw).toHaveBeenCalledTimes(1)
   })
 
   it('rejects a request with missing required fields', async () => {

@@ -21,7 +21,6 @@ const store = new Map<string, RateLimitEntry>()
 
 // Lazily initialised so the module can be imported without env vars present.
 let redis: Redis | null = null
-let warnedMissingRedis = false
 
 function getRedis(): Redis | null {
   if (redis !== null) return redis
@@ -29,12 +28,12 @@ function getRedis(): Redis | null {
   const token = process.env.UPSTASH_REDIS_REST_TOKEN
   if (url && token) {
     redis = new Redis({ url, token })
-  } else if (process.env.NODE_ENV === 'production' && !warnedMissingRedis) {
-    warnedMissingRedis = true
-    console.error(
-      '[rate-limit] UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN are not set. ' +
-        'Rate limiting is degraded to per-instance in-memory counters, which can be ' +
-        'bypassed across serverless instances. Configure Upstash Redis in production.'
+  } else if (process.env.NODE_ENV === 'production') {
+    // Shared enforcement is a security requirement in a horizontally scaled
+    // production deployment. Failing closed prevents silently bypassable
+    // per-instance limits.
+    throw new Error(
+      'UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are required in production'
     )
   }
   return redis

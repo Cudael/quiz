@@ -1,6 +1,7 @@
 import { revalidateTag } from 'next/cache'
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+import { Prisma } from '@prisma/client'
 import { prisma } from '@/server/prisma'
 import { verifyPlayToken } from '@/server/play-token'
 import { scoreQuestion } from '@/domain/scoring'
@@ -192,6 +193,13 @@ export async function POST(req: NextRequest) {
     let newlyAwardedBadges: Awaited<ReturnType<typeof evaluateBadgesWithClient>> = []
 
     if (authSession?.user?.id && !isPractice) {
+      // Serialize reward updates for this user. PostgreSQL transaction-scoped
+      // advisory locks prevent two simultaneous submissions from reading the
+      // same XP/streak state and overwriting one another.
+      await tx.$executeRaw(
+        Prisma.sql`SELECT pg_advisory_xact_lock(hashtext(${authSession.user.id}))`
+      )
+
       const currentUser = await tx.user.findUnique({
         where: { id: authSession.user.id },
         select: {
@@ -249,19 +257,17 @@ export async function POST(req: NextRequest) {
     }
 
     if (!isPractice) {
-      const quizScores = await tx.playSession.aggregate({
-        where: { quizId, mode: { not: 'PRACTICE' } },
-        _avg: { score: true },
-        _count: { _all: true },
-      })
-
-      await tx.quiz.update({
-        where: { id: quizId },
-        data: {
-          playCount: quizScores._count._all,
-          avgScore: quizScores._avg.score ?? 0,
-        },
-      })
+      // Maintain the aggregate in one row-locked statement instead of scanning
+      // every historical play after every submission. PostgreSQL evaluates the
+      // right-hand expressions from the pre-update row, keeping this safe when
+      // multiple plays finish concurrently.
+      await tx.$executeRaw(Prisma.sql`
+        UPDATE "Quiz"
+        SET
+          "avgScore" = (("avgScore" * "playCount") + ${score}) / ("playCount" + 1),
+          "playCount" = "playCount" + 1
+        WHERE "id" = ${quizId}
+      `)
     }
 
     return {

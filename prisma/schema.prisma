@@ -47,7 +47,6 @@ enum QuizFormat {
   MEMORY_FLASH
 }
 
-
 enum DuelStatus {
   WAITING
   IN_PROGRESS
@@ -146,20 +145,20 @@ model User {
 }
 
 model Category {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  name        String
-  description String
-  icon        String
-  color       String
-  imageUrl    String?
-  parentSlug  String?
-  createdById String?
-  createdBy   User?    @relation("CreatedCategories", fields: [createdById], references: [id])
-  quizzes     Quiz[]
-  duels       Duel[]
+  id           String        @id @default(cuid())
+  slug         String        @unique
+  name         String
+  description  String
+  icon         String
+  color        String
+  imageUrl     String?
+  parentSlug   String?
+  createdById  String?
+  createdBy    User?         @relation("CreatedCategories", fields: [createdById], references: [id])
+  quizzes      Quiz[]
+  duels        Duel[]
   survivalRuns SurvivalRun[]
-  createdAt   DateTime @default(now())
+  createdAt    DateTime      @default(now())
 }
 
 model Quiz {
@@ -182,11 +181,11 @@ model Quiz {
   createdAt           DateTime   @default(now())
   updatedAt           DateTime   @updatedAt
 
-  questions   Question[]
-  sessions    PlaySession[]
-  reports     Report[]
-  favoritedBy FavoriteQuiz[] @relation("FavoritedBy")
-  ratings     Rating[]
+  questions     Question[]
+  sessions      PlaySession[]
+  reports       Report[]
+  favoritedBy   FavoriteQuiz[]     @relation("FavoritedBy")
+  ratings       Rating[]
   comments      QuizComment[]
   revisions     QuizRevision[]
   collaborators QuizCollaborator[]
@@ -242,19 +241,19 @@ model Choice {
 }
 
 model PlaySession {
-  id           String   @id @default(cuid())
+  id           String           @id @default(cuid())
   userId       String?
-  user         User?    @relation(fields: [userId], references: [id])
+  user         User?            @relation(fields: [userId], references: [id])
   guestName    String?
   guestKey     String?
   quizId       String
-  quiz         Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  quiz         Quiz             @relation(fields: [quizId], references: [id], onDelete: Cascade)
   score        Int
   correctCount Int
   totalCount   Int
   timeTakenMs  Int
-  mode         PlayMode @default(STANDARD)
-  createdAt    DateTime @default(now())
+  mode         PlayMode         @default(STANDARD)
+  createdAt    DateTime         @default(now())
   answers      QuestionAnswer[]
 
   @@index([quizId])
@@ -262,6 +261,8 @@ model PlaySession {
   @@index([guestKey])
   @@index([createdAt])
   @@index([mode, createdAt])
+  @@index([mode, createdAt, userId])
+  @@index([quizId, mode, createdAt])
 }
 
 model Duel {

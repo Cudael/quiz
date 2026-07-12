@@ -21,7 +21,8 @@ interface ScoreQuestionParams {
  * Compute per-question score.
  * Flat 10 points per fully-correct answer, proportional for partial-credit
  * question types (ORDER, MATCH, GROUPS, NUMBER_GUESS, list-mode FILL_BLANK),
- * 0 for wrong.
+ * 0 for wrong. `Question.points` is intentionally not accepted here: changing
+ * to weighted questions requires a data and leaderboard migration.
  */
 export function scoreQuestion({ correct, credit }: ScoreQuestionParams): number {
   const effectiveCredit = Math.min(1, Math.max(0, credit ?? (correct ? 1 : 0)))

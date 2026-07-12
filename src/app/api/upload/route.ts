@@ -2,6 +2,8 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { NextResponse } from 'next/server'
 import { auth } from '@/server/auth'
 import { checkRateLimit } from '@/server/rate-limit'
+import { readImageDimensions } from '@/server/image-dimensions'
+import { logger } from '@/server/logger'
 
 const s3 = new S3Client({
   region: 'auto',
@@ -13,6 +15,8 @@ const s3 = new S3Client({
 })
 
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024
+const MAX_IMAGE_DIMENSION = 12_000
+const MAX_IMAGE_PIXELS = 25_000_000
 
 // Allow each user to upload at most 100 images per hour.
 const UPLOAD_RATE_LIMIT = { limit: 100, windowMs: 60 * 60 * 1000 } as const
@@ -143,6 +147,20 @@ export async function POST(request: Request) {
   }
 
   const detectedContentType = DETECTED_FORMAT_TO_CONTENT_TYPE[detectedFormat]
+  const dimensions = readImageDimensions(fileBytes, detectedFormat)
+  if (
+    !dimensions ||
+    dimensions.width <= 0 ||
+    dimensions.height <= 0 ||
+    dimensions.width > MAX_IMAGE_DIMENSION ||
+    dimensions.height > MAX_IMAGE_DIMENSION ||
+    dimensions.width * dimensions.height > MAX_IMAGE_PIXELS
+  ) {
+    return NextResponse.json(
+      { error: 'Image dimensions are invalid or too large (maximum 25 megapixels).' },
+      { status: 413 }
+    )
+  }
 
   const pathname = `quiz-images/${session.user.id}/${Date.now()}-${crypto.randomUUID()}-${sanitizeFilename(file.name)}`
 
@@ -157,7 +175,11 @@ export async function POST(request: Request) {
     )
 
     return NextResponse.json({ url: `${process.env.R2_PUBLIC_URL}/${pathname}` })
-  } catch {
+  } catch (error) {
+    logger.error('R2 image upload failed', {
+      userId: session.user.id,
+      error: error instanceof Error ? error.message : String(error),
+    })
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 })
   }
 }

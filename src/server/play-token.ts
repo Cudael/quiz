@@ -28,7 +28,6 @@ function getSecret(): string {
 // ---------------------------------------------------------------------------
 
 let redis: Redis | null = null
-let warnedMissingRedis = false
 
 function getRedis(): Redis | null {
   if (redis !== null) return redis
@@ -36,12 +35,9 @@ function getRedis(): Redis | null {
   const token = process.env.UPSTASH_REDIS_REST_TOKEN
   if (url && token) {
     redis = new Redis({ url, token })
-  } else if (process.env.NODE_ENV === 'production' && !warnedMissingRedis) {
-    warnedMissingRedis = true
-    console.error(
-      '[play-token] UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN are not set. ' +
-        'Nonce replay protection is degraded to per-instance in-memory tracking. ' +
-        'Configure Upstash Redis in production.'
+  } else if (process.env.NODE_ENV === 'production') {
+    throw new Error(
+      'UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are required in production'
     )
   }
   return redis
