@@ -112,27 +112,30 @@ Copy `.env.example` to `.env`. Generate an auth secret with:
 openssl rand -base64 32
 ```
 
-| Variable                | Required    | Description                                               |
-| ----------------------- | ----------- | --------------------------------------------------------- |
-| `DATABASE_URL`          | ✅ Always   | PostgreSQL connection string                              |
-| `AUTH_SECRET`           | ✅ Always   | NextAuth JWT signing secret                               |
-| `NEXTAUTH_URL`          | Prod        | Full public URL (e.g. `https://busquiz.com`)              |
-| `NEXTAUTH_SECRET`       | Fallback    | Older NextAuth secret alias                               |
-| `PLAY_TOKEN_SECRET`     | Prod        | HMAC secret for play tokens (falls back to `AUTH_SECRET`) |
-| `GITHUB_CLIENT_ID`      | OAuth only  | GitHub OAuth app client ID                                |
-| `GITHUB_CLIENT_SECRET`  | OAuth only  | GitHub OAuth app secret                                   |
-| `GOOGLE_CLIENT_ID`      | OAuth only  | Google OAuth app client ID                                |
-| `GOOGLE_CLIENT_SECRET`  | OAuth only  | Google OAuth app secret                                   |
-| `GMAIL_USER`            | Email       | Gmail address used as the authenticated SMTP sender       |
-| `GMAIL_APP_PASSWORD`    | Email       | Gmail App Password used for SMTP authentication           |
-| `CRON_SECRET`           | Cron        | Bearer token for `/api/cron/cleanup-guests`               |
-| `OPENAI_API_KEY`        | AI features | OpenAI API key (optional)                                 |
-| `BLOB_READ_WRITE_TOKEN` | Uploads     | Vercel Blob token for image uploads                       |
-| `NEXT_PUBLIC_SITE_URL`  | Optional    | Public URL override (falls back to `VERCEL_URL`)          |
+| Variable                 | Required    | Description                                               |
+| ------------------------ | ----------- | --------------------------------------------------------- |
+| `DATABASE_URL`           | ✅ Always   | PostgreSQL connection string                              |
+| `AUTH_SECRET`            | ✅ Always   | NextAuth JWT signing secret                               |
+| `NEXTAUTH_URL`           | Prod        | Full public URL (e.g. `https://busquiz.com`)              |
+| `NEXTAUTH_SECRET`        | Fallback    | Older NextAuth secret alias                               |
+| `PLAY_TOKEN_SECRET`      | Prod        | HMAC secret for play tokens (falls back to `AUTH_SECRET`) |
+| `GITHUB_CLIENT_ID`       | OAuth only  | GitHub OAuth app client ID                                |
+| `GITHUB_CLIENT_SECRET`   | OAuth only  | GitHub OAuth app secret                                   |
+| `GOOGLE_CLIENT_ID`       | OAuth only  | Google OAuth app client ID                                |
+| `GOOGLE_CLIENT_SECRET`   | OAuth only  | Google OAuth app secret                                   |
+| `GMAIL_USER`             | Email       | Paid Google mailbox used to authenticate SMTP             |
+| `GMAIL_APP_PASSWORD`     | Email       | App Password belonging to `GMAIL_USER`                    |
+| `EMAIL_ACCOUNTS_FROM`    | Email       | Account-message sender, normally the `accounts@` alias    |
+| `EMAIL_GENERAL_FROM`     | Email       | General/digest sender, normally the `hello@` mailbox      |
+| `EMAIL_SUPPORT_REPLY_TO` | Email       | Reply address, normally the `support@` alias              |
+| `CRON_SECRET`            | Cron        | Bearer token for `/api/cron/cleanup-guests`               |
+| `OPENAI_API_KEY`         | AI features | OpenAI API key (optional)                                 |
+| `BLOB_READ_WRITE_TOKEN`  | Uploads     | Vercel Blob token for image uploads                       |
+| `NEXT_PUBLIC_SITE_URL`   | Optional    | Public URL override (falls back to `VERCEL_URL`)          |
 
 **Minimum required**: `DATABASE_URL` + `AUTH_SECRET`. Email/password auth works without any OAuth keys. OAuth provider buttons are hidden when their env vars are absent.
 
-**Gmail email setup:** enable 2FA on the Google account you want to send from, generate a 16-character App Password in Google Account → Security → App Passwords, then set `GMAIL_USER` and `GMAIL_APP_PASSWORD`. If these variables are omitted, verification and reset links are logged in dev/test and skipped in production.
+**Gmail email setup:** use `hello@busquiz.com` as the single paid Google Workspace user and add `accounts@busquiz.com` and `support@busquiz.com` as aliases. In Gmail, configure and verify `accounts@busquiz.com` under **Settings → Accounts → Send mail as**. Enable 2FA on `hello@busquiz.com`, generate a 16-character App Password, and set the email variables shown in `.env.example`. Verification and password-reset messages use `accounts@`; weekly digests use `hello@`; replies go to `support@`. If SMTP credentials are omitted, links are logged in development/test and email is skipped in production.
 
 **OAuth callback URLs:**
 

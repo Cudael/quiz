@@ -204,7 +204,8 @@ Minimum env: `DATABASE_URL` + `AUTH_SECRET`. OAuth providers are optional; their
 - `src/server/authorize-email-password.ts` — Credentials provider logic
 - `src/server/password.ts` — bcrypt hashing/verification
 - `src/server/token-hash.ts` — Token hashing utilities
-- `src/server/email.ts` — Gmail SMTP (verification, password reset)
+- `src/server/email.ts` — Gmail SMTP through the paid `hello@` mailbox; account mail uses
+  the `accounts@` alias and replies route to the `support@` alias
 - `src/app/api/auth/` — API routes (register, verify-email, forgot-password, reset-password)
 
 ## Middleware
@@ -231,7 +232,7 @@ Functional PRs that change route contracts, endpoint behavior, or compatibility 
 
 ## Environment Variables
 
-Required: `DATABASE_URL`, `AUTH_SECRET`. See `.env.example` for the full list of 16 variables (OAuth, SMTP, R2, Redis, analytics, cron, OpenAI).
+Required: `DATABASE_URL`, `AUTH_SECRET`. See `.env.example` for the full environment variable list (OAuth, SMTP and sender aliases, R2, Redis, analytics, cron, OpenAI).
 
 ## Styling
 

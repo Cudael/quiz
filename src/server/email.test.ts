@@ -20,6 +20,9 @@ describe('email helpers', () => {
     process.env = { ...originalEnv }
     delete process.env.GMAIL_USER
     delete process.env.GMAIL_APP_PASSWORD
+    delete process.env.EMAIL_ACCOUNTS_FROM
+    delete process.env.EMAIL_GENERAL_FROM
+    delete process.env.EMAIL_SUPPORT_REPLY_TO
   })
 
   afterAll(() => {
@@ -61,6 +64,8 @@ describe('email helpers', () => {
       NODE_ENV: 'test',
       GMAIL_USER: 'mailer@example.com',
       GMAIL_APP_PASSWORD: 'app-password',
+      EMAIL_ACCOUNTS_FROM: 'BusQuiz Accounts <accounts@example.com>',
+      EMAIL_SUPPORT_REPLY_TO: 'BusQuiz Support <support@example.com>',
     }
     createTransportMock.mockReturnValue({ sendMail: sendMailMock })
     const { sendPasswordResetEmail } = await import('@/server/email')
@@ -75,11 +80,42 @@ describe('email helpers', () => {
       },
     })
     expect(sendMailMock).toHaveBeenCalledWith({
-      from: 'mailer@example.com',
+      from: 'BusQuiz Accounts <accounts@example.com>',
+      replyTo: 'BusQuiz Support <support@example.com>',
       to: 'player@example.com',
       subject: 'Reset your BusQuiz password',
       html: expect.stringContaining('Reset your BusQuiz password'),
       text: expect.stringContaining('https://busquiz.com/reset?token=abc'),
     })
+  })
+
+  it('sends weekly digests from the general address with support replies', async () => {
+    process.env = {
+      ...process.env,
+      NODE_ENV: 'test',
+      GMAIL_USER: 'hello@example.com',
+      GMAIL_APP_PASSWORD: 'app-password',
+      EMAIL_GENERAL_FROM: 'BusQuiz <hello@example.com>',
+      EMAIL_SUPPORT_REPLY_TO: 'BusQuiz Support <support@example.com>',
+    }
+    createTransportMock.mockReturnValue({ sendMail: sendMailMock })
+    const { sendWeeklyDigestEmail } = await import('@/server/email')
+
+    await sendWeeklyDigestEmail('player@example.com', {
+      name: 'Player',
+      playsThisWeek: 2,
+      bestScoreThisWeek: 90,
+      streakDays: 3,
+      trendingQuizzes: [],
+      settingsUrl: 'https://busquiz.com/profile/settings',
+    })
+
+    expect(sendMailMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        from: 'BusQuiz <hello@example.com>',
+        replyTo: 'BusQuiz Support <support@example.com>',
+        to: 'player@example.com',
+      })
+    )
   })
 })

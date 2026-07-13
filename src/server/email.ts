@@ -11,6 +11,21 @@ function getTransporter() {
   })
 }
 
+type EmailKind = 'accounts' | 'general'
+
+function getMailIdentity(kind: EmailKind) {
+  const authenticatedUser = process.env.GMAIL_USER
+  const from =
+    (kind === 'accounts' ? process.env.EMAIL_ACCOUNTS_FROM : process.env.EMAIL_GENERAL_FROM) ||
+    authenticatedUser
+  const replyTo = process.env.EMAIL_SUPPORT_REPLY_TO
+
+  return {
+    from,
+    ...(replyTo ? { replyTo } : {}),
+  }
+}
+
 /**
  * Sends a verification email to a newly registered user.
  * No-ops (with a dev log) when Gmail SMTP is not configured.
@@ -28,7 +43,7 @@ export async function sendVerificationEmail(to: string, verifyUrl: string): Prom
 
   try {
     await transporter.sendMail({
-      from: process.env.GMAIL_USER,
+      ...getMailIdentity('accounts'),
       to,
       subject: 'Verify your BusQuiz email',
       html: buildVerificationHtml(verifyUrl),
@@ -56,7 +71,7 @@ export async function sendPasswordResetEmail(to: string, resetUrl: string): Prom
 
   try {
     await transporter.sendMail({
-      from: process.env.GMAIL_USER,
+      ...getMailIdentity('accounts'),
       to,
       subject: 'Reset your BusQuiz password',
       html: buildPasswordResetHtml(resetUrl),
@@ -137,7 +152,7 @@ export async function sendWeeklyDigestEmail(to: string, data: WeeklyDigestData):
 
   try {
     await transporter.sendMail({
-      from: process.env.GMAIL_USER,
+      ...getMailIdentity('general'),
       to,
       subject: 'Your BusQuiz weekly digest 🧠',
       html: buildWeeklyDigestHtml(data),
