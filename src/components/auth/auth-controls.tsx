@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { ChevronDown, LogOut } from 'lucide-react'
-import { useSession } from 'next-auth/react'
+import { signOut, useSession } from 'next-auth/react'
 import { Avatar } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { StreakFlame } from '@/components/ui/streak-flame'
@@ -21,7 +21,6 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { signOutAction } from '@/components/auth/sign-out-action'
 
 export function AuthControls() {
   const { data: session, status } = useSession()
@@ -31,15 +30,18 @@ export function AuthControls() {
   const [signOutFailed, setSignOutFailed] = useState(false)
 
   function handleSignOut(event: Event) {
-    // Keep the portalled menu mounted until the server action has cleared the
-    // session cookie. A hard navigation then resets SessionProvider state too.
+    // Keep the portalled menu mounted until the session cookie is cleared.
+    // Sign-out must go through /api/auth/signout (excluded from the middleware
+    // matcher) — a server action would POST to the current page URL, where the
+    // middleware's re-issued session cookie can clobber the deletion on the
+    // same response. A hard navigation then resets SessionProvider state too.
     event.preventDefault()
     if (isSigningOut) return
 
     setSignOutFailed(false)
     startSignOutTransition(async () => {
       try {
-        await signOutAction()
+        await signOut({ redirect: false })
         window.location.replace('/')
       } catch {
         setSignOutFailed(true)

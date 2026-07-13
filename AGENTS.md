@@ -228,6 +228,7 @@ visible explanation; successful verification redirects there with a success conf
 - **Guest-only routes**: `/sign-in` and `/sign-up` redirect authenticated users to `/profile`.
 - **CSP**: Dynamic Content-Security-Policy with per-request nonce for scripts. Tailwind v4 requires `style-src 'unsafe-inline'`. `/embed/*` routes get `frame-ancestors *` (all other routes `frame-ancestors 'self'`).
 - **Security headers**: Set in `next.config.ts` (X-Frame-Options, X-Content-Type-Options, HSTS, Referrer-Policy, Permissions-Policy). X-Frame-Options is omitted for `/embed/*` so third-party sites can iframe embed widgets.
+- **Session reads are read-only**: middleware decodes the session JWT via `getToken` (only on guest-only/protected routes), never the NextAuth `auth()` wrapper — the wrapper re-issues the session cookie on every response, which races with sign-out's cookie deletion. Sign-out itself must go through `/api/auth/signout` (client `signOut()` from `next-auth/react`), not a server action.
 
 ## Documentation Policy
 

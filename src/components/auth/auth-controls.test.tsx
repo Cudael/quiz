@@ -1,19 +1,16 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { useSessionMock, signOutActionMock, pushMock, useThemeMock } = vi.hoisted(() => ({
+const { useSessionMock, signOutMock, pushMock, useThemeMock } = vi.hoisted(() => ({
   useSessionMock: vi.fn(),
-  signOutActionMock: vi.fn(),
+  signOutMock: vi.fn(),
   pushMock: vi.fn(),
   useThemeMock: vi.fn(),
 }))
 
 vi.mock('next-auth/react', () => ({
   useSession: useSessionMock,
-}))
-
-vi.mock('@/components/auth/sign-out-action', () => ({
-  signOutAction: signOutActionMock,
+  signOut: signOutMock,
 }))
 
 vi.mock('next/navigation', () => ({
@@ -30,7 +27,7 @@ describe('AuthControls', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     useThemeMock.mockReturnValue({ theme: 'system', setTheme: vi.fn() })
-    signOutActionMock.mockReturnValue(new Promise(() => {}))
+    signOutMock.mockReturnValue(new Promise(() => {}))
   })
 
   it('shows exactly one sign in button when signed out', () => {
@@ -104,7 +101,8 @@ describe('AuthControls', () => {
     fireEvent.click(await screen.findByRole('menuitem', { name: 'Sign out' }))
 
     await waitFor(() => {
-      expect(signOutActionMock).toHaveBeenCalledOnce()
+      expect(signOutMock).toHaveBeenCalledOnce()
     })
+    expect(signOutMock).toHaveBeenCalledWith({ redirect: false })
   })
 })

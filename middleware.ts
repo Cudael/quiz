@@ -1,13 +1,10 @@
-import NextAuth from 'next-auth'
-import { authConfig } from '@/server/auth.config'
-import { NextResponse } from 'next/server'
+import { getToken } from 'next-auth/jwt'
+import { NextResponse, type NextRequest } from 'next/server'
 
 const PATHNAME_HEADER = 'x-quiz-pathname'
 const NONCE_HEADER = 'x-nonce'
 
 const GUEST_ONLY_ROUTES = ['/sign-in', '/sign-up']
-
-const { auth } = NextAuth(authConfig)
 
 const r2ImageHost = (() => {
   try {
@@ -75,7 +72,7 @@ function buildCsp(nonce: string, allowFraming = false): string {
   ].join('; ')
 }
 
-export default auth((req) => {
+export default async function middleware(req: NextRequest) {
   // Use 128 bits of cryptographic randomness for the nonce.
   const nonce = Buffer.from(crypto.getRandomValues(new Uint8Array(16))).toString('base64')
 
@@ -84,6 +81,23 @@ export default auth((req) => {
   const isGuestOnlyAuth = GUEST_ONLY_ROUTES.some((route) => pathname.startsWith(route))
   const isProtected = pathname.startsWith('/studio') || pathname.startsWith('/admin')
 
+  // Read-only session check. Deliberately NOT the NextAuth `auth()` wrapper:
+  // the wrapper re-signs the session JWT and appends a fresh Set-Cookie to
+  // every matched response, which races with (and can undo) the cookie
+  // deletion performed by sign-out. `getToken` only decodes — middleware
+  // responses never carry session cookies. Sliding session expiry still
+  // happens via /api/auth/session reads.
+  const token =
+    isGuestOnlyAuth || isProtected
+      ? await getToken({
+          req,
+          secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+          secureCookie:
+            req.nextUrl.protocol === 'https:' ||
+            req.headers.get('x-forwarded-proto')?.startsWith('https') === true,
+        })
+      : null
+
   const requestHeaders = new Headers(req.headers)
   requestHeaders.set(PATHNAME_HEADER, pathname)
   requestHeaders.set(NONCE_HEADER, nonce)
@@ -91,7 +105,7 @@ export default auth((req) => {
 
   // Redirect logged-in users away from sign-in/sign-up
   if (isGuestOnlyAuth) {
-    if (req.auth?.user) {
+    if (token) {
       return NextResponse.redirect(new URL('/profile', req.nextUrl.origin))
     }
     const response = NextResponse.next({ request: { headers: requestHeaders } })
@@ -111,13 +125,13 @@ export default auth((req) => {
     return response
   }
 
-  if (!req.auth?.user) {
+  if (!token) {
     const signInUrl = new URL('/api/auth/signin', req.nextUrl.origin)
     signInUrl.searchParams.set('callbackUrl', req.nextUrl.href)
     return NextResponse.redirect(signInUrl)
   }
 
-  if (pathname.startsWith('/admin') && req.auth.user.role !== 'ADMIN') {
+  if (pathname.startsWith('/admin') && token.role !== 'ADMIN') {
     requestHeaders.set(PATHNAME_HEADER, '/admin/forbidden')
     const response = NextResponse.rewrite(new URL('/admin/forbidden', req.nextUrl.origin), {
       request: { headers: requestHeaders },
@@ -129,7 +143,7 @@ export default auth((req) => {
   const response = NextResponse.next({ request: { headers: requestHeaders } })
   response.headers.set('Content-Security-Policy', csp)
   return response
-})
+}
 
 export const config = {
   matcher: [
