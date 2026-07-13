@@ -2,7 +2,7 @@
 
 import { signOut } from '@/server/auth'
 
-/** Invalidates the Auth.js session cookie and performs a fresh navigation home. */
+/** Invalidates the Auth.js session cookie without relying on an RSC redirect. */
 export async function signOutAction() {
-  await signOut({ redirectTo: '/' })
+  await signOut({ redirect: false })
 }

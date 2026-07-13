@@ -11,10 +11,10 @@ describe('signOutAction', () => {
     vi.clearAllMocks()
   })
 
-  it('invalidates the session and redirects home', async () => {
+  it('invalidates the session without relying on a server redirect', async () => {
     await signOutAction()
 
     expect(signOutMock).toHaveBeenCalledOnce()
-    expect(signOutMock).toHaveBeenCalledWith({ redirectTo: '/' })
+    expect(signOutMock).toHaveBeenCalledWith({ redirect: false })
   })
 })

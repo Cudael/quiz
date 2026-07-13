@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useFormStatus } from 'react-dom'
+import { useState, useTransition } from 'react'
 import { ChevronDown, LogOut } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { Avatar } from '@/components/ui/avatar'
@@ -23,23 +23,29 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { signOutAction } from '@/components/auth/sign-out-action'
 
-function SignOutMenuItem() {
-  const { pending } = useFormStatus()
-
-  return (
-    <DropdownMenuItem asChild disabled={pending}>
-      <button type="submit" className="w-full" disabled={pending}>
-        <LogOut className="h-3.5 w-3.5" />
-        {pending ? 'Signing out…' : 'Sign out'}
-      </button>
-    </DropdownMenuItem>
-  )
-}
-
 export function AuthControls() {
   const { data: session, status } = useSession()
   const { theme, setTheme } = useTheme()
   const router = useRouter()
+  const [isSigningOut, startSignOutTransition] = useTransition()
+  const [signOutFailed, setSignOutFailed] = useState(false)
+
+  function handleSignOut(event: Event) {
+    // Keep the portalled menu mounted until the server action has cleared the
+    // session cookie. A hard navigation then resets SessionProvider state too.
+    event.preventDefault()
+    if (isSigningOut) return
+
+    setSignOutFailed(false)
+    startSignOutTransition(async () => {
+      try {
+        await signOutAction()
+        window.location.replace('/')
+      } catch {
+        setSignOutFailed(true)
+      }
+    })
+  }
 
   if (status === 'loading') {
     // Match the trigger button's approximate footprint so the navbar doesn't
@@ -119,9 +125,10 @@ export function AuthControls() {
               </DropdownMenuRadioGroup>
             </DropdownMenuSubContent>
           </DropdownMenuSub>
-          <form action={signOutAction}>
-            <SignOutMenuItem />
-          </form>
+          <DropdownMenuItem disabled={isSigningOut} onSelect={handleSignOut}>
+            <LogOut className="h-3.5 w-3.5" />
+            {isSigningOut ? 'Signing out…' : signOutFailed ? 'Try signing out again' : 'Sign out'}
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

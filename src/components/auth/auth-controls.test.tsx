@@ -30,6 +30,7 @@ describe('AuthControls', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     useThemeMock.mockReturnValue({ theme: 'system', setTheme: vi.fn() })
+    signOutActionMock.mockReturnValue(new Promise(() => {}))
   })
 
   it('shows exactly one sign in button when signed out', () => {
@@ -82,7 +83,7 @@ describe('AuthControls', () => {
     })
   })
 
-  it('submits logout once from the profile menu', async () => {
+  it('starts logout once from the profile menu', async () => {
     useSessionMock.mockReturnValue({
       status: 'authenticated',
       data: {
