@@ -1,6 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
+import { VerificationEmailForm } from '@/components/auth/verification-email-form'
 
 export function EmailVerificationBanner() {
   const { data: session, status } = useSession()
@@ -11,9 +12,13 @@ export function EmailVerificationBanner() {
 
   return (
     <div className="border-b border-border/40 bg-muted/40">
-      <div className="container mx-auto px-4 py-2 text-sm text-muted-foreground">
-        Please verify your email address ({session.user.email}). Check your inbox for the
-        verification link and refresh this page after verification.
+      <div className="container mx-auto space-y-2 px-4 py-3 text-sm text-muted-foreground">
+        <p>
+          <strong className="text-foreground">Email verification required.</strong> Verify{' '}
+          {session.user.email} to continue using account features. Check your inbox and spam folder,
+          then sign in again after verification.
+        </p>
+        <VerificationEmailForm initialEmail={session.user.email} compact />
       </div>
     </div>
   )

@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { signIn } from 'next-auth/react'
 import { Loader2 } from 'lucide-react'
 import { OauthProviderButtons } from '@/components/auth/oauth-provider-buttons'
 import { Button } from '@/components/ui/button'
@@ -48,21 +47,11 @@ export function SignUpForm({ callbackUrl, googleEnabled, githubEnabled }: SignUp
       return
     }
 
-    const signInResult = await signIn('email-password', {
-      email,
-      password,
-      callbackUrl,
-      redirect: false,
-    })
+    const payload = (await response.json()) as { emailSent?: boolean }
     setIsSubmitting(false)
-
-    if (signInResult?.error) {
-      setError('Account created, but sign in failed. Please sign in manually.')
-      return
-    }
-
-    router.push(signInResult?.url || callbackUrl)
-    router.refresh()
+    const params = new URLSearchParams({ email })
+    if (!payload.emailSent) params.set('delivery', 'failed')
+    router.push(`/verify-email?${params.toString()}`)
   }
 
   return (
@@ -76,7 +65,7 @@ export function SignUpForm({ callbackUrl, googleEnabled, githubEnabled }: SignUp
           <CardTitle>Create account</CardTitle>
           <CardDescription>
             Save your XP, levels, streaks, and badges. Challenge friends in duels. Climb the
-            leaderboard.
+            leaderboard. You&apos;ll verify your email before signing in.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">

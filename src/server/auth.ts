@@ -142,6 +142,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         })
 
         if (dbUser) {
+          // Email/password accounts must verify before keeping an authenticated
+          // session. This also expires sessions created before enforcement was
+          // introduced. Guest sessions have no email and remain available.
+          if (token.email && !dbUser.emailVerified) {
+            return null
+          }
+
           t.role = dbUser.role
           t.username = dbUser.username
           t.xp = dbUser.xp

@@ -122,6 +122,17 @@ export function SignInForm({
           </form>
 
           {error && <p className="text-sm text-destructive">{error}</p>}
+          {error ? (
+            <p className="text-sm text-muted-foreground">
+              Need another verification link?{' '}
+              <Link
+                href={`/verify-email?email=${encodeURIComponent(email)}`}
+                className="font-semibold underline underline-offset-4"
+              >
+                Resend verification email
+              </Link>
+            </p>
+          ) : null}
           {verifiedMessage ? (
             <p className="text-sm text-muted-foreground">{verifiedMessage}</p>
           ) : null}

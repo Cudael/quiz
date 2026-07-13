@@ -34,8 +34,12 @@ describe('email helpers', () => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
     const { sendVerificationEmail } = await import('@/server/email')
 
-    await sendVerificationEmail('player@example.com', 'https://busquiz.com/verify?token=abc')
+    const result = await sendVerificationEmail(
+      'player@example.com',
+      'https://busquiz.com/verify?token=abc'
+    )
 
+    expect(result).toBe('not-configured')
     expect(createTransportMock).not.toHaveBeenCalled()
     expect(logSpy).toHaveBeenNthCalledWith(1, 'Verification email placeholder generated', {
       to: 'player@example.com',

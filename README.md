@@ -133,9 +133,12 @@ openssl rand -base64 32
 | `BLOB_READ_WRITE_TOKEN`  | Uploads     | Vercel Blob token for image uploads                       |
 | `NEXT_PUBLIC_SITE_URL`   | Optional    | Public URL override (falls back to `VERCEL_URL`)          |
 
-**Minimum required**: `DATABASE_URL` + `AUTH_SECRET`. Email/password auth works without any OAuth keys. OAuth provider buttons are hidden when their env vars are absent.
+**Minimum required**: `DATABASE_URL` + `AUTH_SECRET`. Email/password auth works without any OAuth
+keys, but registration also needs `GMAIL_USER` + `GMAIL_APP_PASSWORD` because new accounts must
+verify their email before signing in. OAuth provider buttons are hidden when their env vars are
+absent.
 
-**Gmail email setup:** use `hello@busquiz.com` as the single paid Google Workspace user and add `accounts@busquiz.com` and `support@busquiz.com` as aliases. In Gmail, configure and verify `accounts@busquiz.com` under **Settings → Accounts → Send mail as**. Enable 2FA on `hello@busquiz.com`, generate a 16-character App Password, and set the email variables shown in `.env.example`. Verification and password-reset messages use `accounts@`; weekly digests use `hello@`; replies go to `support@`. If SMTP credentials are omitted, links are logged in development/test and email is skipped in production.
+**Gmail email setup:** use `hello@busquiz.com` as the single paid Google Workspace user and add `accounts@busquiz.com` and `support@busquiz.com` as aliases. In Gmail, configure and verify `accounts@busquiz.com` under **Settings → Accounts → Send mail as**. Enable 2FA on `hello@busquiz.com`, generate a 16-character App Password, and set the email variables shown in `.env.example`. Verification and password-reset messages use `accounts@`; weekly digests use `hello@`; replies go to `support@`. If SMTP credentials are omitted, links are logged in development/test and email is unavailable in production; the registration UI reports that state and offers a resend form.
 
 **OAuth callback URLs:**
 

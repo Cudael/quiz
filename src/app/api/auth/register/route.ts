@@ -1,16 +1,11 @@
 import { NextResponse } from 'next/server'
-import { randomBytes } from 'node:crypto'
 import { Prisma } from '@prisma/client'
 import { prisma } from '@/server/prisma'
 import { registerSchema } from '@/schemas'
 import { generateUniqueUsername } from '@/lib/usernames'
 import { hashPassword } from '@/server/password'
-import { sendVerificationEmail } from '@/server/email'
+import { issueEmailVerification } from '@/server/email-verification'
 import { checkRateLimit, getClientIp } from '@/server/rate-limit'
-import { hashToken } from '@/server/token-hash'
-import { absoluteUrl } from '@/lib/site'
-
-const VERIFICATION_TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000
 
 export async function POST(request: Request) {
   if (
@@ -63,21 +58,17 @@ export async function POST(request: Request) {
       select: { id: true },
     })
 
-    const rawToken = randomBytes(32).toString('hex')
-    const tokenHash = hashToken(rawToken)
-    const expires = new Date(Date.now() + VERIFICATION_TOKEN_EXPIRY_MS)
+    let delivery: Awaited<ReturnType<typeof issueEmailVerification>> = 'failed'
+    try {
+      delivery = await issueEmailVerification(email)
+    } catch (error) {
+      // The account was created successfully. Do not turn a temporary email
+      // provider failure into a misleading registration error; the verification
+      // page offers a retry once delivery is available again.
+      console.error('Could not issue account verification email', error)
+    }
 
-    await prisma.verificationToken.create({
-      data: {
-        identifier: email,
-        token: tokenHash,
-        expires,
-      },
-    })
-
-    const verifyUrl = new URL(absoluteUrl('/api/auth/verify-email'))
-    verifyUrl.searchParams.set('token', rawToken)
-    await sendVerificationEmail(email, verifyUrl.toString())
+    return NextResponse.json({ ok: true, emailSent: delivery === 'sent' }, { status: 201 })
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
       return NextResponse.json({ error: 'Unable to register account.' }, { status: 400 })
@@ -85,7 +76,4 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ error: 'Unable to register account.' }, { status: 400 })
   }
-
-  // Registration successful. Email verification is sent asynchronously.
-  return NextResponse.json({ ok: true }, { status: 201 })
 }

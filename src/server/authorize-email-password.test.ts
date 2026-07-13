@@ -24,7 +24,7 @@ const validUser = {
   email: 'ada@example.com',
   image: null,
   role: 'USER',
-  emailVerified: null,
+  emailVerified: new Date('2026-01-01T00:00:00.000Z'),
   passwordHash: 'hashed',
 }
 
@@ -49,7 +49,7 @@ describe('authorizeEmailPassword', () => {
       email: 'ada@example.com',
       image: null,
       role: 'USER',
-      emailVerified: null,
+      emailVerified: new Date('2026-01-01T00:00:00.000Z'),
     })
   })
 
@@ -105,6 +105,18 @@ describe('authorizeEmailPassword', () => {
     const result = await authorizeEmailPassword({
       email: 'ada@example.com',
       password: 'wrong',
+    })
+
+    expect(result).toBeNull()
+  })
+
+  it('returns null when valid credentials belong to an unverified account', async () => {
+    prismaMock.user.findUnique.mockResolvedValue({ ...validUser, emailVerified: null })
+    verifyPasswordMock.mockResolvedValue(true)
+
+    const result = await authorizeEmailPassword({
+      email: 'ada@example.com',
+      password: 'correct-horse',
     })
 
     expect(result).toBeNull()

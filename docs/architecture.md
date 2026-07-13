@@ -122,11 +122,20 @@ Zod schemas shared between client and API route handlers for request validation.
 ## Authentication flow
 
 ```
-User → POST /api/auth/signin (credentials / OAuth)
-     → NextAuth v5 (src/server/auth.ts)
-     → Prisma adapter stores Session + Account
-     → auth() helper available in Server Components and API routes
+Email registration → POST /api/auth/register
+                   → create unverified User + 24-hour token
+                   → Gmail verification link → GET /api/auth/verify-email
+                   → set User.emailVerified → credentials sign-in allowed
+
+OAuth sign-in → provider verifies email → BusQuiz marks User.emailVerified
+Guest sign-in → email remains null → guest gameplay remains available
+
+Authenticated requests → JWT session → auth() in Server Components and API routes
 ```
+
+Unverified email/password users cannot sign in. Registration ends on `/verify-email`, where users
+can request another link through the rate-limited `/api/auth/resend-verification` endpoint. Responses
+for unknown and already-verified addresses are deliberately identical to prevent account discovery.
 
 ## Quiz play flow
 

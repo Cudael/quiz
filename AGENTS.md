@@ -27,7 +27,8 @@ src/
     opengraph-image.tsx Dynamic OG image (homepage)
     analytics.tsx       Analytics integration
     api/                API route handlers
-      auth/             [...nextauth], forgot-password, register, reset-password, verify-email
+      auth/             [...nextauth], forgot-password, register, resend-verification,
+                        reset-password, verify-email
       cron/             cleanup-guests, finalize-season, weekly-digest (all require CRON_SECRET)
     duel/             create, join, [id] (state; finished participants receive their own
                       answer review + correct choices), start, submit, [id]/rematch
@@ -70,6 +71,7 @@ src/
     r/[id]              Short-link redirect for quizzes
     random-quiz/        Server-side random quiz redirect (noindex)
     reset-password/     Password reset form
+    verify-email/       Verification instructions + resend form
     results/[id]        Play session results
     sign-in/            Sign-in page
     sign-up/            Sign-up page
@@ -197,6 +199,12 @@ NextAuth.js v5 (beta) with JWT sessions. Providers: GitHub OAuth, Google OAuth, 
 
 Minimum env: `DATABASE_URL` + `AUTH_SECRET`. OAuth providers are optional; their buttons are hidden when the corresponding env vars are absent.
 
+Email/password registration does not create a session. It issues a 24-hour verification link and
+redirects to `/verify-email`; credentials sign-in is rejected until `User.emailVerified` is set.
+OAuth sign-in marks the provider-owned email as verified. Guest sessions (`email: null`) remain
+available for guest gameplay. `POST /api/auth/resend-verification` is rate-limited, returns a generic
+success response to prevent account enumeration, and requires configured Gmail SMTP delivery.
+
 ### Auth-related files
 
 - `src/server/auth.ts` — NextAuth instance + session helpers
@@ -206,7 +214,9 @@ Minimum env: `DATABASE_URL` + `AUTH_SECRET`. OAuth providers are optional; their
 - `src/server/token-hash.ts` — Token hashing utilities
 - `src/server/email.ts` — Gmail SMTP through the paid `hello@` mailbox; account mail uses
   the `accounts@` alias and replies route to the `support@` alias
-- `src/app/api/auth/` — API routes (register, verify-email, forgot-password, reset-password)
+- `src/server/email-verification.ts` — verification-token rotation and email delivery
+- `src/app/api/auth/` — API routes (register, resend-verification, verify-email,
+  forgot-password, reset-password)
 
 ## Middleware
 
@@ -232,7 +242,9 @@ Functional PRs that change route contracts, endpoint behavior, or compatibility 
 
 ## Environment Variables
 
-Required: `DATABASE_URL`, `AUTH_SECRET`. See `.env.example` for the full environment variable list (OAuth, SMTP and sender aliases, R2, Redis, analytics, cron, OpenAI).
+Required: `DATABASE_URL`, `AUTH_SECRET`. Email/password registration additionally requires
+`GMAIL_USER` and `GMAIL_APP_PASSWORD` to deliver verification links. See `.env.example` for the full
+environment variable list (OAuth, SMTP and sender aliases, R2, Redis, analytics, cron, OpenAI).
 
 ## Styling
 

@@ -56,8 +56,12 @@ export async function authorizeEmailPassword(rawCredentials: unknown) {
     return null
   }
 
-  // Allow sign-in regardless of email verification status.
-  // Email verification is only required for creating quizzes (enforced in studio actions).
+  // Email/password accounts must prove ownership before receiving a session.
+  // OAuth users are marked verified by the provider sign-in callback instead.
+  if (!user.emailVerified) {
+    return null
+  }
+
   return {
     id: user.id,
     name: user.name,

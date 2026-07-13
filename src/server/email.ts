@@ -11,6 +11,12 @@ function getTransporter() {
   })
 }
 
+export type EmailDeliveryResult = 'sent' | 'not-configured' | 'failed'
+
+export function isEmailDeliveryConfigured(): boolean {
+  return Boolean(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD)
+}
+
 type EmailKind = 'accounts' | 'general'
 
 function getMailIdentity(kind: EmailKind) {
@@ -30,7 +36,10 @@ function getMailIdentity(kind: EmailKind) {
  * Sends a verification email to a newly registered user.
  * No-ops (with a dev log) when Gmail SMTP is not configured.
  */
-export async function sendVerificationEmail(to: string, verifyUrl: string): Promise<void> {
+export async function sendVerificationEmail(
+  to: string,
+  verifyUrl: string
+): Promise<EmailDeliveryResult> {
   const transporter = getTransporter()
 
   if (!transporter) {
@@ -38,7 +47,7 @@ export async function sendVerificationEmail(to: string, verifyUrl: string): Prom
       console.log('Verification email placeholder generated', { to })
       console.log('Verification URL (dev/test only)', verifyUrl)
     }
-    return
+    return 'not-configured'
   }
 
   try {
@@ -49,8 +58,10 @@ export async function sendVerificationEmail(to: string, verifyUrl: string): Prom
       html: buildVerificationHtml(verifyUrl),
       text: `Welcome to BusQuiz!\n\nVerify your email address by visiting:\n${verifyUrl}\n\nThis link expires in 24 hours.`,
     })
+    return 'sent'
   } catch (error) {
     console.warn('Failed to send verification email:', error)
+    return 'failed'
   }
 }
 
