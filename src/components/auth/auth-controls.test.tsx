@@ -1,16 +1,19 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { useSessionMock, signOutMock, pushMock, useThemeMock } = vi.hoisted(() => ({
+const { useSessionMock, signOutActionMock, pushMock, useThemeMock } = vi.hoisted(() => ({
   useSessionMock: vi.fn(),
-  signOutMock: vi.fn(),
+  signOutActionMock: vi.fn(),
   pushMock: vi.fn(),
   useThemeMock: vi.fn(),
 }))
 
 vi.mock('next-auth/react', () => ({
   useSession: useSessionMock,
-  signOut: signOutMock,
+}))
+
+vi.mock('@/components/auth/sign-out-action', () => ({
+  signOutAction: signOutActionMock,
 }))
 
 vi.mock('next/navigation', () => ({
@@ -76,6 +79,31 @@ describe('AuthControls', () => {
     fireEvent.pointerDown(document.body)
     await waitFor(() => {
       expect(screen.queryByRole('menuitem', { name: /Studio/ })).not.toBeInTheDocument()
+    })
+  })
+
+  it('submits logout once from the profile menu', async () => {
+    useSessionMock.mockReturnValue({
+      status: 'authenticated',
+      data: {
+        user: {
+          name: 'Player One',
+          username: 'player-one',
+          image: null,
+          role: 'USER',
+          level: 4,
+          streakDays: 2,
+          xp: 280,
+        },
+      },
+    })
+
+    render(<AuthControls />)
+    fireEvent.pointerDown(screen.getByRole('button', { name: 'Open profile menu' }))
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Sign out' }))
+
+    await waitFor(() => {
+      expect(signOutActionMock).toHaveBeenCalledOnce()
     })
   })
 })

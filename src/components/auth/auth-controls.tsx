@@ -2,8 +2,9 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useFormStatus } from 'react-dom'
 import { ChevronDown, LogOut } from 'lucide-react'
-import { useSession, signOut } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 import { Avatar } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { StreakFlame } from '@/components/ui/streak-flame'
@@ -20,6 +21,20 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { signOutAction } from '@/components/auth/sign-out-action'
+
+function SignOutMenuItem() {
+  const { pending } = useFormStatus()
+
+  return (
+    <DropdownMenuItem asChild disabled={pending}>
+      <button type="submit" className="w-full" disabled={pending}>
+        <LogOut className="h-3.5 w-3.5" />
+        {pending ? 'Signing out…' : 'Sign out'}
+      </button>
+    </DropdownMenuItem>
+  )
+}
 
 export function AuthControls() {
   const { data: session, status } = useSession()
@@ -104,15 +119,9 @@ export function AuthControls() {
               </DropdownMenuRadioGroup>
             </DropdownMenuSubContent>
           </DropdownMenuSub>
-          <DropdownMenuItem
-            onSelect={async (event) => {
-              event.preventDefault()
-              await signOut({ redirectTo: '/' })
-            }}
-          >
-            <LogOut className="h-3.5 w-3.5" />
-            Sign out
-          </DropdownMenuItem>
+          <form action={signOutAction}>
+            <SignOutMenuItem />
+          </form>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
