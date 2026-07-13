@@ -7,9 +7,13 @@ import { auth } from '@/server/auth'
 export default async function SignInPage({
   searchParams,
 }: {
-  searchParams: Promise<{ callbackUrl?: string; verified?: string }>
+  searchParams: Promise<{
+    callbackUrl?: string
+    verified?: string
+    verification?: string
+  }>
 }) {
-  const { callbackUrl, verified } = await searchParams
+  const { callbackUrl, verified, verification } = await searchParams
   const resolvedCallbackUrl = safeCallbackUrl(callbackUrl, '/')
   const session = await auth()
 
@@ -24,9 +28,14 @@ export default async function SignInPage({
         googleEnabled={Boolean(process.env.GOOGLE_CLIENT_ID)}
         githubEnabled={Boolean(process.env.GITHUB_CLIENT_ID)}
         verifiedMessage={
-          verified === '1'
-            ? 'Email verified. You can now sign in with your credentials.'
-            : undefined
+          verified === '1' ? 'Your email has been verified. You can now log in.' : undefined
+        }
+        verificationError={
+          verification === 'expired'
+            ? 'This verification link has expired. Request a new verification email.'
+            : verification === 'invalid'
+              ? 'This verification link is invalid or has already been replaced.'
+              : undefined
         }
       />
     </div>

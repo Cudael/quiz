@@ -3,12 +3,18 @@ import { Prisma } from '@prisma/client'
 import { prisma } from '@/server/prisma'
 import { hashToken } from '@/server/token-hash'
 
+function redirectToSignIn(request: Request, verification?: 'invalid' | 'expired') {
+  const url = new URL('/sign-in', request.url)
+  if (verification) url.searchParams.set('verification', verification)
+  return NextResponse.redirect(url)
+}
+
 export async function GET(request: Request) {
   const now = new Date()
   const { searchParams } = new URL(request.url)
   const rawToken = searchParams.get('token')
   if (!rawToken) {
-    return NextResponse.redirect(new URL('/sign-in', request.url))
+    return redirectToSignIn(request, 'invalid')
   }
 
   const tokenHash = hashToken(rawToken)
@@ -18,7 +24,7 @@ export async function GET(request: Request) {
   })
 
   if (!verificationToken) {
-    return NextResponse.redirect(new URL('/sign-in', request.url))
+    return redirectToSignIn(request, 'invalid')
   }
 
   if (verificationToken.expires < now) {
@@ -30,7 +36,7 @@ export async function GET(request: Request) {
         },
       },
     })
-    return NextResponse.redirect(new URL('/sign-in', request.url))
+    return redirectToSignIn(request, 'expired')
   }
 
   try {

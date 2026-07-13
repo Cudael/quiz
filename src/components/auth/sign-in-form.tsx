@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
-import { Loader2 } from 'lucide-react'
+import { CircleCheck, CircleX, Loader2 } from 'lucide-react'
 import { OauthProviderButtons } from '@/components/auth/oauth-provider-buttons'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -15,6 +15,7 @@ interface SignInFormProps {
   googleEnabled: boolean
   githubEnabled: boolean
   verifiedMessage?: string
+  verificationError?: string
 }
 
 const AUTH_ERROR_MESSAGE =
@@ -25,6 +26,7 @@ export function SignInForm({
   googleEnabled,
   githubEnabled,
   verifiedMessage,
+  verificationError,
 }: SignInFormProps) {
   const hasOauth = googleEnabled || githubEnabled
   const router = useRouter()
@@ -134,7 +136,30 @@ export function SignInForm({
             </p>
           ) : null}
           {verifiedMessage ? (
-            <p className="text-sm text-muted-foreground">{verifiedMessage}</p>
+            <div
+              role="status"
+              className="flex items-start gap-2 rounded-md border border-border bg-muted p-3 text-sm text-foreground"
+            >
+              <CircleCheck className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+              <span>{verifiedMessage}</span>
+            </div>
+          ) : null}
+          {verificationError ? (
+            <div
+              role="alert"
+              className="space-y-2 rounded-md border border-destructive/40 bg-muted p-3 text-sm"
+            >
+              <p className="flex items-start gap-2 text-destructive">
+                <CircleX className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                <span>{verificationError}</span>
+              </p>
+              <Link
+                href="/verify-email"
+                className="inline-block font-semibold text-foreground underline underline-offset-4"
+              >
+                Request a new verification email
+              </Link>
+            </div>
           ) : null}
           <p className="text-sm text-muted-foreground">
             Need an account?{' '}

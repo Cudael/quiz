@@ -30,6 +30,34 @@ describe('SignInForm', () => {
     expect(screen.getByRole('button', { name: 'Log in' })).toBeInTheDocument()
   })
 
+  it('shows clear verification success and expired-link messages', () => {
+    const { rerender } = render(
+      <SignInForm
+        callbackUrl="/profile"
+        googleEnabled={false}
+        githubEnabled={false}
+        verifiedMessage="Your email has been verified. You can now log in."
+      />
+    )
+
+    expect(screen.getByRole('status')).toHaveTextContent('Your email has been verified')
+
+    rerender(
+      <SignInForm
+        callbackUrl="/profile"
+        googleEnabled={false}
+        githubEnabled={false}
+        verificationError="This verification link has expired."
+      />
+    )
+
+    expect(screen.getByRole('alert')).toHaveTextContent('This verification link has expired.')
+    expect(screen.getByRole('link', { name: 'Request a new verification email' })).toHaveAttribute(
+      'href',
+      '/verify-email'
+    )
+  })
+
   it('shows oauth divider only when oauth is enabled', () => {
     const { rerender } = render(
       <SignInForm callbackUrl="/profile" googleEnabled={true} githubEnabled={false} />

@@ -24,7 +24,7 @@ describe('VerificationEmailForm', () => {
     })
     expect(
       await screen.findByText(
-        'If this account still needs verification, a new email has been sent.'
+        'If this account still needs verification, a new email has been sent. Any previous verification link is now invalid.'
       )
     ).toBeInTheDocument()
   })

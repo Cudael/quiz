@@ -203,7 +203,9 @@ Email/password registration does not create a session. It issues a 24-hour verif
 redirects to `/verify-email`; credentials sign-in is rejected until `User.emailVerified` is set.
 OAuth sign-in marks the provider-owned email as verified. Guest sessions (`email: null`) remain
 available for guest gameplay. `POST /api/auth/resend-verification` is rate-limited, returns a generic
-success response to prevent account enumeration, and requires configured Gmail SMTP delivery.
+success response to prevent account enumeration, invalidates all older verification links, and
+requires configured Gmail SMTP delivery. Invalid and expired links redirect to `/sign-in` with a
+visible explanation; successful verification redirects there with a success confirmation.
 
 ### Auth-related files
 

@@ -32,7 +32,9 @@ export function VerificationEmailForm({
         setError(payload.error ?? 'Could not send verification email.')
         return
       }
-      setMessage('If this account still needs verification, a new email has been sent.')
+      setMessage(
+        'If this account still needs verification, a new email has been sent. Any previous verification link is now invalid.'
+      )
     } catch {
       setError('Could not send verification email. Please try again.')
     } finally {

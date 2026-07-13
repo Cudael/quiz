@@ -24,7 +24,7 @@ describe('GET /api/auth/verify-email', () => {
   it('redirects to sign-in for missing token', async () => {
     const response = await GET(new Request('http://localhost/api/auth/verify-email'))
     expect(response.status).toBe(307)
-    expect(response.headers.get('location')).toBe('http://localhost/sign-in')
+    expect(response.headers.get('location')).toBe('http://localhost/sign-in?verification=invalid')
   })
 
   it('verifies a valid token and redirects with success query', async () => {
@@ -59,7 +59,7 @@ describe('GET /api/auth/verify-email', () => {
     )
 
     expect(response.status).toBe(307)
-    expect(response.headers.get('location')).toBe('http://localhost/sign-in')
+    expect(response.headers.get('location')).toBe('http://localhost/sign-in?verification=expired')
     expect(prismaMock.user.update).not.toHaveBeenCalled()
     expect(prismaMock.verificationToken.delete).toHaveBeenCalledOnce()
   })
