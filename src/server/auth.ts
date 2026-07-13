@@ -39,7 +39,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
   callbacks: {
     async signIn({ user, account }) {
-      if (!account?.provider || account.provider === 'credentials') {
+      // Credentials sign-ins (provider id `email-password`) are fully handled
+      // by `authorize` — matching on `type` rather than a provider id keeps
+      // this true for any credentials provider.
+      if (!account || account.type === 'credentials') {
         return true
       }
 
@@ -148,10 +151,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         })
 
         if (dbUser) {
-          // Email/password accounts must verify before keeping an authenticated
-          // session. This also expires sessions created before enforcement was
-          // introduced. Guest sessions have no email and remain available.
-          if (token.email && !dbUser.emailVerified) {
+          // Accounts must verify before keeping an authenticated session.
+          // This also expires sessions created before enforcement was
+          // introduced.
+          if (!dbUser.emailVerified) {
             return null
           }
 

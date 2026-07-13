@@ -61,8 +61,8 @@ describe('SignUpForm', () => {
     expect(await screen.findByText('Check your inbox')).toBeInTheDocument()
     expect(signInMock).not.toHaveBeenCalled()
 
+    // Entering the full code auto-submits it.
     fireEvent.change(screen.getByLabelText('Verification code'), { target: { value: '123456' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Verify email' }))
 
     // A correct code logs the new user in with the credentials still in memory.
     await waitFor(() => {

@@ -9,6 +9,7 @@ import { OauthProviderButtons } from '@/components/auth/oauth-provider-buttons'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { PasswordInput } from '@/components/ui/password-input'
 
 interface SignInFormProps {
   callbackUrl: string
@@ -17,8 +18,9 @@ interface SignInFormProps {
   verifiedMessage?: string
 }
 
-const AUTH_ERROR_MESSAGE =
-  'Sign in failed. Please check your details and try again. If you registered recently, verify your email first.'
+const AUTH_ERROR_MESSAGE = 'Sign in failed. Please check your email and password.'
+const RATE_LIMIT_MESSAGE =
+  'Too many sign-in attempts for this account. Please wait 15 minutes and try again.'
 
 export function SignInForm({
   callbackUrl,
@@ -42,13 +44,20 @@ export function SignInForm({
       callbackUrl,
       redirect: false,
     })
-    setIsSubmittingEmail(false)
 
     if (result?.error) {
-      setError(AUTH_ERROR_MESSAGE)
+      // The password matched but the account is unverified — send them
+      // straight to the code entry page instead of implying a typo.
+      if (result.code === 'email-not-verified') {
+        router.push(`/verify-email?email=${encodeURIComponent(email)}`)
+        return
+      }
+      setIsSubmittingEmail(false)
+      setError(result.code === 'rate-limited' ? RATE_LIMIT_MESSAGE : AUTH_ERROR_MESSAGE)
       return
     }
 
+    setIsSubmittingEmail(false)
     router.push(result?.url || callbackUrl)
     router.refresh()
   }
@@ -101,9 +110,8 @@ export function SignInForm({
               <label htmlFor="password" className="text-sm font-medium leading-none">
                 Password
               </label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 autoComplete="current-password"
                 required
                 value={password}
@@ -121,18 +129,11 @@ export function SignInForm({
             </Button>
           </form>
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
-          {error ? (
-            <p className="text-sm text-muted-foreground">
-              Still need to verify your email?{' '}
-              <Link
-                href={`/verify-email?email=${encodeURIComponent(email)}`}
-                className="font-semibold underline underline-offset-4"
-              >
-                Enter your verification code
-              </Link>
+          {error && (
+            <p role="alert" className="text-sm text-destructive">
+              {error}
             </p>
-          ) : null}
+          )}
           {verifiedMessage ? (
             <div
               role="status"

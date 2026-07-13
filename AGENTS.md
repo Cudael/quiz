@@ -195,7 +195,7 @@ Role (USER/ADMIN), Difficulty (EASY/MEDIUM/HARD), QuestionType (SINGLE/TRUEFALSE
 
 ## Auth
 
-NextAuth.js v5 (beta) with JWT sessions. Providers: GitHub OAuth, Google OAuth, email+password credentials, guest credentials (creates a `User` with `email: null` — email presence distinguishes persistent accounts from guest sessions).
+NextAuth.js v5 (beta) with JWT sessions. Providers: GitHub OAuth, Google OAuth, email+password credentials. There are no guest accounts: signed-out visitors can browse and play anonymously (duels track them with a `qa_guest_id` cookie, play sessions store no user), and no `User` row is created for them. Credentials sign-in failures surface typed codes (`email-not-verified` when the password matched but the email is unverified, `rate-limited`) via `CredentialsSignin` subclasses; all other failures stay generic to prevent enumeration.
 
 Minimum env: `DATABASE_URL` + `AUTH_SECRET`. OAuth providers are optional; their buttons are hidden when the corresponding env vars are absent.
 
@@ -207,8 +207,7 @@ via `POST /api/auth/verify-email` (attempt-limited per email; legacy GET links r
 Registering over an existing **unverified** password-only account replaces its name/password
 (unverified accounts cannot squat an address). OAuth sign-in marks the provider-owned email as
 verified and clears any pre-verification `passwordHash` (pre-hijack protection); completing a
-password reset also sets `emailVerified`. Guest sessions (`email: null`) remain available for
-guest gameplay. `POST /api/auth/resend-verification` is rate-limited per IP+email and per
+password reset also sets `emailVerified`. `POST /api/auth/resend-verification` is rate-limited per IP+email and per
 recipient (IP-independent), returns a generic success response to prevent account enumeration,
 invalidates all older codes, and requires configured Gmail SMTP delivery.
 

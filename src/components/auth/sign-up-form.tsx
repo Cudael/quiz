@@ -4,12 +4,24 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
-import { Loader2, MailCheck } from 'lucide-react'
+import { Check, Loader2, MailCheck, X } from 'lucide-react'
 import { OauthProviderButtons } from '@/components/auth/oauth-provider-buttons'
 import { VerificationEmailForm } from '@/components/auth/verification-email-form'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { PasswordInput } from '@/components/ui/password-input'
+import { PASSWORD_REGEX, PASSWORD_REGEX_MESSAGE } from '@/schemas'
+
+/** Mirrors `passwordSchema` in src/schemas — keep the two in sync. */
+const PASSWORD_RULES = [
+  { label: 'At least 8 characters', test: (value: string) => value.length >= 8 },
+  { label: 'One uppercase letter', test: (value: string) => /[A-Z]/.test(value) },
+  {
+    label: 'One number or special character',
+    test: (value: string) => /[0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(value),
+  },
+] as const
 
 interface SignUpFormProps {
   callbackUrl: string
@@ -33,28 +45,37 @@ export function SignUpForm({ callbackUrl, googleEnabled, githubEnabled }: SignUp
     event.preventDefault()
     setError('')
 
+    if (password.length < 8 || !PASSWORD_REGEX.test(password)) {
+      setError(PASSWORD_REGEX_MESSAGE)
+      return
+    }
+
     if (password !== confirmPassword) {
       setError('Passwords do not match.')
       return
     }
 
     setIsSubmitting(true)
-    const response = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ name, email, password }),
-    })
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      })
+      const payload = (await response.json()) as { emailSent?: boolean; error?: string }
 
-    if (!response.ok) {
+      if (!response.ok) {
+        setError(payload.error ?? 'Could not create account. Please try again.')
+        return
+      }
+
+      setEmailSent(payload.emailSent !== false)
+      setAwaitingCode(true)
+    } catch {
+      setError('Could not create account. Please check your connection and try again.')
+    } finally {
       setIsSubmitting(false)
-      setError('Could not create account. Please try again.')
-      return
     }
-
-    const payload = (await response.json()) as { emailSent?: boolean }
-    setIsSubmitting(false)
-    setEmailSent(payload.emailSent !== false)
-    setAwaitingCode(true)
   }
 
   // The password is still in memory from the registration form, so a
@@ -163,26 +184,44 @@ export function SignUpForm({ callbackUrl, googleEnabled, githubEnabled }: SignUp
               <label htmlFor="sign-up-password" className="text-sm font-medium leading-none">
                 Password
               </label>
-              <Input
+              <PasswordInput
                 id="sign-up-password"
-                type="password"
                 autoComplete="new-password"
                 minLength={8}
                 required
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
               />
-              <p className="text-xs text-muted-foreground">
-                At least 8 characters, one uppercase letter, and one number or special character.
-              </p>
+              <ul className="space-y-0.5 pt-1 text-xs" aria-label="Password requirements">
+                {PASSWORD_RULES.map((rule) => {
+                  const met = rule.test(password)
+                  return (
+                    <li
+                      key={rule.label}
+                      className={
+                        met
+                          ? 'flex items-center gap-1.5 text-foreground'
+                          : 'flex items-center gap-1.5 text-muted-foreground'
+                      }
+                    >
+                      {met ? (
+                        <Check className="h-3 w-3 shrink-0" aria-hidden="true" />
+                      ) : (
+                        <X className="h-3 w-3 shrink-0" aria-hidden="true" />
+                      )}
+                      {rule.label}
+                      <span className="sr-only">{met ? ' — met' : ' — not met'}</span>
+                    </li>
+                  )
+                })}
+              </ul>
             </div>
             <div className="space-y-1">
               <label htmlFor="confirm-password" className="text-sm font-medium leading-none">
                 Confirm password
               </label>
-              <Input
+              <PasswordInput
                 id="confirm-password"
-                type="password"
                 autoComplete="new-password"
                 minLength={8}
                 required
@@ -196,7 +235,11 @@ export function SignUpForm({ callbackUrl, googleEnabled, githubEnabled }: SignUp
             </Button>
           </form>
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && (
+            <p role="alert" className="text-sm text-destructive">
+              {error}
+            </p>
+          )}
           <p className="text-sm text-muted-foreground">
             Already have an account?{' '}
             <Link

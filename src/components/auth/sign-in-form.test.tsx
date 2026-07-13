@@ -43,7 +43,7 @@ describe('SignInForm', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Your email has been verified')
   })
 
-  it('offers the code entry page after a failed sign-in', async () => {
+  it('shows a generic error for wrong credentials', async () => {
     signInMock.mockResolvedValue({ error: 'CredentialsSignin' })
     render(<SignInForm callbackUrl="/profile" googleEnabled={false} githubEnabled={false} />)
 
@@ -51,9 +51,35 @@ describe('SignInForm', () => {
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'Password123!' } })
     fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
 
-    expect(
-      await screen.findByRole('link', { name: 'Enter your verification code' })
-    ).toHaveAttribute('href', '/verify-email?email=player%40example.com')
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Sign in failed. Please check your email and password.'
+    )
+    expect(pushMock).not.toHaveBeenCalled()
+  })
+
+  it('routes unverified accounts straight to the code entry page', async () => {
+    signInMock.mockResolvedValue({ error: 'CredentialsSignin', code: 'email-not-verified' })
+    render(<SignInForm callbackUrl="/profile" googleEnabled={false} githubEnabled={false} />)
+
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'player@example.com' } })
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'Password123!' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
+
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalledWith('/verify-email?email=player%40example.com')
+    })
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  })
+
+  it('explains rate limiting instead of implying a typo', async () => {
+    signInMock.mockResolvedValue({ error: 'CredentialsSignin', code: 'rate-limited' })
+    render(<SignInForm callbackUrl="/profile" googleEnabled={false} githubEnabled={false} />)
+
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'player@example.com' } })
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'Password123!' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Too many sign-in attempts')
   })
 
   it('shows oauth divider only when oauth is enabled', () => {

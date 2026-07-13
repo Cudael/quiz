@@ -15,14 +15,14 @@ describe('VerificationEmailForm', () => {
     pushMock.mockClear()
   })
 
-  it('verifies a code and redirects to sign-in by default', async () => {
+  it('auto-submits a complete code and redirects to sign-in by default', async () => {
     const fetchMock = vi
       .spyOn(globalThis, 'fetch')
       .mockResolvedValue(new Response(JSON.stringify({ ok: true }), { status: 200 }))
     render(<VerificationEmailForm initialEmail="player@example.com" />)
 
+    // Entering the sixth digit submits without pressing the button.
     fireEvent.change(screen.getByLabelText('Verification code'), { target: { value: '123456' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Verify email' }))
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith('/api/auth/verify-email', {
@@ -46,7 +46,6 @@ describe('VerificationEmailForm', () => {
     )
 
     fireEvent.change(screen.getByLabelText('Verification code'), { target: { value: '654321' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Verify email' }))
 
     await waitFor(() => {
       expect(onVerified).toHaveBeenCalledOnce()
@@ -63,7 +62,6 @@ describe('VerificationEmailForm', () => {
     render(<VerificationEmailForm initialEmail="player@example.com" />)
 
     fireEvent.change(screen.getByLabelText('Verification code'), { target: { value: '111111' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Verify email' }))
 
     expect(
       await screen.findByText('Incorrect code. Check the email and try again.')
@@ -91,6 +89,10 @@ describe('VerificationEmailForm', () => {
         'If this account still needs verification, a new code has been sent. Any previous code is now invalid.'
       )
     ).toBeInTheDocument()
+
+    // A successful send starts the cooldown so the daily cap cannot be burned.
+    const cooldownButton = screen.getByRole('button', { name: /Resend code \(\d+s\)/ })
+    expect(cooldownButton).toBeDisabled()
   })
 
   it('shows delivery configuration errors returned by the server', async () => {

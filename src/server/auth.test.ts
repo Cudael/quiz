@@ -156,13 +156,13 @@ describe('auth signIn callback', () => {
     expect(user.id).toBe('db-user-2')
   })
 
-  it('skips database writes for credentials sign-ins', async () => {
+  it('skips database writes for credentials sign-ins regardless of provider id', async () => {
     await import('@/server/auth')
     const signIn = getSignInCallback()
 
     const result = await signIn({
-      user: { id: 'guest-1', email: null },
-      account: { provider: 'credentials', providerAccountId: 'guest-1', type: 'credentials' },
+      user: { id: 'user-1', email: 'ada@example.com' },
+      account: { provider: 'email-password', providerAccountId: 'user-1', type: 'credentials' },
     } as Parameters<SignInCallback>[0])
 
     expect(result).toBe(true)

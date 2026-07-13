@@ -43,6 +43,17 @@ describe('OauthProviderButtons', () => {
     expect(signInMock).toHaveBeenCalledWith('github', { callbackUrl: '/profile' })
   })
 
+  it('disables all providers and shows a pending state after a click', () => {
+    render(
+      <OauthProviderButtons callbackUrl="/profile" googleEnabled={true} githubEnabled={true} />
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Continue with GitHub' }))
+
+    expect(screen.getByRole('button', { name: 'Redirecting…' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Continue with Google' })).toBeDisabled()
+  })
+
   it('renders GitHub as default when it is the only provider', () => {
     render(
       <OauthProviderButtons callbackUrl="/profile" googleEnabled={false} githubEnabled={true} />

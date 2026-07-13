@@ -65,15 +65,16 @@ describe('authorizeEmailPassword', () => {
     })
   })
 
-  it('returns null without touching the database when rate limited', async () => {
+  it('throws a coded error without touching the database when rate limited', async () => {
     checkRateLimitMock.mockResolvedValue(false)
 
-    const result = await authorizeEmailPassword({
-      email: 'ada@example.com',
-      password: 'correct-horse',
-    })
+    await expect(
+      authorizeEmailPassword({
+        email: 'ada@example.com',
+        password: 'correct-horse',
+      })
+    ).rejects.toHaveProperty('code', 'rate-limited')
 
-    expect(result).toBeNull()
     expect(prismaMock.user.findUnique).not.toHaveBeenCalled()
     expect(verifyPasswordMock).not.toHaveBeenCalled()
   })
@@ -110,13 +111,25 @@ describe('authorizeEmailPassword', () => {
     expect(result).toBeNull()
   })
 
-  it('returns null when valid credentials belong to an unverified account', async () => {
+  it('throws email-not-verified only when valid credentials belong to an unverified account', async () => {
     prismaMock.user.findUnique.mockResolvedValue({ ...validUser, emailVerified: null })
     verifyPasswordMock.mockResolvedValue(true)
 
+    await expect(
+      authorizeEmailPassword({
+        email: 'ada@example.com',
+        password: 'correct-horse',
+      })
+    ).rejects.toHaveProperty('code', 'email-not-verified')
+  })
+
+  it('stays generic for a wrong password on an unverified account (no enumeration)', async () => {
+    prismaMock.user.findUnique.mockResolvedValue({ ...validUser, emailVerified: null })
+    verifyPasswordMock.mockResolvedValue(false)
+
     const result = await authorizeEmailPassword({
       email: 'ada@example.com',
-      password: 'correct-horse',
+      password: 'wrong',
     })
 
     expect(result).toBeNull()

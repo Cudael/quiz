@@ -1,7 +1,8 @@
 'use client'
 
+import { useState } from 'react'
 import { signIn } from 'next-auth/react'
-import { Github } from 'lucide-react'
+import { Github, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface OauthProviderButtonsProps {
@@ -50,6 +51,11 @@ export function OauthProviderButtons({
   googleEnabled,
   githubEnabled,
 }: OauthProviderButtonsProps) {
+  // Set once and never cleared: signIn() navigates away to the provider, so
+  // the buttons stay disabled until the page unloads (or back-navigation
+  // restores a fresh render).
+  const [pendingProvider, setPendingProvider] = useState<string | null>(null)
+
   const enabled = oauthProviders.filter((provider) => {
     if (provider.id === 'google') {
       return googleEnabled
@@ -74,6 +80,8 @@ export function OauthProviderButtons({
           variant = 'default'
         }
 
+        const isPending = pendingProvider === provider.id
+
         return (
           <Button
             key={provider.id}
@@ -82,14 +90,20 @@ export function OauthProviderButtons({
             className="w-full gap-2"
             data-provider={provider.id}
             data-variant={variant}
-            onClick={() => signIn(provider.id, { callbackUrl })}
+            disabled={pendingProvider !== null}
+            onClick={() => {
+              setPendingProvider(provider.id)
+              void signIn(provider.id, { callbackUrl })
+            }}
           >
-            {isGoogle ? (
+            {isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            ) : isGoogle ? (
               <GoogleIcon />
             ) : (
               <Github className="h-4 w-4" aria-hidden="true" data-testid="github-oauth-icon" />
             )}
-            {provider.label}
+            {isPending ? 'Redirecting…' : provider.label}
           </Button>
         )
       })}

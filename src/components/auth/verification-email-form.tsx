@@ -1,10 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2, MailCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+
+/** Seconds a user must wait between resend requests (protects the daily cap). */
+const RESEND_COOLDOWN_SECONDS = 45
 
 export function VerificationEmailForm({
   initialEmail = '',
@@ -25,9 +28,16 @@ export function VerificationEmailForm({
   const [pending, setPending] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [cooldown, setCooldown] = useState(0)
 
-  async function verify(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
+  useEffect(() => {
+    if (cooldown <= 0) return
+    const timer = setInterval(() => setCooldown((current) => current - 1), 1000)
+    return () => clearInterval(timer)
+  }, [cooldown])
+
+  async function submitCode(value: string) {
+    if (pending) return
     setPending(true)
     setMessage('')
     setError('')
@@ -35,7 +45,7 @@ export function VerificationEmailForm({
       const response = await fetch('/api/auth/verify-email', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email, code }),
+        body: JSON.stringify({ email, code: value }),
       })
       const payload = (await response.json()) as { error?: string }
       if (!response.ok) {
@@ -54,6 +64,21 @@ export function VerificationEmailForm({
     }
   }
 
+  function verify(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    void submitCode(code)
+  }
+
+  function handleCodeChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const next = event.target.value.replace(/\D/g, '')
+    setCode(next)
+    // The code has a fixed length, so a complete entry (typed or pasted)
+    // submits itself — no extra button press on the happy path.
+    if (next.length === 6 && email && !pending) {
+      void submitCode(next)
+    }
+  }
+
   async function resend() {
     setPending(true)
     setMessage('')
@@ -69,6 +94,7 @@ export function VerificationEmailForm({
         setError(payload.error ?? 'Could not send verification code.')
         return
       }
+      setCooldown(RESEND_COOLDOWN_SECONDS)
       setMessage(
         'If this account still needs verification, a new code has been sent. Any previous code is now invalid.'
       )
@@ -79,16 +105,25 @@ export function VerificationEmailForm({
     }
   }
 
+  const resendDisabled = pending || !email || cooldown > 0
+  const resendLabel = cooldown > 0 ? `Resend code (${cooldown}s)` : 'Resend code'
+
   if (compact) {
     return (
       <div className="flex flex-wrap items-center gap-2">
-        <Button type="button" size="sm" variant="outline" onClick={resend} disabled={pending}>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          onClick={resend}
+          disabled={resendDisabled}
+        >
           {pending ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <MailCheck className="h-4 w-4" />
           )}
-          {pending ? 'Sending…' : 'Resend code'}
+          {pending ? 'Sending…' : resendLabel}
         </Button>
         <span aria-live="polite" className={error ? 'text-destructive' : undefined}>
           {error || message}
@@ -126,10 +161,11 @@ export function VerificationEmailForm({
           pattern="\d{6}"
           maxLength={6}
           required
+          autoFocus={Boolean(initialEmail)}
           placeholder="6-digit code"
           className="text-center text-lg tracking-[0.5em]"
           value={code}
-          onChange={(event) => setCode(event.target.value.replace(/\D/g, ''))}
+          onChange={handleCodeChange}
         />
       </div>
       <Button type="submit" className="w-full" disabled={pending || !email || code.length !== 6}>
@@ -149,9 +185,9 @@ export function VerificationEmailForm({
           variant="ghost"
           className="shrink-0"
           onClick={resend}
-          disabled={pending || !email}
+          disabled={resendDisabled}
         >
-          Resend code
+          {resendLabel}
         </Button>
       </div>
     </form>
