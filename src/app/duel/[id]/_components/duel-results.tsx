@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/components/ui/toast'
 import type { DuelStatePayload } from '../duel-view.types'
 import { readErrorMessage } from '../duel-view.utils'
+import { DuelAnswerReview } from './duel-answer-review'
 
 interface DuelResultsProps {
   state: DuelStatePayload
@@ -40,7 +41,7 @@ export function DuelResults({ state }: DuelResultsProps) {
   }
 
   return (
-    <div className="container mx-auto max-w-3xl px-4 py-10">
+    <div className="container mx-auto max-w-3xl space-y-6 px-4 py-10">
       <Card>
         <CardHeader>
           <CardTitle>Results</CardTitle>
@@ -91,6 +92,7 @@ export function DuelResults({ state }: DuelResultsProps) {
           </div>
         </CardContent>
       </Card>
+      {state.review ? <DuelAnswerReview review={state.review} /> : null}
     </div>
   )
 }

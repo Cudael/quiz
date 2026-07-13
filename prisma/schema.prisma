@@ -295,6 +295,9 @@ model DuelParticipant {
   guestKey     String?
   score        Int       @default(0)
   correctCount Int       @default(0)
+  // Sanitized submissions retained so participants can review their own answers
+  // after the duel finishes. Correct answers are never stored here.
+  answers      Json?
   finished     Boolean   @default(false)
   finishedAt   DateTime?
   joinedAt     DateTime  @default(now())

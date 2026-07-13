@@ -29,7 +29,8 @@ src/
     api/                API route handlers
       auth/             [...nextauth], forgot-password, register, reset-password, verify-email
       cron/             cleanup-guests, finalize-season, weekly-digest (all require CRON_SECRET)
-      duel/             create, join, [id] (state), start, submit, [id]/rematch
+    duel/             create, join, [id] (state; finished participants receive their own
+                      answer review + correct choices), start, submit, [id]/rematch
       notifications/    GET list, PATCH read
       play/             submit (score, XP, badges; mode param STANDARD/DAILY/PRACTICE/BLITZ)
       profile/          PATCH/DELETE (canonical), profile/ (compat PATCH alias),

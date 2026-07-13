@@ -4,6 +4,30 @@ import { auth } from '@/server/auth'
 import { pickDuelQuestionIds } from '@/server/duel'
 import { prisma } from '@/server/prisma'
 
+function parseStoredAnswers(value: unknown) {
+  if (!Array.isArray(value)) return []
+
+  const answers: Array<{ questionId: string; choiceIds: string[]; timeTakenMs: number }> = []
+  for (const entry of value) {
+    if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) continue
+    const answer = entry as Record<string, unknown>
+    if (
+      typeof answer.questionId !== 'string' ||
+      !Array.isArray(answer.choiceIds) ||
+      !answer.choiceIds.every((choiceId: unknown) => typeof choiceId === 'string') ||
+      typeof answer.timeTakenMs !== 'number'
+    ) {
+      continue
+    }
+    answers.push({
+      questionId: answer.questionId,
+      choiceIds: answer.choiceIds as string[],
+      timeTakenMs: answer.timeTakenMs,
+    })
+  }
+  return answers
+}
+
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
   const cookieStore = await cookies()
@@ -22,6 +46,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
           guestName: true,
           score: true,
           correctCount: true,
+          answers: true,
           finished: true,
           joinedAt: true,
           guestKey: true,
@@ -60,8 +85,18 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     imageUrl: string | null
     choices: Array<{ id: string; text: string }>
   }> | null = null
+  let review: {
+    questions: Array<{
+      id: string
+      type: string
+      prompt: string
+      imageUrl: string | null
+      choices: Array<{ id: string; text: string; isCorrect: boolean }>
+    }>
+    answers: Array<{ questionId: string; choiceIds: string[]; timeTakenMs: number }>
+  } | null = null
 
-  if (includeQuestions && duel.status === 'IN_PROGRESS') {
+  if (includeQuestions && (duel.status === 'IN_PROGRESS' || duel.status === 'FINISHED')) {
     const candidateQuestions = await prisma.question.findMany({
       where: {
         // Duels render a plain choice grid — exclude interactive formats
@@ -78,7 +113,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         prompt: true,
         imageUrl: true,
         choices: {
-          select: { id: true, text: true },
+          select: { id: true, text: true, isCorrect: true },
         },
       },
     })
@@ -96,16 +131,29 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
           )
     const questionsById = new Map(candidateQuestions.map((question) => [question.id, question]))
 
-    questions = selectedIds
+    const selectedQuestions = selectedIds
       .map((id) => questionsById.get(id))
       .filter((question): question is (typeof candidateQuestions)[number] => Boolean(question))
-      .map((question) => ({
+
+    if (duel.status === 'IN_PROGRESS') {
+      questions = selectedQuestions.map((question) => ({
         id: question.id,
         type: question.type,
         prompt: question.prompt,
         imageUrl: question.imageUrl,
-        choices: question.choices,
+        choices: question.choices.map(({ id: choiceId, text }) => ({ id: choiceId, text })),
       }))
+    } else if (viewerParticipant) {
+      const storedAnswers = parseStoredAnswers(viewerParticipant.answers)
+      // Duels completed before answer persistence was introduced have no review
+      // data; do not mislabel all of their questions as unanswered.
+      if (storedAnswers.length > 0) {
+        review = {
+          questions: selectedQuestions,
+          answers: storedAnswers,
+        }
+      }
+    }
   }
 
   return NextResponse.json({
@@ -122,6 +170,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     },
     participants,
     questions,
+    review,
     viewerParticipantId: viewerParticipant?.id ?? null,
     isHost: session?.user?.id ? duel.hostId === session.user.id : false,
   })

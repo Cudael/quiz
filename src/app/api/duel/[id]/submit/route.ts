@@ -130,11 +130,24 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   let score = 0
   let correctCount = 0
+  const sanitizedAnswers: Array<{
+    questionId: string
+    choiceIds: string[]
+    timeTakenMs: number
+  }> = []
   for (const question of selectedQuestions) {
     const submitted = answersByQuestion.get(question.id)
     if (!submitted) continue
     const validChoiceIds = new Set(question.choices.map((choice) => choice.id))
     const selectedChoiceIds = sanitizeChoiceIds(submitted.choiceIds, validChoiceIds)
+    sanitizedAnswers.push({
+      questionId: question.id,
+      choiceIds: selectedChoiceIds,
+      timeTakenMs: Math.min(
+        Math.max(Math.round(submitted.timeTakenMs), 0),
+        duel.timeLimitSec * 1000
+      ),
+    })
     const correctChoiceIds = question.choices
       .filter((choice) => choice.isCorrect)
       .map((choice) => choice.id)
@@ -157,6 +170,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       data: {
         score,
         correctCount,
+        answers: sanitizedAnswers,
         finished: true,
         finishedAt: now,
       },

@@ -153,7 +153,7 @@ export function useDuelSession(duelId: string) {
     }
 
     setSubmitted(true)
-    await fetchState()
+    await fetchState(true)
   }, [submitted, answers, duelId, addToast, fetchState])
 
   useEffect(() => {

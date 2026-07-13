@@ -1,6 +1,7 @@
 export interface DuelQuestionChoice {
   id: string
   text: string
+  isCorrect?: boolean
 }
 
 export interface DuelQuestion {
@@ -35,6 +36,10 @@ export interface DuelStatePayload {
   }
   participants: DuelParticipant[]
   questions: DuelQuestion[] | null
+  review: {
+    questions: DuelQuestion[]
+    answers: DuelReviewAnswer[]
+  } | null
   viewerParticipantId: string | null
   isHost: boolean
 }
@@ -46,4 +51,8 @@ export interface DuelViewProps {
 export interface DuelAnswer {
   choiceIds: string[]
   timeTakenMs: number
+}
+
+export interface DuelReviewAnswer extends DuelAnswer {
+  questionId: string
 }
