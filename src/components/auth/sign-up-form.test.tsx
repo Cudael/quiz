@@ -1,13 +1,18 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { pushMock, refreshMock } = vi.hoisted(() => ({
+const { pushMock, refreshMock, signInMock } = vi.hoisted(() => ({
   pushMock: vi.fn(),
   refreshMock: vi.fn(),
+  signInMock: vi.fn(),
 }))
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: pushMock, refresh: refreshMock }),
+}))
+
+vi.mock('next-auth/react', () => ({
+  signIn: signInMock,
 }))
 
 import { SignUpForm } from '@/components/auth/sign-up-form'
@@ -33,10 +38,15 @@ describe('SignUpForm', () => {
     expect(screen.queryByText('or')).not.toBeInTheDocument()
   })
 
-  it('redirects to email verification instead of signing the new user in', async () => {
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify({ ok: true, emailSent: true }), { status: 201 })
-    )
+  it('shows the code step after registration and signs in once the code is verified', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const url = String(input)
+      if (url.includes('/api/auth/register')) {
+        return new Response(JSON.stringify({ ok: true, emailSent: true }), { status: 201 })
+      }
+      return new Response(JSON.stringify({ ok: true }), { status: 200 })
+    })
+    signInMock.mockResolvedValue({ url: '/profile' })
     render(<SignUpForm callbackUrl="/profile" googleEnabled={false} githubEnabled={false} />)
 
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Player One' } })
@@ -47,8 +57,25 @@ describe('SignUpForm', () => {
     })
     fireEvent.submit(screen.getByRole('button', { name: 'Create account' }).closest('form')!)
 
+    // Registration does not create a session — the code step appears in place.
+    expect(await screen.findByText('Check your inbox')).toBeInTheDocument()
+    expect(signInMock).not.toHaveBeenCalled()
+
+    fireEvent.change(screen.getByLabelText('Verification code'), { target: { value: '123456' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Verify email' }))
+
+    // A correct code logs the new user in with the credentials still in memory.
     await waitFor(() => {
-      expect(pushMock).toHaveBeenCalledWith('/verify-email?email=player%40example.com')
+      expect(signInMock).toHaveBeenCalledWith('email-password', {
+        email: 'player@example.com',
+        password: 'Password1!',
+        callbackUrl: '/profile',
+        redirect: false,
+      })
     })
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalledWith('/profile')
+    })
+    expect(refreshMock).toHaveBeenCalled()
   })
 })

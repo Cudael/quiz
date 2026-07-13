@@ -34,21 +34,14 @@ describe('email helpers', () => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
     const { sendVerificationEmail } = await import('@/server/email')
 
-    const result = await sendVerificationEmail(
-      'player@example.com',
-      'https://busquiz.com/verify?token=abc'
-    )
+    const result = await sendVerificationEmail('player@example.com', '123456')
 
     expect(result).toBe('not-configured')
     expect(createTransportMock).not.toHaveBeenCalled()
     expect(logSpy).toHaveBeenNthCalledWith(1, 'Verification email placeholder generated', {
       to: 'player@example.com',
     })
-    expect(logSpy).toHaveBeenNthCalledWith(
-      2,
-      'Verification URL (dev/test only)',
-      'https://busquiz.com/verify?token=abc'
-    )
+    expect(logSpy).toHaveBeenNthCalledWith(2, 'Verification code (dev/test only)', '123456')
   })
 
   it('does not log or send when Gmail SMTP is missing in production', async () => {

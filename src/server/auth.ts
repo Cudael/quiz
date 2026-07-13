@@ -74,11 +74,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             select: { id: true, emailVerified: true },
           })
         } else if (!foundUser.emailVerified) {
+          // The OAuth provider proved ownership of this email, but any
+          // password on the account predates that proof — it could have been
+          // set by a stranger who registered with this address first. Drop it
+          // (the owner can set a new one via password reset) and discard any
+          // pending verification code issued for the old registration.
           foundUser = await tx.user.update({
             where: { id: foundUser.id },
-            data: { emailVerified: now },
+            data: { emailVerified: now, passwordHash: null },
             select: { id: true, emailVerified: true },
           })
+          await tx.verificationToken.deleteMany({ where: { identifier: normalizedEmail } })
         }
 
         await tx.account.upsert({

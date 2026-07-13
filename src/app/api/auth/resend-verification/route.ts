@@ -7,6 +7,12 @@ import { checkRateLimit, getClientIp } from '@/server/rate-limit'
 
 const requestSchema = z.object({ email: z.email().trim().toLowerCase() })
 const RESEND_LIMIT = { limit: 3, windowMs: 60 * 60 * 1000 } as const
+/**
+ * Per-recipient cap that ignores the caller's IP. Each resend invalidates the
+ * pending code, so without this a third party rotating IPs could both spam a
+ * mailbox and keep killing the code its owner is about to enter.
+ */
+const RECIPIENT_LIMIT = { limit: 5, windowMs: 24 * 60 * 60 * 1000 } as const
 
 export async function POST(request: Request) {
   if (!isEmailDeliveryConfigured()) {
@@ -29,10 +35,9 @@ export async function POST(request: Request) {
   }
 
   const email = parsed.data.email
-  const allowed = await checkRateLimit(
-    `verify-resend:${getClientIp(request)}:${email}`,
-    RESEND_LIMIT
-  )
+  const allowed =
+    (await checkRateLimit(`verify-resend:${getClientIp(request)}:${email}`, RESEND_LIMIT)) &&
+    (await checkRateLimit(`verify-resend-recipient:${email}`, RECIPIENT_LIMIT))
   if (!allowed) {
     return NextResponse.json(
       { error: 'Too many verification emails requested. Please try again later.' },

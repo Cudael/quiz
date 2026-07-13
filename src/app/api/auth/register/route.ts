@@ -36,10 +36,18 @@ export async function POST(request: Request) {
 
   const existingUser = await prisma.user.findUnique({
     where: { email },
-    select: { id: true },
+    select: { id: true, emailVerified: true, passwordHash: true },
   })
 
-  if (existingUser) {
+  // An unverified password-only account has never proven ownership of the
+  // email, so it must not squat the address: let the next registrant take it
+  // over. Only email verification makes an account authoritative.
+  const replaceableUserId =
+    existingUser && !existingUser.emailVerified && existingUser.passwordHash
+      ? existingUser.id
+      : null
+
+  if (existingUser && !replaceableUserId) {
     // Same status code and message as all other registration failures so the
     // response does not reveal whether an email address is already registered.
     return NextResponse.json({ error: 'Unable to register account.' }, { status: 400 })
@@ -47,16 +55,24 @@ export async function POST(request: Request) {
 
   try {
     const passwordHash = await hashPassword(password)
-    await prisma.user.create({
-      data: {
-        name,
-        email,
-        passwordHash,
-        role: 'USER',
-        username: await generateUniqueUsername(name),
-      },
-      select: { id: true },
-    })
+    if (replaceableUserId) {
+      await prisma.user.update({
+        where: { id: replaceableUserId },
+        data: { name, passwordHash },
+        select: { id: true },
+      })
+    } else {
+      await prisma.user.create({
+        data: {
+          name,
+          email,
+          passwordHash,
+          role: 'USER',
+          username: await generateUniqueUsername(name),
+        },
+        select: { id: true },
+      })
+    }
 
     let delivery: Awaited<ReturnType<typeof issueEmailVerification>> = 'failed'
     try {

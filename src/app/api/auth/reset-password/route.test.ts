@@ -4,6 +4,7 @@ const { prismaMock, hashPasswordMock, checkRateLimitMock } = vi.hoisted(() => {
   const prismaMock = {
     user: {
       update: vi.fn(),
+      updateMany: vi.fn(),
     },
     verificationToken: {
       findUnique: vi.fn(),
@@ -94,7 +95,7 @@ describe('POST /api/auth/reset-password', () => {
     expect(prismaMock.verificationToken.delete).toHaveBeenCalledOnce()
   })
 
-  it('updates the password and deletes the token on success', async () => {
+  it('updates the password, marks the email verified, and deletes the token on success', async () => {
     prismaMock.verificationToken.findUnique.mockResolvedValue({
       identifier: 'reset:user@example.com',
       token: 'somehash',
@@ -102,6 +103,7 @@ describe('POST /api/auth/reset-password', () => {
     })
     hashPasswordMock.mockResolvedValue('new-hash')
     prismaMock.user.update.mockResolvedValue({})
+    prismaMock.user.updateMany.mockResolvedValue({ count: 1 })
     prismaMock.verificationToken.delete.mockResolvedValue({})
 
     const response = await POST(
@@ -113,6 +115,11 @@ describe('POST /api/auth/reset-password', () => {
     expect(prismaMock.user.update).toHaveBeenCalledWith({
       where: { email: 'user@example.com' },
       data: { passwordHash: 'new-hash' },
+    })
+    // Completing a reset proves mailbox ownership, so it also verifies the email.
+    expect(prismaMock.user.updateMany).toHaveBeenCalledWith({
+      where: { email: 'user@example.com', emailVerified: null },
+      data: { emailVerified: expect.any(Date) },
     })
     expect(prismaMock.verificationToken.delete).toHaveBeenCalledOnce()
   })

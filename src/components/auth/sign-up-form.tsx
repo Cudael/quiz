@@ -3,8 +3,10 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Loader2 } from 'lucide-react'
+import { signIn } from 'next-auth/react'
+import { Loader2, MailCheck } from 'lucide-react'
 import { OauthProviderButtons } from '@/components/auth/oauth-provider-buttons'
+import { VerificationEmailForm } from '@/components/auth/verification-email-form'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -24,6 +26,8 @@ export function SignUpForm({ callbackUrl, googleEnabled, githubEnabled }: SignUp
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [awaitingCode, setAwaitingCode] = useState(false)
+  const [emailSent, setEmailSent] = useState(true)
 
   async function handleSignUp(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -49,9 +53,53 @@ export function SignUpForm({ callbackUrl, googleEnabled, githubEnabled }: SignUp
 
     const payload = (await response.json()) as { emailSent?: boolean }
     setIsSubmitting(false)
-    const params = new URLSearchParams({ email })
-    if (!payload.emailSent) params.set('delivery', 'failed')
-    router.push(`/verify-email?${params.toString()}`)
+    setEmailSent(payload.emailSent !== false)
+    setAwaitingCode(true)
+  }
+
+  // The password is still in memory from the registration form, so a
+  // successful code entry can log the new user straight in.
+  async function handleVerified() {
+    const result = await signIn('email-password', {
+      email,
+      password,
+      callbackUrl,
+      redirect: false,
+    })
+
+    if (result?.error) {
+      router.push('/sign-in?verified=1')
+      return
+    }
+
+    router.push(result?.url || callbackUrl)
+    router.refresh()
+  }
+
+  if (awaitingCode) {
+    return (
+      <div className="container mx-auto max-w-md px-4 py-14">
+        <Card>
+          <CardHeader className="text-center">
+            <MailCheck className="mx-auto h-10 w-10 text-primary" />
+            <CardTitle>Check your inbox</CardTitle>
+            <CardDescription>
+              We sent a 6-digit code to <span className="font-medium">{email}</span>. Enter it below
+              to activate your account. The code expires in 15 minutes.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {!emailSent && (
+              <p className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+                We couldn&apos;t send the email. Use the resend button below, or contact support if
+                the problem continues.
+              </p>
+            )}
+            <VerificationEmailForm initialEmail={email} lockEmail onVerified={handleVerified} />
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (

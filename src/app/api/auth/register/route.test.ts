@@ -11,6 +11,7 @@ const {
     user: {
       findUnique: vi.fn(),
       create: vi.fn(),
+      update: vi.fn(),
     },
     verificationToken: {
       create: vi.fn(),
@@ -70,8 +71,12 @@ describe('POST /api/auth/register', () => {
     expect(issueEmailVerificationMock).toHaveBeenCalledWith('player@example.com')
   })
 
-  it('returns 400 with a generic error when the email already exists (no enumeration)', async () => {
-    prismaMock.user.findUnique.mockResolvedValue({ id: 'existing' })
+  it('returns 400 with a generic error when the email is verified (no enumeration)', async () => {
+    prismaMock.user.findUnique.mockResolvedValue({
+      id: 'existing',
+      emailVerified: new Date(),
+      passwordHash: 'hash',
+    })
 
     const response = await POST(
       createRequest({
@@ -83,6 +88,55 @@ describe('POST /api/auth/register', () => {
 
     expect(response.status).toBe(400)
     await expect(response.json()).resolves.toEqual({ error: 'Unable to register account.' })
+    expect(prismaMock.user.create).not.toHaveBeenCalled()
+    expect(prismaMock.user.update).not.toHaveBeenCalled()
+  })
+
+  it('lets a new registrant take over an unverified password-only account', async () => {
+    prismaMock.user.findUnique.mockResolvedValue({
+      id: 'squatter',
+      emailVerified: null,
+      passwordHash: 'old-hash',
+    })
+    hashPasswordMock.mockResolvedValue('new-hash')
+    prismaMock.user.update.mockResolvedValue({ id: 'squatter' })
+
+    const response = await POST(
+      createRequest({
+        name: 'Player Two',
+        email: 'player@example.com',
+        password: 'Password1!',
+      })
+    )
+
+    expect(response.status).toBe(201)
+    await expect(response.json()).resolves.toEqual({ ok: true, emailSent: true })
+    expect(prismaMock.user.update).toHaveBeenCalledWith({
+      where: { id: 'squatter' },
+      data: { name: 'Player Two', passwordHash: 'new-hash' },
+      select: { id: true },
+    })
+    expect(prismaMock.user.create).not.toHaveBeenCalled()
+    expect(issueEmailVerificationMock).toHaveBeenCalledWith('player@example.com')
+  })
+
+  it('never takes over an unverified account without a password (OAuth-created)', async () => {
+    prismaMock.user.findUnique.mockResolvedValue({
+      id: 'oauth-user',
+      emailVerified: null,
+      passwordHash: null,
+    })
+
+    const response = await POST(
+      createRequest({
+        name: 'Player One',
+        email: 'player@example.com',
+        password: 'Password1!',
+      })
+    )
+
+    expect(response.status).toBe(400)
+    expect(prismaMock.user.update).not.toHaveBeenCalled()
     expect(prismaMock.user.create).not.toHaveBeenCalled()
   })
 

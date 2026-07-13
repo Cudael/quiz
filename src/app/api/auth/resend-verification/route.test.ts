@@ -37,7 +37,7 @@ describe('POST /api/auth/resend-verification', () => {
     issueEmailVerificationMock.mockResolvedValue('sent')
   })
 
-  it('sends a fresh link for an unverified account', async () => {
+  it('sends a fresh code for an unverified account', async () => {
     prismaMock.user.findUnique.mockResolvedValue({ emailVerified: null })
 
     const response = await POST(request('Player@Example.com'))
@@ -45,6 +45,21 @@ describe('POST /api/auth/resend-verification', () => {
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toEqual({ ok: true })
     expect(issueEmailVerificationMock).toHaveBeenCalledWith('player@example.com')
+  })
+
+  it('caps sends per recipient independently of the caller IP', async () => {
+    checkRateLimitMock.mockImplementation(async (key: string) =>
+      key.startsWith('verify-resend-recipient:') ? false : true
+    )
+
+    const response = await POST(request('player@example.com'))
+
+    expect(response.status).toBe(429)
+    expect(checkRateLimitMock).toHaveBeenCalledWith(
+      'verify-resend-recipient:player@example.com',
+      expect.anything()
+    )
+    expect(issueEmailVerificationMock).not.toHaveBeenCalled()
   })
 
   it('returns the same response without sending for unknown or verified accounts', async () => {

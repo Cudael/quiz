@@ -33,19 +33,19 @@ function getMailIdentity(kind: EmailKind) {
 }
 
 /**
- * Sends a verification email to a newly registered user.
+ * Sends a verification code email to a newly registered user.
  * No-ops (with a dev log) when Gmail SMTP is not configured.
  */
 export async function sendVerificationEmail(
   to: string,
-  verifyUrl: string
+  code: string
 ): Promise<EmailDeliveryResult> {
   const transporter = getTransporter()
 
   if (!transporter) {
     if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
       console.log('Verification email placeholder generated', { to })
-      console.log('Verification URL (dev/test only)', verifyUrl)
+      console.log('Verification code (dev/test only)', code)
     }
     return 'not-configured'
   }
@@ -54,9 +54,9 @@ export async function sendVerificationEmail(
     await transporter.sendMail({
       ...getMailIdentity('accounts'),
       to,
-      subject: 'Verify your BusQuiz email',
-      html: buildVerificationHtml(verifyUrl),
-      text: `Welcome to BusQuiz!\n\nVerify your email address by visiting:\n${verifyUrl}\n\nThis link expires in 24 hours.`,
+      subject: `${code} is your BusQuiz verification code`,
+      html: buildVerificationHtml(code),
+      text: `Welcome to BusQuiz!\n\nYour verification code is: ${code}\n\nEnter it on the verification page to activate your account. The code expires in 15 minutes.\n\nIf you did not create a BusQuiz account, you can safely ignore this email.`,
     })
     return 'sent'
   } catch (error) {
@@ -93,15 +93,15 @@ export async function sendPasswordResetEmail(to: string, resetUrl: string): Prom
   }
 }
 
-function buildVerificationHtml(verifyUrl: string): string {
+function buildVerificationHtml(code: string): string {
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8" /></head>
 <body style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
   <h1 style="font-size:24px;margin-bottom:8px">Welcome to BusQuiz!</h1>
-  <p style="color:#555;margin-bottom:24px">Click the button below to verify your email address and activate your account.</p>
-  <a href="${verifyUrl}" style="display:inline-block;background:#6366f1;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:600">Verify Email</a>
-  <p style="color:#888;font-size:12px;margin-top:24px">This link expires in 24 hours. If you did not create a BusQuiz account, you can safely ignore this email.</p>
+  <p style="color:#555;margin-bottom:24px">Enter this code on the verification page to activate your account.</p>
+  <p style="background:#f5f5ff;border-radius:8px;padding:16px 24px;text-align:center;font-size:32px;font-weight:700;letter-spacing:8px;margin:0">${code}</p>
+  <p style="color:#888;font-size:12px;margin-top:24px">This code expires in 15 minutes. If you did not create a BusQuiz account, you can safely ignore this email.</p>
 </body>
 </html>`
 }

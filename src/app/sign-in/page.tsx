@@ -10,10 +10,9 @@ export default async function SignInPage({
   searchParams: Promise<{
     callbackUrl?: string
     verified?: string
-    verification?: string
   }>
 }) {
-  const { callbackUrl, verified, verification } = await searchParams
+  const { callbackUrl, verified } = await searchParams
   const resolvedCallbackUrl = safeCallbackUrl(callbackUrl, '/')
   const session = await auth()
 
@@ -29,13 +28,6 @@ export default async function SignInPage({
         githubEnabled={Boolean(process.env.GITHUB_CLIENT_ID)}
         verifiedMessage={
           verified === '1' ? 'Your email has been verified. You can now log in.' : undefined
-        }
-        verificationError={
-          verification === 'expired'
-            ? 'This verification link has expired. Request a new verification email.'
-            : verification === 'invalid'
-              ? 'This verification link is invalid or has already been replaced.'
-              : undefined
         }
       />
     </div>

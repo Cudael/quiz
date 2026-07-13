@@ -30,8 +30,8 @@ describe('SignInForm', () => {
     expect(screen.getByRole('button', { name: 'Log in' })).toBeInTheDocument()
   })
 
-  it('shows clear verification success and expired-link messages', () => {
-    const { rerender } = render(
+  it('shows the verification success message', () => {
+    render(
       <SignInForm
         callbackUrl="/profile"
         googleEnabled={false}
@@ -41,21 +41,19 @@ describe('SignInForm', () => {
     )
 
     expect(screen.getByRole('status')).toHaveTextContent('Your email has been verified')
+  })
 
-    rerender(
-      <SignInForm
-        callbackUrl="/profile"
-        googleEnabled={false}
-        githubEnabled={false}
-        verificationError="This verification link has expired."
-      />
-    )
+  it('offers the code entry page after a failed sign-in', async () => {
+    signInMock.mockResolvedValue({ error: 'CredentialsSignin' })
+    render(<SignInForm callbackUrl="/profile" googleEnabled={false} githubEnabled={false} />)
 
-    expect(screen.getByRole('alert')).toHaveTextContent('This verification link has expired.')
-    expect(screen.getByRole('link', { name: 'Request a new verification email' })).toHaveAttribute(
-      'href',
-      '/verify-email'
-    )
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'player@example.com' } })
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'Password123!' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
+
+    expect(
+      await screen.findByRole('link', { name: 'Enter your verification code' })
+    ).toHaveAttribute('href', '/verify-email?email=player%40example.com')
   })
 
   it('shows oauth divider only when oauth is enabled', () => {

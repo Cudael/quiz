@@ -77,6 +77,13 @@ export async function POST(request: Request) {
         where: { email },
         data: { passwordHash },
       }),
+      // Completing a reset requires clicking a link sent to this mailbox —
+      // the same ownership proof email verification asks for. Without this,
+      // an unverified user who resets their password still cannot sign in.
+      prisma.user.updateMany({
+        where: { email, emailVerified: null },
+        data: { emailVerified: new Date() },
+      }),
       prisma.verificationToken.delete({
         where: {
           identifier_token: {

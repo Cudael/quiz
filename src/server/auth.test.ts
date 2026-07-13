@@ -13,6 +13,9 @@ const { state, nextAuthMock, prismaMock, generateUniqueUsernameMock, buildOAuthP
       account: {
         upsert: vi.fn(),
       },
+      verificationToken: {
+        deleteMany: vi.fn(),
+      },
       $transaction: vi.fn(),
     }
     // $transaction passes itself as tx to the callback
@@ -123,6 +126,7 @@ describe('auth signIn callback', () => {
 
     prismaMock.user.findUnique.mockResolvedValue({ id: 'db-user-2', emailVerified: null })
     prismaMock.user.update.mockResolvedValue({ id: 'db-user-2', emailVerified: new Date() })
+    prismaMock.verificationToken.deleteMany.mockResolvedValue({ count: 1 })
     prismaMock.account.upsert.mockResolvedValue({})
 
     const user = { id: 'oauth-user', email: 'existing@example.com', name: 'Existing', image: null }
@@ -138,10 +142,15 @@ describe('auth signIn callback', () => {
     expect(result).toBe(true)
     expect(prismaMock.user.create).not.toHaveBeenCalled()
     expect(generateUniqueUsernameMock).not.toHaveBeenCalled()
+    // Any password predating the ownership proof is untrusted and must be
+    // dropped, along with pending verification codes for the address.
     expect(prismaMock.user.update).toHaveBeenCalledWith({
       where: { id: 'db-user-2' },
-      data: { emailVerified: expect.any(Date) },
+      data: { emailVerified: expect.any(Date), passwordHash: null },
       select: { id: true, emailVerified: true },
+    })
+    expect(prismaMock.verificationToken.deleteMany).toHaveBeenCalledWith({
+      where: { identifier: 'existing@example.com' },
     })
     expect(prismaMock.account.upsert).toHaveBeenCalled()
     expect(user.id).toBe('db-user-2')

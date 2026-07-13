@@ -199,13 +199,18 @@ NextAuth.js v5 (beta) with JWT sessions. Providers: GitHub OAuth, Google OAuth, 
 
 Minimum env: `DATABASE_URL` + `AUTH_SECRET`. OAuth providers are optional; their buttons are hidden when the corresponding env vars are absent.
 
-Email/password registration does not create a session. It issues a 24-hour verification link and
-redirects to `/verify-email`; credentials sign-in is rejected until `User.emailVerified` is set.
-OAuth sign-in marks the provider-owned email as verified. Guest sessions (`email: null`) remain
-available for guest gameplay. `POST /api/auth/resend-verification` is rate-limited, returns a generic
-success response to prevent account enumeration, invalidates all older verification links, and
-requires configured Gmail SMTP delivery. Invalid and expired links redirect to `/sign-in` with a
-visible explanation; successful verification redirects there with a success confirmation.
+Email/password registration does not create a session. It emails a 6-digit verification code
+(15-minute expiry, HMAC-keyed with `AUTH_SECRET` at rest) and shows a code-entry step on the
+sign-up page; credentials sign-in is rejected until `User.emailVerified` is set. Codes are checked
+via `POST /api/auth/verify-email` (attempt-limited per email; legacy GET links redirect to
+`/verify-email`), and a successful entry on the sign-up page signs the new user in automatically.
+Registering over an existing **unverified** password-only account replaces its name/password
+(unverified accounts cannot squat an address). OAuth sign-in marks the provider-owned email as
+verified and clears any pre-verification `passwordHash` (pre-hijack protection); completing a
+password reset also sets `emailVerified`. Guest sessions (`email: null`) remain available for
+guest gameplay. `POST /api/auth/resend-verification` is rate-limited per IP+email and per
+recipient (IP-independent), returns a generic success response to prevent account enumeration,
+invalidates all older codes, and requires configured Gmail SMTP delivery.
 
 ### Auth-related files
 
