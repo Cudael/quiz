@@ -62,16 +62,8 @@ export function HeroCards({
           </div>
         </div>
         <Button asChild variant="warm" className="relative mt-4 w-full font-bold">
-          <Link
-            href={
-              todayChallenge
-                ? `/play/${todayChallenge.id}`
-                : currentUser
-                  ? '/random-quiz'
-                  : '/sign-up'
-            }
-          >
-            {currentUser ? 'Play Challenge' : 'Sign Up to Play'}
+          <Link href={todayChallenge ? `/play/${todayChallenge.id}` : '/daily'}>
+            {currentUser ? 'Play Challenge' : 'Play Daily Quiz'}
           </Link>
         </Button>
       </div>

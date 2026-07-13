@@ -84,6 +84,7 @@ describe('HomePageClient', () => {
       <HomePageClient
         categoriesWithQuizzes={[]}
         popularQuizzes={popularQuizzes}
+        hallOfFameQuizzes={popularQuizzes}
         trendingQuizzes={trendingQuizzes}
         newestQuizzes={newestQuizzes}
         personalizedQuizzes={[]}
@@ -101,10 +102,7 @@ describe('HomePageClient', () => {
       'href',
       '/sign-up'
     )
-    expect(screen.getByRole('link', { name: /sign up to play/i })).toHaveAttribute(
-      'href',
-      '/sign-up'
-    )
+    expect(screen.getByRole('link', { name: /play daily quiz/i })).toHaveAttribute('href', '/daily')
     expect(screen.getByRole('heading', { name: /Most Popular/ })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /Trending Right Now/ })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /Fresh Off the Press/ })).toBeInTheDocument()
@@ -115,6 +113,7 @@ describe('HomePageClient', () => {
       <HomePageClient
         categoriesWithQuizzes={[]}
         popularQuizzes={popularQuizzes}
+        hallOfFameQuizzes={popularQuizzes}
         trendingQuizzes={trendingQuizzes}
         newestQuizzes={newestQuizzes}
         personalizedQuizzes={personalizedQuizzes}
@@ -129,10 +128,7 @@ describe('HomePageClient', () => {
     expect(screen.getByRole('heading', { name: /Duel Mode/ })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /Daily Challenge/ })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /start a duel/i })).toHaveAttribute('href', '/duel')
-    expect(screen.getByRole('link', { name: /play challenge/i })).toHaveAttribute(
-      'href',
-      '/random-quiz'
-    )
+    expect(screen.getByRole('link', { name: /play challenge/i })).toHaveAttribute('href', '/daily')
     expect(screen.getByRole('heading', { name: /Most Popular/ })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /Hall of Fame/ })).toBeInTheDocument()
   })
@@ -142,6 +138,7 @@ describe('HomePageClient', () => {
       <HomePageClient
         categoriesWithQuizzes={[]}
         popularQuizzes={popularQuizzes}
+        hallOfFameQuizzes={popularQuizzes}
         trendingQuizzes={trendingQuizzes}
         newestQuizzes={newestQuizzes}
         personalizedQuizzes={[]}

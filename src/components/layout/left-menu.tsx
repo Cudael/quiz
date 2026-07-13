@@ -11,12 +11,9 @@ import {
   PenLine,
   Lightbulb,
   Newspaper,
-  MessageSquare,
-  FileText,
   Sparkles,
   TrendingUp,
   Bookmark,
-  Info,
   Shuffle,
   Star,
   X,
@@ -140,18 +137,7 @@ const COMMUNITY: MenuSection = {
   ],
 }
 
-const COMPANY: MenuSection = {
-  title: 'BusQuiz',
-  items: [
-    { href: '/about', label: 'About', icon: Info },
-    { href: '/contact', label: 'Contact', icon: MessageSquare },
-    { href: '/feedback', label: 'Send Feedback', icon: Lightbulb },
-    { href: '/privacy', label: 'Privacy', icon: FileText },
-    { href: '/terms', label: 'Terms', icon: FileText },
-  ],
-}
-
-const SECTIONS = [EXPLORE, PLAY, CREATE_LEARN, COMMUNITY, COMPANY]
+const SECTIONS = [EXPLORE, PLAY, CREATE_LEARN, COMMUNITY]
 
 export function LeftMenu({ open, onClose }: LeftMenuProps) {
   const pathname = usePathname()

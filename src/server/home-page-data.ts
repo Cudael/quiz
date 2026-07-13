@@ -52,6 +52,7 @@ function computeRatingInfo(quiz: {
 export interface HomePageData {
   categoriesWithQuizzes: CategoryWithQuizzes[]
   popularQuizzes: QuizCardData[]
+  hallOfFameQuizzes: QuizCardData[]
   trendingQuizzes: QuizCardData[]
   newestQuizzes: QuizCardData[]
   personalizedQuizzes: QuizCardData[]
@@ -195,6 +196,17 @@ export async function getHomePageData(): Promise<HomePageData> {
     select: { ...QUIZ_CARD_SELECT_WITH_RATINGS, categoryId: true },
   })
 
+  // Hall of Fame favors trusted ratings over raw traffic. Reuse the homepage's
+  // category batch so this shelf does not add another database round trip.
+  const hallOfFameQuizzes = [...allCategoryQuizzes]
+    .filter((quiz) => (quiz._count.ratings ?? 0) >= 3)
+    .sort((a, b) => {
+      const aRating = computeRatingInfo(a).avgRating ?? 0
+      const bRating = computeRatingInfo(b).avgRating ?? 0
+      return bRating - aRating || b._count.ratings - a._count.ratings || b.playCount - a.playCount
+    })
+    .slice(0, 12)
+
   // Group quizzes by parent category (a quiz belongs to a parent if its
   // categoryId is in that parent's allIds set) and take top 12 per parent.
   const categoriesWithQuizzes: CategoryWithQuizzes[] = parentCategories.map((parent) => {
@@ -263,6 +275,7 @@ export async function getHomePageData(): Promise<HomePageData> {
   return {
     categoriesWithQuizzes,
     popularQuizzes: popularQuizzesRaw.map((q) => mapQuizCard(q, playedQuizIds)),
+    hallOfFameQuizzes: hallOfFameQuizzes.map((q) => mapQuizCard(q, playedQuizIds)),
     trendingQuizzes: trendingQuizzesRaw.map((q) => mapQuizCard(q, playedQuizIds)),
     newestQuizzes: newestQuizzesRaw.map((q) => mapQuizCard(q, playedQuizIds)),
     personalizedQuizzes,

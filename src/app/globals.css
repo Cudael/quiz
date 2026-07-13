@@ -239,3 +239,10 @@
     @apply outline-none ring-0 ring-offset-0;
   }
 }
+
+/* Lower homepage shelves stay in the server-rendered document for discovery and
+   crawling, while browsers can skip their layout/paint work until they are near. */
+.home-deferred-section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 420px;
+}

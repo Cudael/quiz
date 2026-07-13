@@ -25,6 +25,7 @@ const QUICK_LINKS = [
 export function HomePageClient({
   categoriesWithQuizzes,
   popularQuizzes,
+  hallOfFameQuizzes,
   trendingQuizzes,
   newestQuizzes,
   personalizedQuizzes,
@@ -40,7 +41,7 @@ export function HomePageClient({
 
   return (
     <motion.div
-      className="container mx-auto space-y-4 px-4 py-6 md:px-6 overflow-x-hidden"
+      className="container mx-auto space-y-8 px-4 py-6 md:space-y-10 md:px-6 overflow-x-hidden"
       variants={containerVariants}
       initial="hidden"
       animate="show"
@@ -61,6 +62,17 @@ export function HomePageClient({
         </div>
       </motion.div>
 
+      {/* Returning players get their quickest route back into a quiz first. */}
+      {currentUser && recentlyPlayed.length > 0 && (
+        <motion.div variants={sectionVariants}>
+          <QuizDenseGridSection
+            title="Recently Played Quizzes"
+            subtitle="Jump back in or try to beat your score"
+            quizzes={recentlyPlayed}
+          />
+        </motion.div>
+      )}
+
       {/* Most Popular — featured layout with large + grid */}
       {popularQuizzes.length > 0 && (
         <motion.div variants={sectionVariants}>
@@ -77,7 +89,7 @@ export function HomePageClient({
       <motion.div variants={sectionVariants}>
         {currentUser ? (
           <QuizDenseGridSection
-            title="Picked for You Quizzes"
+            title="Picked for You"
             subtitle="Based on the categories you keep coming back to"
             quizzes={personalizedQuizzes.length > 0 ? personalizedQuizzes : trendingQuizzes}
             href="/categories"
@@ -93,7 +105,7 @@ export function HomePageClient({
 
       {/* Badge showcase */}
       {badgePreviews.length > 0 && (
-        <motion.div variants={sectionVariants}>
+        <motion.div variants={sectionVariants} className="home-deferred-section">
           <BadgeShowcase badges={badgePreviews} currentUser={currentUser} />
         </motion.div>
       )}
@@ -102,7 +114,7 @@ export function HomePageClient({
 
       {/* Category rows */}
       {categoriesWithQuizzes.map((cat) => (
-        <motion.div key={cat.slug} variants={sectionVariants}>
+        <motion.div key={cat.slug} variants={sectionVariants} className="home-deferred-section">
           <CategoryRowSection category={cat} />
         </motion.div>
       ))}
@@ -119,25 +131,14 @@ export function HomePageClient({
         />
       </motion.div>
 
-      {/* Recently Played (authenticated only) */}
-      {currentUser && recentlyPlayed.length > 0 && (
-        <motion.div variants={sectionVariants}>
-          <QuizDenseGridSection
-            title="Your Recent Conquests Quizzes"
-            subtitle="Pick up where you left off"
-            quizzes={recentlyPlayed}
-          />
-        </motion.div>
-      )}
-
       <Divider />
 
       {/* Hall of Fame */}
-      <motion.div variants={sectionVariants}>
+      <motion.div variants={sectionVariants} className="home-deferred-section">
         <QuizDenseGridSection
           title="🏅 Hall of Fame Quizzes"
-          subtitle="The greatest quizzes of all time"
-          quizzes={popularQuizzes}
+          subtitle="The community’s best-rated quizzes"
+          quizzes={hallOfFameQuizzes.length > 0 ? hallOfFameQuizzes : popularQuizzes}
           maxItems={12}
         />
       </motion.div>

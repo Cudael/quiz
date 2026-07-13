@@ -29,12 +29,12 @@ export function HeroInsightBox({ currentUser, totalQuizCount, quickLinks }: Hero
       <div className="space-y-4">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl">
-            Free Online Quiz & Trivia Platform
+            Play Free Quizzes & Trivia
           </h1>
           <p className="mt-2 text-base leading-relaxed text-muted-foreground sm:text-lg">
             {currentUser
-              ? `Welcome back, ${currentUser.name ?? 'quiz champion'}! Pick up where you left off or discover something new.`
-              : 'Test your knowledge across thousands of quizzes. No sign-up needed — just pick a quiz and play.'}
+              ? `Welcome back, ${currentUser.name ?? 'quiz champion'}! Continue your streak, take today’s challenge, or discover a new favorite.`
+              : 'Explore thousands of free quizzes, challenge your knowledge, and play instantly — no sign-up required.'}
           </p>
         </div>
 

@@ -9,7 +9,6 @@ import {
   Swords,
   PenLine,
   Sparkles,
-  Info,
   Twitter,
   Instagram,
   ArrowRight,
@@ -90,15 +89,6 @@ const SECTIONS: MenuSection[] = [
       { href: '/stats', label: 'Platform Stats' },
     ],
   },
-  {
-    title: 'BusQuiz',
-    icon: Info,
-    items: [
-      { href: '/about', label: 'About' },
-      { href: '/contact', label: 'Contact' },
-      { href: '/feedback', label: 'Send Feedback' },
-    ],
-  },
 ]
 
 const SOCIALS = [
@@ -139,7 +129,7 @@ export function NavDropdown({ open, onClose, panelRef }: NavDropdownProps) {
     >
       <div className="max-h-[calc(100vh-5rem)] overflow-y-auto rounded-md border border-border/40 bg-card shadow-2xl">
         <div className="p-6 md:p-8">
-          <div className="grid grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-3 lg:grid-cols-6">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-3 lg:grid-cols-5">
             {SECTIONS.map((section) => {
               const SectionIcon = section.icon
               return (

@@ -154,7 +154,6 @@ export const QuizCardHorizontal = React.memo(function QuizCardHorizontal({
               src={quiz.coverImage ?? ''}
               alt={`${quiz.title} cover image`}
               fill
-              unoptimized
               sizes="176px"
               className="object-cover"
               onError={() => setImageFailed(true)}
@@ -163,10 +162,9 @@ export const QuizCardHorizontal = React.memo(function QuizCardHorizontal({
           {/* Category pill over image */}
           <div className="absolute left-2 top-2">
             <span
-              className="inline-flex items-center rounded-sm px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white backdrop-blur-md"
+              className="inline-flex items-center rounded-sm border border-background/20 bg-foreground/80 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-background backdrop-blur-md"
               style={{
-                backgroundColor: `${quiz.category.color}44`,
-                border: `1px solid ${quiz.category.color}66`,
+                boxShadow: `inset 3px 0 0 ${quiz.category.color}`,
               }}
             >
               {quiz.category.name}
@@ -176,7 +174,7 @@ export const QuizCardHorizontal = React.memo(function QuizCardHorizontal({
 
         {/* Info bar */}
         <div className="flex flex-col gap-1 bg-card px-3 py-2.5">
-          <h3 className="line-clamp-1 w-full truncate text-sm font-bold leading-tight text-foreground">
+          <h3 className="line-clamp-2 min-h-[2.5rem] w-full text-sm font-bold leading-tight text-foreground">
             {quiz.title}
           </h3>
           <div className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
@@ -231,7 +229,6 @@ export const QuizCard = React.memo(function QuizCard({ quiz, className }: QuizCa
               src={quiz.coverImage ?? ''}
               alt={`${quiz.title} cover image`}
               fill
-              unoptimized
               sizes="(max-width: 768px) 100vw, 256px"
               className="object-cover"
               onError={() => setImageFailed(true)}
@@ -251,10 +248,9 @@ export const QuizCard = React.memo(function QuizCard({ quiz, className }: QuizCa
           {/* Category pill */}
           <div className="absolute left-3 top-3">
             <span
-              className="inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-md"
+              className="inline-flex items-center gap-1 rounded-sm border border-background/20 bg-foreground/80 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-background backdrop-blur-md"
               style={{
-                backgroundColor: `${quiz.category.color}44`,
-                border: `1px solid ${quiz.category.color}66`,
+                boxShadow: `inset 3px 0 0 ${quiz.category.color}`,
               }}
             >
               {quiz.category.name}
@@ -320,7 +316,6 @@ export const QuizCardFeatured = React.memo(function QuizCardFeatured({
               src={quiz.coverImage ?? ''}
               alt={`${quiz.title} cover image`}
               fill
-              unoptimized
               sizes="(max-width: 1024px) 50vw, 33vw"
               className="object-cover"
               onError={() => setImageFailed(true)}
@@ -329,10 +324,9 @@ export const QuizCardFeatured = React.memo(function QuizCardFeatured({
           {/* Category pill over image */}
           <div className="absolute left-2 top-2">
             <span
-              className="inline-flex items-center rounded-sm px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white backdrop-blur-md"
+              className="inline-flex items-center rounded-sm border border-background/20 bg-foreground/80 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-background backdrop-blur-md"
               style={{
-                backgroundColor: `${quiz.category.color}44`,
-                border: `1px solid ${quiz.category.color}66`,
+                boxShadow: `inset 3px 0 0 ${quiz.category.color}`,
               }}
             >
               {quiz.category.name}
@@ -343,7 +337,7 @@ export const QuizCardFeatured = React.memo(function QuizCardFeatured({
         {/* Info footer — compact and fixed-height, like the other card variants */}
         <div className="flex shrink-0 items-center justify-between gap-3 bg-card px-4 py-3">
           <div className="min-w-0 flex-1">
-            <h3 className="truncate text-base font-extrabold leading-tight text-foreground sm:text-lg">
+            <h3 className="line-clamp-2 text-base font-extrabold leading-tight text-foreground sm:text-lg">
               {quiz.title}
             </h3>
             <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs font-medium text-muted-foreground">

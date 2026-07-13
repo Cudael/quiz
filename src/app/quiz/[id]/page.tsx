@@ -303,10 +303,10 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
             </div>
 
             {/* Stats strip — below the hero */}
-            <div className="grid grid-cols-3 sm:grid-cols-5 border-t">
+            <div className="grid grid-cols-2 border-t sm:grid-cols-5">
               <StatStrip
                 icon={<Users className="h-3.5 w-3.5" />}
-                label="Brave souls"
+                label="Plays"
                 value={quiz.playCount}
               />
               <StatStrip
@@ -329,20 +329,6 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
                 label="Rating"
                 value={avgRating > 0 ? avgRating.toFixed(1) : '—'}
               />
-            </div>
-
-            {/* What to Expect */}
-            <div className="rounded-md border border-dashed bg-muted/30 p-4">
-              <p className="text-sm font-semibold mb-1">📋 What to Expect</p>
-              <p className="text-xs text-muted-foreground">
-                {questionCount} questions · ~20 seconds each · Average score is{' '}
-                {Math.round(quiz.avgScore)}%
-                {quiz.difficulty === 'HARD'
-                  ? ' · This one\u2019s rated HARD \u2014 expect tricky questions!'
-                  : quiz.difficulty === 'EASY'
-                    ? ' · A good warm-up \u2014 perfect for building confidence!'
-                    : ' · A solid challenge for any quiz lover!'}
-              </p>
             </div>
           </div>
 

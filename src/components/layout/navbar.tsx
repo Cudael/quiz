@@ -70,12 +70,13 @@ export function Navbar() {
             ref={menuButtonRef}
             variant="ghost"
             size="icon"
-            className="h-11 w-11 rounded-md"
+            className="h-11 w-11 rounded-md md:w-auto md:px-3"
             onClick={() => setDropdownOpen(!dropdownOpen)}
             aria-label="Open navigation menu"
             aria-expanded={dropdownOpen}
           >
             <Menu className="h-5 w-5" />
+            <span className="hidden md:inline">More</span>
           </Button>
           <Link
             href="/"

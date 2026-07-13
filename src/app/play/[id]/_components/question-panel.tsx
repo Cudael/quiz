@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { CheckCircle2, XCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { AnswerFeedback, Question } from '../play-view.types'
@@ -418,6 +419,16 @@ export function QuestionPanel({
                         {choice.text ? (
                           <span className="text-sm font-medium">{choice.text}</span>
                         ) : null}
+                        {isAnswered && reveal && (isCorrect || isSelected) ? (
+                          <span className="inline-flex items-center gap-1 text-xs font-bold">
+                            {isCorrect ? (
+                              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                            ) : (
+                              <XCircle className="h-4 w-4" aria-hidden="true" />
+                            )}
+                            {isCorrect ? 'Correct answer' : 'Your answer'}
+                          </span>
+                        ) : null}
                         {isAnswered && reveal?.choiceValues[choice.id] ? (
                           <span className="rounded-sm bg-background/70 px-2 py-0.5 text-xs font-bold tabular-nums">
                             {reveal.choiceValues[choice.id]}
@@ -480,6 +491,21 @@ export function QuestionPanel({
                           {idx + 1}
                         </span>
                         <span className="min-w-0 flex-1">{choice.text}</span>
+                        {isAnswered && reveal && (isCorrect || isSelected) ? (
+                          <span
+                            className="inline-flex shrink-0 items-center gap-1 text-xs font-bold"
+                            aria-label={isCorrect ? 'Correct answer' : 'Your incorrect answer'}
+                          >
+                            {isCorrect ? (
+                              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                            ) : (
+                              <XCircle className="h-4 w-4" aria-hidden="true" />
+                            )}
+                            <span className="hidden md:inline">
+                              {isCorrect ? 'Correct' : 'Incorrect'}
+                            </span>
+                          </span>
+                        ) : null}
                         {isAnswered && reveal?.choiceValues[choice.id] ? (
                           <span className="shrink-0 rounded-sm bg-background/70 px-2 py-0.5 text-xs font-bold tabular-nums">
                             {reveal.choiceValues[choice.id]}
@@ -500,7 +526,9 @@ export function QuestionPanel({
                 >
                   <Button onClick={onSubmit} variant="accent" disabled={!canSubmit}>
                     Submit Answer
-                    <span className="ml-1 text-xs opacity-70">(Enter / Space)</span>
+                    <span className="ml-1 hidden text-xs opacity-70 sm:inline">
+                      (Enter / Space)
+                    </span>
                   </Button>
                 </motion.div>
               )}
@@ -513,7 +541,7 @@ export function QuestionPanel({
                 >
                   <Button onClick={onNext} variant="accent" disabled={submitting}>
                     {isLastQuestion ? 'Finish' : 'Next'}
-                    <span className="text-xs opacity-70 ml-1">(Enter)</span>
+                    <span className="ml-1 hidden text-xs opacity-70 sm:inline">(Enter)</span>
                   </Button>
                 </motion.div>
               )}

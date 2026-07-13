@@ -35,6 +35,7 @@ export interface TodayChallengeQuiz {
 export interface HomePageClientProps {
   categoriesWithQuizzes: CategoryWithQuizzes[]
   popularQuizzes: QuizCardData[]
+  hallOfFameQuizzes: QuizCardData[]
   trendingQuizzes: QuizCardData[]
   newestQuizzes: QuizCardData[]
   personalizedQuizzes: QuizCardData[]

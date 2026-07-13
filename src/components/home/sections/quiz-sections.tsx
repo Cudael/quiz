@@ -16,7 +16,7 @@ const SCROLL_ROW_CLASS =
 
 // Responsive: 2 cards on mobile → 3 on sm → 4 on md → 5 on lg → 6 on xl
 const CATEGORY_SCROLL_ROW_CLASS =
-  'grid grid-flow-col auto-cols-[calc((100%_-_0.75rem)_/_2)] sm:auto-cols-[calc((100%_-_1.5rem)_/_3)] md:auto-cols-[calc((100%_-_2.25rem)_/_4)] lg:auto-cols-[calc((100%_-_3rem)_/_5)] xl:auto-cols-[calc((100%_-_3.75rem)_/_6)] snap-x snap-mandatory gap-3 overflow-x-auto pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
+  'grid grid-flow-col auto-cols-[44%] sm:auto-cols-[calc((100%_-_1.5rem)_/_3)] md:auto-cols-[calc((100%_-_2.25rem)_/_4)] lg:auto-cols-[calc((100%_-_3rem)_/_5)] xl:auto-cols-[calc((100%_-_3.75rem)_/_6)] snap-x snap-mandatory gap-3 overflow-x-auto pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
 
 export function QuizScrollerSection({
   title,
