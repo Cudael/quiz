@@ -118,7 +118,10 @@ export function SignInForm({
                 onChange={(event) => setPassword(event.target.value)}
               />
               <p className="text-right text-xs text-muted-foreground">
-                <Link href="/forgot-password" className="underline">
+                <Link
+                  href={`/forgot-password${email ? `?email=${encodeURIComponent(email)}` : ''}`}
+                  className="underline"
+                >
                   Forgot password?
                 </Link>
               </p>
