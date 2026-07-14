@@ -18,9 +18,9 @@ interface SignInFormProps {
   verifiedMessage?: string
 }
 
-const AUTH_ERROR_MESSAGE = 'Sign in failed. Please check your email and password.'
+const AUTH_ERROR_MESSAGE = 'Log in failed. Please check your email and password.'
 const RATE_LIMIT_MESSAGE =
-  'Too many sign-in attempts for this account. Please wait 15 minutes and try again.'
+  'Too many attempts for this account. Please wait 15 minutes and try again.'
 
 export function SignInForm({
   callbackUrl,
@@ -101,6 +101,7 @@ export function SignInForm({
                 id="email"
                 type="email"
                 autoComplete="email"
+                autoFocus
                 required
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}

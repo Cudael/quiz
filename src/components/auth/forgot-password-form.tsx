@@ -54,7 +54,7 @@ export function ForgotPasswordForm({ initialEmail = '' }: { initialEmail?: strin
     <p className="text-center text-sm text-muted-foreground">
       Remembered it?{' '}
       <Link href="/sign-in" className="underline">
-        Sign in
+        Log in
       </Link>
     </p>
   )
@@ -131,6 +131,7 @@ export function ForgotPasswordForm({ initialEmail = '' }: { initialEmail?: strin
               id="forgot-email"
               type="email"
               autoComplete="email"
+              autoFocus
               required
               value={email}
               onChange={(event) => setEmail(event.target.value)}

@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server'
 import { Prisma } from '@prisma/client'
 import { prisma } from '@/server/prisma'
 import { registerSchema } from '@/schemas'
-import { generateUniqueUsername } from '@/lib/usernames'
 import { hashPassword } from '@/server/password'
 import { issueEmailVerification } from '@/server/email-verification'
 import { checkRateLimit, getClientIp } from '@/server/rate-limit'
@@ -32,7 +31,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unable to register account.' }, { status: 400 })
   }
 
-  const { name, email, password } = parsed.data
+  const { username, email, password } = parsed.data
 
   const existingUser = await prisma.user.findUnique({
     where: { email },
@@ -53,22 +52,34 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unable to register account.' }, { status: 400 })
   }
 
+  // Usernames are public (profile URLs, leaderboards), so unlike emails a
+  // specific "taken" error leaks nothing.
+  const usernameOwner = await prisma.user.findUnique({
+    where: { username },
+    select: { id: true },
+  })
+  if (usernameOwner && usernameOwner.id !== replaceableUserId) {
+    return NextResponse.json({ error: 'That username is already taken.' }, { status: 400 })
+  }
+
   try {
     const passwordHash = await hashPassword(password)
+    // The username doubles as the initial display name; it can be changed in
+    // profile settings later.
     if (replaceableUserId) {
       await prisma.user.update({
         where: { id: replaceableUserId },
-        data: { name, passwordHash },
+        data: { name: username, username, passwordHash },
         select: { id: true },
       })
     } else {
       await prisma.user.create({
         data: {
-          name,
+          name: username,
           email,
           passwordHash,
           role: 'USER',
-          username: await generateUniqueUsername(name),
+          username,
         },
         select: { id: true },
       })
@@ -87,6 +98,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, emailSent: delivery === 'sent' }, { status: 201 })
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      // Concurrent registration won the username between our check and the
+      // insert; email collisions stay generic to prevent enumeration.
+      const target = Array.isArray(error.meta?.target) ? error.meta.target : []
+      if (target.includes('username')) {
+        return NextResponse.json({ error: 'That username is already taken.' }, { status: 400 })
+      }
       return NextResponse.json({ error: 'Unable to register account.' }, { status: 400 })
     }
 

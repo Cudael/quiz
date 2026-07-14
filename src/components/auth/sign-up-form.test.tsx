@@ -49,7 +49,7 @@ describe('SignUpForm', () => {
     signInMock.mockResolvedValue({ url: '/profile' })
     render(<SignUpForm callbackUrl="/profile" googleEnabled={false} githubEnabled={false} />)
 
-    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Player One' } })
+    fireEvent.change(screen.getByLabelText('Username'), { target: { value: 'player-one' } })
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'player@example.com' } })
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'Password1!' } })
     fireEvent.change(screen.getByLabelText('Confirm password'), {

@@ -204,8 +204,10 @@ Email/password registration does not create a session. It emails a 6-digit verif
 sign-up page; credentials sign-in is rejected until `User.emailVerified` is set. Codes are checked
 via `POST /api/auth/verify-email` (attempt-limited per email; legacy GET links redirect to
 `/verify-email`), and a successful entry on the sign-up page signs the new user in automatically.
-Registering over an existing **unverified** password-only account replaces its name/password
-(unverified accounts cannot squat an address). OAuth sign-in marks the provider-owned email as
+Registration takes `username` (validated by `usernameSchema`, also used as the initial display
+name; taken usernames get a specific error since they are public), `email`, and `password`.
+Registering over an existing **unverified** password-only account replaces its
+username/display-name/password (unverified accounts cannot squat an address). OAuth sign-in marks the provider-owned email as
 verified and clears any pre-verification `passwordHash` (pre-hijack protection); completing a
 password reset also sets `emailVerified`. `POST /api/auth/resend-verification` is rate-limited per IP+email and per
 recipient (IP-independent), returns a generic success response to prevent account enumeration,

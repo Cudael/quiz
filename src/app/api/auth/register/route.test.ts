@@ -54,12 +54,11 @@ describe('POST /api/auth/register', () => {
   it('creates a user and returns 201 for valid registration data', async () => {
     prismaMock.user.findUnique.mockResolvedValue(null)
     hashPasswordMock.mockResolvedValue('hashed-password')
-    generateUniqueUsernameMock.mockResolvedValue('player-one')
     prismaMock.user.create.mockResolvedValue({ id: 'user_1', email: 'player@example.com' })
 
     const response = await POST(
       createRequest({
-        name: 'Player One',
+        username: 'player-one',
         email: 'player@example.com',
         password: 'Password1!',
       })
@@ -67,8 +66,36 @@ describe('POST /api/auth/register', () => {
 
     expect(response.status).toBe(201)
     await expect(response.json()).resolves.toEqual({ ok: true, emailSent: true })
-    expect(prismaMock.user.create).toHaveBeenCalledOnce()
+    // The chosen username doubles as the initial display name.
+    expect(prismaMock.user.create).toHaveBeenCalledWith({
+      data: {
+        name: 'player-one',
+        email: 'player@example.com',
+        passwordHash: 'hashed-password',
+        role: 'USER',
+        username: 'player-one',
+      },
+      select: { id: true },
+    })
     expect(issueEmailVerificationMock).toHaveBeenCalledWith('player@example.com')
+  })
+
+  it('rejects a taken username with a specific error', async () => {
+    prismaMock.user.findUnique.mockImplementation(async ({ where }: { where: never }) =>
+      'username' in (where as object) ? { id: 'other-user' } : null
+    )
+
+    const response = await POST(
+      createRequest({
+        username: 'player-one',
+        email: 'player@example.com',
+        password: 'Password1!',
+      })
+    )
+
+    expect(response.status).toBe(400)
+    await expect(response.json()).resolves.toEqual({ error: 'That username is already taken.' })
+    expect(prismaMock.user.create).not.toHaveBeenCalled()
   })
 
   it('returns 400 with a generic error when the email is verified (no enumeration)', async () => {
@@ -80,7 +107,7 @@ describe('POST /api/auth/register', () => {
 
     const response = await POST(
       createRequest({
-        name: 'Player One',
+        username: 'player-one',
         email: 'player@example.com',
         password: 'Password1!',
       })
@@ -93,17 +120,17 @@ describe('POST /api/auth/register', () => {
   })
 
   it('lets a new registrant take over an unverified password-only account', async () => {
-    prismaMock.user.findUnique.mockResolvedValue({
-      id: 'squatter',
-      emailVerified: null,
-      passwordHash: 'old-hash',
-    })
+    prismaMock.user.findUnique.mockImplementation(async ({ where }: { where: never }) =>
+      'email' in (where as object)
+        ? { id: 'squatter', emailVerified: null, passwordHash: 'old-hash' }
+        : null
+    )
     hashPasswordMock.mockResolvedValue('new-hash')
     prismaMock.user.update.mockResolvedValue({ id: 'squatter' })
 
     const response = await POST(
       createRequest({
-        name: 'Player Two',
+        username: 'player-two',
         email: 'player@example.com',
         password: 'Password1!',
       })
@@ -113,7 +140,7 @@ describe('POST /api/auth/register', () => {
     await expect(response.json()).resolves.toEqual({ ok: true, emailSent: true })
     expect(prismaMock.user.update).toHaveBeenCalledWith({
       where: { id: 'squatter' },
-      data: { name: 'Player Two', passwordHash: 'new-hash' },
+      data: { name: 'player-two', username: 'player-two', passwordHash: 'new-hash' },
       select: { id: true },
     })
     expect(prismaMock.user.create).not.toHaveBeenCalled()
@@ -129,7 +156,7 @@ describe('POST /api/auth/register', () => {
 
     const response = await POST(
       createRequest({
-        name: 'Player One',
+        username: 'player-one',
         email: 'player@example.com',
         password: 'Password1!',
       })
@@ -143,9 +170,23 @@ describe('POST /api/auth/register', () => {
   it('returns 400 when the password is too weak', async () => {
     const response = await POST(
       createRequest({
-        name: 'Player One',
+        username: 'player-one',
         email: 'player@example.com',
         password: 'short',
+      })
+    )
+
+    expect(response.status).toBe(400)
+    await expect(response.json()).resolves.toEqual({ error: 'Unable to register account.' })
+    expect(prismaMock.user.findUnique).not.toHaveBeenCalled()
+  })
+
+  it('returns 400 when the username is malformed', async () => {
+    const response = await POST(
+      createRequest({
+        username: 'Player One!',
+        email: 'player@example.com',
+        password: 'Password1!',
       })
     )
 
@@ -157,7 +198,7 @@ describe('POST /api/auth/register', () => {
   it('returns 400 when email is invalid', async () => {
     const response = await POST(
       createRequest({
-        name: 'Player One',
+        username: 'player-one',
         email: 'not-an-email',
         password: 'Password1!',
       })

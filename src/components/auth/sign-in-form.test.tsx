@@ -52,7 +52,7 @@ describe('SignInForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Sign in failed. Please check your email and password.'
+      'Log in failed. Please check your email and password.'
     )
     expect(pushMock).not.toHaveBeenCalled()
   })
@@ -79,7 +79,7 @@ describe('SignInForm', () => {
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'Password123!' } })
     fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Too many sign-in attempts')
+    expect(await screen.findByRole('alert')).toHaveTextContent('Too many attempts')
   })
 
   it('shows oauth divider only when oauth is enabled', () => {

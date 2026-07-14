@@ -12,6 +12,10 @@ const PasswordInput = React.forwardRef<HTMLInputElement, Omit<InputProps, 'type'
 
     return (
       <div className="relative">
+        {/* Edge renders its own password-reveal eye next to ours. The rule
+            lives here (not globals.css) because Lightning CSS strips the
+            legacy -ms- pseudo-element during Tailwind compilation. */}
+        <style>{`input::-ms-reveal,input::-ms-clear{display:none;}`}</style>
         <Input
           type={visible ? 'text' : 'password'}
           className={cn('pr-10', className)}

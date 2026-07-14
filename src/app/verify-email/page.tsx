@@ -32,7 +32,7 @@ export default async function VerifyEmailPage({
           <p className="text-center text-sm text-muted-foreground">
             Already verified?{' '}
             <Link href="/sign-in" className="font-semibold underline underline-offset-4">
-              Sign in
+              Log in
             </Link>
           </p>
         </CardContent>

@@ -67,10 +67,10 @@ export function AuthControls() {
           href="/sign-in"
           className="rounded-md px-2 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground md:px-3 md:text-sm"
         >
-          Sign in
+          Log in
         </Link>
         <Button asChild size="sm" className="rounded-md text-xs md:text-sm">
-          <Link href="/sign-up">Register</Link>
+          <Link href="/sign-up">Sign up</Link>
         </Button>
       </div>
     )

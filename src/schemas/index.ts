@@ -313,12 +313,6 @@ export const PASSWORD_REGEX_MESSAGE =
 
 const passwordSchema = z.string().min(8).regex(PASSWORD_REGEX, { message: PASSWORD_REGEX_MESSAGE })
 
-export const registerSchema = z.object({
-  name: z.string().trim().min(1).max(80),
-  email: z.email().trim().toLowerCase(),
-  password: passwordSchema,
-})
-
 export const usernameSchema = z
   .string()
   .trim()
@@ -327,6 +321,12 @@ export const usernameSchema = z
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
     message: 'Username must use lowercase letters and numbers, with hyphens only between segments.',
   })
+
+export const registerSchema = z.object({
+  username: usernameSchema,
+  email: z.email().trim().toLowerCase(),
+  password: passwordSchema,
+})
 
 export const meProfileSchema = z.object({
   name: z.string().trim().min(1).max(80),

@@ -30,13 +30,13 @@ describe('AuthControls', () => {
     signOutMock.mockReturnValue(new Promise(() => {}))
   })
 
-  it('shows exactly one sign in button when signed out', () => {
+  it('shows one log in link and one sign up button when signed out', () => {
     useSessionMock.mockReturnValue({ status: 'unauthenticated', data: null })
 
     render(<AuthControls />)
 
-    expect(screen.getAllByRole('link', { name: 'Sign in' })).toHaveLength(1)
-    expect(screen.queryByText('Sign up')).not.toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: 'Log in' })).toHaveLength(1)
+    expect(screen.getAllByRole('link', { name: 'Sign up' })).toHaveLength(1)
   })
 
   it('opens and closes dropdown, and navigates from menu items', async () => {
