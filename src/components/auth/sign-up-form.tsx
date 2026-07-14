@@ -136,7 +136,7 @@ export function SignUpForm({ callbackUrl, googleEnabled, githubEnabled }: SignUp
   return (
     <div className="container mx-auto max-w-md px-4 py-14">
       <div className="mb-6 text-center">
-        <p className="text-2xl font-extrabold tracking-tight">Start your quiz journey 🚀</p>
+        <p className="text-2xl font-extrabold tracking-tight">Start your quiz journey</p>
         <p className="mt-1 text-sm text-muted-foreground">Thousands of brain teasers await.</p>
       </div>
       <Card>
@@ -183,7 +183,7 @@ export function SignUpForm({ callbackUrl, googleEnabled, githubEnabled }: SignUp
                 }
               />
               <p className="text-xs text-muted-foreground">
-                Shown on leaderboards and your public profile — no need to use your real name.
+                Shown on leaderboards and your public profile.
               </p>
             </div>
             <div className="space-y-1">
