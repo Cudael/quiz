@@ -32,7 +32,7 @@ export default async function AdminSuggestionsPage({
     prisma.categorySuggestion.count({ where: { status: 'REJECTED' } }),
     prisma.categorySuggestion.findMany({
       where: activeStatus === 'ALL' ? undefined : { status: activeStatus },
-      include: { suggestedBy: { select: { name: true, username: true } } },
+      include: { suggestedBy: { select: { username: true } } },
       orderBy: { createdAt: 'desc' },
       take: 50,
     }),
@@ -100,10 +100,10 @@ export default async function AdminSuggestionsPage({
                           className="transition-colors hover:text-foreground"
                           href={`/u/${suggestion.suggestedBy.username}`}
                         >
-                          {suggestion.suggestedBy.name}
+                          @{suggestion.suggestedBy.username}
                         </Link>
                       ) : (
-                        suggestion.suggestedBy.name
+                        'Player'
                       )}{' '}
                       · {suggestion.createdAt.toLocaleString()}
                     </p>

@@ -180,7 +180,7 @@ PostgreSQL via Prisma ORM. `prisma/schema.prisma` uses `provider = "postgresql"`
 
 ### Key models
 
-User, Category, Quiz, Question, Choice, PlaySession, QuestionAnswer, Duel, DuelParticipant, Rating, Badge, UserBadge, Follow, FavoriteQuiz, Notification, Report, CategorySuggestion, AdminAction, Feedback, Account, Session, VerificationToken, QuizComment, SeasonResult, Quest, UserQuest, SurvivalRun, DailyQuiz, QuizRevision, QuizCollaborator, Playlist, PlaylistItem.
+User, Category, Quiz, Question, Choice, PlaySession, QuestionAnswer, Duel, DuelParticipant, Rating, Badge, UserBadge, Follow, FavoriteQuiz, Notification, Report, CategorySuggestion, AdminAction, Feedback, Account, Session, VerificationToken, QuizComment, SeasonResult, Quest, UserQuest, SurvivalRun, DailyQuiz, QuizRevision, QuizCollaborator, Playlist, PlaylistItem. `User.username` is the sole stored display identity; legal/provider full names are not persisted.
 
 ### Key enums
 
@@ -216,6 +216,10 @@ the app shell) prompts them to claim a handle via `POST /api/profile/username`; 
 `useSession().update()` forces an immediate JWT profile refresh. `POST /api/auth/resend-verification` is rate-limited per IP+email and per
 recipient (IP-independent), returns a generic success response to prevent account enumeration,
 invalidates all older codes, and requires configured Gmail SMTP delivery.
+
+Provider profile names are never written to the database. Auth.js's conventional
+`session.user.name` value is derived from `username` only for compatibility; all application UI,
+leaderboards, profiles, attribution, comments, notifications, and admin views display usernames.
 
 ### Auth-related files
 

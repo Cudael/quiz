@@ -195,9 +195,13 @@ export function LeftMenu({ open, onClose }: LeftMenuProps) {
                 isActive('/profile') && 'bg-primary/5'
               )}
             >
-              <Avatar src={session.user.image} fallback={session.user.name || 'User'} size="md" />
+              <Avatar
+                src={session.user.image}
+                fallback={session.user.username ?? 'Player'}
+                size="md"
+              />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-bold">{session.user.name || 'Player'}</p>
+                <p className="truncate text-sm font-bold">{session.user.username ?? 'Player'}</p>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <span>Level {session.user.level}</span>
                   <span>·</span>

@@ -21,7 +21,7 @@ export async function generateMetadata({
   const { username } = await params
   const user = await prisma.user.findUnique({
     where: { username },
-    select: { name: true, username: true, level: true, badges: { select: { badgeId: true } } },
+    select: { username: true, level: true, badges: { select: { badgeId: true } } },
   })
 
   if (!user) {
@@ -31,10 +31,10 @@ export async function generateMetadata({
     }
   }
 
-  const title = seoTitle(`${user.name} (@${user.username}) — Quiz Profile`)
+  const title = seoTitle(`@${user.username} — Quiz Profile`)
   const description = seoDescription(
-    `See ${user.name}'s quiz stats, level ${user.level} progress, ${user.badges.length} badges, and published quizzes.`,
-    `View ${user.name}'s BusQuiz profile.`
+    `See @${user.username}'s quiz stats, level ${user.level} progress, ${user.badges.length} badges, and published quizzes.`,
+    `View @${user.username}'s BusQuiz profile.`
   )
   const url = absoluteUrl(`/u/${user.username}`)
   return {
@@ -103,12 +103,11 @@ export default async function UserProfilePage({
   const profileJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'ProfilePage',
-    name: `${user.name} on BusQuiz`,
+    name: `@${profileUsername} on BusQuiz`,
     url: absoluteUrl(`/u/${profileUsername}`),
     mainEntity: {
       '@type': 'Person',
-      name: user.name,
-      alternateName: profileUsername,
+      name: profileUsername,
       image: user.image ?? undefined,
       url: absoluteUrl(`/u/${profileUsername}`),
     },
@@ -129,7 +128,6 @@ export default async function UserProfilePage({
             user: {
               select: {
                 id: true,
-                name: true,
                 username: true,
               },
             },
@@ -174,16 +172,20 @@ export default async function UserProfilePage({
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={user.bannerImage}
-              alt={`${user.name}'s banner`}
+              alt={`@${profileUsername}'s banner`}
               className="mb-6 h-32 w-full rounded-md object-cover"
             />
           ) : null}
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <Avatar src={user.image} alt={user.name} fallback={user.name} size="xl" />
+              <Avatar
+                src={user.image}
+                alt={`@${profileUsername}`}
+                fallback={profileUsername}
+                size="xl"
+              />
               <div>
-                <h1 className="text-2xl font-bold">{user.name}</h1>
-                <p className="text-sm text-muted-foreground">@{user.username}</p>
+                <h1 className="text-2xl font-bold">@{profileUsername}</h1>
                 <p className="text-xs text-muted-foreground">
                   Joined{' '}
                   {new Intl.DateTimeFormat('en', { dateStyle: 'medium' }).format(user.createdAt)}

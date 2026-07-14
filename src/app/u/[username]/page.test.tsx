@@ -55,7 +55,6 @@ describe('UserProfilePage', () => {
     userFindUniqueMock.mockResolvedValue({
       id: 'user-1',
       username: 'alice',
-      name: 'Alice',
       image: null,
       bio: 'Hi there',
       bannerImage: null,
@@ -95,6 +94,7 @@ describe('UserProfilePage', () => {
     render(element)
 
     expect(screen.getByText('Followers')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '@alice' })).toBeInTheDocument()
     expect(screen.getByText('12')).toBeInTheDocument()
     expect(screen.getByText('Following')).toBeInTheDocument()
     expect(screen.getByText('7')).toBeInTheDocument()

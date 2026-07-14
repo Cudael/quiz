@@ -49,7 +49,7 @@ function makeQuiz(id: string, categoryId = 'cat-parent') {
     difficulty: 'MEDIUM' as const,
     playCount: 10,
     avgScore: 70,
-    author: { name: 'Alice', role: 'USER' },
+    author: { username: 'alice', role: 'USER' },
     category: { slug: 'general', name: 'General', icon: 'BookOpen', color: '#123456' },
     _count: { ratings: 1 },
     ratings: [{ stars: 4 }],
@@ -65,7 +65,7 @@ describe('getHomePageData personalization bounds', () => {
       user: {
         id: 'user-1',
         email: 'user@example.com',
-        name: 'User',
+        username: 'user',
         xp: 10,
         level: 1,
         streakDays: 2,

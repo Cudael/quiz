@@ -95,7 +95,6 @@ describe('auth signIn callback', () => {
     // one instead of publishing a slug of their provider profile name.
     expect(prismaMock.user.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
-        name: 'New User',
         email: 'new@example.com',
         image: 'img',
         role: 'USER',

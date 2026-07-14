@@ -6,7 +6,6 @@ export type UserPreferences = z.infer<typeof userPreferencesSchema>
 export type DefaultDifficulty = NonNullable<UserPreferences['defaultDifficulty']>
 
 export interface SettingsProfile {
-  name: string
   username: string
   bio: string
   image: string

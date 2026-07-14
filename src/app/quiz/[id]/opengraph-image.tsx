@@ -55,7 +55,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
       title: true,
       difficulty: true,
       category: { select: { name: true } },
-      author: { select: { name: true, role: true } },
+      author: { select: { username: true, role: true } },
     },
   })
 

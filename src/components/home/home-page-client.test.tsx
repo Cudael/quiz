@@ -72,7 +72,7 @@ const personalizedQuizzes: QuizCardData[] = [
 ]
 
 const currentUser: HomeCurrentUser = {
-  name: 'Cudael',
+  username: 'cudael',
   xp: 2450,
   level: 7,
   streakDays: 4,

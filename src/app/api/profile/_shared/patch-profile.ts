@@ -54,7 +54,6 @@ export async function patchProfile(request: Request) {
   await prisma.user.update({
     where: { id: session.user.id },
     data: {
-      name: parsed.data.name,
       username,
       bio: parsed.data.bio || null,
       image: parsed.data.image || null,

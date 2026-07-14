@@ -43,18 +43,6 @@ export function ProfileSection({ profile, setProfile }: ProfileSectionProps) {
         }}
       >
         <div className="space-y-1">
-          <label htmlFor="settings-name" className="text-sm font-medium">
-            Display name
-          </label>
-          <Input
-            id="settings-name"
-            value={profile.name}
-            onChange={(event) => setProfile((prev) => ({ ...prev, name: event.target.value }))}
-            required
-            maxLength={80}
-          />
-        </div>
-        <div className="space-y-1">
           <label htmlFor="settings-username" className="text-sm font-medium">
             Username
           </label>
@@ -93,7 +81,7 @@ export function ProfileSection({ profile, setProfile }: ProfileSectionProps) {
         {isValidImageUrl(profile.image) ? (
           <div className="space-y-1">
             <p className="text-sm font-medium">Avatar preview</p>
-            <Avatar src={profile.image} fallback={profile.name} size="xl" />
+            <Avatar src={profile.image} fallback={profile.username} size="xl" />
           </div>
         ) : null}
         <div className="space-y-1">

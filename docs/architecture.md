@@ -128,10 +128,15 @@ Email registration → POST /api/auth/register
                    → set User.emailVerified → credentials sign-in allowed
 
 OAuth sign-in → provider verifies email → BusQuiz marks User.emailVerified
+              → provider full name is discarded → user chooses a public username
 Guest sign-in → email remains null → guest gameplay remains available
 
 Authenticated requests → JWT session → auth() in Server Components and API routes
 ```
+
+`User.username` is the only stored and displayed user identity. BusQuiz does not retain OAuth legal
+or profile names. The standard Auth.js `session.user.name` property is populated from the username
+for library compatibility and must not be treated as a separate display-name field.
 
 Unverified email/password users cannot sign in. Registration ends on `/verify-email`, where users
 can request another link through the rate-limited `/api/auth/resend-verification` endpoint. Responses

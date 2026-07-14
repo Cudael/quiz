@@ -42,7 +42,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     redirect('/admin/forbidden')
   }
 
-  const displayName = session.user.name ?? session.user.username ?? 'Admin'
+  const displayName = session.user.username ?? 'Admin'
 
   return (
     <div className="flex min-h-screen bg-background">

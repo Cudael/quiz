@@ -74,7 +74,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
       difficulty: true,
       playCount: true,
       avgScore: true,
-      author: { select: { name: true, role: true } },
+      author: { select: { username: true, role: true } },
       category: { select: { name: true, color: true } },
       _count: { select: { ratings: true } },
       ratings: { select: { stars: true } },

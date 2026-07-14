@@ -33,7 +33,7 @@ export function HeroInsightBox({ currentUser, totalQuizCount, quickLinks }: Hero
           </h1>
           <p className="mt-2 text-base leading-relaxed text-muted-foreground sm:text-lg">
             {currentUser
-              ? `Welcome back, ${currentUser.name ?? 'quiz champion'}! Continue your streak, take today’s challenge, or discover a new favorite.`
+              ? `Welcome back, ${currentUser.username ?? 'quiz champion'}! Continue your streak, take today’s challenge, or discover a new favorite.`
               : 'Explore thousands of free quizzes, challenge your knowledge, and play instantly — no sign-up required.'}
           </p>
         </div>

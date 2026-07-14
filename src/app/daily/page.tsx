@@ -104,7 +104,7 @@ export default async function DailyQuizPage() {
         score: true,
         correctCount: true,
         totalCount: true,
-        user: { select: { name: true, username: true } },
+        user: { select: { username: true } },
       },
     }),
   ])
@@ -212,10 +212,10 @@ export default async function DailyQuizPage() {
                 <span className="w-6 text-center font-bold text-muted-foreground">{index + 1}</span>
                 {entry.user?.username ? (
                   <Link href={`/u/${entry.user.username}`} className="font-medium hover:underline">
-                    {entry.user.name ?? entry.user.username}
+                    @{entry.user.username}
                   </Link>
                 ) : (
-                  <span className="font-medium">{entry.user?.name ?? 'Player'}</span>
+                  <span className="font-medium">{entry.user?.username ?? 'Player'}</span>
                 )}
                 <span className="ml-auto text-muted-foreground">
                   {entry.correctCount}/{entry.totalCount}

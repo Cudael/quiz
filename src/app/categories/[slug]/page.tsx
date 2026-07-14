@@ -204,7 +204,7 @@ export default async function CategoryPage({
     coverImage: true,
     difficulty: true,
     playCount: true,
-    author: { select: { name: true, role: true } },
+    author: { select: { username: true, role: true } },
     category: { select: { name: true, color: true } },
     _count: { select: { ratings: true } },
     ratings: { select: { stars: true } },

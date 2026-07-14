@@ -60,7 +60,6 @@ describe('PATCH /api/profile', () => {
 
     const response = await PATCH(
       createPatchRequest({
-        name: 'New Name',
         username: 'new-name',
         bio: 'new bio',
         image: 'https://example.com/avatar.png',
@@ -88,7 +87,6 @@ describe('PATCH /api/profile', () => {
 
     const response = await PATCH(
       createPatchRequest({
-        name: 'New Name',
         username: 'taken-name',
       })
     )

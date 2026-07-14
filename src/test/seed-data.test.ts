@@ -60,7 +60,7 @@ describe('seed-data shapes', () => {
     it('every user has required fields', () => {
       for (const user of users) {
         expect(user.id, `user missing id`).toBeTruthy()
-        expect(user.name, `${user.id} missing name`).toBeTruthy()
+        expect(user.username, `${user.id} missing username`).toBeTruthy()
         expect(user.email, `${user.id} missing email`).toBeTruthy()
         expect(['USER', 'ADMIN']).toContain(user.role)
         expect(user.xp).toBeGreaterThanOrEqual(0)

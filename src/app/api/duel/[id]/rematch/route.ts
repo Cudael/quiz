@@ -38,7 +38,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: 'Only participants can request a rematch' }, { status: 403 })
   }
 
-  const requesterName = session.user.name ?? 'A player'
+  const requesterName = session.user.username ?? 'A player'
   const opponentIds = duel.participants
     .map((entry) => entry.userId)
     .filter((userId): userId is string => Boolean(userId) && userId !== session.user.id)

@@ -15,7 +15,6 @@ export interface CommentNode {
   createdAt: string
   author: {
     id: string
-    name: string | null
     username: string | null
     image: string | null
   }
@@ -155,7 +154,7 @@ function CommentItem({
     })
   }
 
-  const displayName = comment.author.name ?? 'Someone'
+  const displayName = comment.author.username ?? 'Someone'
 
   return (
     <div className={isReply ? 'ml-10 mt-3' : ''}>
@@ -168,7 +167,7 @@ function CommentItem({
                 href={`/u/${comment.author.username}`}
                 className="font-semibold text-foreground hover:underline"
               >
-                {displayName}
+                @{displayName}
               </Link>
             ) : (
               <span className="font-semibold">{displayName}</span>

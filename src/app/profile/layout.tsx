@@ -25,7 +25,6 @@ export default async function ProfileLayout({ children }: { children: React.Reac
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
     select: {
-      name: true,
       username: true,
       image: true,
       xp: true,
@@ -52,7 +51,7 @@ export default async function ProfileLayout({ children }: { children: React.Reac
               <div className="relative mx-auto sm:mx-0 shrink-0">
                 <Avatar
                   src={user.image}
-                  fallback={user.name}
+                  fallback={user.username}
                   size="xl"
                   className="h-20 w-20 border-2 border-border shadow"
                 />
@@ -62,10 +61,7 @@ export default async function ProfileLayout({ children }: { children: React.Reac
               </div>
               <div className="text-center sm:text-left">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1.5">
-                  <h1 className="text-2xl font-extrabold tracking-tight">{user.name}</h1>
-                  <span className="mx-auto sm:mx-0 inline-flex items-center gap-1 text-xs text-muted-foreground bg-muted/65 px-2 py-0.5 rounded-sm font-semibold">
-                    @{user.username}
-                  </span>
+                  <h1 className="text-2xl font-extrabold tracking-tight">@{user.username}</h1>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
                   Member since{' '}

@@ -10,7 +10,7 @@ import { addCollaborator, removeCollaborator } from '@/app/studio/actions'
 
 interface Collaborator {
   userId: string
-  user: { id: string; name: string | null; username: string | null; image: string | null }
+  user: { id: string; username: string | null; image: string | null }
 }
 
 export function CollaboratorManager({
@@ -81,14 +81,11 @@ export function CollaboratorManager({
           <ul className="mb-4 space-y-2">
             {collaborators.map((collab) => (
               <li key={collab.userId} className="flex items-center gap-3 rounded-md border p-2.5">
-                <Avatar src={collab.user.image} fallback={collab.user.name ?? '?'} size="sm" />
+                <Avatar src={collab.user.image} fallback={collab.user.username ?? '?'} size="sm" />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold">{collab.user.name ?? 'User'}</p>
-                  {collab.user.username ? (
-                    <p className="truncate text-xs text-muted-foreground">
-                      @{collab.user.username}
-                    </p>
-                  ) : null}
+                  <p className="truncate text-sm font-semibold">
+                    {collab.user.username ? `@${collab.user.username}` : 'Player'}
+                  </p>
                 </div>
                 {(isOwner || collab.userId === viewerId) && (
                   <Button
@@ -97,7 +94,9 @@ export function CollaboratorManager({
                     disabled={isPending}
                     onClick={() => handleRemove(collab.userId)}
                     aria-label={
-                      collab.userId === viewerId ? 'Leave quiz' : `Remove ${collab.user.name}`
+                      collab.userId === viewerId
+                        ? 'Leave quiz'
+                        : `Remove ${collab.user.username ?? 'player'}`
                     }
                   >
                     <X className="h-4 w-4" />

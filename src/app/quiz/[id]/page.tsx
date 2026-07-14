@@ -36,7 +36,7 @@ const QUIZ_META_SELECT = {
   playCount: true,
   avgScore: true,
   category: true,
-  author: { select: { id: true, name: true, username: true, image: true, role: true } },
+  author: { select: { id: true, username: true, image: true, role: true } },
   questions: { select: { id: true } },
   reports: { where: { status: 'PENDING' as const }, select: { id: true }, take: 1 },
 } as const

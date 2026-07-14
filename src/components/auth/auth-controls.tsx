@@ -76,8 +76,7 @@ export function AuthControls() {
     )
   }
 
-  const name = session.user.name || 'User'
-  const username = session.user.username ?? 'me'
+  const username = session.user.username ?? 'Player'
 
   return (
     <div className="flex items-center gap-2">
@@ -88,8 +87,10 @@ export function AuthControls() {
             type="button"
             aria-label="Open profile menu"
           >
-            <Avatar src={session.user.image} fallback={name} size="sm" />
-            <span className="hidden max-w-20 truncate text-xs font-medium md:block">{name}</span>
+            <Avatar src={session.user.image} fallback={username} size="sm" />
+            <span className="hidden max-w-20 truncate text-xs font-medium md:block">
+              {username}
+            </span>
             <span className="hidden rounded-sm bg-muted px-1.5 py-0.5 text-[10px] font-medium md:inline-flex">
               Level {session.user.level}
             </span>

@@ -40,7 +40,7 @@ export default async function AdminFeedbackPage({
     prisma.feedback.findMany({
       where: activeStatus === 'ALL' ? undefined : { status: activeStatus },
       include: {
-        user: { select: { id: true, name: true, username: true, email: true } },
+        user: { select: { id: true, username: true, email: true } },
       },
       orderBy: { createdAt: 'desc' },
       take: 50,
@@ -102,10 +102,10 @@ export default async function AdminFeedbackPage({
                             className="transition-colors hover:text-foreground"
                             href={`/u/${item.user.username}`}
                           >
-                            {item.user.name}
+                            @{item.user.username}
                           </Link>
                         ) : (
-                          item.user.name
+                          (item.user.username ?? 'Player')
                         )}
                       </span>
                       <span className="text-sm text-muted-foreground">

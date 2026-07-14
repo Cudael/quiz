@@ -28,7 +28,7 @@ export const QUIZ_CARD_SELECT_WITH_RATINGS = {
   difficulty: true,
   playCount: true,
   avgScore: true,
-  author: { select: { name: true, role: true } },
+  author: { select: { username: true, role: true } },
   category: {
     select: { slug: true, name: true, icon: true, color: true },
   },
@@ -143,7 +143,7 @@ export async function getHomePageData(): Promise<HomePageData> {
   const isAuthenticatedUser = Boolean(session?.user?.id && session?.user?.email)
   const currentUser: HomeCurrentUser | null = isAuthenticatedUser
     ? {
-        name: session?.user?.name ?? null,
+        username: session?.user?.username ?? null,
         xp: session?.user?.xp ?? 0,
         level: session?.user?.level ?? 1,
         streakDays: session?.user?.streakDays ?? 0,

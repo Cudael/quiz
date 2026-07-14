@@ -52,9 +52,7 @@ export default async function AdminAuditLogPage({
   const where: Prisma.AdminActionWhereInput = {
     ...(actorFilter
       ? {
-          actor: {
-            OR: [{ name: { contains: actorFilter } }, { username: { contains: actorFilter } }],
-          },
+          actor: { username: { contains: actorFilter } },
         }
       : {}),
     ...(actionFilter ? { action: { contains: actionFilter } } : {}),
@@ -66,7 +64,7 @@ export default async function AdminAuditLogPage({
   const currentPage = pageIndex + 1
   const actions = await prisma.adminAction.findMany({
     where,
-    include: { actor: { select: { name: true, username: true } } },
+    include: { actor: { select: { username: true } } },
     orderBy: { createdAt: 'desc' },
     take: PAGE_SIZE,
     skip: pageIndex * PAGE_SIZE,
@@ -130,13 +128,13 @@ export default async function AdminAuditLogPage({
                           className="transition-colors hover:text-primary"
                           href={`/u/${actionRow.actor.username}`}
                         >
-                          {actionRow.actor.name ?? 'Unknown admin'}
+                          {actionRow.actor.username ?? 'Unknown admin'}
                           <span className="ml-1 text-muted-foreground">
                             (@{actionRow.actor.username})
                           </span>
                         </Link>
                       ) : (
-                        <span>{actionRow.actor.name ?? 'Unknown admin'}</span>
+                        <span>{actionRow.actor.username ?? 'Unknown admin'}</span>
                       )}
                     </td>
                     <td className="px-4 py-3">

@@ -4,7 +4,6 @@ import { CommentThread, type CommentNode } from './comment-thread'
 
 const COMMENT_AUTHOR_SELECT = {
   id: true,
-  name: true,
   username: true,
   image: true,
   role: true,
@@ -48,7 +47,6 @@ export async function QuizComments({
     createdAt: Date
     author: {
       id: string
-      name: string | null
       username: string | null
       image: string | null
       role: string
@@ -59,7 +57,6 @@ export async function QuizComments({
     createdAt: c.createdAt.toISOString(),
     author: {
       id: c.author.id,
-      name: c.author.name,
       username: c.author.username,
       image: c.author.role === 'ADMIN' ? null : c.author.image,
     },

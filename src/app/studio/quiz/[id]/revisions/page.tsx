@@ -49,10 +49,10 @@ export default async function QuizRevisionsPage({ params }: { params: Promise<{ 
   const creators = creatorIds.length
     ? await prisma.user.findMany({
         where: { id: { in: creatorIds } },
-        select: { id: true, name: true },
+        select: { id: true, username: true },
       })
     : []
-  const creatorNames = new Map(creators.map((u) => [u.id, u.name]))
+  const creatorNames = new Map(creators.map((u) => [u.id, u.username ?? 'Player']))
 
   const isOwner = quiz.authorId === session.user.id || session.user.role === 'ADMIN'
   const isCollaborator = quiz.collaborators.length > 0

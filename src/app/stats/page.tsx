@@ -47,7 +47,7 @@ export default async function StatsPage() {
     }),
     prisma.user.findFirst({
       orderBy: { quizzes: { _count: 'desc' } },
-      select: { name: true, username: true, _count: { select: { quizzes: true } } },
+      select: { username: true, _count: { select: { quizzes: true } } },
     }),
   ])
 
@@ -123,7 +123,7 @@ export default async function StatsPage() {
     {
       emoji: '✍️',
       title: 'Most Prolific Creator',
-      value: mostProlificCreator?.name ?? '—',
+      value: mostProlificCreator?.username ?? '—',
       detail: mostProlificCreator ? `${mostProlificCreator._count.quizzes} quizzes` : '',
     },
     {

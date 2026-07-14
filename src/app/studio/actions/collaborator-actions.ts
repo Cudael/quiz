@@ -69,7 +69,7 @@ export async function addCollaborator(formData: FormData): Promise<ActionResult>
       userId: collaborator.id,
       type: 'COLLAB_INVITE',
       title: 'You are now a co-author!',
-      message: `${session.user.name ?? 'Someone'} added you as a co-author on “${quiz.title}”.`,
+      message: `${session.user.username ?? 'Someone'} added you as a co-author on “${quiz.title}”.`,
       meta: { quizId: quiz.id },
     },
   })

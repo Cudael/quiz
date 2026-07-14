@@ -10,7 +10,7 @@ export interface CategoryWithQuizzes {
 }
 
 export interface HomeCurrentUser {
-  name: string | null
+  username: string | null
   xp: number
   level: number
   streakDays: number

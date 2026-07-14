@@ -55,7 +55,7 @@ export async function GET(request: Request) {
     select: {
       id: true,
       email: true,
-      name: true,
+      username: true,
       streakDays: true,
       preferences: true,
     },
@@ -92,7 +92,7 @@ export async function GET(request: Request) {
     if (!user.email) continue
     const stats = statsByUserId.get(user.id)
     const ok = await sendWeeklyDigestEmail(user.email, {
-      name: user.name,
+      name: user.username,
       playsThisWeek: stats?.plays ?? 0,
       bestScoreThisWeek: stats?.bestScore ?? null,
       streakDays: user.streakDays,

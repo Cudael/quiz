@@ -57,7 +57,7 @@ export async function authorizeEmailPassword(rawCredentials: unknown) {
     where: { email: parsed.data.email },
     select: {
       id: true,
-      name: true,
+      username: true,
       email: true,
       image: true,
       role: true,
@@ -83,7 +83,7 @@ export async function authorizeEmailPassword(rawCredentials: unknown) {
 
   return {
     id: user.id,
-    name: user.name,
+    name: user.username ?? 'Player',
     email: user.email,
     image: user.image,
     role: user.role,

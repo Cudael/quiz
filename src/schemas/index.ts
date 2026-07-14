@@ -329,7 +329,6 @@ export const registerSchema = z.object({
 })
 
 export const meProfileSchema = z.object({
-  name: z.string().trim().min(1).max(80),
   username: usernameSchema,
   bio: z.string().trim().max(280).nullable().optional(),
   image: z.url().trim().nullable().optional(),

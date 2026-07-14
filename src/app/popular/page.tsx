@@ -38,7 +38,7 @@ export default async function PopularQuizzesPage() {
       difficulty: true,
       playCount: true,
       avgScore: true,
-      author: { select: { name: true, role: true } },
+      author: { select: { username: true, role: true } },
       category: { select: { slug: true, name: true, icon: true, color: true } },
       _count: { select: { ratings: true } },
       ratings: { select: { stars: true } },

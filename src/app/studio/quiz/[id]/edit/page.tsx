@@ -29,7 +29,7 @@ export default async function EditQuizPage({ params }: { params: Promise<{ id: s
       collaborators: {
         select: {
           userId: true,
-          user: { select: { id: true, name: true, username: true, image: true } },
+          user: { select: { id: true, username: true, image: true } },
         },
       },
       questions: {

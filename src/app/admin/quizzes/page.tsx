@@ -77,7 +77,7 @@ export default async function AdminQuizzesPage({
       where,
       include: {
         category: { select: { name: true, slug: true, color: true } },
-        author: { select: { name: true, username: true, role: true } },
+        author: { select: { username: true, role: true } },
         _count: { select: { questions: true, sessions: true } },
       },
       orderBy: { createdAt: 'desc' },

@@ -50,7 +50,7 @@ export default async function AdminDashboardPage() {
     prisma.adminAction.findMany({
       orderBy: { createdAt: 'desc' },
       take: 5,
-      include: { actor: { select: { name: true, username: true } } },
+      include: { actor: { select: { username: true } } },
     }),
   ])
 
@@ -157,9 +157,7 @@ export default async function AdminDashboardPage() {
                   className="flex flex-col gap-2 rounded-md border border-border bg-background px-4 py-3 md:flex-row md:items-center md:justify-between"
                 >
                   <div>
-                    <p className="font-medium">
-                      {action.actor.name ?? action.actor.username ?? 'Unknown admin'}
-                    </p>
+                    <p className="font-medium">{action.actor.username ?? 'Unknown admin'}</p>
                     <p className="text-sm text-muted-foreground">
                       {action.targetType} · {action.targetId}
                     </p>

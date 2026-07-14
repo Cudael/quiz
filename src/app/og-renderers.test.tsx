@@ -18,7 +18,7 @@ describe('OG renderers', () => {
         })
       ),
       user: renderToStaticMarkup(
-        renderUserOgCard({ name: 'Ada Lovelace', username: 'ada', level: 12, xp: 4200, badges: 7 })
+        renderUserOgCard({ username: 'ada', level: 12, xp: 4200, badges: 7 })
       ),
       leaderboard: renderToStaticMarkup(renderLeaderboardOgCard(['Ada', 'Grace', 'Linus'])),
     }

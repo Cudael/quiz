@@ -66,7 +66,7 @@ export default async function PlaylistPage({ params }: { params: Promise<{ slug:
       description: true,
       isPublic: true,
       ownerId: true,
-      owner: { select: { name: true, username: true } },
+      owner: { select: { username: true } },
       items: {
         orderBy: { order: 'asc' },
         select: {
@@ -111,7 +111,7 @@ export default async function PlaylistPage({ params }: { params: Promise<{ slug:
                 url: absoluteUrl(`/playlists/${slug}`),
                 creator: {
                   '@type': 'Person',
-                  name: playlist.owner.name ?? playlist.owner.username ?? 'BusQuiz player',
+                  name: playlist.owner.username ?? 'BusQuiz player',
                   url: playlist.owner.username
                     ? absoluteUrl(`/u/${playlist.owner.username}`)
                     : undefined,
@@ -173,11 +173,9 @@ export default async function PlaylistPage({ params }: { params: Promise<{ slug:
             <>
               {' · by '}
               <Link className="hover:underline" href={`/u/${playlist.owner.username}`}>
-                {playlist.owner.name ?? playlist.owner.username}
+                {playlist.owner.username ?? 'Player'}
               </Link>
             </>
-          ) : playlist.owner.name ? (
-            ` · by ${playlist.owner.name}`
           ) : null}
         </p>
       </div>

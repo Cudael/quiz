@@ -32,7 +32,7 @@ export default async function SurvivalPage() {
         id: true,
         correctCount: true,
         guestName: true,
-        user: { select: { name: true, username: true } },
+        user: { select: { username: true } },
         category: { select: { name: true } },
       },
     }),
@@ -69,7 +69,9 @@ export default async function SurvivalPage() {
             {topRuns.map((run, index) => (
               <li key={run.id} className="flex items-center gap-3 px-4 py-2.5 text-sm">
                 <span className="w-6 text-center font-bold text-muted-foreground">{index + 1}</span>
-                <span className="font-medium">{run.user?.name ?? run.guestName ?? 'Guest'}</span>
+                <span className="font-medium">
+                  {run.user?.username ?? run.guestName ?? 'Guest'}
+                </span>
                 {run.category ? (
                   <span className="text-xs text-muted-foreground">({run.category.name})</span>
                 ) : null}

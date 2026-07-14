@@ -112,7 +112,7 @@ async function fetchLeaderboardRows({
       ps."userId" AS "userId",
       u."username" AS "username",
       u."image" AS "image",
-      COALESCE(u."name", 'User') AS "displayName",
+      COALESCE(u."username", 'Player') AS "displayName",
       SUM(ps."score") AS "totalScore",
       MAX(ps."score") AS "bestScore",
       COUNT(*) AS "plays",
@@ -128,7 +128,7 @@ async function fetchLeaderboardRows({
       ${quizId ? Prisma.sql`AND ps."quizId" = ${quizId}` : Prisma.empty}
       ${categories.length ? Prisma.sql`AND c."slug" IN (${Prisma.join(categories)})` : Prisma.empty}
       ${userIds ? Prisma.sql`AND ps."userId" IN (${Prisma.join(userIds)})` : Prisma.empty}
-    GROUP BY ps."userId", u."username", u."image", u."name"
+    GROUP BY ps."userId", u."username", u."image"
     ORDER BY ${orderByClause(sort)}
   `)
 

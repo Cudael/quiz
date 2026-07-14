@@ -7,7 +7,6 @@ export const contentType = 'image/png'
 export const runtime = 'nodejs'
 
 export function renderUserOgCard(data: {
-  name: string
   username: string
   level: number
   xp: number
@@ -26,8 +25,7 @@ export function renderUserOgCard(data: {
       }}
     >
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <div style={{ fontSize: 60, fontWeight: 800 }}>{data.name}</div>
-        <div style={{ fontSize: 30, opacity: 0.85 }}>@{data.username}</div>
+        <div style={{ fontSize: 60, fontWeight: 800 }}>@{data.username}</div>
       </div>
 
       <div
@@ -53,7 +51,6 @@ export default async function Image({ params }: { params: Promise<{ username: st
   const user = await prisma.user.findUnique({
     where: { username },
     select: {
-      name: true,
       username: true,
       xp: true,
       level: true,
@@ -63,7 +60,6 @@ export default async function Image({ params }: { params: Promise<{ username: st
 
   return new ImageResponse(
     renderUserOgCard({
-      name: user?.name ?? 'BusQuiz Player',
       username: user?.username ?? username,
       level: user?.level ?? 1,
       xp: user?.xp ?? 0,

@@ -220,7 +220,6 @@ describe('meProfileSchema', () => {
   it('accepts valid profile values', () => {
     expect(
       meProfileSchema.safeParse({
-        name: 'Player One',
         username: 'player-one',
         bio: 'Ready to play.',
         image: 'https://example.com/avatar.png',

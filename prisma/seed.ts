@@ -53,9 +53,7 @@ async function main() {
   }
   console.log(`  ✓ Seeded ${users.length} users`)
   if (process.env.NODE_ENV !== 'production') {
-    console.log(
-      "  ✓ Admin demo user: admin@busquiz.com — sign in via Credentials provider with name 'Admin Demo'"
-    )
+    console.log("  ✓ Admin demo user: admin@busquiz.com — username 'admin-demo'")
   }
 
   // ------------------------------------------------------------------

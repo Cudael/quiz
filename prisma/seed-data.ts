@@ -565,7 +565,6 @@ export const badges: BadgeData[] = [
 // ---------------------------------------------------------------------------
 export interface UserData {
   id: string
-  name: string
   username: string
   email: string
   role: Role
@@ -578,7 +577,6 @@ export interface UserData {
 export const users: UserData[] = [
   {
     id: 'user_admin_busquiz',
-    name: 'Admin Demo',
     username: 'admin-demo',
     email: 'admin@busquiz.com',
     role: 'ADMIN',
@@ -589,7 +587,6 @@ export const users: UserData[] = [
   },
   {
     id: 'user_demo_alice',
-    name: 'Alice Chen',
     username: 'alice-chen',
     email: 'alice@busquiz.com',
     role: 'USER',
@@ -600,7 +597,6 @@ export const users: UserData[] = [
   },
   {
     id: 'user_demo_bob',
-    name: 'Bob Martinez',
     username: 'bob-martinez',
     email: 'bob@busquiz.com',
     role: 'USER',
@@ -611,7 +607,6 @@ export const users: UserData[] = [
   },
   {
     id: 'user_demo_carol',
-    name: 'Carol Zhang',
     username: 'carol-zhang',
     email: 'carol@busquiz.com',
     role: 'USER',
@@ -622,7 +617,6 @@ export const users: UserData[] = [
   },
   {
     id: 'user_demo_dave',
-    name: 'Dave Okonkwo',
     username: 'dave-okonkwo',
     email: 'demo@busquiz.com',
     role: 'USER',

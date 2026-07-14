@@ -20,7 +20,7 @@ import { authorizeEmailPassword } from '@/server/authorize-email-password'
 
 const validUser = {
   id: 'user_1',
-  name: 'Ada',
+  username: 'ada',
   email: 'ada@example.com',
   image: null,
   role: 'USER',
@@ -45,7 +45,7 @@ describe('authorizeEmailPassword', () => {
 
     expect(result).toEqual({
       id: 'user_1',
-      name: 'Ada',
+      name: 'ada',
       email: 'ada@example.com',
       image: null,
       role: 'USER',

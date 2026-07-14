@@ -1,5 +1,5 @@
 export interface AuthorDisplay {
-  name: string
+  username: string | null
   role: string
   image?: string | null
 }
@@ -9,7 +9,7 @@ export interface AuthorDisplay {
  * Admin users always show as "BusQuiz".
  */
 export function getDisplayAuthorName(author: AuthorDisplay): string {
-  return author.role === 'ADMIN' ? 'BusQuiz' : author.name
+  return author.role === 'ADMIN' ? 'BusQuiz' : (author.username ?? 'Player')
 }
 
 export const BUSQUIZ_DISPLAY_NAME = 'BusQuiz'

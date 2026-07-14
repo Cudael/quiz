@@ -60,10 +60,8 @@ describe('POST /api/auth/register', () => {
 
     expect(response.status).toBe(201)
     await expect(response.json()).resolves.toEqual({ ok: true, emailSent: true })
-    // The chosen username doubles as the initial display name.
     expect(prismaMock.user.create).toHaveBeenCalledWith({
       data: {
-        name: 'player-one',
         email: 'player@example.com',
         passwordHash: 'hashed-password',
         role: 'USER',
@@ -134,7 +132,7 @@ describe('POST /api/auth/register', () => {
     await expect(response.json()).resolves.toEqual({ ok: true, emailSent: true })
     expect(prismaMock.user.update).toHaveBeenCalledWith({
       where: { id: 'squatter' },
-      data: { name: 'player-two', username: 'player-two', passwordHash: 'new-hash' },
+      data: { username: 'player-two', passwordHash: 'new-hash' },
       select: { id: true },
     })
     expect(prismaMock.user.create).not.toHaveBeenCalled()

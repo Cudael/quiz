@@ -64,18 +64,15 @@ export async function POST(request: Request) {
 
   try {
     const passwordHash = await hashPassword(password)
-    // The username doubles as the initial display name; it can be changed in
-    // profile settings later.
     if (replaceableUserId) {
       await prisma.user.update({
         where: { id: replaceableUserId },
-        data: { name: username, username, passwordHash },
+        data: { username, passwordHash },
         select: { id: true },
       })
     } else {
       await prisma.user.create({
         data: {
-          name: username,
           email,
           passwordHash,
           role: 'USER',

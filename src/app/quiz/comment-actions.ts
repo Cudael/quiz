@@ -91,7 +91,7 @@ export async function addComment(formData: FormData): Promise<CommentResult> {
           parentAuthorId && userId === parentAuthorId
             ? 'New reply to your comment'
             : 'New comment on your quiz',
-        message: `${session.user.name ?? 'Someone'} commented on “${quiz.title}”.`,
+        message: `${session.user.username ?? 'Someone'} commented on “${quiz.title}”.`,
         meta: { quizId: quiz.id, quizSlug: quiz.slug, commentId: comment.id },
       })),
     })

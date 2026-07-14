@@ -25,7 +25,7 @@ describe('BadgesGrid', () => {
       <BadgesGrid
         badges={badges}
         earnedBadges={[{ badgeId: 'b1', awardedAt: new Date().toISOString() }]}
-        badgeLeaders={{ b1: [{ id: 'u1', name: 'Alice', username: 'alice' }], b2: [] }}
+        badgeLeaders={{ b1: [{ id: 'u1', username: 'alice' }], b2: [] }}
       />
     )
 
@@ -34,6 +34,6 @@ describe('BadgesGrid', () => {
 
     fireEvent.click(screen.getByTestId('badge-first-win'))
     expect(screen.getByText('Criteria')).toBeInTheDocument()
-    expect(screen.getByText(/Alice/)).toBeInTheDocument()
+    expect(screen.getByText('@alice')).toBeInTheDocument()
   })
 })

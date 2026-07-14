@@ -40,7 +40,7 @@ export default async function AdminReportsPage({
             id: true,
             slug: true,
             title: true,
-            author: { select: { name: true, username: true, role: true } },
+            author: { select: { username: true, role: true } },
           },
         },
         comment: {
@@ -48,10 +48,10 @@ export default async function AdminReportsPage({
             id: true,
             body: true,
             isHidden: true,
-            author: { select: { name: true, username: true } },
+            author: { select: { username: true } },
           },
         },
-        reporter: { select: { name: true, username: true } },
+        reporter: { select: { username: true } },
       },
       orderBy: { createdAt: 'desc' },
       take: 50,
@@ -117,10 +117,10 @@ export default async function AdminReportsPage({
                             className="transition-colors hover:text-foreground"
                             href={`/u/${report.reporter.username}`}
                           >
-                            {report.reporter.name}
+                            @{report.reporter.username}
                           </Link>
                         ) : (
-                          (report.reporter?.name ?? 'Unknown')
+                          (report.reporter?.username ?? 'Unknown')
                         )}
                       </span>
                       <span>· {report.createdAt.toLocaleString()}</span>
@@ -131,7 +131,7 @@ export default async function AdminReportsPage({
                     {report.comment ? (
                       <blockquote className="rounded-md border-l-2 border-border bg-muted/40 px-3 py-2 text-sm">
                         <span className="font-medium">
-                          {report.comment.author.name ?? 'Unknown'}:
+                          {report.comment.author.username ?? 'Unknown'}:
                         </span>{' '}
                         {report.comment.body}
                         {report.comment.isHidden ? (

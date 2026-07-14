@@ -17,7 +17,7 @@ export const HOME_QUIZ_SELECT = {
   avgScore: true,
   author: {
     select: {
-      name: true,
+      username: true,
       role: true,
     },
   },

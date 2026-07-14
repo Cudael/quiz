@@ -17,7 +17,7 @@ export default async function ReviewDraftsPage() {
     where: { isPublished: false },
     include: {
       category: { select: { name: true, slug: true } },
-      author: { select: { name: true, username: true } },
+      author: { select: { username: true } },
       questions: {
         orderBy: { order: 'asc' },
         include: {
@@ -37,7 +37,7 @@ export default async function ReviewDraftsPage() {
     description: draft.description,
     difficulty: draft.difficulty,
     format: draft.format,
-    authorName: draft.author.name ?? draft.author.username ?? 'Unknown',
+    authorName: draft.author.username ?? 'Unknown',
     categoryName: draft.category.name,
     categorySlug: draft.category.slug,
     updatedAt: draft.updatedAt.toISOString(),

@@ -29,7 +29,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     where: { id, isPublished: true },
     include: {
       category: true,
-      author: { select: { id: true, name: true, image: true } },
+      author: { select: { id: true, username: true, image: true } },
       questions: {
         orderBy: { order: 'asc' },
         include: {

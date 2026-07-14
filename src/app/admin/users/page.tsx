@@ -32,7 +32,7 @@ export default async function AdminUsersPage({
 
   const qFilter: Prisma.UserWhereInput = q
     ? {
-        OR: [{ name: { contains: q } }, { email: { contains: q } }, { username: { contains: q } }],
+        OR: [{ email: { contains: q } }, { username: { contains: q } }],
       }
     : {}
 
@@ -49,7 +49,6 @@ export default async function AdminUsersPage({
       where,
       select: {
         id: true,
-        name: true,
         username: true,
         email: true,
         role: true,
@@ -82,7 +81,7 @@ export default async function AdminUsersPage({
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               defaultValue={q ?? ''}
               name="q"
-              placeholder="Search name/email/username"
+              placeholder="Search email/username"
               type="search"
             />
             <select
@@ -120,9 +119,9 @@ export default async function AdminUsersPage({
                     <tr key={user.id} className="border-t border-border align-top">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <Avatar fallback={user.name} size="sm" />
+                          <Avatar fallback={user.username ?? 'Player'} size="sm" />
                           <div>
-                            <p className="font-medium">{user.name}</p>
+                            <p className="font-medium">{user.username ?? 'Player'}</p>
                             <p className="text-xs text-muted-foreground">
                               {user.username ? `@${user.username}` : 'No username'}
                             </p>

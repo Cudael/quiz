@@ -61,14 +61,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         })
 
         if (!foundUser) {
-          const emailLocalPart = normalizedEmail.split('@')[0] || normalizedEmail
-          const profileName = user.name?.trim() || emailLocalPart
           // No username yet: deriving one from the provider profile would
           // publish the person's real name on leaderboards. The onboarding
           // modal prompts them to choose a handle after sign-in.
           foundUser = await tx.user.create({
             data: {
-              name: profileName,
               email: normalizedEmail,
               image: user.image,
               emailVerified: now,
@@ -193,6 +190,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = t.id as string
         session.user.role = (t.role as string) ?? 'USER'
         session.user.username = t.username ?? null
+        // Auth.js exposes a standard `name` field. Keep it derived from the
+        // username so provider full names never reach application UI.
+        session.user.name = t.username ?? 'Player'
         session.user.xp = Number(t.xp ?? 0)
         session.user.level = Number(t.level ?? 1)
         session.user.streakDays = Number(t.streakDays ?? 0)

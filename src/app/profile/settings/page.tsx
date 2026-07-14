@@ -13,7 +13,6 @@ export default async function MeSettingsPage() {
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
     select: {
-      name: true,
       username: true,
       email: true,
       bio: true,
@@ -32,7 +31,6 @@ export default async function MeSettingsPage() {
   return (
     <SettingsClient
       initialProfile={{
-        name: user.name,
         username: user.username,
         bio: user.bio ?? '',
         image: user.image ?? '',
