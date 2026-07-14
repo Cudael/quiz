@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { Prisma } from '@prisma/client'
 import { z } from 'zod'
-import { auth } from '@/server/auth'
+import { auth, unstable_update } from '@/server/auth'
 import { prisma } from '@/server/prisma'
 import { usernameSchema } from '@/schemas'
 
@@ -71,6 +71,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'That username is already taken.' }, { status: 400 })
     }
     throw error
+  }
+
+  // Refresh the JWT in the same response that saved the username. Relying
+  // only on the subsequent client-side session refresh leaves a window where
+  // middleware can decode the older `username: null` token and redirect the
+  // user back into onboarding.
+  try {
+    await unstable_update({ user: { username } })
+  } catch (error) {
+    // The database claim succeeded. Let the client continue and use the sync
+    // route as a recovery path instead of misleadingly asking for the now-
+    // taken username again.
+    console.error('Could not refresh session after username claim', error)
   }
 
   return NextResponse.json({ ok: true, username })

@@ -16,8 +16,10 @@ export function UsernameOnboarding() {
   const { data: session, status, update } = useSession()
   const [username, setUsername] = useState('')
   const [pending, setPending] = useState(false)
+  const [completed, setCompleted] = useState(false)
   const [error, setError] = useState('')
-  const needsUsername = status === 'authenticated' && !!session?.user && !session.user.username
+  const needsUsername =
+    status === 'authenticated' && !!session?.user && !session.user.username && !completed
 
   async function save(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -34,14 +36,24 @@ export function UsernameOnboarding() {
         setError(payload.error ?? 'Could not save the username. Please try again.')
         return
       }
-      // Refresh the JWT so the navbar and menus pick the handle up
-      // immediately; the modal closes itself once the session has it.
-      await update()
+      // Close immediately after the authoritative database write. The API
+      // also refreshes the JWT server-side, so the dedicated setup page can
+      // leave immediately without waiting on another client request.
+      setCompleted(true)
       if (window.location.pathname === '/choose-username') {
         const callbackUrl = new URLSearchParams(window.location.search).get('callbackUrl')
         const destination =
           callbackUrl?.startsWith('/') && !callbackUrl.startsWith('//') ? callbackUrl : '/'
         window.location.replace(destination)
+        return
+      }
+
+      // On any other page, refresh mounted session consumers. The modal is
+      // already closed, and a failure cannot undo the successful claim.
+      try {
+        await update()
+      } catch {
+        // A later navigation can recover through the server-side sync route.
       }
     } catch {
       setError('Could not save the username. Please try again.')

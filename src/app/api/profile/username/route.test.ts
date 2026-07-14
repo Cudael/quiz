@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Prisma } from '@prisma/client'
 
-const { authMock, prismaMock } = vi.hoisted(() => ({
+const { authMock, unstableUpdateMock, prismaMock } = vi.hoisted(() => ({
   authMock: vi.fn(),
+  unstableUpdateMock: vi.fn(),
   prismaMock: {
     user: {
       findUnique: vi.fn(),
@@ -12,7 +13,7 @@ const { authMock, prismaMock } = vi.hoisted(() => ({
   },
 }))
 
-vi.mock('@/server/auth', () => ({ auth: authMock }))
+vi.mock('@/server/auth', () => ({ auth: authMock, unstable_update: unstableUpdateMock }))
 vi.mock('@/server/prisma', () => ({ prisma: prismaMock }))
 
 import { POST } from './route'
@@ -29,6 +30,7 @@ describe('POST /api/profile/username', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     authMock.mockResolvedValue({ user: { id: 'user-1' } })
+    unstableUpdateMock.mockResolvedValue({ user: { username: 'quiz-fan' } })
     prismaMock.user.findUnique.mockResolvedValue({ username: null })
     prismaMock.user.findFirst.mockResolvedValue(null)
     prismaMock.user.update.mockResolvedValue({ id: 'user-1' })
@@ -53,6 +55,7 @@ describe('POST /api/profile/username', () => {
       data: { username: 'quiz-fan' },
       select: { id: true },
     })
+    expect(unstableUpdateMock).toHaveBeenCalledWith({ user: { username: 'quiz-fan' } })
   })
 
   it('rejects malformed usernames', async () => {

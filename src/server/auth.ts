@@ -21,7 +21,7 @@ interface ProfileToken {
 /** How long profile data is cached inside the JWT before a DB re-fetch (5 minutes). */
 const PROFILE_TTL_MS = 5 * 60 * 1000
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
   ...authConfig,
   providers: [
     ...buildOAuthProviders(),

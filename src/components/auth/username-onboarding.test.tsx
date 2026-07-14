@@ -92,6 +92,25 @@ describe('UsernameOnboarding', () => {
     expect(updateMock).not.toHaveBeenCalled()
   })
 
+  it('closes after saving even when the client session refresh fails', async () => {
+    authenticatedSession(null)
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ ok: true }), { status: 200 })
+    )
+    updateMock.mockRejectedValueOnce(new Error('session refresh failed'))
+
+    render(<UsernameOnboarding />)
+
+    fireEvent.change(await screen.findByLabelText('Username'), {
+      target: { value: 'quiz-fan' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Save username' }))
+
+    await waitFor(() => {
+      expect(screen.queryByText('Choose your username')).not.toBeInTheDocument()
+    })
+  })
+
   it('cannot be dismissed before a username is chosen', async () => {
     authenticatedSession(null)
 

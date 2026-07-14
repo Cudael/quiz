@@ -34,7 +34,12 @@ export default async function ChooseUsernamePage({
   })
 
   if (user?.username) {
-    redirect(callbackUrl)
+    const syncUrl = new URL(
+      '/api/profile/username/sync',
+      process.env.NEXTAUTH_URL ?? 'http://localhost'
+    )
+    syncUrl.searchParams.set('callbackUrl', callbackUrl)
+    redirect(`${syncUrl.pathname}${syncUrl.search}`)
   }
 
   return (

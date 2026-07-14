@@ -35,8 +35,8 @@ src/
       notifications/    GET list, PATCH read
       play/             submit (score, XP, badges; mode param STANDARD/DAILY/PRACTICE/BLITZ)
       profile/          PATCH/DELETE (canonical), profile/ (compat PATCH alias),
-                        password, preferences, username (POST, one-time claim for
-                        accounts created without one)
+                        password, preferences, username (POST one-time claim + GET
+                        session-sync recovery for accounts created without one)
       quiz/[id]/        play (token endpoint; ?mode=practice serves missed questions,
                         ?mode=blitz forces 60s quiz timer)
       studio/quizzes/   CRUD endpoints
@@ -214,9 +214,11 @@ verified and clears any pre-verification `passwordHash` (pre-hijack protection);
 password reset also sets `emailVerified`. OAuth sign-ups are created with `username: null` —
 never derived from the provider profile name. All page requests for those accounts are redirected
 to `/choose-username`, where the non-dismissible `UsernameOnboarding` modal (mounted in the app
-shell) requires them to claim a handle via `POST /api/profile/username`; a client
-`useSession().update()` forces an immediate JWT profile refresh and returns them to their intended
-page. Usernames are protected by application checks plus a case-insensitive database unique index.
+shell) requires them to claim a handle via `POST /api/profile/username`. The claim response
+refreshes the JWT server-side; `/api/profile/username/sync` repairs any older stale token before
+leaving onboarding. A client `useSession().update()` refreshes mounted UI consumers and users are
+returned to their intended page. Usernames are protected by application checks plus a
+case-insensitive database unique index.
 `POST /api/auth/resend-verification` is rate-limited per IP+email and per
 recipient (IP-independent), returns a generic success response to prevent account enumeration,
 invalidates all older codes, and requires configured Gmail SMTP delivery.
