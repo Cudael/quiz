@@ -4,7 +4,6 @@ import Credentials from 'next-auth/providers/credentials'
 import { prisma } from '@/server/prisma'
 import { authorizeEmailPassword } from '@/server/authorize-email-password'
 import { authConfig, buildOAuthProviders } from '@/server/auth.config'
-import { generateUniqueUsername } from '@/lib/usernames'
 
 /** Profile fields cached inside the JWT. */
 interface ProfileToken {
@@ -64,7 +63,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!foundUser) {
           const emailLocalPart = normalizedEmail.split('@')[0] || normalizedEmail
           const profileName = user.name?.trim() || emailLocalPart
-          const username = await generateUniqueUsername(profileName)
+          // No username yet: deriving one from the provider profile would
+          // publish the person's real name on leaderboards. The onboarding
+          // modal prompts them to choose a handle after sign-in.
           foundUser = await tx.user.create({
             data: {
               name: profileName,
@@ -72,7 +73,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               image: user.image,
               emailVerified: now,
               role: 'USER',
-              username,
+              username: null,
             },
             select: { id: true, emailVerified: true },
           })
@@ -121,8 +122,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       user.id = dbUser.id
       return true
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       const t = token as typeof token & ProfileToken
+
+      // Client-initiated session updates (e.g. right after claiming a
+      // username) must not wait out the profile cache TTL.
+      if (trigger === 'update') {
+        t.profileRefreshedAt = 0
+      }
 
       if (user) {
         t.id = user.id

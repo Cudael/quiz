@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation'
 import { Navbar } from '@/components/layout/navbar'
 import { SiteFooter } from '@/components/layout/site-footer'
 import { EmailVerificationBanner } from '@/components/auth/email-verification-banner'
+import { UsernameOnboarding } from '@/components/auth/username-onboarding'
 
 export function AppShell({
   children,
@@ -29,6 +30,7 @@ export function AppShell({
       </a>
       <Navbar />
       <EmailVerificationBanner />
+      <UsernameOnboarding />
       {categoryBar ? <div className="border-t border-transparent" aria-hidden="true" /> : null}
       {categoryBar}
       <main id="main-content">{children}</main>

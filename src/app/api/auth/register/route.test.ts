@@ -1,31 +1,25 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const {
-  prismaMock,
-  hashPasswordMock,
-  generateUniqueUsernameMock,
-  issueEmailVerificationMock,
-  checkRateLimitMock,
-} = vi.hoisted(() => ({
-  prismaMock: {
-    user: {
-      findUnique: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
+const { prismaMock, hashPasswordMock, issueEmailVerificationMock, checkRateLimitMock } = vi.hoisted(
+  () => ({
+    prismaMock: {
+      user: {
+        findUnique: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
+      },
+      verificationToken: {
+        create: vi.fn(),
+      },
     },
-    verificationToken: {
-      create: vi.fn(),
-    },
-  },
-  hashPasswordMock: vi.fn(),
-  generateUniqueUsernameMock: vi.fn(),
-  issueEmailVerificationMock: vi.fn(),
-  checkRateLimitMock: vi.fn().mockResolvedValue(true),
-}))
+    hashPasswordMock: vi.fn(),
+    issueEmailVerificationMock: vi.fn(),
+    checkRateLimitMock: vi.fn().mockResolvedValue(true),
+  })
+)
 
 vi.mock('@/server/prisma', () => ({ prisma: prismaMock }))
 vi.mock('@/server/password', () => ({ hashPassword: hashPasswordMock }))
-vi.mock('@/lib/usernames', () => ({ generateUniqueUsername: generateUniqueUsernameMock }))
 vi.mock('@/server/email-verification', () => ({
   issueEmailVerification: issueEmailVerificationMock,
 }))

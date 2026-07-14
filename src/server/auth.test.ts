@@ -1,43 +1,41 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { NextAuthConfig } from 'next-auth'
 
-const { state, nextAuthMock, prismaMock, generateUniqueUsernameMock, buildOAuthProvidersMock } =
-  vi.hoisted(() => {
-    const state = { config: null as NextAuthConfig | null }
-    const prismaMock = {
-      user: {
-        findUnique: vi.fn(),
-        create: vi.fn(),
-        update: vi.fn(),
-      },
-      account: {
-        upsert: vi.fn(),
-      },
-      verificationToken: {
-        deleteMany: vi.fn(),
-      },
-      $transaction: vi.fn(),
-    }
-    // $transaction passes itself as tx to the callback
-    prismaMock.$transaction.mockImplementation(
-      async (fn: (tx: typeof prismaMock) => Promise<unknown>) => fn(prismaMock)
-    )
-    return {
-      state,
-      nextAuthMock: vi.fn((config: NextAuthConfig) => {
-        state.config = config
-        return {
-          handlers: {},
-          auth: vi.fn(),
-          signIn: vi.fn(),
-          signOut: vi.fn(),
-        }
-      }),
-      prismaMock,
-      generateUniqueUsernameMock: vi.fn(),
-      buildOAuthProvidersMock: vi.fn(() => []),
-    }
-  })
+const { state, nextAuthMock, prismaMock, buildOAuthProvidersMock } = vi.hoisted(() => {
+  const state = { config: null as NextAuthConfig | null }
+  const prismaMock = {
+    user: {
+      findUnique: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+    },
+    account: {
+      upsert: vi.fn(),
+    },
+    verificationToken: {
+      deleteMany: vi.fn(),
+    },
+    $transaction: vi.fn(),
+  }
+  // $transaction passes itself as tx to the callback
+  prismaMock.$transaction.mockImplementation(
+    async (fn: (tx: typeof prismaMock) => Promise<unknown>) => fn(prismaMock)
+  )
+  return {
+    state,
+    nextAuthMock: vi.fn((config: NextAuthConfig) => {
+      state.config = config
+      return {
+        handlers: {},
+        auth: vi.fn(),
+        signIn: vi.fn(),
+        signOut: vi.fn(),
+      }
+    }),
+    prismaMock,
+    buildOAuthProvidersMock: vi.fn(() => []),
+  }
+})
 
 vi.mock('next-auth', () => ({
   default: nextAuthMock,
@@ -46,7 +44,6 @@ vi.mock('next-auth/providers/credentials', () => ({
   default: vi.fn(() => ({})),
 }))
 vi.mock('@/server/prisma', () => ({ prisma: prismaMock }))
-vi.mock('@/lib/usernames', () => ({ generateUniqueUsername: generateUniqueUsernameMock }))
 vi.mock('@/server/authorize-email-password', () => ({
   authorizeEmailPassword: vi.fn(),
 }))
@@ -76,7 +73,6 @@ describe('auth signIn callback', () => {
     const signIn = getSignInCallback()
 
     prismaMock.user.findUnique.mockResolvedValue(null)
-    generateUniqueUsernameMock.mockResolvedValue('new-user')
     prismaMock.user.create.mockResolvedValue({ id: 'db-user-1', emailVerified: new Date() })
     prismaMock.account.upsert.mockResolvedValue({})
 
@@ -95,14 +91,15 @@ describe('auth signIn callback', () => {
       where: { email: 'new@example.com' },
       select: { id: true, emailVerified: true },
     })
-    expect(generateUniqueUsernameMock).toHaveBeenCalledWith('New User')
+    // Username stays unset — the onboarding modal asks the user to choose
+    // one instead of publishing a slug of their provider profile name.
     expect(prismaMock.user.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
         name: 'New User',
         email: 'new@example.com',
         image: 'img',
         role: 'USER',
-        username: 'new-user',
+        username: null,
       }),
       select: { id: true, emailVerified: true },
     })
@@ -141,7 +138,6 @@ describe('auth signIn callback', () => {
 
     expect(result).toBe(true)
     expect(prismaMock.user.create).not.toHaveBeenCalled()
-    expect(generateUniqueUsernameMock).not.toHaveBeenCalled()
     // Any password predating the ownership proof is untrusted and must be
     // dropped, along with pending verification codes for the address.
     expect(prismaMock.user.update).toHaveBeenCalledWith({

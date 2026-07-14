@@ -35,7 +35,8 @@ src/
       notifications/    GET list, PATCH read
       play/             submit (score, XP, badges; mode param STANDARD/DAILY/PRACTICE/BLITZ)
       profile/          PATCH/DELETE (canonical), profile/ (compat PATCH alias),
-                        password, preferences
+                        password, preferences, username (POST, one-time claim for
+                        accounts created without one)
       quiz/[id]/        play (token endpoint; ?mode=practice serves missed questions,
                         ?mode=blitz forces 60s quiz timer)
       studio/quizzes/   CRUD endpoints
@@ -209,7 +210,10 @@ name; taken usernames get a specific error since they are public), `email`, and 
 Registering over an existing **unverified** password-only account replaces its
 username/display-name/password (unverified accounts cannot squat an address). OAuth sign-in marks the provider-owned email as
 verified and clears any pre-verification `passwordHash` (pre-hijack protection); completing a
-password reset also sets `emailVerified`. `POST /api/auth/resend-verification` is rate-limited per IP+email and per
+password reset also sets `emailVerified`. OAuth sign-ups are created with `username: null` —
+never derived from the provider profile name — and the `UsernameOnboarding` modal (mounted in
+the app shell) prompts them to claim a handle via `POST /api/profile/username`; a client
+`useSession().update()` forces an immediate JWT profile refresh. `POST /api/auth/resend-verification` is rate-limited per IP+email and per
 recipient (IP-independent), returns a generic success response to prevent account enumeration,
 invalidates all older codes, and requires configured Gmail SMTP delivery.
 
