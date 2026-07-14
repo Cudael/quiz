@@ -5,6 +5,7 @@ const { prismaMock, hashPasswordMock, issueEmailVerificationMock, checkRateLimit
     prismaMock: {
       user: {
         findUnique: vi.fn(),
+        findFirst: vi.fn(),
         create: vi.fn(),
         update: vi.fn(),
       },
@@ -43,6 +44,7 @@ describe('POST /api/auth/register', () => {
     vi.clearAllMocks()
     checkRateLimitMock.mockResolvedValue(true)
     issueEmailVerificationMock.mockResolvedValue('sent')
+    prismaMock.user.findFirst.mockResolvedValue(null)
   })
 
   it('creates a user and returns 201 for valid registration data', async () => {
@@ -73,9 +75,8 @@ describe('POST /api/auth/register', () => {
   })
 
   it('rejects a taken username with a specific error', async () => {
-    prismaMock.user.findUnique.mockImplementation(async ({ where }: { where: never }) =>
-      'username' in (where as object) ? { id: 'other-user' } : null
-    )
+    prismaMock.user.findUnique.mockResolvedValue(null)
+    prismaMock.user.findFirst.mockResolvedValue({ id: 'other-user' })
 
     const response = await POST(
       createRequest({
@@ -112,11 +113,11 @@ describe('POST /api/auth/register', () => {
   })
 
   it('lets a new registrant take over an unverified password-only account', async () => {
-    prismaMock.user.findUnique.mockImplementation(async ({ where }: { where: never }) =>
-      'email' in (where as object)
-        ? { id: 'squatter', emailVerified: null, passwordHash: 'old-hash' }
-        : null
-    )
+    prismaMock.user.findUnique.mockResolvedValue({
+      id: 'squatter',
+      emailVerified: null,
+      passwordHash: 'old-hash',
+    })
     hashPasswordMock.mockResolvedValue('new-hash')
     prismaMock.user.update.mockResolvedValue({ id: 'squatter' })
 

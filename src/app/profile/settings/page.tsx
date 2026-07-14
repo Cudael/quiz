@@ -25,7 +25,7 @@ export default async function MeSettingsPage() {
   })
 
   if (!user?.username) {
-    redirect('/sign-in?callbackUrl=/profile/settings')
+    redirect('/choose-username?callbackUrl=/profile/settings')
   }
 
   return (

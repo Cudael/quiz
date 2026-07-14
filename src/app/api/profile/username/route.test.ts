@@ -6,6 +6,7 @@ const { authMock, prismaMock } = vi.hoisted(() => ({
   prismaMock: {
     user: {
       findUnique: vi.fn(),
+      findFirst: vi.fn(),
       update: vi.fn(),
     },
   },
@@ -29,6 +30,7 @@ describe('POST /api/profile/username', () => {
     vi.clearAllMocks()
     authMock.mockResolvedValue({ user: { id: 'user-1' } })
     prismaMock.user.findUnique.mockResolvedValue({ username: null })
+    prismaMock.user.findFirst.mockResolvedValue(null)
     prismaMock.user.update.mockResolvedValue({ id: 'user-1' })
   })
 
@@ -57,6 +59,20 @@ describe('POST /api/profile/username', () => {
     const response = await POST(createRequest({ username: 'Bad Name!' }))
 
     expect(response.status).toBe(400)
+    expect(prismaMock.user.update).not.toHaveBeenCalled()
+  })
+
+  it('rejects a case-insensitive username collision', async () => {
+    prismaMock.user.findFirst.mockResolvedValue({ id: 'other-user' })
+
+    const response = await POST(createRequest({ username: 'quiz-fan' }))
+
+    expect(response.status).toBe(400)
+    await expect(response.json()).resolves.toEqual({ error: 'That username is already taken.' })
+    expect(prismaMock.user.findFirst).toHaveBeenCalledWith({
+      where: { username: { equals: 'quiz-fan', mode: 'insensitive' } },
+      select: { id: true },
+    })
     expect(prismaMock.user.update).not.toHaveBeenCalled()
   })
 

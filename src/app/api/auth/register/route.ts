@@ -54,8 +54,8 @@ export async function POST(request: Request) {
 
   // Usernames are public (profile URLs, leaderboards), so unlike emails a
   // specific "taken" error leaks nothing.
-  const usernameOwner = await prisma.user.findUnique({
-    where: { username },
+  const usernameOwner = await prisma.user.findFirst({
+    where: { username: { equals: username, mode: 'insensitive' } },
     select: { id: true },
   })
   if (usernameOwner && usernameOwner.id !== replaceableUserId) {

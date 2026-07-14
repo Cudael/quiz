@@ -35,7 +35,7 @@ export default async function ProfileLayout({ children }: { children: React.Reac
   })
 
   if (!user?.username) {
-    redirect('/sign-in?callbackUrl=/profile')
+    redirect('/choose-username?callbackUrl=/profile')
   }
 
   const progress = xpProgress(user.xp)

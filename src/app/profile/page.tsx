@@ -37,7 +37,7 @@ export default async function ProfilePage() {
   ])
 
   if (!user?.username) {
-    redirect('/sign-in?callbackUrl=/profile')
+    redirect('/choose-username?callbackUrl=/profile')
   }
 
   const progress = xpProgress(user.xp)

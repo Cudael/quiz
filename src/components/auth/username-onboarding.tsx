@@ -7,30 +7,17 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Modal } from '@/components/ui/modal'
 
-const DISMISSED_KEY = 'busquiz-username-prompt-dismissed'
-
 /**
  * Prompts accounts created without a username (OAuth sign-ups) to choose
- * their public handle. Dismissible — a handle can also be set later in
- * profile settings — but reappears next browser session until one exists.
+ * their public handle. This is a required onboarding step because public
+ * account features use the username as their stable identity.
  */
 export function UsernameOnboarding() {
   const { data: session, status, update } = useSession()
   const [username, setUsername] = useState('')
   const [pending, setPending] = useState(false)
   const [error, setError] = useState('')
-  // The session status is 'loading' during hydration, so reading storage in
-  // the initializer cannot cause a server/client markup mismatch.
-  const [dismissed, setDismissed] = useState(
-    () => typeof window === 'undefined' || sessionStorage.getItem(DISMISSED_KEY) === '1'
-  )
-
   const needsUsername = status === 'authenticated' && !!session?.user && !session.user.username
-
-  function dismiss() {
-    sessionStorage.setItem(DISMISSED_KEY, '1')
-    setDismissed(true)
-  }
 
   async function save(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -50,6 +37,12 @@ export function UsernameOnboarding() {
       // Refresh the JWT so the navbar and menus pick the handle up
       // immediately; the modal closes itself once the session has it.
       await update()
+      if (window.location.pathname === '/choose-username') {
+        const callbackUrl = new URLSearchParams(window.location.search).get('callbackUrl')
+        const destination =
+          callbackUrl?.startsWith('/') && !callbackUrl.startsWith('//') ? callbackUrl : '/'
+        window.location.replace(destination)
+      }
     } catch {
       setError('Could not save the username. Please try again.')
     } finally {
@@ -59,10 +52,11 @@ export function UsernameOnboarding() {
 
   return (
     <Modal
-      open={needsUsername && !dismissed}
-      onClose={dismiss}
+      open={needsUsername}
+      onClose={() => undefined}
+      dismissible={false}
       title="Choose your username"
-      description="Your public handle on leaderboards, duels, and your profile. You can also set it later in profile settings."
+      description="Choose the public handle you will use on leaderboards, duels, and your profile. A username is required to continue."
     >
       <form className="space-y-3" onSubmit={save}>
         <div className="space-y-1">

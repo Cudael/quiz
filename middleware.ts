@@ -5,6 +5,7 @@ const PATHNAME_HEADER = 'x-quiz-pathname'
 const NONCE_HEADER = 'x-nonce'
 
 const GUEST_ONLY_ROUTES = ['/sign-in', '/sign-up']
+const USERNAME_ONBOARDING_ROUTE = '/choose-username'
 
 const r2ImageHost = (() => {
   try {
@@ -87,21 +88,29 @@ export default async function middleware(req: NextRequest) {
   // deletion performed by sign-out. `getToken` only decodes — middleware
   // responses never carry session cookies. Sliding session expiry still
   // happens via /api/auth/session reads.
-  const token =
-    isGuestOnlyAuth || isProtected
-      ? await getToken({
-          req,
-          secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
-          secureCookie:
-            req.nextUrl.protocol === 'https:' ||
-            req.headers.get('x-forwarded-proto')?.startsWith('https') === true,
-        })
-      : null
+  const token = await getToken({
+    req,
+    secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+    secureCookie:
+      req.nextUrl.protocol === 'https:' ||
+      req.headers.get('x-forwarded-proto')?.startsWith('https') === true,
+  })
 
   const requestHeaders = new Headers(req.headers)
   requestHeaders.set(PATHNAME_HEADER, pathname)
   requestHeaders.set(NONCE_HEADER, nonce)
   requestHeaders.set('Content-Security-Policy', csp)
+
+  // OAuth accounts intentionally start without a username. Keep onboarding
+  // mandatory across the entire page app, not only on profile routes, so an
+  // account cannot play, publish, or appear on leaderboards as an anonymous
+  // "Player". Preserve the requested relative URL for after the claim.
+  if (token && !token.username && pathname !== USERNAME_ONBOARDING_ROUTE) {
+    const onboardingUrl = new URL(USERNAME_ONBOARDING_ROUTE, req.nextUrl.origin)
+    const requestedUrl = new URL(req.nextUrl.href)
+    onboardingUrl.searchParams.set('callbackUrl', `${requestedUrl.pathname}${requestedUrl.search}`)
+    return NextResponse.redirect(onboardingUrl)
+  }
 
   // Redirect logged-in users away from sign-in/sign-up
   if (isGuestOnlyAuth) {

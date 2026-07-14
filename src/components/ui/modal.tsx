@@ -9,6 +9,7 @@ import { Button } from './button'
 interface ModalProps {
   open: boolean
   onClose: () => void
+  dismissible?: boolean
   title?: string
   description?: string
   children: React.ReactNode
@@ -31,13 +32,14 @@ export function Modal({
   children,
   className,
   size = 'md',
+  dismissible = true,
 }: ModalProps) {
   const panelRef = React.useRef<HTMLDivElement | null>(null)
   const restoreFocusRef = React.useRef<HTMLElement | null>(null)
 
   React.useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape' && dismissible) onClose()
     }
 
     const handleTab = (e: KeyboardEvent) => {
@@ -79,7 +81,7 @@ export function Modal({
       document.body.style.overflow = ''
       restoreFocusRef.current?.focus()
     }
-  }, [open, onClose])
+  }, [dismissible, open, onClose])
 
   return (
     <AnimatePresence>
@@ -95,7 +97,7 @@ export function Modal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={onClose}
+            onClick={dismissible ? onClose : undefined}
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -118,9 +120,11 @@ export function Modal({
                 )}
                 {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
               </div>
-              <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close modal">
-                <X className="h-4 w-4" />
-              </Button>
+              {dismissible && (
+                <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close modal">
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
             </div>
             {children}
           </motion.div>

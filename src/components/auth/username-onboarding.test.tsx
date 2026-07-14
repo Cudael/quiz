@@ -24,7 +24,6 @@ describe('UsernameOnboarding', () => {
   beforeEach(() => {
     vi.restoreAllMocks()
     updateMock.mockClear()
-    sessionStorage.clear()
   })
 
   it('prompts an authenticated user without a username', async () => {
@@ -93,16 +92,16 @@ describe('UsernameOnboarding', () => {
     expect(updateMock).not.toHaveBeenCalled()
   })
 
-  it('remembers dismissal for the browser session', async () => {
+  it('cannot be dismissed before a username is chosen', async () => {
     authenticatedSession(null)
 
     render(<UsernameOnboarding />)
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Close modal' }))
+    expect(await screen.findByText('Choose your username')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Close modal' })).not.toBeInTheDocument()
 
-    await waitFor(() => {
-      expect(screen.queryByText('Choose your username')).not.toBeInTheDocument()
-    })
-    expect(sessionStorage.getItem('busquiz-username-prompt-dismissed')).toBe('1')
+    fireEvent.keyDown(document, { key: 'Escape' })
+
+    expect(screen.getByText('Choose your username')).toBeInTheDocument()
   })
 })

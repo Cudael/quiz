@@ -29,8 +29,8 @@ function createRequest(pathname: string): MiddlewareRequest {
   }
 }
 
-function authenticateAs(role: 'USER' | 'ADMIN') {
-  getTokenMock.mockResolvedValue({ id: 'user-1', role })
+function authenticateAs(role: 'USER' | 'ADMIN', username: string | null = 'quiz-fan') {
+  getTokenMock.mockResolvedValue({ id: 'user-1', role, username })
 }
 
 beforeEach(() => {
@@ -55,6 +55,17 @@ describe('middleware guest-only auth redirects', () => {
 
     expect(response.status).toBe(307)
     expect(response.headers.get('location')).toBe('http://localhost/profile')
+  })
+
+  it('sends an authenticated user without a username to required onboarding', async () => {
+    authenticateAs('USER', null)
+
+    const response = (await middleware(createRequest('/sign-in') as never)) as Response
+
+    expect(response.status).toBe(307)
+    const location = new URL(response.headers.get('location')!)
+    expect(location.pathname).toBe('/choose-username')
+    expect(location.searchParams.get('callbackUrl')).toBe('/sign-in')
   })
 })
 
@@ -94,18 +105,37 @@ describe('middleware route protection and security headers', () => {
     expect(csp).toContain("frame-ancestors 'self'")
   })
 
+  it('requires username onboarding before an authenticated user can visit a public page', async () => {
+    authenticateAs('USER', null)
+
+    const response = (await middleware(createRequest('/categories') as never)) as Response
+
+    expect(response.status).toBe(307)
+    const location = new URL(response.headers.get('location')!)
+    expect(location.pathname).toBe('/choose-username')
+    expect(location.searchParams.get('callbackUrl')).toBe('/categories')
+  })
+
+  it('allows a user without a username to open the onboarding route', async () => {
+    authenticateAs('USER', null)
+
+    const response = (await middleware(createRequest('/choose-username') as never)) as Response
+
+    expect(response.status).toBe(200)
+  })
+
   it('allows third-party framing only for embed pages', async () => {
     const response = (await middleware(createRequest('/embed/quiz/quiz-1') as never)) as Response
 
     expect(response.headers.get('content-security-policy')).toContain('frame-ancestors *')
   })
 
-  it('never reads the session on public pages and never sets cookies', async () => {
+  it('decodes the session on public pages without ever setting cookies', async () => {
     const response = (await middleware(createRequest('/categories') as never)) as Response
 
     // Sign-out correctness depends on middleware responses never carrying a
     // re-issued session cookie that could clobber the deletion.
-    expect(getTokenMock).not.toHaveBeenCalled()
+    expect(getTokenMock).toHaveBeenCalledOnce()
     expect(response.headers.get('set-cookie')).toBeNull()
   })
 })

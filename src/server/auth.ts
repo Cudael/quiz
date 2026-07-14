@@ -192,7 +192,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.username = t.username ?? null
         // Auth.js exposes a standard `name` field. Keep it derived from the
         // username so provider full names never reach application UI.
-        session.user.name = t.username ?? 'Player'
+        session.user.name = t.username ?? null
         session.user.xp = Number(t.xp ?? 0)
         session.user.level = Number(t.level ?? 1)
         session.user.streakDays = Number(t.streakDays ?? 0)

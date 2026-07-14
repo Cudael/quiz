@@ -51,6 +51,7 @@ src/
     blog/               Blog listing + [slug] dynamic pages
     categories/         Category browser + [slug] detail
     challenges/         Daily/weekly/monthly quiz challenges + quest board
+    choose-username/    Required one-time username onboarding for OAuth accounts
     collections/        Curated quiz collections + [slug] detail
     contact/            Contact page
     daily/              Daily quiz (deterministic pick, today's board)
@@ -211,9 +212,12 @@ Registering over an existing **unverified** password-only account replaces its
 username/display-name/password (unverified accounts cannot squat an address). OAuth sign-in marks the provider-owned email as
 verified and clears any pre-verification `passwordHash` (pre-hijack protection); completing a
 password reset also sets `emailVerified`. OAuth sign-ups are created with `username: null` —
-never derived from the provider profile name — and the `UsernameOnboarding` modal (mounted in
-the app shell) prompts them to claim a handle via `POST /api/profile/username`; a client
-`useSession().update()` forces an immediate JWT profile refresh. `POST /api/auth/resend-verification` is rate-limited per IP+email and per
+never derived from the provider profile name. All page requests for those accounts are redirected
+to `/choose-username`, where the non-dismissible `UsernameOnboarding` modal (mounted in the app
+shell) requires them to claim a handle via `POST /api/profile/username`; a client
+`useSession().update()` forces an immediate JWT profile refresh and returns them to their intended
+page. Usernames are protected by application checks plus a case-insensitive database unique index.
+`POST /api/auth/resend-verification` is rate-limited per IP+email and per
 recipient (IP-independent), returns a generic success response to prevent account enumeration,
 invalidates all older codes, and requires configured Gmail SMTP delivery.
 

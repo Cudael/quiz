@@ -52,6 +52,14 @@ export async function POST(request: Request) {
     )
   }
 
+  const usernameOwner = await prisma.user.findFirst({
+    where: { username: { equals: username, mode: 'insensitive' } },
+    select: { id: true },
+  })
+  if (usernameOwner) {
+    return NextResponse.json({ error: 'That username is already taken.' }, { status: 400 })
+  }
+
   try {
     await prisma.user.update({
       where: { id: session.user.id },
