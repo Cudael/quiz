@@ -39,6 +39,7 @@ const BUSQUIZ_LINKS = [
   { href: '/privacy', label: 'Privacy Policy' },
   { href: '/cookies', label: 'Cookie Policy' },
   { href: '/terms', label: 'Terms of Service' },
+  { href: '/about/accessibility', label: 'Accessibility' },
 ]
 
 export function SiteFooter() {

@@ -190,7 +190,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: absoluteUrl('/about/accessibility'),
-      lastModified: STATIC_LAST_MODIFIED,
+      lastModified: new Date('2026-07-16'),
       changeFrequency: 'monthly',
       priority: 0.4,
     },
@@ -202,19 +202,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: absoluteUrl('/privacy'),
-      lastModified: new Date('2026-07-15'),
+      lastModified: new Date('2026-07-16'),
       changeFrequency: 'yearly',
       priority: 0.2,
     },
     {
       url: absoluteUrl('/cookies'),
-      lastModified: new Date('2026-07-15'),
+      lastModified: new Date('2026-07-16'),
       changeFrequency: 'yearly',
       priority: 0.2,
     },
     {
       url: absoluteUrl('/terms'),
-      lastModified: STATIC_LAST_MODIFIED,
+      lastModified: new Date('2026-07-16'),
       changeFrequency: 'yearly',
       priority: 0.2,
     },

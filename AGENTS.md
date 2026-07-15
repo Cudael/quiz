@@ -278,9 +278,12 @@ Functional PRs that change route contracts, endpoint behavior, or compatibility 
 
 ## Environment Variables
 
-Required: `DATABASE_URL`, `AUTH_SECRET`. Email/password registration additionally requires
-`GMAIL_USER` and `GMAIL_APP_PASSWORD` to deliver verification links. See `.env.example` for the full
-environment variable list (OAuth, SMTP and sender aliases, R2, Redis, analytics, cron, OpenAI).
+Required: `DATABASE_URL`, `AUTH_SECRET`. Set `NEXT_PUBLIC_LEGAL_NAME` and
+`NEXT_PUBLIC_LEGAL_ADDRESS` to the public identity and correspondence address of the person or
+business operating BusQuiz; the Privacy Policy and Terms display these values. Email/password
+registration additionally requires `GMAIL_USER` and `GMAIL_APP_PASSWORD` to deliver verification
+links. See `.env.example` for the full environment variable list (OAuth, SMTP and sender aliases,
+R2, Redis, analytics, cron, OpenAI).
 
 ## Consent and analytics
 
