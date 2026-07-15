@@ -54,7 +54,10 @@ describe('admin quizzes actions', () => {
     authMock.mockResolvedValue({ user: { id: 'admin_1', role: 'ADMIN' } })
     prismaMock.quiz.findUnique.mockResolvedValue({
       id: 'c123456789012345678901234',
-      _count: { questions: 5 },
+      description: 'A detailed quiz description that is ready for publication.',
+      questions: Array.from({ length: 5 }, () => ({
+        explanation: 'A useful explanation of why this answer is correct.',
+      })),
     })
 
     const formData = new FormData()
@@ -83,7 +86,6 @@ describe('admin quizzes actions', () => {
     authMock.mockResolvedValue({ user: { id: 'admin_1', role: 'ADMIN' } })
     prismaMock.quiz.findUnique.mockResolvedValue({
       id: 'c123456789012345678901234',
-      _count: { questions: 5 },
     })
 
     const formData = new FormData()

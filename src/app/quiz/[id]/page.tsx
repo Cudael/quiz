@@ -20,6 +20,7 @@ import { YouMightAlsoLike } from './_components/you-might-also-like'
 import { QuizComments } from './_components/quiz-comments'
 import { absoluteUrl } from '@/lib/site'
 import { isQuizIndexable, seoDescription, seoTitle } from '@/lib/seo-metadata'
+import { countUsefulQuestionExplanations } from '@/domain/quiz-publication-quality'
 
 const difficultyVariant: Record<string, 'success' | 'warning' | 'destructive'> = {
   EASY: 'success',
@@ -37,7 +38,7 @@ const QUIZ_META_SELECT = {
   avgScore: true,
   category: true,
   author: { select: { id: true, username: true, image: true, role: true } },
-  questions: { select: { id: true } },
+  questions: { select: { id: true, explanation: true } },
   reports: { where: { status: 'PENDING' as const }, select: { id: true }, take: 1 },
 } as const
 
@@ -74,6 +75,7 @@ export async function generateMetadata({
   const indexable = isQuizIndexable({
     description: quiz.description,
     questionCount: quiz.questions.length,
+    explainedQuestionCount: countUsefulQuestionExplanations(quiz.questions),
     pendingReportCount: quiz.reports.length,
   })
   const images = quiz.coverImage

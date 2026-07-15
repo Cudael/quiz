@@ -10,7 +10,13 @@ import { serializeJsonLd } from '@/lib/seo'
 import { getQuizPath } from '@/lib/quiz-url'
 import { getQuizCollection, quizCollections } from '@/content/collections'
 import { prisma } from '@/server/prisma'
-import { seoDescription, seoTitle } from '@/lib/seo-metadata'
+import {
+  isQuizIndexable,
+  isQuizListingIndexable,
+  seoDescription,
+  seoTitle,
+} from '@/lib/seo-metadata'
+import { countUsefulQuestionExplanations } from '@/domain/quiz-publication-quality'
 
 export function generateStaticParams() {
   return quizCollections.map((collection) => ({ slug: collection.slug }))
@@ -25,19 +31,37 @@ export async function generateMetadata({
   const collection = getQuizCollection(slug)
   if (!collection) return { title: 'Collection not found' }
 
-  const matchingQuizCount = await prisma.quiz.count({
+  const matchingQuizzes = await prisma.quiz.findMany({
     where: {
       isPublished: true,
       ...(collection.difficulties ? { difficulty: { in: collection.difficulties } } : {}),
       ...(collection.categorySlugs ? { category: { slug: { in: collection.categorySlugs } } } : {}),
     },
+    select: {
+      description: true,
+      questions: { select: { explanation: true } },
+      _count: {
+        select: {
+          questions: true,
+          reports: { where: { status: 'PENDING' } },
+        },
+      },
+    },
   })
+  const matchingQuizCount = matchingQuizzes.filter((quiz) =>
+    isQuizIndexable({
+      description: quiz.description,
+      questionCount: quiz._count.questions,
+      explainedQuestionCount: countUsefulQuestionExplanations(quiz.questions),
+      pendingReportCount: quiz._count.reports,
+    })
+  ).length
 
   return {
     title: seoTitle(collection.title),
     description: seoDescription(collection.description, 'Explore curated quizzes on BusQuiz.'),
     alternates: { canonical: `/collections/${collection.slug}` },
-    robots: matchingQuizCount >= 3 ? undefined : { index: false, follow: true },
+    robots: isQuizListingIndexable(matchingQuizCount) ? undefined : { index: false, follow: true },
     openGraph: {
       title: collection.title,
       description: collection.description,

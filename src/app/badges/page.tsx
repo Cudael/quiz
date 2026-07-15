@@ -19,7 +19,7 @@ const BADGE_EMOJIS: Record<string, string> = {
   'daily-devotee': '📅',
 }
 
-export const metadata: Metadata = {
+const badgesMetadata: Metadata = {
   title: 'Earn Badges',
   description:
     'Play quizzes, build streaks, and unlock achievements. See all available badges on BusQuiz.',
@@ -34,6 +34,13 @@ export const metadata: Metadata = {
     title: 'Earn Badges — BusQuiz',
     description: 'Play quizzes, build streaks, and unlock achievements.',
   },
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const badgeCount = await prisma.badge.count()
+  return badgeCount > 0
+    ? badgesMetadata
+    : { ...badgesMetadata, robots: { index: false, follow: true } }
 }
 
 export default async function BadgesPage() {
@@ -67,7 +74,10 @@ export default async function BadgesPage() {
 
       {badges.length === 0 ? (
         <div className="rounded-md border border-dashed bg-accent/20 p-12 text-center">
-          <p className="text-muted-foreground">Badges coming soon!</p>
+          <h2 className="text-lg font-bold">No achievements are currently available</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            You can still play quizzes, build your score, and track completed challenges.
+          </p>
         </div>
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

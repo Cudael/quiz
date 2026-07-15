@@ -7,11 +7,11 @@ import { QuizCardHorizontal, type QuizCardData } from '@/components/ui/quiz-card
 import { prisma } from '@/server/prisma'
 import { absoluteUrl } from '@/lib/site'
 import { getDisplayAuthorName } from '@/lib/author-display'
+import { isQuizListingIndexable } from '@/lib/seo-metadata'
 
-export const metadata: Metadata = {
+const popularMetadata: Metadata = {
   title: 'Most Popular Quizzes',
-  description:
-    'The all-time most played quizzes on BusQuiz. See what thousands of players are enjoying.',
+  description: 'The all-time most played quizzes on BusQuiz, ranked by verified play counts.',
   alternates: { canonical: '/popular' },
   openGraph: {
     title: 'Most Popular Quizzes — BusQuiz',
@@ -23,6 +23,13 @@ export const metadata: Metadata = {
     title: 'Most Popular Quizzes — BusQuiz',
     description: 'The all-time most played quizzes on BusQuiz.',
   },
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const publishedQuizCount = await prisma.quiz.count({ where: { isPublished: true } })
+  return isQuizListingIndexable(publishedQuizCount)
+    ? popularMetadata
+    : { ...popularMetadata, robots: { index: false, follow: true } }
 }
 
 export default async function PopularQuizzesPage() {

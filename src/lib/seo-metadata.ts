@@ -29,8 +29,11 @@ export function seoDescription(value: string, fallback: string) {
 export interface QuizIndexabilityInput {
   description: string
   questionCount: number
+  explainedQuestionCount: number
   pendingReportCount: number
 }
+
+export const MIN_INDEXABLE_QUIZZES_PER_LISTING = 3
 
 /**
  * Thin or moderation-risk quizzes stay publicly accessible, but are kept out
@@ -40,6 +43,12 @@ export function isQuizIndexable(input: QuizIndexabilityInput) {
   return (
     input.questionCount >= 5 &&
     normalizeWhitespace(input.description).length >= 30 &&
+    input.explainedQuestionCount >= 3 &&
     input.pendingReportCount === 0
   )
+}
+
+/** Category and collection pages need enough useful destinations to stand alone in search. */
+export function isQuizListingIndexable(quizCount: number) {
+  return quizCount >= MIN_INDEXABLE_QUIZZES_PER_LISTING
 }

@@ -313,6 +313,20 @@ export function ReviewDraftsClient({ drafts }: ReviewDraftsClientProps) {
 
   return (
     <>
+      <section className="rounded-md border bg-muted/30 p-4" aria-labelledby="review-checklist">
+        <h2 id="review-checklist" className="font-bold">
+          Editorial checklist before publishing
+        </h2>
+        <ul className="mt-2 grid gap-1 text-sm text-muted-foreground sm:grid-cols-2">
+          <li>• Verify every answer and time-sensitive fact.</li>
+          <li>• Check that wording is original and unambiguous.</li>
+          <li>• Confirm images and audio have appropriate usage rights.</li>
+          <li>• Reject unsafe, restricted, copied, or promotional content.</li>
+          <li>• Read explanations for usefulness, not just length.</li>
+          <li>• Test interactive questions before approval.</li>
+        </ul>
+      </section>
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
           {drafts.length} draft{drafts.length === 1 ? '' : 's'} \u00b7 {totalQuestions} question

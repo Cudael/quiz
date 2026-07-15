@@ -8,7 +8,8 @@ import { StreakFlame } from '@/components/ui/streak-flame'
 import { BadgesGrid } from '@/components/ui/badges-grid'
 import { absoluteUrl } from '@/lib/site'
 import { serializeJsonLd } from '@/lib/seo'
-import { seoDescription, seoTitle } from '@/lib/seo-metadata'
+import { isQuizIndexable, seoDescription, seoTitle } from '@/lib/seo-metadata'
+import { countUsefulQuestionExplanations } from '@/domain/quiz-publication-quality'
 import { toggleFollowAction } from './follow-actions'
 import { PublishedQuizzes } from './_components/published-quizzes'
 import { RecentSessions } from './_components/recent-sessions'
@@ -21,7 +22,24 @@ export async function generateMetadata({
   const { username } = await params
   const user = await prisma.user.findUnique({
     where: { username },
-    select: { username: true, level: true, badges: { select: { badgeId: true } } },
+    select: {
+      username: true,
+      level: true,
+      badges: { select: { badgeId: true } },
+      quizzes: {
+        where: { isPublished: true },
+        select: {
+          description: true,
+          questions: { select: { explanation: true } },
+          _count: {
+            select: {
+              questions: true,
+              reports: { where: { status: 'PENDING' } },
+            },
+          },
+        },
+      },
+    },
   })
 
   if (!user) {
@@ -37,12 +55,21 @@ export async function generateMetadata({
     `View @${user.username}'s BusQuiz profile.`
   )
   const url = absoluteUrl(`/u/${user.username}`)
+  const hasIndexableQuiz = user.quizzes.some((quiz) =>
+    isQuizIndexable({
+      description: quiz.description,
+      questionCount: quiz._count.questions,
+      explainedQuestionCount: countUsefulQuestionExplanations(quiz.questions),
+      pendingReportCount: quiz._count.reports,
+    })
+  )
   return {
     title,
     description,
     alternates: {
       canonical: `/u/${user.username}`,
     },
+    robots: hasIndexableQuiz ? undefined : { index: false, follow: true },
     openGraph: { title, description, url },
     twitter: { card: 'summary_large_image', title, description },
   }

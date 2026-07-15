@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 import { getDisplayAuthorName } from '@/lib/author-display'
 import { getQuizPath } from '@/lib/quiz-url'
 import { categoryIcons } from '@/lib/category-icons'
+import { isQuizListingIndexable } from '@/lib/seo-metadata'
 
 export async function generateMetadata({
   searchParams,
@@ -16,11 +17,15 @@ export async function generateMetadata({
   searchParams: Promise<{ q?: string }>
 }): Promise<Metadata> {
   const query = (await searchParams).q?.trim()
+  const publishedQuizCount = query ? 0 : await prisma.quiz.count({ where: { isPublished: true } })
   return {
     title: query ? `Search results for “${query.slice(0, 50)}”` : 'Quiz Categories',
     description: 'Browse quiz categories and jump into your next challenge.',
     alternates: { canonical: '/categories' },
-    robots: query ? { index: false, follow: true } : undefined,
+    robots:
+      query || !isQuizListingIndexable(publishedQuizCount)
+        ? { index: false, follow: true }
+        : undefined,
     openGraph: {
       title: 'BusQuiz Quiz Categories',
       description: 'Browse quiz categories and discover new challenges.',
@@ -232,20 +237,22 @@ export default async function CategoriesPage({
     })
   }
 
-  const allWithQuizzes: CategoryWithQuizzes[] = parentCategories.map((cat) => {
-    const childSlugs = parentToSubSlugs.get(cat.slug) ?? []
-    const childTotal = childSlugs.reduce((sum, slug) => sum + (quizCountBySlug.get(slug) ?? 0), 0)
-    const parentTotal = quizCountBySlug.get(cat.slug) ?? 0
+  const allWithQuizzes: CategoryWithQuizzes[] = parentCategories
+    .map((cat) => {
+      const childSlugs = parentToSubSlugs.get(cat.slug) ?? []
+      const childTotal = childSlugs.reduce((sum, slug) => sum + (quizCountBySlug.get(slug) ?? 0), 0)
+      const parentTotal = quizCountBySlug.get(cat.slug) ?? 0
 
-    return {
-      slug: cat.slug,
-      name: cat.name,
-      color: cat.color || 'var(--color-quiz-blue)',
-      icon: cat.icon || 'HelpCircle',
-      quizCount: parentTotal + childTotal,
-      topQuizzes: topQuizzesByParent.get(cat.slug) ?? [],
-    }
-  })
+      return {
+        slug: cat.slug,
+        name: cat.name,
+        color: cat.color || 'var(--color-quiz-blue)',
+        icon: cat.icon || 'HelpCircle',
+        quizCount: parentTotal + childTotal,
+        topQuizzes: topQuizzesByParent.get(cat.slug) ?? [],
+      }
+    })
+    .filter((category) => isQuizListingIndexable(category.quizCount))
 
   // Sort by quiz count descending
   allWithQuizzes.sort((a, b) => b.quizCount - a.quizCount)

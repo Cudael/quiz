@@ -8,8 +8,9 @@ import { prisma } from '@/server/prisma'
 import { absoluteUrl } from '@/lib/site'
 import { WEEK_IN_MS } from '@/lib/time'
 import { getDisplayAuthorName } from '@/lib/author-display'
+import { isQuizListingIndexable } from '@/lib/seo-metadata'
 
-export const metadata: Metadata = {
+const trendingMetadata: Metadata = {
   title: 'Trending Quizzes',
   description:
     'The quizzes everyone is playing this week. See what is trending on BusQuiz right now.',
@@ -24,6 +25,17 @@ export const metadata: Metadata = {
     title: 'Trending Quizzes — BusQuiz',
     description: 'The quizzes everyone is playing this week.',
   },
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const oneWeekAgo = new Date(Date.now() - WEEK_IN_MS)
+  const activeQuizGroups = await prisma.playSession.groupBy({
+    by: ['quizId'],
+    where: { createdAt: { gte: oneWeekAgo }, quiz: { isPublished: true } },
+  })
+  return isQuizListingIndexable(activeQuizGroups.length)
+    ? trendingMetadata
+    : { ...trendingMetadata, robots: { index: false, follow: true } }
 }
 
 export default async function TrendingQuizzesPage() {

@@ -10,7 +10,8 @@ import { QuizCard } from '@/components/ui/quiz-card'
 import { absoluteUrl } from '@/lib/site'
 import { serializeJsonLd } from '@/lib/seo'
 import { getQuizPath } from '@/lib/quiz-url'
-import { seoDescription, seoTitle } from '@/lib/seo-metadata'
+import { isQuizIndexable, seoDescription, seoTitle } from '@/lib/seo-metadata'
+import { countUsefulQuestionExplanations } from '@/domain/quiz-publication-quality'
 import { removeFromPlaylist } from '../actions'
 
 export async function generateMetadata({
@@ -25,7 +26,23 @@ export async function generateMetadata({
       title: true,
       description: true,
       isPublic: true,
-      _count: { select: { items: { where: { quiz: { isPublished: true } } } } },
+      items: {
+        where: { quiz: { isPublished: true } },
+        select: {
+          quiz: {
+            select: {
+              description: true,
+              questions: { select: { explanation: true } },
+              _count: {
+                select: {
+                  questions: true,
+                  reports: { where: { status: 'PENDING' } },
+                },
+              },
+            },
+          },
+        },
+      },
     },
   })
   if (!playlist || !playlist.isPublic) {
@@ -36,11 +53,19 @@ export async function generateMetadata({
     playlist.description ?? '',
     `A hand-picked playlist of quizzes: ${playlist.title}`
   )
+  const hasIndexableQuiz = playlist.items.some(({ quiz }) =>
+    isQuizIndexable({
+      description: quiz.description,
+      questionCount: quiz._count.questions,
+      explainedQuestionCount: countUsefulQuestionExplanations(quiz.questions),
+      pendingReportCount: quiz._count.reports,
+    })
+  )
   return {
     title,
     description,
     alternates: { canonical: `/playlists/${slug}` },
-    robots: playlist._count.items > 0 ? undefined : { index: false, follow: true },
+    robots: hasIndexableQuiz ? undefined : { index: false, follow: true },
     openGraph: {
       title,
       description,

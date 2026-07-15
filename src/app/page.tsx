@@ -8,21 +8,21 @@ import { serializeJsonLd } from '@/lib/seo'
 export const metadata: Metadata = {
   title: 'Free Online Quiz & Trivia Platform',
   description:
-    'Test your knowledge across hundreds of categories. Create quizzes, compete on leaderboards, and earn badges.',
+    'Play free quizzes across a growing range of topics. Create quizzes, compete on leaderboards, and earn badges.',
   alternates: {
     canonical: '/',
   },
   openGraph: {
     title: 'Free Online Quiz & Trivia Platform',
     description:
-      'Test your knowledge across hundreds of categories. Create quizzes, compete on leaderboards, and earn badges.',
+      'Play free quizzes across a growing range of topics. Create quizzes, compete on leaderboards, and earn badges.',
     url: absoluteUrl('/'),
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Free Online Quiz & Trivia Platform',
     description:
-      'Test your knowledge across hundreds of categories. Create quizzes, compete on leaderboards, and earn badges.',
+      'Play free quizzes across a growing range of topics. Create quizzes, compete on leaderboards, and earn badges.',
   },
 }
 
@@ -48,7 +48,7 @@ export default function HomePage() {
         url: absoluteUrl('/'),
         publisher: { '@id': absoluteUrl('/#organization') },
         description:
-          'Test your knowledge across hundreds of categories. Create quizzes, compete on leaderboards, and earn badges.',
+          'Play free quizzes across a growing range of topics. Create quizzes, compete on leaderboards, and earn badges.',
         potentialAction: {
           '@type': 'SearchAction',
           target: {

@@ -7,6 +7,7 @@ import { prisma } from '@/server/prisma'
 import { formatCorrectAnswer } from '@/domain/format-correct-answer'
 import { factCheckQuestions, type FactCheckVerdict } from '@/server/fact-check-utils'
 import { HOME_STATIC_DATA_TAG } from '@/server/home-quiz-cache'
+import { getQuizPublicationQualityIssues } from '@/domain/quiz-publication-quality'
 
 type AdminActionResult = { ok: true } | { ok: false; message: string }
 
@@ -43,7 +44,11 @@ export async function toggleQuizPublished(
 
   const quiz = await prisma.quiz.findUnique({
     where: { id: parsed.data.quizId },
-    select: { id: true, _count: { select: { questions: true } } },
+    select: {
+      id: true,
+      description: true,
+      questions: { select: { explanation: true } },
+    },
   })
 
   if (!quiz) {
@@ -51,8 +56,9 @@ export async function toggleQuizPublished(
   }
 
   const isPublished = parsed.data.publish === 'true'
-  if (isPublished && quiz._count.questions < 5) {
-    return { ok: false, message: 'A quiz must have at least 5 questions before publishing.' }
+  const qualityIssues = getQuizPublicationQualityIssues(quiz)
+  if (isPublished && qualityIssues.length > 0) {
+    return { ok: false, message: qualityIssues.join(' ') }
   }
 
   await prisma.$transaction(async (tx) => {

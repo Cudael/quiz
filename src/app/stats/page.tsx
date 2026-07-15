@@ -2,16 +2,24 @@ import type { Metadata } from 'next'
 import { Zap, Users, Play, BarChart3, Globe, Layers } from 'lucide-react'
 import { prisma } from '@/server/prisma'
 import { absoluteUrl } from '@/lib/site'
+import { isQuizListingIndexable } from '@/lib/seo-metadata'
 
-export const metadata: Metadata = {
+const statsMetadata: Metadata = {
   title: 'Global Quiz Stats',
   description: 'Live statistics from the BusQuiz platform. Total quizzes, players, plays and more.',
   alternates: { canonical: '/stats' },
   openGraph: {
     title: 'BusQuiz Statistics',
-    description: "See the numbers behind the world''s most engaging quiz platform.",
+    description: 'See current quiz, player, question, and play totals from BusQuiz.',
     url: absoluteUrl('/stats'),
   },
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const publishedQuizCount = await prisma.quiz.count({ where: { isPublished: true } })
+  return isQuizListingIndexable(publishedQuizCount)
+    ? statsMetadata
+    : { ...statsMetadata, robots: { index: false, follow: true } }
 }
 
 export default async function StatsPage() {
@@ -20,20 +28,25 @@ export default async function StatsPage() {
     totalUsers,
     totalPlays,
     totalQuestions,
+    totalAnswers,
     totalCategories,
-    topCategory,
+    topCategoryGroups,
     topQuiz,
     newestQuiz,
-    mostProlificCreator,
+    creatorGroups,
   ] = await Promise.all([
     prisma.quiz.count({ where: { isPublished: true } }),
     prisma.user.count(),
     prisma.playSession.count(),
-    prisma.question.count(),
+    prisma.question.count({ where: { quiz: { isPublished: true } } }),
+    prisma.questionAnswer.count({ where: { question: { quiz: { isPublished: true } } } }),
     prisma.category.count(),
-    prisma.category.findFirst({
-      orderBy: { quizzes: { _count: 'desc' } },
-      select: { name: true, slug: true, _count: { select: { quizzes: true } } },
+    prisma.quiz.groupBy({
+      by: ['categoryId'],
+      where: { isPublished: true },
+      _count: { id: true },
+      orderBy: { _count: { id: 'desc' } },
+      take: 1,
     }),
     prisma.quiz.findFirst({
       where: { isPublished: true },
@@ -45,10 +58,28 @@ export default async function StatsPage() {
       orderBy: { createdAt: 'desc' },
       select: { title: true, id: true, createdAt: true },
     }),
-    prisma.user.findFirst({
-      orderBy: { quizzes: { _count: 'desc' } },
-      select: { username: true, _count: { select: { quizzes: true } } },
+    prisma.quiz.groupBy({
+      by: ['authorId'],
+      where: { isPublished: true },
+      _count: { id: true },
+      orderBy: { _count: { id: 'desc' } },
+      take: 1,
     }),
+  ])
+
+  const [topCategory, mostProlificCreator] = await Promise.all([
+    topCategoryGroups[0]
+      ? prisma.category.findUnique({
+          where: { id: topCategoryGroups[0].categoryId },
+          select: { name: true },
+        })
+      : null,
+    creatorGroups[0]
+      ? prisma.user.findUnique({
+          where: { id: creatorGroups[0].authorId },
+          select: { username: true },
+        })
+      : null,
   ])
 
   const stats = [
@@ -95,17 +126,16 @@ export default async function StatsPage() {
       `On average, each quiz has been played ${Math.round(totalPlays / totalQuizzes).toLocaleString()} times.`
     )
   }
-  if (totalQuestions > 0 && totalPlays > 0) {
+  if (totalAnswers > 0) {
     funFacts.push(
-      `Over ${(totalQuestions * totalPlays).toLocaleString()} questions have been answered across all sessions.`
+      `${totalAnswers.toLocaleString()} answers have been recorded across quiz sessions.`
     )
   }
   if (totalQuizzes > 0 && totalUsers > 0) {
     funFacts.push(
-      `If every player created one quiz, we''d have ${totalUsers.toLocaleString()} — there are ${totalQuizzes.toLocaleString()} now.`
+      `There are currently ${totalQuizzes.toLocaleString()} published quizzes for ${totalUsers.toLocaleString()} registered and guest player accounts.`
     )
   }
-  funFacts.push('The fastest recorded quiz completion is under 30 seconds. Can you beat that?')
 
   const milestones = [
     {
@@ -118,13 +148,13 @@ export default async function StatsPage() {
       emoji: '🔥',
       title: 'Largest Category',
       value: topCategory?.name ?? '—',
-      detail: topCategory ? `${topCategory._count.quizzes} quizzes` : '',
+      detail: topCategoryGroups[0] ? `${topCategoryGroups[0]._count.id} published quizzes` : '',
     },
     {
       emoji: '✍️',
       title: 'Most Prolific Creator',
       value: mostProlificCreator?.username ?? '—',
-      detail: mostProlificCreator ? `${mostProlificCreator._count.quizzes} quizzes` : '',
+      detail: creatorGroups[0] ? `${creatorGroups[0]._count.id} published quizzes` : '',
     },
     {
       emoji: '🆕',

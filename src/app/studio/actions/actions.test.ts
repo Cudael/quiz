@@ -63,7 +63,10 @@ describe('studio actions auth checks', () => {
       .mockResolvedValueOnce({
         isPublished: false,
         reviewStatus: 'DRAFT',
-        _count: { questions: 5 },
+        description: 'A detailed quiz description that is ready for publication.',
+        questions: Array.from({ length: 5 }, () => ({
+          explanation: 'A useful explanation of why this answer is correct.',
+        })),
       })
 
     const formData = new FormData()

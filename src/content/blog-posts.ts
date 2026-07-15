@@ -79,7 +79,7 @@ const blogPosts: BlogPost[] = [
     author: 'BusQuiz Team',
     tags: ['trending', 'learning', 'recommendations'],
     content: `
-<p>Summer is here, and there's no better time to sharpen your mind with some fun, competitive quizzing. We analyzed thousands of plays on BusQuiz to bring you the hottest quiz topics right now.</p>
+<p>Summer is a great time to sharpen your mind with some fun, competitive quizzing. These ten approachable topics are useful starting points when you want to broaden your knowledge or create a focused challenge.</p>
 
 <h2>1. World Geography</h2>
 <p>Map-based quizzes are exploding in popularity. Our new map-select question type lets you pinpoint countries, capitals, and landmarks on an interactive map. It's immersive, visual, and surprisingly addictive.</p>
@@ -223,7 +223,7 @@ const blogPosts: BlogPost[] = [
     slug: 'welcome-to-busquiz',
     title: 'Welcome to BusQuiz — The Ultimate Quiz Platform',
     description:
-      'Meet BusQuiz: play hundreds of quizzes across every topic, create your own, and compete on global leaderboards.',
+      'Meet BusQuiz: play quizzes across a growing range of topics, create your own, and compete on global leaderboards.',
     date: '2026-04-20',
     author: 'BusQuiz Team',
     tags: ['news', 'platform', 'announcement'],
@@ -231,7 +231,7 @@ const blogPosts: BlogPost[] = [
 <p>We're thrilled to introduce BusQuiz — a new platform built from the ground up for quiz enthusiasts, trivia lovers, and knowledge seekers everywhere.</p>
 
 <h2>What Is BusQuiz?</h2>
-<p>BusQuiz is a comprehensive quiz platform where you can play thousands of quizzes across every imaginable category, create and publish your own quizzes, compete in real-time duels against friends, and climb global leaderboards to earn badges and recognition.</p>
+<p>BusQuiz is a quiz platform where you can explore a growing library of topics, create and submit your own quizzes, compete in real-time duels against friends, and climb global leaderboards to earn badges and recognition.</p>
 
 <h2>Play Anywhere, Anytime</h2>
 <p>Our platform is designed to be fast, responsive, and accessible. Whether you're on a desktop during lunch break or on your phone during your commute, BusQuiz delivers a smooth, engaging experience. No downloads required — just open your browser and start playing.</p>

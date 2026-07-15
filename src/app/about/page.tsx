@@ -38,17 +38,17 @@ export default async function AboutPage() {
       <div className="text-center mb-12">
         <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">About BusQuiz</h1>
         <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          The ultimate destination for quiz lovers and knowledge seekers. Play, create, and compete
-          across every topic imaginable.
+          A growing home for quiz lovers and knowledge seekers. Play, create, and compete across a
+          wide range of topics.
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-6 text-sm font-semibold">
           <span className="flex items-center gap-1.5">
             <Zap className="h-4 w-4 text-quiz-purple" />
-            {totalQuizzes.toLocaleString()}+ quizzes
+            {totalQuizzes.toLocaleString()} quizzes
           </span>
           <span className="flex items-center gap-1.5">
             <Users className="h-4 w-4 text-quiz-green" />
-            {totalUsers.toLocaleString()}+ players
+            {totalUsers.toLocaleString()} players
           </span>
           <span className="flex items-center gap-1.5">
             <Trophy className="h-4 w-4 text-quiz-orange" />
@@ -130,7 +130,7 @@ export default async function AboutPage() {
             {
               step: '1',
               title: 'Browse',
-              description: 'Find a quiz that interests you from thousands of options.',
+              description: 'Find a quiz that interests you from the available topics.',
             },
             {
               step: '2',

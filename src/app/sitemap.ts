@@ -4,57 +4,80 @@ import { getAllBlogPosts } from '@/content/blog-posts'
 import { quizCollections } from '@/content/collections'
 import { absoluteUrl } from '@/lib/site'
 import { getQuizPath } from '@/lib/quiz-url'
-import { isQuizIndexable } from '@/lib/seo-metadata'
+import { isQuizIndexable, isQuizListingIndexable } from '@/lib/seo-metadata'
+import { countUsefulQuestionExplanations } from '@/domain/quiz-publication-quality'
 
 const STATIC_LAST_MODIFIED = new Date('2026-07-12')
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [categories, quizzes, publicProfiles, publicPlaylists, latestPlay, latestDaily] =
-    await Promise.all([
-      prisma.category.findMany({ select: { slug: true, createdAt: true } }),
-      prisma.quiz.findMany({
-        where: { isPublished: true },
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          description: true,
-          difficulty: true,
-          updatedAt: true,
-          category: { select: { slug: true } },
-          _count: {
-            select: {
-              questions: true,
-              reports: { where: { status: 'PENDING' } },
-            },
+  const [
+    categories,
+    quizzes,
+    publicProfiles,
+    publicPlaylists,
+    latestPlay,
+    latestDaily,
+    badgeCount,
+  ] = await Promise.all([
+    prisma.category.findMany({ select: { slug: true, parentSlug: true, createdAt: true } }),
+    prisma.quiz.findMany({
+      where: { isPublished: true },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        difficulty: true,
+        authorId: true,
+        updatedAt: true,
+        category: { select: { slug: true } },
+        questions: {
+          where: { explanation: { not: null } },
+          select: { explanation: true },
+        },
+        _count: {
+          select: {
+            questions: true,
+            reports: { where: { status: 'PENDING' } },
           },
         },
-      }),
-      prisma.user.findMany({
-        where: { username: { not: null }, quizzes: { some: { isPublished: true } } },
-        select: {
-          username: true,
-          createdAt: true,
-          quizzes: {
-            where: { isPublished: true },
-            orderBy: { updatedAt: 'desc' },
-            take: 1,
-            select: { updatedAt: true },
-          },
+      },
+    }),
+    prisma.user.findMany({
+      where: { username: { not: null }, quizzes: { some: { isPublished: true } } },
+      select: {
+        id: true,
+        username: true,
+        createdAt: true,
+        quizzes: {
+          where: { isPublished: true },
+          orderBy: { updatedAt: 'desc' },
+          take: 1,
+          select: { updatedAt: true },
         },
-      }),
-      prisma.playlist.findMany({
-        where: { isPublic: true, items: { some: { quiz: { isPublished: true } } } },
-        select: { slug: true, updatedAt: true },
-      }),
-      prisma.playSession.aggregate({ _max: { createdAt: true } }),
-      prisma.dailyQuiz.findFirst({ orderBy: { createdAt: 'desc' }, select: { createdAt: true } }),
-    ])
+      },
+    }),
+    prisma.playlist.findMany({
+      where: { isPublic: true, items: { some: { quiz: { isPublished: true } } } },
+      select: {
+        slug: true,
+        updatedAt: true,
+        items: {
+          where: { quiz: { isPublished: true } },
+          select: { quizId: true },
+        },
+      },
+    }),
+    prisma.playSession.aggregate({ _max: { createdAt: true } }),
+    prisma.dailyQuiz.findFirst({ orderBy: { createdAt: 'desc' }, select: { createdAt: true } }),
+    prisma.badge.count(),
+  ])
 
   const indexableQuizzes = quizzes.filter((quiz) =>
     isQuizIndexable({
       description: quiz.description,
       questionCount: quiz._count.questions,
+      explainedQuestionCount: countUsefulQuestionExplanations(quiz.questions),
       pendingReportCount: quiz._count.reports,
     })
   )
@@ -62,11 +85,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     (latest, quiz) => (!latest || quiz.updatedAt > latest ? quiz.updatedAt : latest),
     null
   )
+  const indexableQuizIds = new Set(indexableQuizzes.map((quiz) => quiz.id))
+  const indexableAuthorIds = new Set(indexableQuizzes.map((quiz) => quiz.authorId))
+  const categoriesBySlug = new Map(categories.map((category) => [category.slug, category]))
   const categoryLastModified = new Map<string, Date>()
+  const categoryQuizCounts = new Map<string, number>()
   for (const quiz of indexableQuizzes) {
-    const previous = categoryLastModified.get(quiz.category.slug)
-    if (!previous || quiz.updatedAt > previous) {
-      categoryLastModified.set(quiz.category.slug, quiz.updatedAt)
+    const category = categoriesBySlug.get(quiz.category.slug)
+    const listingSlugs = [quiz.category.slug, category?.parentSlug].filter(
+      (value): value is string => Boolean(value)
+    )
+
+    for (const listingSlug of listingSlugs) {
+      categoryQuizCounts.set(listingSlug, (categoryQuizCounts.get(listingSlug) ?? 0) + 1)
+      const previous = categoryLastModified.get(listingSlug)
+      if (!previous || quiz.updatedAt > previous) {
+        categoryLastModified.set(listingSlug, quiz.updatedAt)
+      }
     }
   }
   const indexableCollections = quizCollections.filter((collection) => {
@@ -75,7 +110,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         (!collection.categorySlugs || collection.categorySlugs.includes(quiz.category.slug)) &&
         (!collection.difficulties || collection.difficulties.includes(quiz.difficulty))
     ).length
-    return matchingCount >= 3
+    return isQuizListingIndexable(matchingCount)
   })
 
   const blogPosts = getAllBlogPosts()
@@ -87,42 +122,66 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily',
       priority: 1,
     },
-    {
-      url: absoluteUrl('/leaderboard'),
-      lastModified: latestPlay._max.createdAt ?? STATIC_LAST_MODIFIED,
-      changeFrequency: 'hourly',
-      priority: 0.6,
-    },
-    {
-      url: absoluteUrl('/categories'),
-      lastModified: latestQuizUpdate ?? STATIC_LAST_MODIFIED,
-      changeFrequency: 'daily',
-      priority: 0.9,
-    },
-    {
-      url: absoluteUrl('/popular'),
-      lastModified: latestQuizUpdate ?? STATIC_LAST_MODIFIED,
-      changeFrequency: 'daily',
-      priority: 0.8,
-    },
-    {
-      url: absoluteUrl('/trending'),
-      lastModified: latestPlay._max.createdAt ?? latestQuizUpdate ?? STATIC_LAST_MODIFIED,
-      changeFrequency: 'daily',
-      priority: 0.8,
-    },
-    {
-      url: absoluteUrl('/daily'),
-      lastModified: latestDaily?.createdAt ?? STATIC_LAST_MODIFIED,
-      changeFrequency: 'daily',
-      priority: 0.7,
-    },
-    {
-      url: absoluteUrl('/badges'),
-      lastModified: STATIC_LAST_MODIFIED,
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
+    ...(latestPlay._max.createdAt
+      ? [
+          {
+            url: absoluteUrl('/leaderboard'),
+            lastModified: latestPlay._max.createdAt,
+            changeFrequency: 'hourly' as const,
+            priority: 0.6,
+          },
+        ]
+      : []),
+    ...(isQuizListingIndexable(indexableQuizzes.length)
+      ? [
+          {
+            url: absoluteUrl('/categories'),
+            lastModified: latestQuizUpdate ?? STATIC_LAST_MODIFIED,
+            changeFrequency: 'daily' as const,
+            priority: 0.9,
+          },
+        ]
+      : []),
+    ...(isQuizListingIndexable(indexableQuizzes.length)
+      ? [
+          {
+            url: absoluteUrl('/popular'),
+            lastModified: latestQuizUpdate ?? STATIC_LAST_MODIFIED,
+            changeFrequency: 'daily' as const,
+            priority: 0.8,
+          },
+        ]
+      : []),
+    ...(latestPlay._max.createdAt
+      ? [
+          {
+            url: absoluteUrl('/trending'),
+            lastModified: latestPlay._max.createdAt,
+            changeFrequency: 'daily' as const,
+            priority: 0.8,
+          },
+        ]
+      : []),
+    ...(latestDaily
+      ? [
+          {
+            url: absoluteUrl('/daily'),
+            lastModified: latestDaily.createdAt,
+            changeFrequency: 'daily' as const,
+            priority: 0.7,
+          },
+        ]
+      : []),
+    ...(badgeCount > 0
+      ? [
+          {
+            url: absoluteUrl('/badges'),
+            lastModified: STATIC_LAST_MODIFIED,
+            changeFrequency: 'weekly' as const,
+            priority: 0.7,
+          },
+        ]
+      : []),
     {
       url: absoluteUrl('/about'),
       lastModified: STATIC_LAST_MODIFIED,
@@ -183,18 +242,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly',
       priority: 0.7,
     },
-    {
-      url: absoluteUrl('/stats'),
-      lastModified: STATIC_LAST_MODIFIED,
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
-    {
-      url: absoluteUrl('/collections'),
-      lastModified: STATIC_LAST_MODIFIED,
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
+    ...(isQuizListingIndexable(indexableQuizzes.length)
+      ? [
+          {
+            url: absoluteUrl('/stats'),
+            lastModified: latestPlay._max.createdAt ?? latestQuizUpdate ?? STATIC_LAST_MODIFIED,
+            changeFrequency: 'weekly' as const,
+            priority: 0.6,
+          },
+        ]
+      : []),
+    ...(indexableCollections.length > 0
+      ? [
+          {
+            url: absoluteUrl('/collections'),
+            lastModified: latestQuizUpdate ?? STATIC_LAST_MODIFIED,
+            changeFrequency: 'weekly' as const,
+            priority: 0.8,
+          },
+        ]
+      : []),
     ...indexableCollections.map((collection) => ({
       url: absoluteUrl(`/collections/${collection.slug}`),
       lastModified: STATIC_LAST_MODIFIED,
@@ -213,12 +280,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     })),
-    ...categories.map((category) => ({
-      url: absoluteUrl(`/categories/${category.slug}`),
-      lastModified: categoryLastModified.get(category.slug) ?? category.createdAt,
-      changeFrequency: 'weekly' as const,
-      priority: 0.7,
-    })),
+    ...categories
+      .filter((category) => isQuizListingIndexable(categoryQuizCounts.get(category.slug) ?? 0))
+      .map((category) => ({
+        url: absoluteUrl(`/categories/${category.slug}`),
+        lastModified: categoryLastModified.get(category.slug) ?? category.createdAt,
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+      })),
     ...indexableQuizzes.map((quiz) => ({
       url: absoluteUrl(getQuizPath(quiz)),
       lastModified: quiz.updatedAt,
@@ -226,7 +295,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     })),
     ...publicProfiles.flatMap((user) =>
-      user.username
+      user.username && indexableAuthorIds.has(user.id)
         ? [
             {
               url: absoluteUrl(`/u/${user.username}`),
@@ -237,11 +306,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           ]
         : []
     ),
-    ...publicPlaylists.map((playlist) => ({
-      url: absoluteUrl(`/playlists/${playlist.slug}`),
-      lastModified: playlist.updatedAt,
-      changeFrequency: 'weekly' as const,
-      priority: 0.6,
-    })),
+    ...publicPlaylists
+      .filter((playlist) => playlist.items.some((item) => indexableQuizIds.has(item.quizId)))
+      .map((playlist) => ({
+        url: absoluteUrl(`/playlists/${playlist.slug}`),
+        lastModified: playlist.updatedAt,
+        changeFrequency: 'weekly' as const,
+        priority: 0.6,
+      })),
   ]
 }

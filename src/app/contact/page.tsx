@@ -30,15 +30,21 @@ export default function ContactPage() {
       <section className="mt-8 space-y-3">
         <h2 className="text-2xl font-semibold">Contact Options</h2>
         <p className="text-muted-foreground">
-          Email us at{' '}
+          For general questions, partnerships, or feedback, email{' '}
           <a href="mailto:hello@busquiz.com" className="text-primary underline underline-offset-4">
             hello@busquiz.com
           </a>
           .
         </p>
         <p className="text-muted-foreground">
-          You can also reach the team through the placeholder Discord and Twitter / X links in the
-          site footer.
+          For account access, verification, or technical support, email{' '}
+          <a
+            href="mailto:support@busquiz.com"
+            className="text-primary underline underline-offset-4"
+          >
+            support@busquiz.com
+          </a>
+          . Both addresses reach the BusQuiz team.
         </p>
       </section>
     </div>

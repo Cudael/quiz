@@ -15,6 +15,7 @@ import {
   type ActionResult,
 } from './_shared'
 import { saveRevision } from './revision-actions'
+import { getQuizPublicationQualityIssues } from '@/domain/quiz-publication-quality'
 
 const quizInputSchema = quizSchema
 
@@ -37,7 +38,12 @@ export async function submitQuizForReview(formData: FormData): Promise<ActionRes
 
   const quiz = await prisma.quiz.findUnique({
     where: { id: quizId },
-    select: { isPublished: true, reviewStatus: true, _count: { select: { questions: true } } },
+    select: {
+      isPublished: true,
+      reviewStatus: true,
+      description: true,
+      questions: { select: { explanation: true } },
+    },
   })
   if (!quiz) {
     return { ok: false, error: 'NOT_FOUND', message: 'Quiz not found.' }
@@ -46,11 +52,12 @@ export async function submitQuizForReview(formData: FormData): Promise<ActionRes
   if (quiz.isPublished || quiz.reviewStatus === 'APPROVED') {
     return { ok: false, error: 'VALIDATION_ERROR', message: 'This quiz is already published.' }
   }
-  if (quiz._count.questions < 5) {
+  const qualityIssues = getQuizPublicationQualityIssues(quiz)
+  if (qualityIssues.length > 0) {
     return {
       ok: false,
       error: 'VALIDATION_ERROR',
-      message: 'A quiz must have at least 5 questions before review.',
+      message: qualityIssues.join(' '),
     }
   }
 

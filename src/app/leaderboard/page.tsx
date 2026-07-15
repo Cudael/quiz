@@ -35,12 +35,15 @@ export async function generateMetadata({
         : params.period === 'season'
           ? 'This Season'
           : 'All-time'
-  const quiz = params.quizId
-    ? await prisma.quiz.findUnique({
-        where: { id: params.quizId },
-        select: { title: true },
-      })
-    : null
+  const [quiz, latestPlay] = await Promise.all([
+    params.quizId
+      ? prisma.quiz.findUnique({
+          where: { id: params.quizId },
+          select: { title: true },
+        })
+      : null,
+    prisma.playSession.findFirst({ select: { id: true } }),
+  ])
   const categoryLabel = params.categories[0]
   const suffix = [quiz?.title, categoryLabel].filter(Boolean).join(' • ')
   const title = `Leaderboard — ${periodLabel}${suffix ? ` • ${suffix}` : ''}`
@@ -56,7 +59,7 @@ export async function generateMetadata({
     title,
     description:
       'See top performers, filter by mode and category, and chase your next personal best.',
-    robots: hasFilters ? { index: false } : undefined,
+    robots: hasFilters || !latestPlay ? { index: false, follow: true } : undefined,
     alternates: { canonical: '/leaderboard' },
     openGraph: {
       title,

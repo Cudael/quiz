@@ -13,7 +13,13 @@ import { getQuizPath } from '@/lib/quiz-url'
 import { prisma } from '@/server/prisma'
 import { auth } from '@/server/auth'
 import { categoryIcons } from '@/lib/category-icons'
-import { seoDescription, seoTitle } from '@/lib/seo-metadata'
+import {
+  isQuizIndexable,
+  isQuizListingIndexable,
+  seoDescription,
+  seoTitle,
+} from '@/lib/seo-metadata'
+import { countUsefulQuestionExplanations } from '@/domain/quiz-publication-quality'
 
 const PAGE_SIZE = 20
 
@@ -81,13 +87,15 @@ function getCategoryFaq(categoryName: string, totalCount: number) {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }): Promise<Metadata> {
   const { slug } = await params
   const category = await prisma.category.findUnique({
     where: { slug },
-    select: { name: true, description: true, slug: true },
+    select: { id: true, name: true, description: true, slug: true },
   })
 
   if (!category) {
@@ -104,11 +112,45 @@ export async function generateMetadata({
     `Play quizzes in the ${category.name} category on BusQuiz.`
   )
   const url = absoluteUrl(`/categories/${category.slug}`)
+  const childCategories = await prisma.category.findMany({
+    where: { parentSlug: category.slug },
+    select: { id: true },
+  })
+  const candidateQuizzes = await prisma.quiz.findMany({
+    where: {
+      isPublished: true,
+      categoryId: { in: [category.id, ...childCategories.map((child) => child.id)] },
+    },
+    select: {
+      description: true,
+      questions: { select: { explanation: true } },
+      _count: {
+        select: {
+          questions: true,
+          reports: { where: { status: 'PENDING' } },
+        },
+      },
+    },
+  })
+  const indexableQuizCount = candidateQuizzes.filter((quiz) =>
+    isQuizIndexable({
+      description: quiz.description,
+      questionCount: quiz._count.questions,
+      explainedQuestionCount: countUsefulQuestionExplanations(quiz.questions),
+      pendingReportCount: quiz._count.reports,
+    })
+  ).length
+  const requestedSearchParams = await searchParams
+  const isFilteredView = Object.values(requestedSearchParams).some((value) => value !== undefined)
 
   return {
     title,
     description,
     alternates: { canonical: `/categories/${category.slug}` },
+    robots:
+      isFilteredView || !isQuizListingIndexable(indexableQuizCount)
+        ? { index: false, follow: true }
+        : undefined,
     openGraph: { title, description, url },
     twitter: { card: 'summary_large_image', title, description },
   }

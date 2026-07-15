@@ -19,10 +19,7 @@ interface HeroInsightBoxProps {
 
 export function HeroInsightBox({ currentUser, totalQuizCount, quickLinks }: HeroInsightBoxProps) {
   const [query, setQuery] = useState('')
-  const formattedCount =
-    totalQuizCount >= 1000
-      ? `${(totalQuizCount / 1000).toFixed(1).replace(/\.0$/, '')}K+`
-      : `${totalQuizCount}+`
+  const formattedCount = totalQuizCount.toLocaleString()
 
   return (
     <div className="flex h-full flex-col justify-between space-y-4">
@@ -34,7 +31,7 @@ export function HeroInsightBox({ currentUser, totalQuizCount, quickLinks }: Hero
           <p className="mt-2 text-base leading-relaxed text-muted-foreground sm:text-lg">
             {currentUser
               ? `Welcome back, ${currentUser.username ?? 'quiz champion'}! Continue your streak, take today’s challenge, or discover a new favorite.`
-              : 'Explore thousands of free quizzes, challenge your knowledge, and play instantly — no sign-up required.'}
+              : 'Explore free quizzes across a growing range of topics and play instantly — no sign-up required.'}
           </p>
         </div>
 

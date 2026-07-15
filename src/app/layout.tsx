@@ -11,8 +11,10 @@ import { ServiceWorkerRegistration } from '@/components/pwa/service-worker-regis
 import { absoluteUrl, siteConfig } from '@/lib/site'
 import { Analytics } from './analytics'
 import { ConsentManager } from '@/components/privacy/consent-manager'
+import { normalizeAdSensePublisherId } from '@/lib/adsense'
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+const ADSENSE_PUBLISHER_ID = normalizeAdSensePublisherId(process.env.GOOGLE_ADSENSE_PUBLISHER_ID)
 
 export const metadata: Metadata = {
   metadataBase: new URL(absoluteUrl()),
@@ -22,6 +24,7 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   manifest: '/manifest.webmanifest',
+  ...(ADSENSE_PUBLISHER_ID ? { other: { 'google-adsense-account': ADSENSE_PUBLISHER_ID } } : {}),
   openGraph: {
     title: siteConfig.title,
     description: siteConfig.description,

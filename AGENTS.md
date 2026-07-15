@@ -26,6 +26,7 @@ src/
     sitemap.ts          Sitemap generation
     opengraph-image.tsx Dynamic OG image (homepage)
     analytics.tsx       Analytics integration
+    ads.txt/            Conditional AdSense authorized-seller record
     cookies/            Cookie/storage policy
     api/                API route handlers
       auth/             [...nextauth], forgot-password, register, resend-verification,
@@ -268,9 +269,10 @@ Functional PRs that change route contracts, endpoint behavior, or compatibility 
 ## SEO and indexability
 
 - The root layout provides shared title/Open Graph defaults but intentionally does not declare a canonical URL. Every indexable page must declare its own canonical.
-- Published quizzes are indexable and included in the sitemap only when they have at least 5 questions, a normalized description of at least 30 characters, and no pending report. Other published quizzes remain accessible with `noindex,follow`.
+- Published quizzes are indexable and included in the sitemap only when they have at least 5 questions, a normalized description of at least 30 characters, at least 3 useful explanations of 20+ characters, and no pending report. Other published quizzes remain accessible with `noindex,follow`.
+- Category and curated-collection pages require at least 3 matching indexable quizzes before they are indexable or included in the sitemap. Filtered category variants are always `noindex,follow` with the base category canonical.
 - Internal search/filter variants use the base route as canonical and are `noindex,follow` where appropriate.
-- Curated collections require at least 3 matching indexable quizzes before they are indexable or included in the sitemap. Public playlists require at least 1 published quiz.
+- Quiz review submission and admin publication enforce the mechanical baseline in `src/domain/quiz-publication-quality.ts`; administrators must still review accuracy, originality, wording, and media rights. Public profiles and playlists enter the sitemap only when they contain at least 1 indexable quiz.
 - Reuse `src/lib/seo-metadata.ts` for bounded titles/descriptions and quiz indexability so page metadata and sitemap behavior stay consistent.
 - Private gameplay, results, Studio, admin, authentication, personalized, and compatibility routes must remain `noindex`; relevant route families are also excluded in `robots.ts`.
 
@@ -289,6 +291,11 @@ first layer and reopen preferences from the footer. Necessary authentication, se
 duel, and UI-preference storage remains available without consent. Advertising cookies are not
 currently active and must not be added to this custom flow; Google publisher ads require a
 Google-certified TCF CMP for EEA/UK/Swiss traffic.
+
+`GOOGLE_ADSENSE_PUBLISHER_ID` accepts only a complete `ca-pub-` identifier. When configured it
+adds Google's ownership meta tag and enables `/ads.txt`, but never loads an advertising script.
+Future ad components must use `canRequestAds` from `src/lib/adsense.ts`, provide certified consent
+and a page-level substantial-content check, and remain limited to its content-route allowlist.
 
 ## Styling
 
