@@ -25,6 +25,7 @@ export default async function EditQuizPage({ params }: { params: Promise<{ id: s
       format: true,
       defaultTimeLimitSec: true,
       isPublished: true,
+      reviewStatus: true,
       authorId: true,
       collaborators: {
         select: {

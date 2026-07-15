@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import {
   AlertTriangle,
   Check,
@@ -20,7 +21,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/components/ui/toast'
 import { formatCorrectAnswer } from '@/domain/format-correct-answer'
 import { formatRelativeTime } from '@/lib/time'
-import { factCheckQuiz } from '../../actions'
+import { factCheckQuiz, toggleQuizPublished } from '../../actions'
 import { FactCheckBadge } from '../../_components/fact-check-badge'
 import type { FactCheckVerdict, LatestFactCheck } from '@/server/fact-check-utils'
 
@@ -187,7 +188,9 @@ function QuestionChoices({ choices }: { choices: ChoiceData[] }) {
 }
 
 export function ReviewDraftsClient({ drafts }: ReviewDraftsClientProps) {
+  const router = useRouter()
   const { addToast } = useToast()
+  const [approvingIds, setApprovingIds] = React.useState<Set<string>>(new Set())
   const [copied, setCopied] = React.useState(false)
   const [collapsedIds, setCollapsedIds] = React.useState<Set<string>>(
     () =>
@@ -207,6 +210,31 @@ export function ReviewDraftsClient({ drafts }: ReviewDraftsClientProps) {
       return next
     })
   }, [])
+
+  const handleApprove = React.useCallback(
+    async (draft: DraftData) => {
+      setApprovingIds((current) => new Set(current).add(draft.id))
+      try {
+        const formData = new FormData()
+        formData.set('quizId', draft.id)
+        formData.set('publish', 'true')
+        const result = await toggleQuizPublished(formData)
+        if (!result.ok) {
+          addToast(result.message ?? 'Could not publish this quiz.', 'error')
+          return
+        }
+        addToast(`"${draft.title}" approved and published.`, 'success')
+        router.refresh()
+      } finally {
+        setApprovingIds((current) => {
+          const next = new Set(current)
+          next.delete(draft.id)
+          return next
+        })
+      }
+    },
+    [addToast, router]
+  )
 
   const [factChecking, setFactChecking] = React.useState<Set<string>>(new Set())
   const [factCheckResults, setFactCheckResults] = React.useState<
@@ -339,6 +367,18 @@ export function ReviewDraftsClient({ drafts }: ReviewDraftsClientProps) {
                   </button>
                   <div className="flex shrink-0 flex-col items-end gap-1.5">
                     <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        disabled={approvingIds.has(draft.id)}
+                        onClick={() => void handleApprove(draft)}
+                      >
+                        {approvingIds.has(draft.id) ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <CheckCircle2 className="h-4 w-4" />
+                        )}
+                        {approvingIds.has(draft.id) ? 'Publishing…' : 'Approve & publish'}
+                      </Button>
                       <Button
                         variant="outline"
                         size="sm"

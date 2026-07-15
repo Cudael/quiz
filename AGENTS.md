@@ -45,7 +45,7 @@ src/
       v1/               Public read-only API (CORS *, rate-limited): quizzes,
                         quizzes/[id] (id or slug, no correct-answer flags), categories
     about/              About page + accessibility sub-page
-    admin/              Admin dashboard, users, quizzes, categories, reports, feedback,
+    admin/              Admin dashboard, users, quiz publication review, categories, reports, feedback,
                         suggestions, audit-log, statistics, forbidden
     badges/             Public badges catalog
     blog/               Blog listing + [slug] dynamic pages
@@ -185,7 +185,16 @@ User, Category, Quiz, Question, Choice, PlaySession, QuestionAnswer, Duel, DuelP
 
 ### Key enums
 
-Role (USER/ADMIN), Difficulty (EASY/MEDIUM/HARD), QuestionType (SINGLE/TRUEFALSE/FILL_BLANK/HOTSPOT/ORDER/MATCH/NUMBER_GUESS/GROUPS), QuizFormat (TEXT_CHOICE/IMAGE_CHOICE/IMAGE_HOTSPOT/ORDER/MATCH/ODD_ONE_OUT/TYPE_ANSWER/NUMBER_GUESS/IMAGE_REVEAL/AUDIO_CHOICE/VERSUS/CONNECTIONS/ANAGRAM/MEMORY_FLASH), DuelStatus (WAITING/IN_PROGRESS/FINISHED), PlayMode (STANDARD/DAILY/PRACTICE/BLITZ), ReportReason, ReportStatus (reports can target quizzes or comments), SuggestionStatus, NotificationType, FeedbackType, FeedbackStatus, QuestPeriod.
+Role (USER/ADMIN), Difficulty (EASY/MEDIUM/HARD), QuizReviewStatus (DRAFT/PENDING/APPROVED/REJECTED), QuestionType (SINGLE/TRUEFALSE/FILL_BLANK/HOTSPOT/ORDER/MATCH/NUMBER_GUESS/GROUPS), QuizFormat (TEXT_CHOICE/IMAGE_CHOICE/IMAGE_HOTSPOT/ORDER/MATCH/ODD_ONE_OUT/TYPE_ANSWER/NUMBER_GUESS/IMAGE_REVEAL/AUDIO_CHOICE/VERSUS/CONNECTIONS/ANAGRAM/MEMORY_FLASH), DuelStatus (WAITING/IN_PROGRESS/FINISHED), PlayMode (STANDARD/DAILY/PRACTICE/BLITZ), ReportReason, ReportStatus (reports can target quizzes or comments), SuggestionStatus, NotificationType, FeedbackType, FeedbackStatus, QuestPeriod.
+
+### Quiz publication review
+
+Creator saves always produce an unpublished `DRAFT`. The owner can submit a complete quiz, which
+sets `reviewStatus: PENDING` but leaves `isPublished: false`. Only the admin quiz action may set
+`isPublished: true`; approval sets `APPROVED`, and admin unpublishing sets `REJECTED`. Any Studio
+content edit—including metadata, questions, ordering, imports, AI additions, or revision restore—
+unpublishes the quiz and returns it to `DRAFT`, requiring a fresh admin review. Existing published
+quizzes are backfilled as `APPROVED` by the migration.
 
 ### Quiz formats & answer evaluation
 

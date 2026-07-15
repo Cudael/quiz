@@ -1,10 +1,11 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 import { Prisma } from '@prisma/client'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
+import { HOME_STATIC_DATA_TAG } from '@/server/home-quiz-cache'
 import { assertOwnership, assertQuizOwner, quizIdSchema, type ActionResult } from './_shared'
 
 const MAX_REVISIONS_PER_QUIZ = 20
@@ -196,6 +197,10 @@ export async function restoreRevision(formData: FormData): Promise<ActionResult>
         difficulty: snapshot.difficulty as never,
         format: snapshot.format as never,
         defaultTimeLimitSec: snapshot.defaultTimeLimitSec,
+        isPublished: false,
+        reviewStatus: 'DRAFT',
+        submittedForReviewAt: null,
+        reviewedAt: null,
       },
     })
 
@@ -228,5 +233,6 @@ export async function restoreRevision(formData: FormData): Promise<ActionResult>
   revalidatePath(`/studio/quiz/${parsed.data.quizId}/revisions`)
   revalidatePath(`/studio/quiz/${parsed.data.quizId}/edit`)
   revalidatePath('/studio')
+  revalidateTag(HOME_STATIC_DATA_TAG, 'max')
   return { ok: true }
 }

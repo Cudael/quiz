@@ -5,6 +5,7 @@ const { authMock, prismaMock, revalidatePathMock } = vi.hoisted(() => ({
   prismaMock: {
     quiz: {
       findUnique: vi.fn(),
+      update: vi.fn(),
     },
     question: {
       findMany: vi.fn(),
@@ -17,7 +18,11 @@ const { authMock, prismaMock, revalidatePathMock } = vi.hoisted(() => ({
 
 vi.mock('@/server/auth', () => ({ auth: authMock }))
 vi.mock('@/server/prisma', () => ({ prisma: prismaMock }))
-vi.mock('next/cache', () => ({ revalidatePath: revalidatePathMock }))
+vi.mock('next/cache', () => ({
+  revalidatePath: revalidatePathMock,
+  revalidateTag: vi.fn(),
+  unstable_cache: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
+}))
 
 import { PATCH } from '@/app/api/studio/quizzes/[id]/questions/reorder/route'
 
@@ -54,6 +59,7 @@ describe('PATCH /api/studio/quizzes/[id]/questions/reorder', () => {
     prismaMock.question.update
       .mockResolvedValueOnce({ id: 'ckq6xdr2w0000u3z5f6l6x4t5' })
       .mockResolvedValueOnce({ id: 'ckq6xdr2w0000u3z5f6l6x4t6' })
+    prismaMock.quiz.update.mockResolvedValue({ id: 'quiz_1' })
     prismaMock.$transaction.mockImplementation(async (operations: Array<Promise<unknown>>) =>
       Promise.all(operations)
     )
@@ -71,6 +77,15 @@ describe('PATCH /api/studio/quizzes/[id]/questions/reorder', () => {
     )
 
     expect(response.status).toBe(200)
+    expect(prismaMock.quiz.update).toHaveBeenCalledWith({
+      where: { id: 'quiz_1' },
+      data: {
+        isPublished: false,
+        reviewStatus: 'DRAFT',
+        submittedForReviewAt: null,
+        reviewedAt: null,
+      },
+    })
     expect(prismaMock.question.update).toHaveBeenCalledTimes(2)
     expect(revalidatePathMock).toHaveBeenCalledWith('/studio')
     expect(revalidatePathMock).toHaveBeenCalledWith('/studio/quiz/quiz_1/edit')

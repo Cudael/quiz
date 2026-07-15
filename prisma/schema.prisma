@@ -47,6 +47,13 @@ enum QuizFormat {
   MEMORY_FLASH
 }
 
+enum QuizReviewStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum DuelStatus {
   WAITING
   IN_PROGRESS
@@ -161,24 +168,27 @@ model Category {
 }
 
 model Quiz {
-  id                  String     @id @default(cuid())
-  title               String
-  slug                String?    @unique
-  description         String
-  coverImage          String?
-  tags                String[] // string array, e.g. ["history","ww2"]
-  categoryId          String
-  category            Category   @relation(fields: [categoryId], references: [id])
-  difficulty          Difficulty @default(MEDIUM)
-  authorId            String
-  author              User       @relation("AuthoredQuizzes", fields: [authorId], references: [id])
-  isPublished         Boolean    @default(true)
-  playCount           Int        @default(0)
-  avgScore            Float      @default(0)
-  defaultTimeLimitSec Int?
-  format              QuizFormat @default(TEXT_CHOICE)
-  createdAt           DateTime   @default(now())
-  updatedAt           DateTime   @updatedAt
+  id                   String           @id @default(cuid())
+  title                String
+  slug                 String?          @unique
+  description          String
+  coverImage           String?
+  tags                 String[] // string array, e.g. ["history","ww2"]
+  categoryId           String
+  category             Category         @relation(fields: [categoryId], references: [id])
+  difficulty           Difficulty       @default(MEDIUM)
+  authorId             String
+  author               User             @relation("AuthoredQuizzes", fields: [authorId], references: [id])
+  isPublished          Boolean          @default(false)
+  reviewStatus         QuizReviewStatus @default(DRAFT)
+  submittedForReviewAt DateTime?
+  reviewedAt           DateTime?
+  playCount            Int              @default(0)
+  avgScore             Float            @default(0)
+  defaultTimeLimitSec  Int?
+  format               QuizFormat       @default(TEXT_CHOICE)
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
 
   questions     Question[]
   sessions      PlaySession[]
@@ -193,6 +203,7 @@ model Quiz {
 
   @@index([categoryId])
   @@index([authorId])
+  @@index([reviewStatus])
 }
 
 model Rating {

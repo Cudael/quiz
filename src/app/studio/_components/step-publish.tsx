@@ -10,7 +10,7 @@ import { ImageUpload } from './image-upload'
 import { useQuizCreatorStore } from '@/store/quiz-creator-store'
 import { updateQuiz } from '@/app/studio/actions'
 import { createQuizAndReturnId } from '@/app/studio/actions/quiz-meta-actions'
-import { togglePublish } from '@/app/studio/actions'
+import { submitQuizForReview } from '@/app/studio/actions'
 import { getPendingFile, uploadFileToStorage, clearPendingUpload } from './use-image-upload'
 import { saveQuestionsForQuiz } from './quiz-save-utils'
 import { FORMAT_INFO, isQuestionCompleteForFormat } from './format-defaults'
@@ -18,6 +18,7 @@ import { FORMAT_INFO, isQuestionCompleteForFormat } from './format-defaults'
 interface StepPublishProps {
   quizId: string | null
   quizSlug?: string | null
+  reviewStatus?: 'DRAFT' | 'PENDING' | 'APPROVED' | 'REJECTED'
 }
 
 interface CheckItem {
@@ -27,7 +28,11 @@ interface CheckItem {
 
 const categoryIdSchema = z.string().cuid()
 
-export function StepPublish({ quizId, quizSlug: initialSlug }: StepPublishProps) {
+export function StepPublish({
+  quizId,
+  quizSlug: initialSlug,
+  reviewStatus: initialReviewStatus = 'DRAFT',
+}: StepPublishProps) {
   const router = useRouter()
   const { addToast } = useToast()
   const {
@@ -50,6 +55,7 @@ export function StepPublish({ quizId, quizSlug: initialSlug }: StepPublishProps)
   const [saving, setSavingLocal] = React.useState(false)
   const [copied, setCopied] = React.useState(false)
   const [quizSlug, setQuizSlug] = React.useState<string | null>(initialSlug ?? null)
+  const [reviewStatus, setReviewStatus] = React.useState(initialReviewStatus)
   const publishInFlightRef = React.useRef(false)
 
   const MIN_QUESTIONS = FORMAT_INFO[quizFormat].minQuestions
@@ -138,7 +144,7 @@ export function StepPublish({ quizId, quizSlug: initialSlug }: StepPublishProps)
 
   const canPublish = checks.every((c) => c.ok)
 
-  const handleTogglePublish = async () => {
+  const handleSubmitForReview = async () => {
     // Guard against double-clicks / concurrent submissions
     if (publishInFlightRef.current) return
     publishInFlightRef.current = true
@@ -151,7 +157,7 @@ export function StepPublish({ quizId, quizSlug: initialSlug }: StepPublishProps)
       if (url && url.startsWith('blob:')) {
         const file = getPendingFile(url)
         if (!file) {
-          throw new Error('An image is no longer available. Please re-upload it before publishing.')
+          throw new Error('An image is no longer available. Please re-upload it before review.')
         }
         const permanent = await uploadFileToStorage(file)
         clearPendingUpload(url)
@@ -184,7 +190,7 @@ export function StepPublish({ quizId, quizSlug: initialSlug }: StepPublishProps)
       }
 
       if (!quizId) {
-        // ── New quiz — create draft, save all questions in parallel, then publish ──
+        // ── New quiz — create draft, save questions, then request admin review ──
         const fd = new FormData()
         fd.set('title', trimmedTitle)
         fd.set('description', trimmedDescription)
@@ -217,23 +223,23 @@ export function StepPublish({ quizId, quizSlug: initialSlug }: StepPublishProps)
           return
         }
 
-        // Publish
-        const pubFd = new FormData()
-        pubFd.set('quizId', newQuizId)
-        const pubResult = await togglePublish(pubFd)
-        if (!pubResult.ok) {
-          addToast(pubResult.message || 'Could not publish quiz.', 'error')
+        const reviewFd = new FormData()
+        reviewFd.set('quizId', newQuizId)
+        const reviewResult = await submitQuizForReview(reviewFd)
+        if (!reviewResult.ok) {
+          addToast(reviewResult.message || 'Could not submit quiz for review.', 'error')
           return
         }
 
-        setMeta({ isPublished: true })
+        setMeta({ isPublished: false })
+        setReviewStatus('PENDING')
         setLastSaved(new Date())
-        addToast('Quiz published! 🎉', 'success')
-        router.push(`/studio/quiz/${newQuizId}/published`)
+        addToast('Quiz submitted for admin review.', 'success')
+        router.push('/studio?tab=drafts')
         return
       }
 
-      // ── Existing quiz — save/update questions safely, delete removed, then publish ──
+      // ── Existing quiz — save updates, then request admin review ──
       const saveQuestionsResult = await saveQuestionsForQuiz({
         quizId,
         questions: resolvedQuestions,
@@ -246,7 +252,7 @@ export function StepPublish({ quizId, quizSlug: initialSlug }: StepPublishProps)
         return
       }
 
-      // Update quiz metadata + publish in one call
+      // Updating content returns it to draft state until an admin reviews it.
       const updateFd = new FormData()
       updateFd.set('quizId', quizId)
       updateFd.set('title', trimmedTitle)
@@ -258,25 +264,29 @@ export function StepPublish({ quizId, quizSlug: initialSlug }: StepPublishProps)
       if (defaultTimeLimitSec !== null) {
         updateFd.set('defaultTimeLimitSec', String(defaultTimeLimitSec))
       }
-      if (!isPublished) updateFd.set('isPublished', 'on')
-
       const result = await updateQuiz(updateFd)
       if (!result.ok) {
-        addToast(result.message || 'Could not update quiz publishing status.', 'error')
+        addToast(result.message || 'Could not save quiz for review.', 'error')
         return
       }
 
-      const wasPublished = isPublished
-      setMeta({ isPublished: !wasPublished })
-      setLastSaved(new Date())
-      addToast(wasPublished ? 'Quiz unpublished.' : 'Quiz published! 🎉', 'success')
-      if (!wasPublished) {
-        router.push(`/studio/quiz/${quizId}/published`)
+      const reviewFd = new FormData()
+      reviewFd.set('quizId', quizId)
+      const reviewResult = await submitQuizForReview(reviewFd)
+      if (!reviewResult.ok) {
+        addToast(reviewResult.message || 'Could not submit quiz for review.', 'error')
         return
       }
+
+      setMeta({ isPublished: false })
+      setReviewStatus('PENDING')
+      setLastSaved(new Date())
+      addToast('Quiz submitted for admin review.', 'success')
+      router.push('/studio?tab=drafts')
+      return
     } catch (error) {
       console.error(error)
-      addToast('Could not update quiz publishing status.', 'error')
+      addToast('Could not submit quiz for review.', 'error')
     } finally {
       publishInFlightRef.current = false
       setSavingLocal(false)
@@ -307,7 +317,7 @@ export function StepPublish({ quizId, quizSlug: initialSlug }: StepPublishProps)
 
       {/* Checklist */}
       <div className="rounded-md border bg-card p-5 space-y-3">
-        <h3 className="font-semibold">Publish checklist</h3>
+        <h3 className="font-semibold">Review checklist</h3>
         {checks.map((item) => (
           <div key={item.label} className="flex items-center gap-2 text-sm">
             {item.ok ? (
@@ -337,15 +347,16 @@ export function StepPublish({ quizId, quizSlug: initialSlug }: StepPublishProps)
         )}
       </div>
 
-      {/* Publish toggle */}
-      <Button
-        type="button"
-        onClick={handleTogglePublish}
-        disabled={(!isPublished && !canPublish) || saving}
-        variant={isPublished ? 'outline' : 'default'}
-      >
+      {reviewStatus === 'PENDING' && (
+        <p className="rounded-md border border-border bg-muted p-3 text-sm text-muted-foreground">
+          This quiz is waiting for admin approval. Submitting again replaces the pending version
+          with your latest changes.
+        </p>
+      )}
+
+      <Button type="button" onClick={handleSubmitForReview} disabled={!canPublish || saving}>
         {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-        {isPublished ? 'Unpublish quiz' : 'Publish quiz'}
+        {reviewStatus === 'PENDING' ? 'Resubmit changes for review' : 'Submit for admin review'}
       </Button>
 
       {/* Share section */}

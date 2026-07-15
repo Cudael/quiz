@@ -36,6 +36,7 @@ interface InitialQuiz {
   format: string
   defaultTimeLimitSec: number | null
   isPublished: boolean
+  reviewStatus: 'DRAFT' | 'PENDING' | 'APPROVED' | 'REJECTED'
 }
 
 interface InitialQuizQuestion {
@@ -62,7 +63,7 @@ interface QuizCreatorShellProps {
   categories: Category[]
 }
 
-const STEP_LABELS = ['Details', 'Questions', 'Preview', 'Publish']
+const STEP_LABELS = ['Details', 'Questions', 'Preview', 'Review']
 
 export function QuizCreatorShell({
   mode,
@@ -349,6 +350,7 @@ export function QuizCreatorShell({
             <StepPublish
               quizId={quizId ?? initialQuizId ?? null}
               quizSlug={initialData?.quiz.slug}
+              reviewStatus={initialData?.quiz.reviewStatus}
             />
           )}
         </div>

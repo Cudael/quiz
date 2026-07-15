@@ -80,7 +80,7 @@ export default async function QuizRevisionsPage({ params }: { params: Promise<{ 
           </div>
           <p className="text-sm text-muted-foreground">
             Version history for <span className="font-semibold">{quiz.title}</span>. A snapshot is
-            saved automatically each time you publish.
+            saved automatically each time you submit for admin review.
           </p>
         </div>
         <form action={saveAction}>
@@ -94,7 +94,7 @@ export default async function QuizRevisionsPage({ params }: { params: Promise<{ 
 
       {quiz.revisions.length === 0 ? (
         <p className="rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">
-          No revisions yet. Save a snapshot or publish the quiz to create one.
+          No revisions yet. Save a snapshot or submit the quiz for review to create one.
         </p>
       ) : (
         <ul className="space-y-3">

@@ -153,7 +153,7 @@ export function StepPreview({ categories }: StepPreviewProps) {
       </div>
 
       <Button type="button" onClick={() => setStep(4)}>
-        Go to Publish
+        Go to Review
       </Button>
     </div>
   )

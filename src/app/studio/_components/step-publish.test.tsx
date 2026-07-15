@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { StepPublish } from '@/app/studio/_components/step-publish'
-import { updateQuiz } from '@/app/studio/actions'
+import { submitQuizForReview, updateQuiz } from '@/app/studio/actions'
 import { createQuizAndReturnId } from '@/app/studio/actions/quiz-meta-actions'
 import {
   addQuestion,
@@ -24,6 +24,7 @@ vi.mock('@/components/ui/toast', () => ({
 
 vi.mock('@/app/studio/actions', () => ({
   updateQuiz: vi.fn(),
+  submitQuizForReview: vi.fn(),
 }))
 
 vi.mock('@/app/studio/actions/quiz-meta-actions', () => ({
@@ -90,6 +91,7 @@ describe('StepPublish', () => {
       questions: makeQuestions(),
     })
     vi.mocked(updateQuiz).mockResolvedValue({ ok: true })
+    vi.mocked(submitQuizForReview).mockResolvedValue({ ok: true })
     vi.mocked(createQuizAndReturnId).mockResolvedValue({
       ok: true,
       quizId: 'ck22345678901234567890123',
@@ -107,7 +109,7 @@ describe('StepPublish', () => {
     expect(screen.getByText('Cover image is set')).toBeInTheDocument()
   })
 
-  it('disables publish when category is not selected', () => {
+  it('disables review submission when category is not selected', () => {
     useQuizCreatorStore.setState({
       categoryId: '',
       imageUrl: 'not-a-url',
@@ -115,10 +117,10 @@ describe('StepPublish', () => {
 
     render(<StepPublish quizId="ck42345678901234567890123" />)
 
-    expect(screen.getByRole('button', { name: 'Publish quiz' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Submit for admin review' })).toBeDisabled()
   })
 
-  it('shows a toast if publish update returns a validation error', async () => {
+  it('shows a toast if the review update returns a validation error', async () => {
     vi.mocked(updateQuiz).mockResolvedValue({
       ok: false,
       error: 'VALIDATION_ERROR',
@@ -127,14 +129,14 @@ describe('StepPublish', () => {
 
     render(<StepPublish quizId="ck52345678901234567890123" />)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Publish quiz' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Submit for admin review' }))
 
     await waitFor(() => {
       expect(addToast).toHaveBeenCalledWith('Invalid quiz input.', 'error')
     })
   })
 
-  it('passes the current format when publishing an existing quiz', async () => {
+  it('passes the current format when submitting an existing quiz', async () => {
     useQuizCreatorStore.setState({
       quizFormat: 'IMAGE_CHOICE',
       questions: makeQuestions({
@@ -157,7 +159,7 @@ describe('StepPublish', () => {
 
     render(<StepPublish quizId="ck62345678901234567890123" />)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Publish quiz' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Submit for admin review' }))
 
     await waitFor(() => {
       expect(updateQuiz).toHaveBeenCalled()
@@ -167,7 +169,7 @@ describe('StepPublish', () => {
     expect(formData.get('format')).toBe('IMAGE_CHOICE')
   })
 
-  it('stores dbIds returned for new questions during publish', async () => {
+  it('stores dbIds returned for new questions during review submission', async () => {
     vi.mocked(addQuestion).mockImplementation(async () => ({
       ok: true,
       questionId: `new-question-${vi.mocked(addQuestion).mock.calls.length}`,
@@ -176,7 +178,7 @@ describe('StepPublish', () => {
 
     render(<StepPublish quizId="ck72345678901234567890123" />)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Publish quiz' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Submit for admin review' }))
 
     await waitFor(() => {
       expect(useQuizCreatorStore.getState().questions[0].dbId).toBe('new-question-1')

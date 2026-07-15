@@ -72,6 +72,7 @@ export default async function StudioPage({
           avgScore: true,
           updatedAt: true,
           isPublished: true,
+          reviewStatus: true,
           ratings: { select: { stars: true } },
           category: { select: { name: true, color: true } },
           questions: { select: { id: true } },
@@ -259,7 +260,7 @@ export default async function StudioPage({
             searchQuery
               ? 'Try a different search term, or clear the search to see all your quizzes.'
               : activeTab === 'published'
-                ? 'Finish a draft and publish it to see it here.'
+                ? 'Submit a completed draft for admin review. It will appear here after approval.'
                 : 'Start from scratch or use a sample template.'
           }
           action={

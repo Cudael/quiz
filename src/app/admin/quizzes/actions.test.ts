@@ -52,7 +52,10 @@ describe('admin quizzes actions', () => {
 
   it('updates publish state and logs the correct action', async () => {
     authMock.mockResolvedValue({ user: { id: 'admin_1', role: 'ADMIN' } })
-    prismaMock.quiz.findUnique.mockResolvedValue({ id: 'c123456789012345678901234' })
+    prismaMock.quiz.findUnique.mockResolvedValue({
+      id: 'c123456789012345678901234',
+      _count: { questions: 5 },
+    })
 
     const formData = new FormData()
     formData.set('quizId', 'c123456789012345678901234')
@@ -63,7 +66,11 @@ describe('admin quizzes actions', () => {
     expect(result).toEqual({ ok: true })
     expect(txMock.quiz.update).toHaveBeenCalledWith({
       where: { id: 'c123456789012345678901234' },
-      data: { isPublished: true },
+      data: {
+        isPublished: true,
+        reviewStatus: 'APPROVED',
+        reviewedAt: expect.any(Date),
+      },
     })
     expect(txMock.adminAction.create).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -74,7 +81,10 @@ describe('admin quizzes actions', () => {
 
   it('deletes quizzes through the admin action', async () => {
     authMock.mockResolvedValue({ user: { id: 'admin_1', role: 'ADMIN' } })
-    prismaMock.quiz.findUnique.mockResolvedValue({ id: 'c123456789012345678901234' })
+    prismaMock.quiz.findUnique.mockResolvedValue({
+      id: 'c123456789012345678901234',
+      _count: { questions: 5 },
+    })
 
     const formData = new FormData()
     formData.set('quizId', 'c123456789012345678901234')

@@ -43,7 +43,7 @@ export async function toggleQuizPublished(
 
   const quiz = await prisma.quiz.findUnique({
     where: { id: parsed.data.quizId },
-    select: { id: true },
+    select: { id: true, _count: { select: { questions: true } } },
   })
 
   if (!quiz) {
@@ -51,11 +51,18 @@ export async function toggleQuizPublished(
   }
 
   const isPublished = parsed.data.publish === 'true'
+  if (isPublished && quiz._count.questions < 5) {
+    return { ok: false, message: 'A quiz must have at least 5 questions before publishing.' }
+  }
 
   await prisma.$transaction(async (tx) => {
     await tx.quiz.update({
       where: { id: parsed.data.quizId },
-      data: { isPublished },
+      data: {
+        isPublished,
+        reviewStatus: isPublished ? 'APPROVED' : 'REJECTED',
+        reviewedAt: new Date(),
+      },
     })
 
     await tx.adminAction.create({
@@ -70,6 +77,8 @@ export async function toggleQuizPublished(
   })
 
   revalidatePath('/admin/quizzes')
+  revalidatePath('/admin/quizzes/review-drafts')
+  revalidatePath('/studio')
   revalidateTag(HOME_STATIC_DATA_TAG, 'max')
   return { ok: true }
 }

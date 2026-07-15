@@ -8,13 +8,13 @@ import { getLatestFactChecks } from '@/server/fact-check-utils'
 import { ReviewDraftsClient } from './_components/review-drafts-client'
 
 export const metadata: Metadata = {
-  title: 'Review Drafts',
+  title: 'Publication Review',
   robots: { index: false },
 }
 
 export default async function ReviewDraftsPage() {
   const drafts = await prisma.quiz.findMany({
-    where: { isPublished: false },
+    where: { reviewStatus: 'PENDING', isPublished: false },
     include: {
       category: { select: { name: true, slug: true } },
       author: { select: { username: true } },
@@ -62,8 +62,8 @@ export default async function ReviewDraftsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Review Drafts"
-        description={`${drafts.length} draft${drafts.length === 1 ? '' : 's'} — all questions and answers in one place for easy proofreading.`}
+        title="Publication Review"
+        description={`${drafts.length} quiz${drafts.length === 1 ? '' : 'zes'} waiting for admin approval.`}
         back={
           <Button asChild variant="outline" size="sm">
             <Link href="/admin/quizzes">
@@ -76,9 +76,9 @@ export default async function ReviewDraftsPage() {
 
       {drafts.length === 0 ? (
         <div className="rounded-md border border-border bg-card p-12 text-center">
-          <p className="text-lg font-medium text-muted-foreground">No drafts to review</p>
+          <p className="text-lg font-medium text-muted-foreground">No quizzes awaiting review</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Drafts will appear here once quizzes are created but not yet published.
+            User submissions will appear here when they are ready for publication review.
           </p>
         </div>
       ) : (

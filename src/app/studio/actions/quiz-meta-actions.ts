@@ -39,9 +39,13 @@ export async function createQuizAndReturnId(formData: FormData): Promise<QuizMet
     return { ok: false, error: 'VALIDATION_ERROR', message: 'Invalid quiz input.' }
   }
 
+  const { isPublished: _ignoredPublish, ...createFields } = parsed.data
+  void _ignoredPublish
   const data: Prisma.QuizUncheckedCreateInput = {
-    ...parsed.data,
+    ...createFields,
     coverImage: parsed.data.coverImage ?? null,
+    isPublished: false,
+    reviewStatus: 'DRAFT',
     authorId: session.user.id,
     slug: await generateUniqueSlug(parsed.data.title, (slug) =>
       prisma.quiz.findUnique({ where: { slug } }).then((q) => !!q)

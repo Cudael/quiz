@@ -1,8 +1,9 @@
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
+import { HOME_STATIC_DATA_TAG } from '@/server/home-quiz-cache'
 
 const reorderSchema = z.object({
   questions: z.array(z.object({ id: z.string().cuid(), order: z.number().int().min(0) })),
@@ -56,17 +57,27 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     )
   }
 
-  await prisma.$transaction(
-    parsed.data.questions.map((question) =>
+  await prisma.$transaction([
+    prisma.quiz.update({
+      where: { id },
+      data: {
+        isPublished: false,
+        reviewStatus: 'DRAFT',
+        submittedForReviewAt: null,
+        reviewedAt: null,
+      },
+    }),
+    ...parsed.data.questions.map((question) =>
       prisma.question.update({
         where: { id: question.id },
         data: { order: question.order },
       })
-    )
-  )
+    ),
+  ])
 
   revalidatePath('/studio')
   revalidatePath(`/studio/quiz/${id}/edit`)
+  revalidateTag(HOME_STATIC_DATA_TAG, 'max')
 
   return NextResponse.json({ ok: true })
 }

@@ -4,7 +4,7 @@ import * as React from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Copy, LayoutGrid, List } from 'lucide-react'
-import { deleteQuiz, togglePublish } from '@/app/studio/actions'
+import { deleteQuiz } from '@/app/studio/actions'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -24,6 +24,7 @@ interface StudioQuiz {
   avgScore: number
   updatedAt: string
   isPublished: boolean
+  reviewStatus: 'DRAFT' | 'PENDING' | 'APPROVED' | 'REJECTED'
   questionCount: number
   category: {
     name: string
@@ -247,6 +248,15 @@ function QuizActions({
       <Button variant="outline" size="sm" asChild className="text-[11px] px-2">
         <Link href={`/studio/quiz/${quiz.id}/analytics`}>Analytics</Link>
       </Button>
+      <Badge variant={quiz.reviewStatus === 'PENDING' ? 'default' : 'secondary'}>
+        {quiz.isPublished
+          ? 'Published'
+          : quiz.reviewStatus === 'PENDING'
+            ? 'Awaiting review'
+            : quiz.reviewStatus === 'REJECTED'
+              ? 'Not approved'
+              : 'Draft'}
+      </Badge>
       <Button
         type="button"
         variant="outline"
@@ -257,19 +267,6 @@ function QuizActions({
       >
         <Copy className="h-3 w-3" />
       </Button>
-      <form
-        action={togglePublish as unknown as (formData: FormData) => Promise<void>}
-        onSubmit={(e) => {
-          if (quiz.isPublished && !window.confirm('Unpublish this quiz?')) {
-            e.preventDefault()
-          }
-        }}
-      >
-        <input type="hidden" name="quizId" value={quiz.id} />
-        <Button variant="outline" size="sm" type="submit" className="text-[11px] px-2">
-          {quiz.isPublished ? 'Unpublish' : 'Publish'}
-        </Button>
-      </form>
       <Button variant="destructive" size="sm" type="button" onClick={() => void handleDelete()}>
         Delete
       </Button>

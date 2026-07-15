@@ -1,14 +1,21 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import type { Prisma } from '@prisma/client'
 import { z } from 'zod'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
 import { questionSchema } from '@/schemas'
+import { HOME_STATIC_DATA_TAG } from '@/server/home-quiz-cache'
 
 const quizIdSchema = z.string().cuid()
 const questionIdSchema = z.string().cuid()
+const returnToDraftData = {
+  isPublished: false,
+  reviewStatus: 'DRAFT' as const,
+  submittedForReviewAt: null,
+  reviewedAt: null,
+}
 
 export type QuestionActionResult =
   | { ok: true; questionId?: string }
@@ -100,6 +107,10 @@ export async function addQuestion(formData: FormData): Promise<QuestionActionRes
   if (!allowed.ok) return allowed
 
   const created = await prisma.$transaction(async (tx) => {
+    await tx.quiz.update({
+      where: { id: parsedMeta.data.quizId },
+      data: returnToDraftData,
+    })
     await tx.question.updateMany({
       where: {
         quizId: parsedMeta.data.quizId,
@@ -131,6 +142,7 @@ export async function addQuestion(formData: FormData): Promise<QuestionActionRes
   })
 
   revalidatePath(`/studio/quiz/${parsedMeta.data.quizId}/edit`)
+  revalidateTag(HOME_STATIC_DATA_TAG, 'max')
   return { ok: true, questionId: created.id }
 }
 
@@ -184,6 +196,7 @@ export async function updateQuestion(formData: FormData): Promise<QuestionAction
   if (!allowed.ok) return allowed
 
   await prisma.$transaction([
+    prisma.quiz.update({ where: { id: parsedMeta.data.quizId }, data: returnToDraftData }),
     prisma.choice.deleteMany({ where: { questionId: questionIdParsed.data } }),
     prisma.question.update({
       where: { id: questionIdParsed.data },
@@ -204,6 +217,7 @@ export async function updateQuestion(formData: FormData): Promise<QuestionAction
   ])
 
   revalidatePath(`/studio/quiz/${parsedMeta.data.quizId}/edit`)
+  revalidateTag(HOME_STATIC_DATA_TAG, 'max')
   return { ok: true }
 }
 
@@ -231,13 +245,15 @@ export async function deleteQuestion(formData: FormData): Promise<QuestionAction
     select: { id: true },
   })
 
-  await prisma.$transaction(
-    remaining.map((q, index) =>
+  await prisma.$transaction([
+    prisma.quiz.update({ where: { id: quizIdParsed.data }, data: returnToDraftData }),
+    ...remaining.map((q, index) =>
       prisma.question.update({ where: { id: q.id }, data: { order: index } })
-    )
-  )
+    ),
+  ])
 
   revalidatePath(`/studio/quiz/${quizIdParsed.data}/edit`)
+  revalidateTag(HOME_STATIC_DATA_TAG, 'max')
   return { ok: true }
 }
 
@@ -282,11 +298,15 @@ export async function reorderQuestions(formData: FormData): Promise<QuestionActi
     }
   }
 
-  await prisma.$transaction(
-    orderedIds.map((id, index) => prisma.question.update({ where: { id }, data: { order: index } }))
-  )
+  await prisma.$transaction([
+    prisma.quiz.update({ where: { id: quizIdParsed.data }, data: returnToDraftData }),
+    ...orderedIds.map((id, index) =>
+      prisma.question.update({ where: { id }, data: { order: index } })
+    ),
+  ])
 
   revalidatePath(`/studio/quiz/${quizIdParsed.data}/edit`)
+  revalidateTag(HOME_STATIC_DATA_TAG, 'max')
   return { ok: true }
 }
 
@@ -322,6 +342,12 @@ export async function deleteRemovedQuestions(
     })
   }
 
+  await prisma.quiz.update({
+    where: { id: quizIdParsed.data },
+    data: returnToDraftData,
+  })
+
   revalidatePath(`/studio/quiz/${quizIdParsed.data}/edit`)
+  revalidateTag(HOME_STATIC_DATA_TAG, 'max')
   return { ok: true }
 }

@@ -106,7 +106,7 @@ export default async function AdminQuizzesPage({
             <Button asChild variant="outline">
               <Link href="/admin/quizzes/review-drafts">
                 <FileSearch className="h-4 w-4" />
-                Review Drafts
+                Publication Review
               </Link>
             </Button>
             <Button asChild variant="outline">
@@ -235,7 +235,13 @@ export default async function AdminQuizzesPage({
                               : 'bg-muted text-muted-foreground'
                           )}
                         >
-                          {quiz.isPublished ? 'Published' : 'Draft'}
+                          {quiz.isPublished
+                            ? 'Published'
+                            : quiz.reviewStatus === 'PENDING'
+                              ? 'Awaiting review'
+                              : quiz.reviewStatus === 'REJECTED'
+                                ? 'Not approved'
+                                : 'Draft'}
                         </Badge>
                       </td>
                       <td className="px-4 py-3 text-muted-foreground">

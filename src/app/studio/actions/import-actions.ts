@@ -1,11 +1,12 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
 import { parseCsvQuizImport, parseJsonQuizImport } from '@/domain/quiz-import'
 import { IMPORT_QUESTION_BATCH_SIZE } from '@/domain/quiz-constants'
 import { assertEmailVerified, assertOwnership, quizIdSchema, type ActionResult } from './_shared'
+import { HOME_STATIC_DATA_TAG } from '@/server/home-quiz-cache'
 
 export async function importQuestions(formData: FormData): Promise<ActionResult> {
   const session = await auth()
@@ -67,7 +68,18 @@ export async function importQuestions(formData: FormData): Promise<ActionResult>
     )
   }
 
+  await prisma.quiz.update({
+    where: { id: quizIdParsed.data },
+    data: {
+      isPublished: false,
+      reviewStatus: 'DRAFT',
+      submittedForReviewAt: null,
+      reviewedAt: null,
+    },
+  })
+
   revalidatePath(`/studio/quiz/${quizIdParsed.data}/edit`)
   revalidatePath(`/studio/quiz/${quizIdParsed.data}/import`)
+  revalidateTag(HOME_STATIC_DATA_TAG, 'max')
   return { ok: true }
 }

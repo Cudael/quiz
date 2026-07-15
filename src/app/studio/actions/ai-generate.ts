@@ -1,10 +1,11 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { auth } from '@/server/auth'
 import { prisma } from '@/server/prisma'
 import { checkRateLimit } from '@/server/rate-limit'
 import { generateUniqueSlug } from '@/lib/slugify'
+import { HOME_STATIC_DATA_TAG } from '@/server/home-quiz-cache'
 import { assertOwnership } from './_shared'
 import {
   callOpenAI,
@@ -201,6 +202,17 @@ export async function generateQuestionsWithAi(formData: FormData): Promise<AiQue
     )
   )
 
+  await prisma.quiz.update({
+    where: { id: quiz.id },
+    data: {
+      isPublished: false,
+      reviewStatus: 'DRAFT',
+      submittedForReviewAt: null,
+      reviewedAt: null,
+    },
+  })
+
   revalidatePath(`/studio/quiz/${quiz.id}/edit`)
+  revalidateTag(HOME_STATIC_DATA_TAG, 'max')
   return { ok: true, added: generated.questions.length }
 }

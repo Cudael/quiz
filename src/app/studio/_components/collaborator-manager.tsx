@@ -73,8 +73,8 @@ export function CollaboratorManager({
           <h2 className="text-lg font-bold">Co-authors</h2>
         </div>
         <p className="mb-4 text-sm text-muted-foreground">
-          Co-authors can edit questions and quiz details. Only the owner can publish, delete, or
-          manage co-authors.
+          Co-authors can edit questions and quiz details. Only the owner can submit for review,
+          delete, or manage co-authors.
         </p>
 
         {collaborators.length > 0 ? (

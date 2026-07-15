@@ -171,20 +171,20 @@ for unknown and already-verified addresses are deliberately identical to prevent
 
 The database uses Prisma ORM. Key models:
 
-| Model                 | Purpose                                                        |
-| --------------------- | -------------------------------------------------------------- |
-| `User`                | Accounts (guests + registered), XP, level, streak, preferences |
-| `Quiz`                | Quiz metadata, difficulty, category, publish status            |
-| `Question` + `Choice` | Questions and answer choices                                   |
-| `PlaySession`         | Completed sessions (score, mode, timing)                       |
-| `QuestionAnswer`      | Per-question answer records linked to a PlaySession            |
-| `Badge` + `UserBadge` | Badge catalog + user award records                             |
-| `Follow`              | User follow relationships                                      |
-| `FavoriteQuiz`        | User quiz bookmarks                                            |
-| `Notification`        | In-app notifications (badge, follower, quiz)                   |
-| `Report`              | User-submitted quiz reports                                    |
-| `CategorySuggestion`  | User-submitted category suggestions                            |
-| `AdminAction`         | Audit log of admin moderation actions                          |
+| Model                 | Purpose                                                          |
+| --------------------- | ---------------------------------------------------------------- |
+| `User`                | Accounts (guests + registered), XP, level, streak, preferences   |
+| `Quiz`                | Quiz metadata, category, and admin-controlled publication review |
+| `Question` + `Choice` | Questions and answer choices                                     |
+| `PlaySession`         | Completed sessions (score, mode, timing)                         |
+| `QuestionAnswer`      | Per-question answer records linked to a PlaySession              |
+| `Badge` + `UserBadge` | Badge catalog + user award records                               |
+| `Follow`              | User follow relationships                                        |
+| `FavoriteQuiz`        | User quiz bookmarks                                              |
+| `Notification`        | In-app notifications (badge, follower, quiz)                     |
+| `Report`              | User-submitted quiz reports                                      |
+| `CategorySuggestion`  | User-submitted category suggestions                              |
+| `AdminAction`         | Audit log of admin moderation actions                            |
 
 ## Styling
 

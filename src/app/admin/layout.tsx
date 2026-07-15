@@ -23,14 +23,21 @@ import { AdminMobileNav } from './_components/admin-mobile-nav'
 const PATHNAME_HEADER = 'x-quiz-pathname'
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
-  const [session, headerStore, pendingReports, pendingSuggestions, pendingFeedback] =
-    await Promise.all([
-      auth(),
-      headers(),
-      prisma.report.count({ where: { status: 'PENDING' } }),
-      prisma.categorySuggestion.count({ where: { status: 'PENDING' } }),
-      prisma.feedback.count({ where: { status: 'PENDING' } }),
-    ])
+  const [
+    session,
+    headerStore,
+    pendingReports,
+    pendingSuggestions,
+    pendingFeedback,
+    pendingQuizReviews,
+  ] = await Promise.all([
+    auth(),
+    headers(),
+    prisma.report.count({ where: { status: 'PENDING' } }),
+    prisma.categorySuggestion.count({ where: { status: 'PENDING' } }),
+    prisma.feedback.count({ where: { status: 'PENDING' } }),
+    prisma.quiz.count({ where: { reviewStatus: 'PENDING' } }),
+  ])
 
   const pathname = headerStore.get(PATHNAME_HEADER)
 
@@ -76,9 +83,9 @@ export default async function AdminLayout({ children }: { children: ReactNode })
               <Upload className="h-4 w-4" />
               <span>Bulk Import</span>
             </AdminNavLink>
-            <AdminNavLink href="/admin/quizzes/review-drafts">
+            <AdminNavLink href="/admin/quizzes/review-drafts" badge={pendingQuizReviews}>
               <FileSearch className="h-4 w-4" />
-              <span>Review Drafts</span>
+              <span>Publication Review</span>
             </AdminNavLink>
             <AdminNavLink href="/admin/categories">
               <Tag className="h-4 w-4" />
