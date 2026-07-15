@@ -56,6 +56,8 @@ describe('SiteFooter', () => {
     )
     expect(screen.getByRole('link', { name: 'About Us' })).toHaveAttribute('href', '/about')
     expect(screen.getByRole('link', { name: 'Privacy Policy' })).toHaveAttribute('href', '/privacy')
+    expect(screen.getByRole('link', { name: 'Cookie Policy' })).toHaveAttribute('href', '/cookies')
+    expect(screen.getByRole('button', { name: 'Cookie settings' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Contact' })).toHaveAttribute('href', '/contact')
     expect(screen.getByRole('link', { name: 'Categories' })).not.toHaveAttribute('data-prefetch')
 

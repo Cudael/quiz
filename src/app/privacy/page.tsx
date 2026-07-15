@@ -24,7 +24,7 @@ export default function PrivacyPage() {
   return (
     <div className="container mx-auto max-w-3xl px-4 py-10">
       <h1 className="text-3xl font-bold">Privacy Policy</h1>
-      <p className="mt-4 text-muted-foreground">Last updated: 28 May 2025</p>
+      <p className="mt-4 text-muted-foreground">Last updated: 15 July 2026</p>
       <p className="mt-4 text-muted-foreground">
         This Privacy Policy explains what information BusQuiz collects, how we use it, and the
         choices you have about your data when you use the service.
@@ -34,13 +34,33 @@ export default function PrivacyPage() {
         <h2 className="text-2xl font-semibold">Information We Collect</h2>
         <p className="text-muted-foreground">
           We may collect account details such as your email address and username, along with profile
-          information provided by sign-in providers like GitHub or Google.
+          limited profile information provided by sign-in providers like GitHub or Google.
         </p>
         <ul className="list-disc space-y-2 pl-6 text-sm text-muted-foreground">
           <li>Account information, including email address and username.</li>
           <li>OAuth profile information shared by GitHub or Google during sign-in.</li>
           <li>Quiz play history, scores, streaks, and badges earned in the app.</li>
+          <li>
+            With your consent, analytics information such as page visits, usage events,
+            device/browser details, and approximate location.
+          </li>
         </ul>
+      </section>
+
+      <section className="mt-8 space-y-3">
+        <h2 className="text-2xl font-semibold">Cookies and Analytics</h2>
+        <p className="text-muted-foreground">
+          BusQuiz uses necessary cookies and browser storage to provide sign-in, security, anonymous
+          duel participation, and saved preferences. These are not used for advertising.
+        </p>
+        <p className="text-muted-foreground">
+          Google Analytics is optional and loads only after you consent. You may reject it or
+          withdraw consent at any time without losing access to core BusQuiz features. See our{' '}
+          <Link href="/cookies" className="text-primary underline underline-offset-4">
+            Cookie Policy
+          </Link>{' '}
+          for the current storage inventory and durations.
+        </p>
       </section>
 
       <section className="mt-8 space-y-3">
@@ -61,6 +81,10 @@ export default function PrivacyPage() {
           We do not sell your personal data. OAuth access tokens are used only to support secure
           sign-in and are not used for unrelated third-party marketing or data sales.
         </p>
+        <p className="text-muted-foreground">
+          If you consent to analytics, usage information is processed through Google Analytics.
+          BusQuiz does not currently use advertising cookies or sell personal information.
+        </p>
       </section>
 
       <section className="mt-8 space-y-3">
@@ -70,8 +94,9 @@ export default function PrivacyPage() {
           history, and achievements continue to work as expected.
         </p>
         <p className="text-muted-foreground">
-          Guest accounts do not include a persistent email address, and their retained information
-          is limited compared with registered accounts.
+          Anonymous play activity is retained only as needed to operate gameplay and aggregated
+          platform statistics. Analytics retention is governed by our Analytics configuration and
+          the choices described in the Cookie Policy.
         </p>
       </section>
 

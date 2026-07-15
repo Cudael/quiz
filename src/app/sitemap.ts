@@ -143,7 +143,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: absoluteUrl('/privacy'),
-      lastModified: STATIC_LAST_MODIFIED,
+      lastModified: new Date('2026-07-15'),
+      changeFrequency: 'yearly',
+      priority: 0.2,
+    },
+    {
+      url: absoluteUrl('/cookies'),
+      lastModified: new Date('2026-07-15'),
       changeFrequency: 'yearly',
       priority: 0.2,
     },

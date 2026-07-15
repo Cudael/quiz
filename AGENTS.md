@@ -26,6 +26,7 @@ src/
     sitemap.ts          Sitemap generation
     opengraph-image.tsx Dynamic OG image (homepage)
     analytics.tsx       Analytics integration
+    cookies/            Cookie/storage policy
     api/                API route handlers
       auth/             [...nextauth], forgot-password, register, resend-verification,
                         reset-password, verify-email
@@ -96,6 +97,7 @@ src/
                         quiz-card, sheet, star-rating, streak-flame, toast, tooltip, zone-marker
     layout/             App shell (AppShell), navbar, nav-dropdown, left-menu, category-bar,
                         site-footer
+    privacy/            Consent manager (necessary storage + opt-in Google Analytics)
     auth/               Auth controls, provider, email verification banner, OAuth buttons,
                         sign-in form, sign-up form
     notifications/      Notification bell with inbox dropdown
@@ -277,6 +279,16 @@ Functional PRs that change route contracts, endpoint behavior, or compatibility 
 Required: `DATABASE_URL`, `AUTH_SECRET`. Email/password registration additionally requires
 `GMAIL_USER` and `GMAIL_APP_PASSWORD` to deliver verification links. See `.env.example` for the full
 environment variable list (OAuth, SMTP and sender aliases, R2, Redis, analytics, cron, OpenAI).
+
+## Consent and analytics
+
+Google Analytics uses basic consent mode. `NEXT_PUBLIC_GA_MEASUREMENT_ID` enables the consent UI,
+but the Google tag is not requested until the visitor explicitly enables Analytics. Consent is
+stored in versioned local storage by `src/lib/consent.ts`; users can reject optional storage on the
+first layer and reopen preferences from the footer. Necessary authentication, security, anonymous
+duel, and UI-preference storage remains available without consent. Advertising cookies are not
+currently active and must not be added to this custom flow; Google publisher ads require a
+Google-certified TCF CMP for EEA/UK/Swiss traffic.
 
 ## Styling
 

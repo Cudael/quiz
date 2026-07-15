@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Script from 'next/script'
 import { headers } from 'next/headers'
 import { Suspense } from 'react'
 import './globals.css'
@@ -11,6 +10,7 @@ import { AppShell } from '@/components/layout/app-shell'
 import { ServiceWorkerRegistration } from '@/components/pwa/service-worker-registration'
 import { absoluteUrl, siteConfig } from '@/lib/site'
 import { Analytics } from './analytics'
+import { ConsentManager } from '@/components/privacy/consent-manager'
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
@@ -47,25 +47,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <script nonce={nonce} dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body className="font-sans antialiased overflow-x-hidden">
-        {/* Google Analytics */}
-        {GA_MEASUREMENT_ID && (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-              strategy="afterInteractive"
-              nonce={nonce}
-            />
-            <Script id="ga4-init" strategy="afterInteractive" nonce={nonce}>
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${GA_MEASUREMENT_ID}');
-              `}
-            </Script>
-          </>
-        )}
-
         <Suspense fallback={null}>
           <Analytics />
         </Suspense>
@@ -76,6 +57,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <ThemeProvider defaultTheme="system">
             <ToastProvider>
               <AppShell>{children}</AppShell>
+              <ConsentManager measurementId={GA_MEASUREMENT_ID} nonce={nonce} />
             </ToastProvider>
           </ThemeProvider>
         </AuthProvider>

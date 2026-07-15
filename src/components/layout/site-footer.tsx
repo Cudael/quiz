@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowUp, Instagram, Twitter } from 'lucide-react'
+import { ArrowUp, Cookie, Instagram, Twitter } from 'lucide-react'
 import { Logo } from '@/components/ui/logo'
 import { ThemeToggle } from '@/components/theme/theme-toggle'
+import { openConsentSettings } from '@/lib/consent'
 
 const EXPLORE_LINKS = [
   { href: '/categories', label: 'Categories' },
@@ -36,6 +37,7 @@ const BUSQUIZ_LINKS = [
   { href: '/contact', label: 'Contact' },
   { href: '/feedback', label: 'Send Feedback (Sign in required)' },
   { href: '/privacy', label: 'Privacy Policy' },
+  { href: '/cookies', label: 'Cookie Policy' },
   { href: '/terms', label: 'Terms of Service' },
 ]
 
@@ -187,12 +189,20 @@ export function SiteFooter() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-12 flex items-center justify-between border-t border-border/40 pt-6 text-xs text-muted-foreground">
+        <div className="mt-12 flex flex-col gap-3 border-t border-border/40 pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           {/* Hydration fix applied here via suppressHydrationWarning */}
           <span suppressHydrationWarning>
             © {new Date().getFullYear()} BusQuiz. All rights reserved.
           </span>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={openConsentSettings}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border/60 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+            >
+              <Cookie className="h-3 w-3" />
+              Cookie settings
+            </button>
             <button
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               aria-label="Scroll to top"

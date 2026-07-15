@@ -3,6 +3,7 @@
 import { usePathname, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { pageview } from '@/lib/analytics'
+import { ANALYTICS_READY_EVENT } from '@/lib/consent'
 
 export function Analytics() {
   const pathname = usePathname()
@@ -10,7 +11,10 @@ export function Analytics() {
 
   useEffect(() => {
     const url = pathname + (searchParams.toString() ? `?${searchParams}` : '')
-    pageview(url)
+    const trackPage = () => pageview(url)
+    trackPage()
+    window.addEventListener(ANALYTICS_READY_EVENT, trackPage)
+    return () => window.removeEventListener(ANALYTICS_READY_EVENT, trackPage)
   }, [pathname, searchParams])
 
   return null
