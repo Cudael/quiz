@@ -3,6 +3,7 @@ import { Zap, Users, Play, BarChart3, Globe, Layers } from 'lucide-react'
 import { prisma } from '@/server/prisma'
 import { absoluteUrl } from '@/lib/site'
 import { isQuizListingIndexable } from '@/lib/seo-metadata'
+import { PageHero } from '@/components/ui/page-hero'
 
 const statsMetadata: Metadata = {
   title: 'Global Quiz Stats',
@@ -133,7 +134,7 @@ export default async function StatsPage() {
   }
   if (totalQuizzes > 0 && totalUsers > 0) {
     funFacts.push(
-      `There are currently ${totalQuizzes.toLocaleString()} published quizzes for ${totalUsers.toLocaleString()} registered and guest player accounts.`
+      `There are currently ${totalQuizzes.toLocaleString()} published quizzes and ${totalUsers.toLocaleString()} registered player accounts. Signed-out visitors can also play anonymously.`
     )
   }
 
@@ -166,17 +167,12 @@ export default async function StatsPage() {
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-10 md:py-16">
-      <div className="mb-10 text-center">
-        <div className="mb-3 inline-flex items-center gap-2 rounded-sm border bg-card px-3 py-1 text-xs font-bold text-muted-foreground">
-          <BarChart3 className="h-3.5 w-3.5" />
-          Live numbers
-        </div>
-        <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">Platform Stats</h1>
-        <p className="mt-3 text-lg text-muted-foreground max-w-xl mx-auto">
-          Real-time statistics from the BusQuiz universe. Every quiz play, every new player, every
-          question answered.
-        </p>
-      </div>
+      <PageHero
+        eyebrow="Live numbers"
+        icon={<BarChart3 className="h-3.5 w-3.5" aria-hidden="true" />}
+        title="Platform Stats"
+        description="A current view of published quizzes, registered players, recorded plays, questions, and community milestones across BusQuiz."
+      />
 
       {/* Big stat cards */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 mb-12">

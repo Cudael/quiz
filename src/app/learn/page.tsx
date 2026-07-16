@@ -12,6 +12,7 @@ import {
   Zap,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { PageHero } from '@/components/ui/page-hero'
 import { absoluteUrl } from '@/lib/site'
 import { getAllBlogPosts } from '@/content/blog-posts'
 
@@ -32,7 +33,7 @@ const LEARNING_PATHS = [
     emoji: '🧠',
     title: 'Memory & Recall',
     description:
-      'Quizzes are scientifically proven to improve memory retention. Practice active recall with our growing library.',
+      'Practice retrieving what you know instead of only rereading it. Use the growing quiz library for active recall.',
     link: '/categories',
     linkLabel: 'Start practicing',
     color: 'quiz-purple',
@@ -71,7 +72,7 @@ const QUICK_TIPS = [
     icon: Brain,
     title: 'Active Recall beats passive review',
     description:
-      "Testing yourself is 2-3x more effective than re-reading notes. That''s exactly what quizzes do.",
+      'Try answering before checking the explanation. The effort of retrieval can make later review more useful.',
   },
   {
     icon: Target,
@@ -98,18 +99,12 @@ export default function LearnPage() {
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-10 md:py-16">
-      {/* Hero */}
-      <div className="mb-12 text-center">
-        <div className="mb-3 inline-flex items-center gap-2 rounded-sm border bg-card px-3 py-1 text-xs font-bold text-muted-foreground">
-          <GraduationCap className="h-3.5 w-3.5" />
-          Learning Hub
-        </div>
-        <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">Learn Smarter</h1>
-        <p className="mt-3 text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
-          Quizzing is one of the most effective ways to learn. Discover how to use BusQuiz to master
-          any subject — one question at a time.
-        </p>
-      </div>
+      <PageHero
+        eyebrow="Learning hub"
+        icon={<GraduationCap className="h-3.5 w-3.5" aria-hidden="true" />}
+        title="Learn through recall"
+        description="Use quizzes to retrieve what you know, spot gaps, revisit missed questions, and build a repeatable study habit—one answer at a time."
+      />
 
       {/* Learning Paths */}
       <div className="mb-12">
@@ -143,7 +138,7 @@ export default function LearnPage() {
 
       {/* Quick Tips */}
       <div className="mb-12">
-        <h2 className="mb-5 text-2xl font-extrabold tracking-tight">Science-Backed Study Tips</h2>
+        <h2 className="mb-5 text-2xl font-extrabold tracking-tight">Practical study tips</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           {QUICK_TIPS.map((tip) => (
             <div

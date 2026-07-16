@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowRight, Lightbulb, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { PageHero } from '@/components/ui/page-hero'
 import { absoluteUrl } from '@/lib/site'
 
 export const metadata: Metadata = {
@@ -81,17 +82,12 @@ export default function TriviaFactsPage() {
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-10 md:py-16">
-      <div className="mb-10 text-center">
-        <div className="mb-3 inline-flex items-center gap-2 rounded-sm border bg-card px-3 py-1 text-xs font-bold text-muted-foreground">
-          <Lightbulb className="h-3.5 w-3.5" />
-          Did You Know?
-        </div>
-        <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">Trivia Facts</h1>
-        <p className="mt-3 text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
-          A small collection of fascinating facts checked against authoritative sources. Follow any
-          source link to explore the subject in more depth.
-        </p>
-      </div>
+      <PageHero
+        eyebrow="Did you know?"
+        icon={<Lightbulb className="h-3.5 w-3.5" aria-hidden="true" />}
+        title="Trivia Facts"
+        description="A small collection of fascinating facts checked against authoritative sources. Follow any source link to explore the subject in more depth."
+      />
 
       <div className="relative mb-12 overflow-hidden rounded-md border border-t-4 border-t-quiz-orange bg-card p-6 md:p-8">
         <div className="mb-4 flex items-center gap-2">

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { PageHeader } from '@/components/ui/page-header'
 import { POLICY_LAST_UPDATED, SUPPORT_EMAIL } from '@/lib/legal'
 import { absoluteUrl } from '@/lib/site'
 
@@ -21,7 +22,13 @@ const linkClassName = 'text-primary underline underline-offset-4'
 export default function AccessibilityPage() {
   return (
     <div className="container mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-3xl font-bold">Accessibility Statement</h1>
+      <PageHeader
+        eyebrow="About BusQuiz"
+        accent="blue"
+        title="Accessibility Statement"
+        description="Our accessibility target, current support, known limitations, and feedback process."
+        className="mb-4"
+      />
       <p className="mt-4 text-muted-foreground">Last updated: {POLICY_LAST_UPDATED}</p>
       <p className="mt-4 text-muted-foreground">
         BusQuiz wants quiz discovery, play, creation, and community features to be usable by as many

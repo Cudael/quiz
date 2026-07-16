@@ -1,15 +1,28 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowRight, Gamepad2, PenLine, Swords, Zap, Trophy, Users, Sparkles } from 'lucide-react'
+import {
+  ArrowRight,
+  BookOpenCheck,
+  Gamepad2,
+  Heart,
+  PenLine,
+  ShieldCheck,
+  Sparkles,
+  Swords,
+  Trophy,
+  Users,
+  Zap,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { PageHero } from '@/components/ui/page-hero'
 import { prisma } from '@/server/prisma'
 import { absoluteUrl } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'About BusQuiz',
   description:
-    'Learn about BusQuiz — the platform where you can play, create, and compete in quizzes across every topic imaginable.',
+    'Learn how BusQuiz helps people discover topics, play quizzes, create original challenges, and compete with friends.',
   alternates: { canonical: '/about' },
   openGraph: {
     title: 'About BusQuiz',
@@ -34,28 +47,27 @@ export default async function AboutPage() {
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-10 md:py-16">
-      {/* Hero */}
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">About BusQuiz</h1>
-        <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          A growing home for quiz lovers and knowledge seekers. Play, create, and compete across a
-          wide range of topics.
-        </p>
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-6 text-sm font-semibold">
+      <PageHero
+        eyebrow="About BusQuiz"
+        icon={<Sparkles className="h-3.5 w-3.5" aria-hidden="true" />}
+        title="Curiosity should feel like play"
+        description="BusQuiz is a free quiz and trivia platform for discovering topics, testing what you know, creating original quizzes, and competing with friends."
+      >
+        <div className="flex flex-wrap items-center justify-center gap-6 text-sm font-semibold">
           <span className="flex items-center gap-1.5">
             <Zap className="h-4 w-4 text-quiz-purple" />
-            {totalQuizzes.toLocaleString()} quizzes
+            {totalQuizzes.toLocaleString()} published quizzes
           </span>
           <span className="flex items-center gap-1.5">
             <Users className="h-4 w-4 text-quiz-green" />
-            {totalUsers.toLocaleString()} players
+            {totalUsers.toLocaleString()} registered players
           </span>
           <span className="flex items-center gap-1.5">
             <Trophy className="h-4 w-4 text-quiz-orange" />
             {totalCategories} categories
           </span>
         </div>
-      </div>
+      </PageHero>
 
       {/* Feature Cards */}
       <div className="grid gap-5 sm:grid-cols-2 mb-12">
@@ -69,8 +81,8 @@ export default async function AboutPage() {
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Dive into quizzes spanning science, history, pop culture, sports, and more. With
-              text-based and image-based formats, every quiz feels fresh and challenging. Earn XP,
-              maintain streaks, and collect badges as you learn.
+              text-based and image-based formats, every quiz can offer a different challenge.
+              Signed-in play can earn XP, maintain streaks, and unlock badges.
             </p>
           </CardContent>
         </Card>
@@ -84,9 +96,8 @@ export default async function AboutPage() {
               <h2 className="text-xl font-bold">Create</h2>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Our Quiz Studio gives you everything you need to build and publish your own quizzes.
-              Add cover images, set difficulty levels, organize questions, and share your creations
-              with the world.
+              Quiz Studio gives you the tools to build original quizzes in a range of formats. When
+              a quiz is ready, submit it for administrator review before it appears publicly.
             </p>
           </CardContent>
         </Card>
@@ -100,8 +111,8 @@ export default async function AboutPage() {
               <h2 className="text-xl font-bold">Compete</h2>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Challenge friends in real-time head-to-head duels or see how you stack up on global
-              leaderboards. Earn XP, level up, and climb the ranks.
+              Challenge friends in live duels, take on daily and survival modes, or see how you
+              compare on the leaderboards. Earn XP, level up, and collect achievements.
             </p>
           </CardContent>
         </Card>
@@ -112,11 +123,11 @@ export default async function AboutPage() {
               <div className="flex h-10 w-10 items-center justify-center rounded-md bg-quiz-yellow/10">
                 <Sparkles className="h-5 w-5 text-quiz-yellow" />
               </div>
-              <h2 className="text-xl font-bold">Free Forever</h2>
+              <h2 className="text-xl font-bold">Free to Play</h2>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              BusQuiz is free to play, forever. No paywalls, no premium tiers — just pure quiz
-              enjoyment. We believe knowledge should be accessible to everyone.
+              Browsing and playing BusQuiz is free. An account adds progress tracking, creator
+              tools, social features, and personalised practice without changing access to quizzes.
             </p>
           </CardContent>
         </Card>
@@ -135,7 +146,7 @@ export default async function AboutPage() {
             {
               step: '2',
               title: 'Play',
-              description: 'Answer questions against the clock. Earn XP for correct answers.',
+              description: 'Answer questions, learn from the review, and track your progress.',
             },
             {
               step: '3',
@@ -145,7 +156,7 @@ export default async function AboutPage() {
             {
               step: '4',
               title: 'Create',
-              description: 'Build your own quizzes and share them with the community.',
+              description: 'Build a quiz and submit it for review by the BusQuiz team.',
             },
           ].map((item) => (
             <div key={item.step} className="text-center">
@@ -159,12 +170,41 @@ export default async function AboutPage() {
         </div>
       </div>
 
-      {/* Our Mission */}
-      <div className="rounded-md border bg-muted/30 p-8 text-center mb-12">
-        <h2 className="text-2xl font-extrabold tracking-tight mb-3">Our Mission</h2>
-        <p className="text-muted-foreground max-w-xl mx-auto leading-relaxed">
-          We believe learning should be fun, social, and accessible. BusQuiz makes it easy to test
-          your knowledge, challenge friends, and discover new topics — all for free.
+      <div className="mb-12 grid gap-5 sm:grid-cols-3">
+        {[
+          {
+            icon: Heart,
+            title: 'Curiosity first',
+            description: 'Make it easy to follow an interest and discover something unexpected.',
+          },
+          {
+            icon: BookOpenCheck,
+            title: 'Learn from every answer',
+            description: 'Show clear results and useful explanations, not only a final score.',
+          },
+          {
+            icon: ShieldCheck,
+            title: 'Publish responsibly',
+            description: 'Review community quizzes before publication and make reporting simple.',
+          },
+        ].map((value) => (
+          <div key={value.title} className="rounded-md border bg-card p-5 text-center">
+            <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-md bg-quiz-purple/10 text-quiz-purple">
+              <value.icon className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <h2 className="mt-3 font-bold">{value.title}</h2>
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+              {value.description}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <div className="mb-12 rounded-md border border-t-4 border-t-quiz-orange bg-card p-8 text-center">
+        <h2 className="text-2xl font-extrabold tracking-tight">Our mission</h2>
+        <p className="mx-auto mt-3 max-w-xl leading-relaxed text-muted-foreground">
+          Make learning playful, social, and easy to return to—whether you have two minutes for a
+          random quiz or want to build a detailed challenge of your own.
         </p>
       </div>
 

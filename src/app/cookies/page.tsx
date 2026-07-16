@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { PageHeader } from '@/components/ui/page-header'
 import { POLICY_LAST_UPDATED, PRIVACY_EMAIL } from '@/lib/legal'
 import { absoluteUrl } from '@/lib/site'
 
@@ -19,7 +20,13 @@ const linkClassName = 'text-primary underline underline-offset-4'
 export default function CookiePolicyPage() {
   return (
     <div className="container mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-3xl font-bold">Cookie Policy</h1>
+      <PageHeader
+        eyebrow="Legal"
+        accent="orange"
+        title="Cookie Policy"
+        description="The cookies and browser storage BusQuiz uses, including optional Analytics."
+        className="mb-4"
+      />
       <p className="mt-4 text-muted-foreground">Last updated: {POLICY_LAST_UPDATED}</p>
       <p className="mt-4 text-muted-foreground">
         This policy explains how BusQuiz uses cookies and similar technologies. Cookies are small

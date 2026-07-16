@@ -1,8 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
+import { CheckCircle2, Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { submitFeedback } from './actions'
 
 const FEEDBACK_TYPES = [
@@ -18,6 +20,7 @@ export function FeedbackForm({ defaultEmail }: { defaultEmail: string }) {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    const form = event.currentTarget
     setStatus('submitting')
     setErrorMessage('')
 
@@ -25,6 +28,7 @@ export function FeedbackForm({ defaultEmail }: { defaultEmail: string }) {
     const result = await submitFeedback(formData)
 
     if (result.ok) {
+      form.reset()
       setStatus('success')
     } else {
       setStatus('error')
@@ -34,13 +38,23 @@ export function FeedbackForm({ defaultEmail }: { defaultEmail: string }) {
 
   if (status === 'success') {
     return (
-      <Card>
-        <CardContent className="pt-6 text-center">
-          <p className="text-4xl mb-3">🎉</p>
-          <p className="text-lg font-bold">Thanks for your feedback!</p>
+      <Card role="status" aria-live="polite">
+        <CardContent className="py-10 text-center">
+          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-quiz-green/10 text-quiz-green">
+            <CheckCircle2 className="h-6 w-6" aria-hidden="true" />
+          </span>
+          <p className="mt-4 text-lg font-bold">Thanks for your feedback</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            We&apos;ll review it and get back to you if needed.
+            It has been sent to the BusQuiz team for review.
           </p>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Button type="button" onClick={() => setStatus('idle')}>
+              Send more feedback
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/">Return home</Link>
+            </Button>
+          </div>
         </CardContent>
       </Card>
     )
@@ -48,11 +62,17 @@ export function FeedbackForm({ defaultEmail }: { defaultEmail: string }) {
 
   return (
     <Card>
-      <CardContent className="pt-6">
+      <CardHeader>
+        <CardTitle>Tell us what you noticed</CardTitle>
+        <CardDescription>
+          Fields marked as required must be completed. Messages can contain up to 5,000 characters.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-1.5">
             <label htmlFor="feedback-type" className="text-sm font-medium">
-              Feedback Type
+              Feedback type
             </label>
             <select
               id="feedback-type"
@@ -79,7 +99,7 @@ export function FeedbackForm({ defaultEmail }: { defaultEmail: string }) {
               minLength={10}
               maxLength={5000}
               rows={6}
-              placeholder="Tell us what's on your mind..."
+              placeholder="What happened, or what would you like us to improve?"
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-primary resize-y md:text-sm"
             />
           </div>
@@ -101,14 +121,19 @@ export function FeedbackForm({ defaultEmail }: { defaultEmail: string }) {
             </p>
           </div>
 
-          {status === 'error' && <p className="text-sm text-destructive">{errorMessage}</p>}
+          {status === 'error' && (
+            <p role="alert" className="text-sm text-destructive">
+              {errorMessage}
+            </p>
+          )}
 
           <Button
             type="submit"
             disabled={status === 'submitting'}
             className="w-full rounded-md font-bold"
           >
-            {status === 'submitting' ? 'Sending...' : 'Send Feedback'}
+            <Send className="h-4 w-4" aria-hidden="true" />
+            {status === 'submitting' ? 'Sending…' : 'Send feedback'}
           </Button>
         </form>
       </CardContent>

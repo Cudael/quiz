@@ -7,7 +7,7 @@ import { getQuizPath } from '@/lib/quiz-url'
 import { isQuizIndexable, isQuizListingIndexable } from '@/lib/seo-metadata'
 import { countUsefulQuestionExplanations } from '@/domain/quiz-publication-quality'
 
-const STATIC_LAST_MODIFIED = new Date('2026-07-12')
+const STATIC_LAST_MODIFIED = new Date('2026-07-16')
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [

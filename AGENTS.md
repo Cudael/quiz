@@ -94,7 +94,7 @@ src/
   components/
     ui/                 Primitive design-system components (shadcn-style): avatar, badge,
                         badges-grid, button, card, category-tile, dropdown-menu, empty-state,
-                        input, level-progress, logo, modal, page-header, progress-bar,
+                        input, level-progress, logo, modal, page-header, page-hero, progress-bar,
                         quiz-card, sheet, star-rating, streak-flame, toast, tooltip, zone-marker
     layout/             App shell (AppShell), navbar, nav-dropdown, left-menu, category-bar,
                         site-footer

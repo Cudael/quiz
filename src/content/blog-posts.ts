@@ -37,7 +37,7 @@ const blogPosts: BlogPost[] = [
 <p>After each question, provide a brief explanation of why the correct answer is right. This turns your quiz from a simple test into a learning experience. Players appreciate understanding their mistakes and often share interesting facts they discover.</p>
 
 <h2>Test Your Quiz</h2>
-<p>Before publishing, have at least two people take your quiz. Watch for questions that consistently trip people up for the wrong reasons, unclear wording, or answers that could be argued as correct. Iterate based on feedback.</p>
+<p>Before submitting your quiz for administrator review, have at least two people try it. Watch for questions that consistently trip people up for the wrong reasons, unclear wording, or answers that could be argued as correct. Iterate based on feedback.</p>
 
 <h2>Use Images and Media</h2>
 <p>Visual questions are more engaging than text-only ones. Add cover images to your quizzes and, where appropriate, include diagrams or photos in individual questions. A well-chosen image can make a question far more memorable.</p>
@@ -47,24 +47,24 @@ const blogPosts: BlogPost[] = [
     slug: 'benefits-of-quiz-based-learning',
     title: '5 Benefits of Quiz-Based Learning',
     description:
-      'Discover how regular quizzing improves memory retention, builds confidence, and makes learning fun.',
+      'Explore how retrieval practice, feedback, spacing, and low-stakes play can support learning.',
     date: '2026-05-15',
     author: 'BusQuiz Team',
     tags: ['education', 'learning', 'science'],
     content: `
-<p>Quiz-based learning has exploded in popularity — and for good reason. Research shows that active recall through quizzing is one of the most effective ways to learn and retain information.</p>
+<p>A quiz does more than measure what you remember: it asks you to retrieve information. Controlled research on the <a href="https://pubmed.ncbi.nlm.nih.gov/16507066/" target="_blank" rel="noopener noreferrer">testing effect</a> found that retrieval practice can improve later retention compared with additional study, although results depend on the material, timing, feedback, and learner.</p>
 
 <h2>1. Active Recall Strengthens Memory</h2>
-<p>When you answer a quiz question, you're practicing <em>active recall</em> — pulling information from memory rather than passively reviewing it. Studies show this strengthens neural pathways far more effectively than re-reading notes or watching lectures.</p>
+<p>When you answer a quiz question, you're practising <em>active recall</em> — pulling information from memory rather than only reviewing it. That retrieval attempt can make the information easier to recall later, especially when you check the answer and revisit missed material.</p>
 
 <h2>2. Immediate Feedback Accelerates Learning</h2>
-<p>Quizzes provide instant feedback. You know right away whether you got something right or wrong, and good quiz platforms explain the correct answer. This tight feedback loop helps you correct misconceptions immediately rather than reinforcing wrong information.</p>
+<p>Quizzes can provide immediate feedback. You know whether an answer was right or wrong, and a useful explanation can help you correct a misunderstanding while the question is still fresh.</p>
 
 <h2>3. Spaced Repetition Builds Long-Term Retention</h2>
-<p>Taking quizzes on the same topic over time — a technique called spaced repetition — dramatically improves long-term memory. Each time you retrieve information, you strengthen the memory and extend how long you'll retain it.</p>
+<p>Returning to retrieval practice after a delay can be more useful than repeating every attempt in one sitting. Research comparing <a href="https://pubmed.ncbi.nlm.nih.gov/29649927/" target="_blank" rel="noopener noreferrer">spaced and massed retrieval</a> found a long-term retention benefit from spacing in the studied tasks.</p>
 
 <h2>4. Low-Stakes Testing Reduces Anxiety</h2>
-<p>Unlike high-pressure exams, casual quizzes create a low-stakes environment where mistakes feel safe. This reduces test anxiety and makes learning feel more like a game than a chore. Over time, this builds genuine confidence in your knowledge.</p>
+<p>Unlike a formal exam, a casual quiz can give you room to make mistakes and try again. That lower-pressure format may make practice easier to begin and can help confidence grow as previously difficult questions become familiar.</p>
 
 <h2>5. Quizzing Is Genuinely Fun</h2>
 <p>Competing on leaderboards, earning badges, and tracking your progress turns learning into an engaging experience. The gamification elements of modern quiz platforms keep you motivated to learn more, day after day.</p>
@@ -74,7 +74,7 @@ const blogPosts: BlogPost[] = [
     slug: 'top-study-quiz-topics',
     title: 'Top 10 Quiz Topics to Boost Your Knowledge This Summer',
     description:
-      'From world geography to movie trivia, here are the hottest quiz categories trending on BusQuiz right now.',
+      'From world geography to movie trivia, here are ten approachable topics for learning or creating a focused challenge.',
     date: '2026-06-15',
     author: 'BusQuiz Team',
     tags: ['trending', 'learning', 'recommendations'],
@@ -82,7 +82,7 @@ const blogPosts: BlogPost[] = [
 <p>Summer is a great time to sharpen your mind with some fun, competitive quizzing. These ten approachable topics are useful starting points when you want to broaden your knowledge or create a focused challenge.</p>
 
 <h2>1. World Geography</h2>
-<p>Map-based quizzes are exploding in popularity. Our new map-select question type lets you pinpoint countries, capitals, and landmarks on an interactive map. It's immersive, visual, and surprisingly addictive.</p>
+<p>Maps are a natural fit for visual quiz formats. Image hotspots can ask players to locate countries, capitals, regions, or landmarks instead of only recalling a name.</p>
 
 <h2>2. Movie Trivia</h2>
 <p>From classic films to the latest blockbusters, movie quizzes are consistently among the most played. Try our image-choice format for an extra challenge — can you name the film from a single frame?</p>
@@ -119,29 +119,29 @@ const blogPosts: BlogPost[] = [
     slug: 'duel-mode-guide',
     title: 'Duel Mode Deep Dive: How to Challenge Friends and Win',
     description:
-      'Everything you need to know about BusQuiz duels — from creating a challenge to mastering head-to-head strategy.',
+      'Everything you need to know about BusQuiz duels — from creating a room to reviewing the final answers.',
     date: '2026-06-10',
     author: 'BusQuiz Team',
     tags: ['duel', 'tutorial', 'features'],
     content: `
-<p>Duel Mode is one of the most exciting features on BusQuiz — real-time head-to-head quiz battles against your friends. Here's how to get started and dominate the competition.</p>
+<p>Duel Mode turns a quiz into a shared live challenge for two to ten players. Everyone receives the same questions, so the result comes down to how many each player answers correctly.</p>
 
 <h2>How to Start a Duel</h2>
-<p>Head to the Duel page from the navigation bar. Pick a category, set the number of questions, and you'll get a unique duel code. Share that code with a friend — they enter it on their side, and the battle begins.</p>
+<p>Head to the Duel page from the navigation bar. Choose a category, question count, time limit, and room size. BusQuiz creates a unique link and six-character code that you can share with the other players. The host starts the round when the lobby is ready.</p>
 
 <h2>How Duels Work</h2>
-<p>Both players answer the same set of questions simultaneously. You earn points for correct answers, with bonus points for speed. The player with the highest total score at the end wins. It's fast, fair, and intensely competitive.</p>
+<p>Every participant answers the same set of questions. Correct answers earn points; answering faster does not add a hidden score bonus. When everyone finishes, the final board ranks the scores and each player can review their own correct and incorrect answers.</p>
 
 <h2>Strategy Tips</h2>
-<p><strong>Speed matters:</strong> A correct fast answer scores more than a correct slow one. But don't rush — a wrong answer scores nothing. Find your sweet spot between speed and accuracy.</p>
+<p><strong>Accuracy comes first:</strong> The timer sets the pace, but a rushed mistake does not help your score. Read the whole prompt and compare every choice before answering.</p>
 <p><strong>Know your category:</strong> If you're challenging someone, pick a category you know well. If you're accepting a challenge, take a moment to warm up with a few solo quizzes in that category first.</p>
-<p><strong>Stay calm:</strong> Duels have a timer per question, but it's generous enough to think. Panic leads to mistakes. Read each question carefully — distractors are designed to trip up hasty players.</p>
+<p><strong>Stay calm:</strong> The host chooses the per-question limit. Use the available time and watch for plausible distractors before committing to an answer.</p>
 
 <h2>Duel Etiquette</h2>
 <p>Duels are meant to be fun! Celebrate close matches, rematch after a blowout, and don't take it too seriously. The best duels end with both players laughing and already queuing up the next one.</p>
 
-<h2>Coming Soon</h2>
-<p>We're working on tournament-style duels, team battles, and more. Stay tuned to the blog for updates!</p>
+<h2>Review and Rematch</h2>
+<p>After the duel ends, check the answer review to see what you missed. If the group wants another round, create a rematch with the same settings and a fresh question set.</p>
 `,
   },
   {
@@ -237,10 +237,10 @@ const blogPosts: BlogPost[] = [
 <p>Our platform is designed to be fast, responsive, and accessible. Whether you're on a desktop during lunch break or on your phone during your commute, BusQuiz delivers a smooth, engaging experience. No downloads required — just open your browser and start playing.</p>
 
 <h2>Create and Share</h2>
-<p>Have a topic you're passionate about? Our intuitive quiz creator lets you build quizzes with multiple question types: single choice, multiple choice, true/false, fill-in-the-blank, ordering, matching, categorization, and label-the-diagram. Publish your quiz and watch players from around the world take on your challenge.</p>
+<p>Have a topic you're passionate about? Quiz Studio supports choice, true-or-false, typed-answer, ordering, matching, grouping, number-guess, image-hotspot, audio, and other visual formats. Save a draft, preview it carefully, and submit it for administrator review when it is ready. Only approved quizzes are published.</p>
 
 <h2>Compete and Climb</h2>
-<p>Every quiz you play earns you XP, levels you up, and contributes to your global ranking. Challenge specific friends in head-to-head duels, or see how you stack up against the worldwide community on our leaderboards. Earn badges for milestones and show off your expertise.</p>
+<p>Signed-in play in eligible modes can earn XP, build streaks, unlock badges, and contribute to leaderboard progress. Create a live duel for up to ten players, or compare your results with the wider community.</p>
 
 <h2>What's Next</h2>
 <p>We're just getting started. Expect regular updates with new features, more quiz formats, seasonal events, and community-driven improvements. We built BusQuiz for the community, and we can't wait to see what you create.</p>
