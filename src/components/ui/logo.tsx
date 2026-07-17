@@ -8,7 +8,7 @@ export function Logo({ className }: LogoProps) {
   return (
     <svg
       viewBox="0 0 197.6 41.99"
-      className={cn('block h-6 w-[7.0625rem]', className)}
+      className={cn('block h-6 w-[7.0625rem] translate-y-px', className)}
       xmlns="http://www.w3.org/2000/svg"
       aria-label="BusQuiz"
       role="img"
