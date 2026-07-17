@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowUp, Cookie, Instagram, Twitter } from 'lucide-react'
+import { ArrowUp, Cookie, Instagram } from 'lucide-react'
 import { Logo } from '@/components/ui/logo'
+import { TikTokIcon, XIcon } from '@/components/ui/social-icons'
 import { ThemeToggle } from '@/components/theme/theme-toggle'
 import { openConsentSettings } from '@/lib/consent'
 
@@ -68,7 +69,7 @@ export function SiteFooter() {
                 rel="noopener noreferrer"
                 className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-border/60 bg-background/50 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
               >
-                <Twitter className="h-3.5 w-3.5" />
+                <XIcon className="h-3.5 w-3.5" />
               </a>
               <a
                 href="https://www.tiktok.com/@TheBusQuiz"
@@ -77,16 +78,7 @@ export function SiteFooter() {
                 rel="noopener noreferrer"
                 className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-border/60 bg-background/50 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
               >
-                <span className="inline-block h-3.5 w-3.5">
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    xmlns="http://www.w3.org/2000/svg"
-                    aria-hidden="true"
-                  >
-                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.23V2h-3.2v13.22a2.89 2.89 0 1 1-2-2.75V9.2a6.13 6.13 0 1 0 5.2 6.05V8.67a8.1 8.1 0 0 0 4.77 1.56V7.06c-.34 0-.67-.13-1-.37Z" />
-                  </svg>
-                </span>
+                <TikTokIcon className="h-3.5 w-3.5" />
               </a>
               <a
                 href="https://www.instagram.com/BusQuiz"

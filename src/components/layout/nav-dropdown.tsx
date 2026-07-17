@@ -9,11 +9,11 @@ import {
   Swords,
   PenLine,
   Sparkles,
-  Twitter,
   Instagram,
   ArrowRight,
   type LucideIcon,
 } from 'lucide-react'
+import { TikTokIcon, XIcon } from '@/components/ui/social-icons'
 import { cn } from '@/lib/utils'
 
 interface NavDropdownProps {
@@ -92,7 +92,8 @@ const SECTIONS: MenuSection[] = [
 ]
 
 const SOCIALS = [
-  { href: 'https://x.com/PlayBusQuiz', label: 'Twitter / X', icon: Twitter },
+  { href: 'https://x.com/PlayBusQuiz', label: 'Twitter / X', icon: XIcon },
+  { href: 'https://www.tiktok.com/@TheBusQuiz', label: 'TikTok', icon: TikTokIcon },
   { href: 'https://www.instagram.com/BusQuiz', label: 'Instagram', icon: Instagram },
 ]
 
