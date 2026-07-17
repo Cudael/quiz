@@ -24,6 +24,7 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   manifest: '/manifest.webmanifest',
+  verification: { other: { 'msvalidate.01': 'BE6A844F314CF52B498B14A2E191C0C1' } },
   ...(ADSENSE_PUBLISHER_ID ? { other: { 'google-adsense-account': ADSENSE_PUBLISHER_ID } } : {}),
   openGraph: {
     title: siteConfig.title,
