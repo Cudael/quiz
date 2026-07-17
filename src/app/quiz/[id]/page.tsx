@@ -38,7 +38,10 @@ const QUIZ_META_SELECT = {
   avgScore: true,
   category: true,
   author: { select: { id: true, username: true, image: true, role: true } },
-  questions: { select: { id: true, explanation: true } },
+  questions: {
+    select: { id: true, prompt: true, explanation: true },
+    orderBy: { order: 'asc' as const },
+  },
   reports: { where: { status: 'PENDING' as const }, select: { id: true }, take: 1 },
 } as const
 
@@ -145,6 +148,12 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
 
   const avgRating = ratingAgg._avg.stars ?? 0
   const ratingCount = ratingAgg._count.stars
+
+  const sampleQuestions = quiz.questions
+    .map((question) => question.prompt.trim())
+    .filter(Boolean)
+    .slice(0, 3)
+  const remainingQuestionCount = questionCount - sampleQuestions.length
 
   const quizJsonLd = {
     '@context': 'https://schema.org',
@@ -333,6 +342,38 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ id:
               />
             </div>
           </div>
+
+          {/* Sample questions — server-rendered preview (no answers) */}
+          {sampleQuestions.length > 0 && (
+            <section
+              aria-labelledby="sample-questions-heading"
+              className="rounded-md border bg-card p-4 sm:p-5"
+            >
+              <div className="mb-3 flex items-center gap-2">
+                <BookOpen className="h-5 w-5 text-quiz-purple-light" />
+                <h2 id="sample-questions-heading" className="text-lg font-bold">
+                  What you&apos;ll be asked
+                </h2>
+              </div>
+              <ol className="space-y-2">
+                {sampleQuestions.map((prompt, index) => (
+                  <li key={index} className="flex gap-3 rounded-md bg-muted/40 p-3">
+                    <span className="text-sm font-bold tabular-nums text-muted-foreground">
+                      {index + 1}.
+                    </span>
+                    <p className="text-sm leading-relaxed">{prompt}</p>
+                  </li>
+                ))}
+              </ol>
+              {remainingQuestionCount > 0 && (
+                <p className="mt-3 text-xs text-muted-foreground">
+                  …plus {remainingQuestionCount} more question
+                  {remainingQuestionCount === 1 ? '' : 's'} in the full quiz. Press Play to see them
+                  all and find out the answers.
+                </p>
+              )}
+            </section>
+          )}
 
           {/* Rating + Report */}
           <div className="rounded-md border p-4">

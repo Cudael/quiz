@@ -27,6 +27,7 @@ src/
     opengraph-image.tsx Dynamic OG image (homepage)
     analytics.tsx       Analytics integration
     ads.txt/            Conditional AdSense authorized-seller record
+    indexnow-key.txt/   Conditional IndexNow key-ownership proof (INDEXNOW_KEY)
     cookies/            Cookie/storage policy
     api/                API route handlers
       auth/             [...nextauth], forgot-password, register, resend-verification,
@@ -274,6 +275,8 @@ Functional PRs that change route contracts, endpoint behavior, or compatibility 
 - Internal search/filter variants use the base route as canonical and are `noindex,follow` where appropriate.
 - Quiz review submission and admin publication enforce the mechanical baseline in `src/domain/quiz-publication-quality.ts`; administrators must still review accuracy, originality, wording, and media rights. Public profiles and playlists enter the sitemap only when they contain at least 1 indexable quiz.
 - Reuse `src/lib/seo-metadata.ts` for bounded titles/descriptions and quiz indexability so page metadata and sitemap behavior stay consistent.
+- Quiz detail pages server-render up to 3 question prompts (never answers) as indexable content.
+- When `INDEXNOW_KEY` is set, admin quiz publish/unpublish/delete actions best-effort ping IndexNow (`src/server/indexnow.ts`) so Bing/Yandex re-crawl affected URLs; the key is served at `/indexnow-key.txt`.
 - Private gameplay, results, Studio, admin, authentication, personalized, and compatibility routes must remain `noindex`; relevant route families are also excluded in `robots.ts`.
 
 ## Environment Variables

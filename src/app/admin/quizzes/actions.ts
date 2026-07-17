@@ -7,6 +7,8 @@ import { prisma } from '@/server/prisma'
 import { formatCorrectAnswer } from '@/domain/format-correct-answer'
 import { factCheckQuestions, type FactCheckVerdict } from '@/server/fact-check-utils'
 import { HOME_STATIC_DATA_TAG } from '@/server/home-quiz-cache'
+import { notifyIndexNow } from '@/server/indexnow'
+import { getQuizPath } from '@/lib/quiz-url'
 import { getQuizPublicationQualityIssues } from '@/domain/quiz-publication-quality'
 
 type AdminActionResult = { ok: true } | { ok: false; message: string }
@@ -46,6 +48,7 @@ export async function toggleQuizPublished(
     where: { id: parsed.data.quizId },
     select: {
       id: true,
+      slug: true,
       description: true,
       questions: { select: { explanation: true } },
     },
@@ -86,6 +89,7 @@ export async function toggleQuizPublished(
   revalidatePath('/admin/quizzes/review-drafts')
   revalidatePath('/studio')
   revalidateTag(HOME_STATIC_DATA_TAG, 'max')
+  await notifyIndexNow([getQuizPath(quiz), '/', '/sitemap.xml'])
   return { ok: true }
 }
 
@@ -107,7 +111,7 @@ export async function deleteQuiz(formData: FormData): Promise<{ ok: boolean; mes
 
   const quiz = await prisma.quiz.findUnique({
     where: { id: parsed.data.quizId },
-    select: { id: true },
+    select: { id: true, slug: true },
   })
 
   if (!quiz) {
@@ -129,6 +133,7 @@ export async function deleteQuiz(formData: FormData): Promise<{ ok: boolean; mes
 
   revalidatePath('/admin/quizzes')
   revalidateTag(HOME_STATIC_DATA_TAG, 'max')
+  await notifyIndexNow([getQuizPath(quiz), '/sitemap.xml'])
   return { ok: true }
 }
 

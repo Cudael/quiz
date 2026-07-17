@@ -132,6 +132,7 @@ openssl rand -base64 32
 | `OPENAI_API_KEY`         | AI features | OpenAI API key (optional)                                 |
 | `BLOB_READ_WRITE_TOKEN`  | Uploads     | Vercel Blob token for image uploads                       |
 | `NEXT_PUBLIC_SITE_URL`   | Optional    | Public URL override (falls back to `VERCEL_URL`)          |
+| `INDEXNOW_KEY`           | Optional    | IndexNow key for instant Bing/Yandex re-crawl pings       |
 
 **Minimum required**: `DATABASE_URL` + `AUTH_SECRET`. Email/password auth works without any OAuth
 keys, but registration also needs `GMAIL_USER` + `GMAIL_APP_PASSWORD` because new accounts must

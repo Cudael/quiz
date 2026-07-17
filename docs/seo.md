@@ -24,11 +24,14 @@ indexed.
 1. Set `NEXT_PUBLIC_SITE_URL` to the final HTTPS production origin without a path.
 2. Verify `/robots.txt` and `/sitemap.xml` return the production hostname.
 3. Submit `/sitemap.xml` in Google Search Console and Bing Webmaster Tools.
-4. Inspect the homepage, one category, one eligible quiz, one ineligible quiz, one blog post, and
+4. Set `INDEXNOW_KEY` (any 8-128 char hex string) so quiz publish/unpublish/delete actions ping
+   IndexNow-enabled engines (Bing, Yandex) for instant re-crawl; verify `/indexnow-key.txt`
+   serves the key.
+5. Inspect the homepage, one category, one eligible quiz, one ineligible quiz, one blog post, and
    one public playlist with each search engine's URL inspection tool.
-5. Validate JSON-LD using Schema.org Validator and Google's Rich Results Test.
-6. Test Open Graph previews for the same representative pages.
-7. Monitor indexed-versus-submitted counts, duplicate canonical reports, Core Web Vitals, and 404s.
+6. Validate JSON-LD using Schema.org Validator and Google's Rich Results Test.
+7. Test Open Graph previews for the same representative pages.
+8. Monitor indexed-versus-submitted counts, duplicate canonical reports, Core Web Vitals, and 404s.
 
 ## Content maintenance
 
