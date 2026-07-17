@@ -17,12 +17,21 @@ export const metadata: Metadata = {
     description:
       'Play free quizzes across a growing range of topics. Create quizzes, compete on leaderboards, and earn badges.',
     url: absoluteUrl('/'),
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'BusQuiz social preview',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Free Online Quiz & Trivia Platform',
     description:
       'Play free quizzes across a growing range of topics. Create quizzes, compete on leaderboards, and earn badges.',
+    images: ['/og-image.png'],
   },
 }
 
@@ -37,7 +46,7 @@ export default function HomePage() {
         url: absoluteUrl('/'),
         logo: {
           '@type': 'ImageObject',
-          url: absoluteUrl('/icon-512-maskable.png'),
+          url: absoluteUrl('/google-logo.png'),
         },
         sameAs: ['https://x.com/PlayBusQuiz'],
       },

@@ -69,7 +69,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       url: absoluteUrl('/'),
       logo: {
         '@type': 'ImageObject',
-        url: absoluteUrl('/icon-512-maskable.png'),
+        url: absoluteUrl('/google-logo.png'),
       },
     },
     image: absoluteUrl(`/blog/${post.slug}/opengraph-image`),
