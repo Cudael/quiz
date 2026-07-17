@@ -82,7 +82,7 @@ export function Navbar() {
             href="/"
             className="flex items-center transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
           >
-            <Logo className="h-9 w-auto" />
+            <Logo />
           </Link>
         </div>
 

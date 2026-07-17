@@ -173,7 +173,7 @@ export function LeftMenu({ open, onClose }: LeftMenuProps) {
             onClick={onClose}
             className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
           >
-            <Logo className="h-7 w-auto" />
+            <Logo />
           </Link>
           <button
             onClick={onClose}

@@ -6,13 +6,14 @@ interface LogoProps {
 
 export function Logo({ className }: LogoProps) {
   return (
-    <img
-      src="/logo.svg"
-      alt="BusQuiz"
-      className={cn('h-9 w-auto', className)}
-      width={319}
-      height={84}
-      decoding="async"
+    <span
+      aria-label="BusQuiz"
+      role="img"
+      className={cn('block h-6 w-[7.0625rem] bg-foreground', className)}
+      style={{
+        mask: 'url(/logo.svg) center / contain no-repeat',
+        WebkitMask: 'url(/logo.svg) center / contain no-repeat',
+      }}
     />
   )
 }
