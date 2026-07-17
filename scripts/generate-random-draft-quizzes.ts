@@ -12,7 +12,7 @@ import {
 
 const prisma = new PrismaClient()
 
-type Topic = {
+export type Topic = {
   title: string
   categoryHints: string[]
   tags: string[]
@@ -67,7 +67,7 @@ function scrambled(word: string, seed: number) {
   return result === clean ? chars.reverse().join('') : result
 }
 
-const TOPICS: Topic[] = [
+export const TOPICS: Topic[] = [
   {
     title: 'World Geography',
     categoryHints: ['geography', 'capital', 'world', 'travel'],
@@ -453,6 +453,69 @@ const TOPICS: Topic[] = [
 const DIFFICULTIES: Difficulty[] = ['EASY', 'MEDIUM', 'HARD']
 const FORMATS = ALL_FORMATS
 
+const SEO_TITLE_BASES: Record<string, string[]> = {
+  'World Geography': [
+    'Capital Cities, Oceans, and Landmarks Quiz',
+    'Map Skills Trivia Challenge',
+    'Famous Places and Borders Quiz',
+    'Rivers, Deserts, and Peaks Quiz',
+    'Countries and Capitals Brain Test',
+  ],
+  'Science Basics': [
+    'Atoms, Cells, and Space Quiz',
+    'Periodic Table and Planets Challenge',
+    'Human Body and Lab Facts Quiz',
+    'Energy, Elements, and Life Quiz',
+    'Space, Cells, and Chemistry Test',
+  ],
+  'Pop Culture': [
+    'Movies, Music, and TV Quiz',
+    'Famous Films and Hit Songs Challenge',
+    'Screen Icons and Chart Toppers Quiz',
+    'Entertainment Trivia Brain Test',
+    'Characters, Albums, and Movie Quotes Quiz',
+  ],
+  'Sports Knowledge': [
+    'Rules, Records, and Champions Quiz',
+    'Games, Goals, and Greats Challenge',
+    'Medals, Matches, and Scoreboards Quiz',
+    'Stadium Trivia and Winning Moments',
+    'Athletes, Trophies, and Big Plays Quiz',
+  ],
+  'History Highlights': [
+    'Timelines, Leaders, and Turning Points Quiz',
+    'Empires, Inventions, and Revolutions Challenge',
+    'Ancient Worlds and Modern Milestones Quiz',
+    'Famous Dates and World Events Test',
+    'Explorers, Treaties, and Breakthroughs Quiz',
+  ],
+}
+
+const FORMAT_TITLE_LABELS: Record<QuizFormat, string> = {
+  TEXT_CHOICE: 'Multiple Choice',
+  IMAGE_CHOICE: 'Visual Choice',
+  IMAGE_HOTSPOT: 'Picture Hotspot',
+  ORDER: 'Ordering Challenge',
+  MATCH: 'Matching Challenge',
+  ODD_ONE_OUT: 'Odd One Out',
+  TYPE_ANSWER: 'Type the Answer',
+  NUMBER_GUESS: 'Number Guess',
+  IMAGE_REVEAL: 'Image Reveal',
+  AUDIO_CHOICE: 'Audio Round',
+  VERSUS: 'Head to Head',
+  CONNECTIONS: 'Connections Puzzle',
+  ANAGRAM: 'Anagram Round',
+  MEMORY_FLASH: 'Memory Flash',
+}
+
+export function makeSeoDraftTitle(topic: Topic, format: QuizFormat, sequence: number) {
+  const bases = SEO_TITLE_BASES[topic.title] ?? [`${topic.nouns.slice(0, 3).join(', ')} Quiz`]
+  const base = bases[sequence % bases.length]
+  const formatLabel = FORMAT_TITLE_LABELS[format]
+  const setNumber = Math.floor(sequence / (bases.length * FORMATS.length)) + 1
+  return setNumber > 1 ? `${base}: ${formatLabel} Set ${setNumber}` : `${base}: ${formatLabel}`
+}
+
 function makeChoiceQuestion(
   topic: Topic,
   factIndex: number,
@@ -509,7 +572,7 @@ function makeChoiceQuestion(
   }
 }
 
-function makeQuestion(topic: Topic, format: QuizFormat, index: number): GeneratedQuestion {
+export function makeQuestion(topic: Topic, format: QuizFormat, index: number): GeneratedQuestion {
   if (format === 'ORDER') {
     const set = topic.orderSets[index % topic.orderSets.length]
     return {
@@ -624,7 +687,7 @@ function makeQuiz(
     makeQuestion(topic, format, sequence + index)
   )
   const label = format.replace(/_/g, ' ').toLowerCase()
-  const title = `${topic.title}: ${label} draft ${sequence + 1}`
+  const title = makeSeoDraftTitle(topic, format, sequence)
   return {
     title,
     categoryId,
@@ -725,9 +788,11 @@ async function main() {
   console.log(`Done. Created ${created} draft quizzes.`)
 }
 
-main()
-  .catch((error) => {
-    console.error('Draft generation failed:', error)
-    process.exit(1)
-  })
-  .finally(() => prisma.$disconnect())
+if (require.main === module) {
+  main()
+    .catch((error) => {
+      console.error('Draft generation failed:', error)
+      process.exit(1)
+    })
+    .finally(() => prisma.$disconnect())
+}
