@@ -6,14 +6,14 @@ import { absoluteUrl } from '@/lib/site'
 import { serializeJsonLd } from '@/lib/seo'
 
 export const metadata: Metadata = {
-  title: 'Free Online Quiz & Trivia Platform',
+  title: 'BusQuiz — Free Online Quiz & Trivia Platform',
   description:
     'Play free quizzes across a growing range of topics. Create quizzes, compete on leaderboards, and earn badges.',
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'Free Online Quiz & Trivia Platform',
+    title: 'BusQuiz — Free Online Quiz & Trivia Platform',
     description:
       'Play free quizzes across a growing range of topics. Create quizzes, compete on leaderboards, and earn badges.',
     url: absoluteUrl('/'),
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Free Online Quiz & Trivia Platform',
+    title: 'BusQuiz — Free Online Quiz & Trivia Platform',
     description:
       'Play free quizzes across a growing range of topics. Create quizzes, compete on leaderboards, and earn badges.',
     images: ['/og-image.png'],
