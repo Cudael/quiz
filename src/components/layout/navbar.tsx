@@ -81,7 +81,8 @@ export function Navbar() {
             href="/"
             className="flex items-center transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
           >
-            <Logo />
+            {/* Extra nudge over the logo's default 1px so it lines up with the menu icon */}
+            <Logo className="translate-y-0.75" />
           </Link>
         </div>
 
