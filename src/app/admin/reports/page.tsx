@@ -51,6 +51,9 @@ export default async function AdminReportsPage({
             author: { select: { username: true } },
           },
         },
+        question: {
+          select: { id: true, prompt: true },
+        },
         reporter: { select: { username: true } },
       },
       orderBy: { createdAt: 'desc' },
@@ -110,6 +113,7 @@ export default async function AdminReportsPage({
                     <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                       <Badge variant="outline">{report.reason}</Badge>
                       {report.comment ? <Badge variant="purple">Comment</Badge> : null}
+                      {report.question ? <Badge variant="warning">Question report</Badge> : null}
                       <span>
                         by{' '}
                         {report.reporter?.username ? (
@@ -139,6 +143,11 @@ export default async function AdminReportsPage({
                             Hidden
                           </Badge>
                         ) : null}
+                      </blockquote>
+                    ) : null}
+                    {report.question ? (
+                      <blockquote className="rounded-md border-l-2 border-border bg-muted/40 px-3 py-2 text-sm">
+                        <span className="font-medium">Question:</span> {report.question.prompt}
                       </blockquote>
                     ) : null}
                   </div>

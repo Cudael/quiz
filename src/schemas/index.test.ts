@@ -202,6 +202,16 @@ describe('reportSchema', () => {
     })
     expect(result.success).toBe(false)
   })
+
+  it('requires useful details when reporting a specific question', () => {
+    const result = reportSchema.safeParse({
+      quizId: 'ckq6xdr2w0000u3z5f6l6x4t5',
+      questionId: 'ckq6xdr2w0001u3z5f6l6x4t6',
+      reason: 'INCORRECT_ANSWERS',
+      details: 'bad',
+    })
+    expect(result.success).toBe(false)
+  })
 })
 
 describe('categorySuggestionSchema', () => {

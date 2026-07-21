@@ -268,7 +268,11 @@ export default async function ResultsPage({
       )}
 
       <div id="question-breakdown" className="scroll-mt-24">
-        <QuestionBreakdown questions={sessionRow.quiz.questions} answers={sessionRow.answers} />
+        <QuestionBreakdown
+          quizId={id}
+          questions={sessionRow.quiz.questions}
+          answers={sessionRow.answers}
+        />
       </div>
 
       {/* Rating */}

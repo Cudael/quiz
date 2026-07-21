@@ -279,11 +279,22 @@ export const ratingSchema = z.object({
   stars: z.number().int().min(1).max(5),
 })
 
-export const reportSchema = z.object({
-  quizId: z.string().cuid(),
-  reason: z.enum(['SPAM', 'INAPPROPRIATE', 'INCORRECT_ANSWERS', 'COPYRIGHT', 'OTHER']),
-  details: z.string().trim().max(500).optional(),
-})
+export const reportSchema = z
+  .object({
+    quizId: z.string().cuid(),
+    questionId: z.string().cuid().optional(),
+    reason: z.enum(['SPAM', 'INAPPROPRIATE', 'INCORRECT_ANSWERS', 'COPYRIGHT', 'OTHER']),
+    details: z.string().trim().max(500).optional(),
+  })
+  .superRefine((value, context) => {
+    if (value.questionId && (!value.details || value.details.length < 5)) {
+      context.addIssue({
+        code: 'custom',
+        path: ['details'],
+        message: 'Please briefly describe what seems wrong.',
+      })
+    }
+  })
 
 export const commentSchema = z.object({
   quizId: z.string().cuid(),

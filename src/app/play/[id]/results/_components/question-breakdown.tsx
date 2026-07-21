@@ -4,11 +4,13 @@ import { useState } from 'react'
 import Image from 'next/image'
 import { CheckCircle2, MinusCircle, XCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ReportQuizForm } from '@/app/quiz/report-quiz-form'
 import { copy } from '@/lib/copy'
 import { imageLoader } from '../../play-view.utils'
 import type { ResultAnswer, ResultChoice, ResultQuestion } from '../results.types'
 
 interface QuestionBreakdownProps {
+  quizId: string
   questions: ResultQuestion[]
   answers: ResultAnswer[]
 }
@@ -160,7 +162,7 @@ function isChoiceCorrect(
   return choice.isCorrect
 }
 
-export function QuestionBreakdown({ questions, answers }: QuestionBreakdownProps) {
+export function QuestionBreakdown({ quizId, questions, answers }: QuestionBreakdownProps) {
   const [filter, setFilter] = useState<'all' | 'incorrect'>('all')
   const answersByQuestionId = new Map(answers.map((answer) => [answer.questionId, answer]))
   const incorrectCount = questions.filter((question) => {
@@ -377,6 +379,14 @@ export function QuestionBreakdown({ questions, answers }: QuestionBreakdownProps
               {q.explanation && (
                 <p className="mt-1 pl-7 text-xs italic text-muted-foreground">{q.explanation}</p>
               )}
+              <div className="mt-3 flex justify-end">
+                <ReportQuizForm
+                  quizId={quizId}
+                  questionId={q.id}
+                  questionPrompt={q.prompt}
+                  compact
+                />
+              </div>
             </div>
           )
         })}

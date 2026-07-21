@@ -189,7 +189,7 @@ User, Category, Quiz, Question, Choice, PlaySession, QuestionAnswer, Duel, DuelP
 
 ### Key enums
 
-Role (USER/ADMIN), Difficulty (EASY/MEDIUM/HARD), QuizReviewStatus (DRAFT/PENDING/APPROVED/REJECTED), QuestionType (SINGLE/TRUEFALSE/FILL_BLANK/HOTSPOT/ORDER/MATCH/NUMBER_GUESS/GROUPS), QuizFormat (TEXT_CHOICE/IMAGE_CHOICE/IMAGE_HOTSPOT/ORDER/MATCH/ODD_ONE_OUT/TYPE_ANSWER/NUMBER_GUESS/IMAGE_REVEAL/AUDIO_CHOICE/VERSUS/CONNECTIONS/ANAGRAM/MEMORY_FLASH), DuelStatus (WAITING/IN_PROGRESS/FINISHED), PlayMode (STANDARD/DAILY/PRACTICE/BLITZ), ReportReason, ReportStatus (reports can target quizzes or comments), SuggestionStatus, NotificationType, FeedbackType, FeedbackStatus, QuestPeriod.
+Role (USER/ADMIN), Difficulty (EASY/MEDIUM/HARD), QuizReviewStatus (DRAFT/PENDING/APPROVED/REJECTED), QuestionType (SINGLE/TRUEFALSE/FILL_BLANK/HOTSPOT/ORDER/MATCH/NUMBER_GUESS/GROUPS), QuizFormat (TEXT_CHOICE/IMAGE_CHOICE/IMAGE_HOTSPOT/ORDER/MATCH/ODD_ONE_OUT/TYPE_ANSWER/NUMBER_GUESS/IMAGE_REVEAL/AUDIO_CHOICE/VERSUS/CONNECTIONS/ANAGRAM/MEMORY_FLASH), DuelStatus (WAITING/IN_PROGRESS/FINISHED), PlayMode (STANDARD/DAILY/PRACTICE/BLITZ), ReportReason, ReportStatus (reports can target quizzes, comments, or specific questions), SuggestionStatus, NotificationType, FeedbackType, FeedbackStatus, QuestPeriod.
 
 ### Quiz publication review
 

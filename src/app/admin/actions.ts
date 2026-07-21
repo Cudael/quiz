@@ -163,6 +163,7 @@ export async function resolveReport(formData: FormData): Promise<AdminResult> {
         meta: {
           quizId: report.quizId,
           ...(report.commentId ? { commentId: report.commentId } : {}),
+          ...(report.questionId ? { questionId: report.questionId } : {}),
         },
       },
     })

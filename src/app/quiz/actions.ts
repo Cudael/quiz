@@ -62,6 +62,7 @@ export async function reportQuiz(formData: FormData): Promise<ReportResult> {
 
   const parsed = reportSchema.safeParse({
     quizId: formData.get('quizId'),
+    questionId: formData.get('questionId') || undefined,
     reason: formData.get('reason'),
     details: formData.get('details') || undefined,
   })
@@ -70,10 +71,25 @@ export async function reportQuiz(formData: FormData): Promise<ReportResult> {
     return { ok: false, error: 'VALIDATION_ERROR', message: 'Invalid report payload.' }
   }
 
+  if (parsed.data.questionId) {
+    const question = await prisma.question.findFirst({
+      where: { id: parsed.data.questionId, quizId: parsed.data.quizId },
+      select: { id: true },
+    })
+    if (!question) {
+      return {
+        ok: false,
+        error: 'VALIDATION_ERROR',
+        message: 'That question does not belong to this quiz.',
+      }
+    }
+  }
+
   const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
   const existing = await prisma.report.findFirst({
     where: {
       quizId: parsed.data.quizId,
+      questionId: parsed.data.questionId ?? null,
       reporterId: session.user.id,
       createdAt: { gte: dayAgo },
     },
@@ -83,13 +99,16 @@ export async function reportQuiz(formData: FormData): Promise<ReportResult> {
     return {
       ok: false,
       error: 'RATE_LIMIT',
-      message: 'You can report this quiz once every 24 hours.',
+      message: parsed.data.questionId
+        ? 'You already reported this question recently.'
+        : 'You can report this quiz once every 24 hours.',
     }
   }
 
   await prisma.report.create({
     data: {
       quizId: parsed.data.quizId,
+      questionId: parsed.data.questionId,
       reporterId: session.user.id,
       reason: parsed.data.reason,
       details: parsed.data.details,

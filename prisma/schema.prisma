@@ -234,6 +234,7 @@ model Question {
 
   choices Choice[]
   answers QuestionAnswer[]
+  reports Report[]
 
   @@index([quizId])
 }
@@ -432,6 +433,8 @@ model Report {
   quiz         Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
   commentId    String?
   comment      QuizComment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  questionId   String?
+  question     Question?    @relation(fields: [questionId], references: [id], onDelete: Cascade)
   reporterId   String?
   reporter     User?        @relation("ReportedBy", fields: [reporterId], references: [id])
   reason       ReportReason
@@ -443,6 +446,7 @@ model Report {
 
   @@index([quizId])
   @@index([commentId])
+  @@index([questionId])
   @@index([status])
 }
 
