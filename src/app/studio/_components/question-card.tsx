@@ -1,10 +1,11 @@
 'use client'
 
 import * as React from 'react'
-import { ChevronDown, ChevronUp, GripVertical, Trash2 } from 'lucide-react'
+import { ChevronDown, ChevronUp, GripVertical, Search, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Modal } from '@/components/ui/modal'
+import { ImageSearchDialog } from './image-search-dialog'
 import { ImageUpload } from './image-upload'
 import { useQuestionCard } from './use-question-card'
 import {
@@ -39,6 +40,7 @@ export function QuestionCard({
   onRemove,
 }: QuestionCardProps) {
   const quizFormat = useQuizCreatorStore((state) => state.quizFormat)
+  const [imageSearchChoiceId, setImageSearchChoiceId] = React.useState<string | null>(null)
   const {
     open,
     setOpen,
@@ -53,6 +55,9 @@ export function QuestionCard({
     removeChoice,
     setCorrect,
   } = useQuestionCard({ question, index, quizId, onUpdate, onRemove })
+  const imageSearchChoice = question.choices.find(
+    (choice) => choice.localId === imageSearchChoiceId
+  )
 
   return (
     <div className="rounded-md border bg-card">
@@ -147,7 +152,7 @@ export function QuestionCard({
                 <p className="block text-sm font-medium">Choices</p>
                 <p className="text-xs text-muted-foreground">
                   {quizFormat === 'IMAGE_CHOICE'
-                    ? 'Upload an image for each choice, then select the correct one.'
+                    ? 'Upload or find an Unsplash image for each choice, then select the correct one.'
                     : quizFormat === 'ODD_ONE_OUT'
                       ? 'Add the items, then mark the odd one out as the correct answer.'
                       : 'Fill in all the choices, then select the radio button next to the correct one.'}
@@ -183,6 +188,17 @@ export function QuestionCard({
                           value={choice.imageUrl}
                           onChange={(url) => updateChoice(choice.localId, { imageUrl: url })}
                         />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          onClick={() => setImageSearchChoiceId(choice.localId)}
+                          aria-label={`Find Unsplash image for choice ${i + 1}`}
+                        >
+                          <Search className="h-3.5 w-3.5" />
+                          Find on Unsplash
+                        </Button>
                         <input
                           type="text"
                           value={choice.text}
@@ -219,6 +235,16 @@ export function QuestionCard({
                   + Add choice
                 </Button>
               </div>
+
+              {imageSearchChoice && (
+                <ImageSearchDialog
+                  open
+                  onClose={() => setImageSearchChoiceId(null)}
+                  onSelect={(url) => updateChoice(imageSearchChoice.localId, { imageUrl: url })}
+                  defaultQuery={imageSearchChoice.text.trim() || question.prompt.trim()}
+                  description={question.prompt.trim() || undefined}
+                />
+              )}
             </div>
           )}
 
