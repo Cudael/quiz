@@ -156,17 +156,24 @@ interface PlayTokenPayload {
   quizId: string
   issuedAt: number
   nonce: string
+  mode?: PlayTokenMode
 }
+
+export type PlayTokenMode = 'STANDARD' | 'DAILY' | 'PRACTICE' | 'BLITZ'
 
 /**
  * Sign a play token embedding quizId, issuedAt timestamp, and a random nonce.
  * Returns a dot-separated string: `<payload_b64>.<sig_b64>`
  */
-export async function signPlayToken(quizId: string): Promise<string> {
+export async function signPlayToken(
+  quizId: string,
+  mode: PlayTokenMode = 'STANDARD'
+): Promise<string> {
   const payload: PlayTokenPayload = {
     quizId,
     issuedAt: Date.now(),
     nonce: crypto.randomUUID(),
+    mode,
   }
   const payloadStr = JSON.stringify(payload)
   const payloadB64 = Buffer.from(payloadStr).toString('base64url')
@@ -184,7 +191,7 @@ export async function signPlayToken(quizId: string): Promise<string> {
 export async function verifyPlayTokenSignature(
   token: string,
   expectedQuizId: string
-): Promise<{ valid: boolean; quizId?: string }> {
+): Promise<{ valid: boolean; quizId?: string; mode?: PlayTokenMode }> {
   try {
     const [payloadB64, sigB64] = token.split('.')
     if (!payloadB64 || !sigB64) return { valid: false }
@@ -200,7 +207,7 @@ export async function verifyPlayTokenSignature(
     if (payload.quizId !== expectedQuizId) return { valid: false }
     if (!payload.nonce) return { valid: false }
 
-    return { valid: true, quizId: payload.quizId }
+    return { valid: true, quizId: payload.quizId, mode: payload.mode }
   } catch {
     return { valid: false }
   }
@@ -213,7 +220,7 @@ export async function verifyPlayTokenSignature(
 export async function verifyPlayToken(
   token: string,
   expectedQuizId: string
-): Promise<{ valid: boolean; quizId?: string }> {
+): Promise<{ valid: boolean; quizId?: string; mode?: PlayTokenMode }> {
   try {
     const [payloadB64, sigB64] = token.split('.')
     if (!payloadB64 || !sigB64) return { valid: false }
@@ -233,7 +240,7 @@ export async function verifyPlayToken(
     const expiresAt = payload.issuedAt + TOKEN_TTL_MS
     if (!(await consumeNonce(payload.nonce, expiresAt))) return { valid: false }
 
-    return { valid: true, quizId: payload.quizId }
+    return { valid: true, quizId: payload.quizId, mode: payload.mode }
   } catch {
     return { valid: false }
   }

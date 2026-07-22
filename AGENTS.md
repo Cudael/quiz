@@ -204,7 +204,7 @@ quizzes are backfilled as `APPROVED` by the migration.
 
 - `QuizFormat` is an editor-side concern (which Studio editor UI is used); `QuestionType` + `Question.meta`/`Choice.meta` drive play rendering and scoring.
 - Format → type mapping: ORDER→ORDER (choices carry `meta.position`, assigned from editor order at save), MATCH→MATCH (`meta.side` 'L'/'R' + `meta.matchKey`), CONNECTIONS→GROUPS (`meta.groupKey` per tile, `Question.meta.groups`), NUMBER_GUESS→NUMBER_GUESS (`Question.meta` {answer,min,max,tolerance,unit}), TYPE_ANSWER/ANAGRAM→FILL_BLANK (`Question.meta.acceptedAnswers`, optional `fuzzy`, `anagram: true` for tiles; list mode via `meta.answers`), ODD_ONE_OUT/IMAGE_REVEAL (`meta.reveal`)/AUDIO_CHOICE (`meta.audioUrl`)/VERSUS (`Choice.meta.value`, higher auto-correct)/MEMORY_FLASH (`meta.studyText|studyImageUrl|studyDurationMs`)→SINGLE.
-- Server-authoritative evaluation for all types lives in `src/domain/evaluate-answer.ts` (used by `POST /api/play/submit`). ORDER/MATCH/GROUPS/NUMBER_GUESS/list-FILL_BLANK earn partial credit (0..1); `scoreQuestion` awards `round(10*credit)` with no speed bonus; `QuestionAnswer.isCorrect`/`correctCount` require credit === 1. `Question.points` is reserved for a future weighted-scoring migration and is not currently applied.
+- Server-authoritative evaluation for all types lives in `src/domain/evaluate-answer.ts` (used by `POST /api/play/submit`). ORDER/MATCH/GROUPS/NUMBER_GUESS/list-FILL_BLANK earn partial credit (0..1). `scoreQuestion` awards 10 base points plus up to 5 for answering quickly, then applies a 20% BLITZ multiplier; partial credit scales the combined score. `QuestionAnswer.isCorrect`/`correctCount` require credit === 1. `Question.points` is reserved for a future weighted-scoring migration and is not currently applied.
 - `submitAnswerInputSchema` accepts `choiceIds` (ordered for ORDER), `textAnswer`, `textAnswers`, `numberAnswer`, `pairs`, `groups`. Non-choice answers are persisted encoded in `QuestionAnswer.chosenIds` (MATCH: `left::right`, GROUPS: `id|id|…`, NUMBER_GUESS: the guess, FILL_BLANK: given text).
 - Survival and duel question pools exclude interactive types (`ORDER`, `MATCH`, `NUMBER_GUESS`, `GROUPS`, `FILL_BLANK`) — they render plain choice grids.
 
@@ -346,7 +346,7 @@ Pure business logic in `src/domain/` (no framework dependencies):
 
 ### Play modes
 
-`PlaySession.mode` (PlayMode enum): STANDARD (default), DAILY (validated against today's `DailyQuiz` pick, downgraded to STANDARD on mismatch), PRACTICE (serves previously missed questions; no XP/streak/badges/quests, excluded from quiz aggregates and leaderboards), BLITZ (60-second quiz-level timer, normal rewards). Clients pass `?mode=` to `/play/[id]`, `GET /api/quiz/[id]/play`, and `mode` in the `POST /api/play/submit` body (legacy values like `classic` are ignored via `.catch(undefined)` — do not remove).
+`PlaySession.mode` (PlayMode enum): STANDARD (default), DAILY (validated against today's `DailyQuiz` pick, downgraded to STANDARD on mismatch), PRACTICE (serves previously missed questions; no XP/streak/badges/quests, excluded from quiz aggregates and leaderboards), BLITZ (60-second quiz-level timer and 20% score multiplier, normal rewards). Play tokens bind the requested mode so a submission cannot claim the BLITZ multiplier after starting another mode. Clients pass `?mode=` to `/play/[id]`, `GET /api/quiz/[id]/play`, and `mode` in the `POST /api/play/submit` body (legacy values like `classic` are ignored via `.catch(undefined)` — do not remove).
 
 ### Gamification services (src/server/)
 

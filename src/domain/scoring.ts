@@ -15,18 +15,50 @@ interface ScoreQuestionParams {
   correct?: boolean
   /** Partial credit 0..1 (overrides `correct` when provided). */
   credit?: number
+  /** Time spent answering. A valid value enables the speed bonus. */
+  timeTakenMs?: number
+  /** Question time limit used to calculate the remaining-time ratio. */
+  timeLimitMs?: number
+  mode?: 'STANDARD' | 'DAILY' | 'PRACTICE' | 'BLITZ'
 }
+
+const BASE_POINTS = 10
+const MAX_SPEED_BONUS = 5
+const BLITZ_MULTIPLIER = 1.2
 
 /**
  * Compute per-question score.
- * Flat 10 points per fully-correct answer, proportional for partial-credit
- * question types (ORDER, MATCH, GROUPS, NUMBER_GUESS, list-mode FILL_BLANK),
- * 0 for wrong. `Question.points` is intentionally not accepted here: changing
- * to weighted questions requires a data and leaderboard migration.
+ * A fully-correct answer earns 10 base points plus up to 5 points based on the
+ * percentage of question time remaining. Blitz applies a 20% multiplier after
+ * the speed bonus. Partial-credit question types earn the same proportion of
+ * the combined score; wrong answers always earn 0.
+ *
+ * `Question.points` is intentionally not accepted here: changing to weighted
+ * questions requires a data and leaderboard migration.
  */
-export function scoreQuestion({ correct, credit }: ScoreQuestionParams): number {
+export function scoreQuestion({
+  correct,
+  credit,
+  timeTakenMs,
+  timeLimitMs,
+  mode = 'STANDARD',
+}: ScoreQuestionParams): number {
   const effectiveCredit = Math.min(1, Math.max(0, credit ?? (correct ? 1 : 0)))
-  return Math.round(10 * effectiveCredit)
+  if (effectiveCredit === 0) return 0
+
+  const hasValidTiming =
+    Number.isFinite(timeTakenMs) &&
+    Number.isFinite(timeLimitMs) &&
+    timeTakenMs !== undefined &&
+    timeLimitMs !== undefined &&
+    timeLimitMs > 0
+  const remainingRatio = hasValidTiming
+    ? 1 - Math.min(1, Math.max(0, timeTakenMs / timeLimitMs))
+    : 0
+  const pointsBeforeMode = (BASE_POINTS + MAX_SPEED_BONUS * remainingRatio) * effectiveCredit
+  const modeMultiplier = mode === 'BLITZ' ? BLITZ_MULTIPLIER : 1
+
+  return Math.round(pointsBeforeMode * modeMultiplier)
 }
 
 // ---------------------------------------------------------------------------

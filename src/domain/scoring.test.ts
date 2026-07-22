@@ -35,6 +35,33 @@ describe('scoreQuestion', () => {
   it('clamps negative credit to 0', () => {
     expect(scoreQuestion({ credit: -0.5 })).toBe(0)
   })
+
+  it('awards more points for a faster correct answer', () => {
+    expect(scoreQuestion({ correct: true, timeTakenMs: 2_000, timeLimitMs: 20_000 })).toBe(15)
+    expect(scoreQuestion({ correct: true, timeTakenMs: 10_000, timeLimitMs: 20_000 })).toBe(13)
+    expect(scoreQuestion({ correct: true, timeTakenMs: 20_000, timeLimitMs: 20_000 })).toBe(10)
+  })
+
+  it('applies speed scoring proportionally to partial credit', () => {
+    expect(scoreQuestion({ credit: 0.5, timeTakenMs: 0, timeLimitMs: 20_000 })).toBe(8)
+  })
+
+  it('awards a 20% Blitz bonus after the speed bonus', () => {
+    expect(
+      scoreQuestion({
+        correct: true,
+        timeTakenMs: 10_000,
+        timeLimitMs: 20_000,
+        mode: 'BLITZ',
+      })
+    ).toBe(15)
+    expect(scoreQuestion({ correct: true, mode: 'BLITZ' })).toBe(12)
+  })
+
+  it('clamps invalid timing so it cannot exceed the maximum speed bonus', () => {
+    expect(scoreQuestion({ correct: true, timeTakenMs: -5_000, timeLimitMs: 20_000 })).toBe(15)
+    expect(scoreQuestion({ correct: true, timeTakenMs: 50_000, timeLimitMs: 20_000 })).toBe(10)
+  })
 })
 
 describe('xpForLevel', () => {

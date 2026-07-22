@@ -7,6 +7,7 @@ import { usePlaySessionStore } from '@/store/play-session'
 import type { AnswerExtras } from '@/store/play-session'
 import { copy } from '@/lib/copy'
 import { getQuizPath } from '@/lib/quiz-url'
+import { scoreQuestion } from '@/domain/scoring'
 import type { AnswerFeedback, Question, QuizData } from './play-view.types'
 import { getSoundPreference, SOUND_PREFERENCE_STORAGE_KEY } from './play-view.utils'
 
@@ -158,7 +159,14 @@ export function usePlayRunner(quizId: string, mode?: 'DAILY' | 'PRACTICE' | 'BLI
             return
           }
           setFeedbackByQuestion((prev) => ({ ...prev, [questionId]: data }))
-          store.addScore(Math.round(100 * data.credit))
+          store.addScore(
+            scoreQuestion({
+              credit: data.credit,
+              timeTakenMs,
+              timeLimitMs: currentQuestion.timeLimitSec * 1000,
+              mode: mode ?? 'STANDARD',
+            })
+          )
         })
         .catch(() => {
           // Feedback stays hidden; the results page still shows the full
@@ -262,6 +270,7 @@ export function usePlayRunner(quizId: string, mode?: 'DAILY' | 'PRACTICE' | 'BLI
     const currentQuestionId = currentQuestion?.id ?? null
     if (currentQuestionId === prevQuestionIdRef.current) return
     prevQuestionIdRef.current = currentQuestionId
+    questionStartRef.current = Date.now()
     setQuestionUI({ selectedChoiceIds: [], hiddenChoiceIds: [], textAnswer: '' })
   }, [currentQuestion?.id])
 
@@ -349,7 +358,13 @@ export function usePlayRunner(quizId: string, mode?: 'DAILY' | 'PRACTICE' | 'BLI
       try {
         const res = await fetch(
           `/api/quiz/${quizId}/play${
-            mode === 'PRACTICE' ? '?mode=practice' : mode === 'BLITZ' ? '?mode=blitz' : ''
+            mode === 'PRACTICE'
+              ? '?mode=practice'
+              : mode === 'BLITZ'
+                ? '?mode=blitz'
+                : mode === 'DAILY'
+                  ? '?mode=daily'
+                  : ''
           }`
         )
         if (!res.ok) throw new Error('Failed to load quiz')

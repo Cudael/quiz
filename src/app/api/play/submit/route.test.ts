@@ -124,6 +124,7 @@ describe('POST /api/play/submit', () => {
     await expect(response.json()).resolves.toEqual(
       expect.objectContaining({
         sessionId: 'session-1',
+        score: 14,
         correctCount: 1,
         totalCount: 1,
       })
@@ -141,6 +142,36 @@ describe('POST /api/play/submit', () => {
       ],
     })
     expect(txMock.$executeRaw).toHaveBeenCalledTimes(1)
+  })
+
+  it('uses the token-bound Blitz mode and awards its score multiplier', async () => {
+    verifyPlayTokenMock.mockResolvedValue({ valid: true, mode: 'BLITZ' })
+    prismaMock.quiz.findUnique.mockResolvedValue({
+      id: 'quiz-1',
+      questions: [
+        {
+          id: 'question-1',
+          type: 'SINGLE',
+          timeLimitSec: 20,
+          choices: [{ id: 'choice-1', text: 'Mercury', isCorrect: true }],
+        },
+      ],
+    })
+
+    const response = await POST(
+      createRequest({
+        playToken: 'token',
+        quizId: 'quiz-1',
+        answers: [{ questionId: 'question-1', choiceIds: ['choice-1'], timeTakenMs: 2500 }],
+      })
+    )
+
+    await expect(response.json()).resolves.toEqual(
+      expect.objectContaining({ score: 17, xpEarned: 17 })
+    )
+    expect(txMock.playSession.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ mode: 'BLITZ', score: 17 }),
+    })
   })
 
   it('rejects a request with missing required fields', async () => {

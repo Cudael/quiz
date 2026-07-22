@@ -35,6 +35,7 @@ describe('signPlayToken', () => {
     expect(payload.quizId).toBe('quiz-abc')
     expect(payload.issuedAt).toBeTypeOf('number')
     expect(payload.nonce).toBeTypeOf('string')
+    expect(payload.mode).toBe('STANDARD')
     expect(payload.nonce.length).toBeGreaterThan(0)
   })
 })
@@ -44,7 +45,18 @@ describe('verifyPlayToken', () => {
     const { signPlayToken, verifyPlayToken } = await import('@/server/play-token')
     const token = await signPlayToken('quiz-1')
     const result = await verifyPlayToken(token, 'quiz-1')
-    expect(result).toEqual({ valid: true, quizId: 'quiz-1' })
+    expect(result).toEqual({ valid: true, quizId: 'quiz-1', mode: 'STANDARD' })
+  })
+
+  it('binds a requested play mode into the signed token', async () => {
+    const { signPlayToken, verifyPlayToken } = await import('@/server/play-token')
+    const token = await signPlayToken('quiz-blitz', 'BLITZ')
+
+    await expect(verifyPlayToken(token, 'quiz-blitz')).resolves.toEqual({
+      valid: true,
+      quizId: 'quiz-blitz',
+      mode: 'BLITZ',
+    })
   })
 
   it('rejects when the quizId does not match', async () => {

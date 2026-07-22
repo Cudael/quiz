@@ -45,7 +45,8 @@ export async function POST(req: NextRequest) {
   }
 
   // DAILY mode is only valid for today's daily pick; otherwise fall back to STANDARD.
-  let sessionMode: 'STANDARD' | 'DAILY' | 'PRACTICE' | 'BLITZ' = mode ?? 'STANDARD'
+  let sessionMode: 'STANDARD' | 'DAILY' | 'PRACTICE' | 'BLITZ' =
+    tokenResult.mode ?? mode ?? 'STANDARD'
   if (sessionMode === 'DAILY') {
     const todayKey = new Date().toISOString().slice(0, 10)
     const dailyPick = await prisma.dailyQuiz.findUnique({
@@ -141,7 +142,12 @@ export async function POST(req: NextRequest) {
       correctCount++
     }
     if (credit > 0 && !previouslyCorrectIds.has(question.id)) {
-      score += scoreQuestion({ credit })
+      score += scoreQuestion({
+        credit,
+        timeTakenMs,
+        timeLimitMs,
+        mode: sessionMode,
+      })
     }
   }
 

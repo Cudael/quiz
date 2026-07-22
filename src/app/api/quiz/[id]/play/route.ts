@@ -74,7 +74,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     }
   }
 
-  const playToken = await signPlayToken(quiz.id)
+  const tokenMode =
+    requestedMode === 'practice'
+      ? 'PRACTICE'
+      : requestedMode === 'blitz'
+        ? 'BLITZ'
+        : requestedMode === 'daily'
+          ? 'DAILY'
+          : 'STANDARD'
+  const playToken = await signPlayToken(quiz.id, tokenMode)
 
   return NextResponse.json({
     quiz: {
